@@ -95,7 +95,8 @@ try {
   assert.match(authoring!.why, /Coverage rows the request demands/, 'run 29: the authoring Why names the coverage rows');
   assert.ok(authoring!.why.includes('"Use the same index-selection semantics as read slicing."'), 'run 29: the Why lists the matched request sentence');
   const update = (authoring!.batch ?? []).find(call => call.cli.command === 'checklist_update' && call.cli.payload.itemId === 'CHK-003');
-  const edge = ((update?.cli.payload.verificationIntent as { edge?: Array<Record<string, unknown>> } | undefined)?.edge ?? []);
+  // Lab initplan: the authoring batch is a row patch; the coverage rows are appended to edge (`CHK-003:edge:+`).
+  const edge = ((update?.cli.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? []).filter(row => row.ref === 'CHK-003:edge:+');
   const placeholder = edge.find(row => /^<write-mirror:/.test(String(row.desc)));
   assert.ok(placeholder, `run 29: CHK-003 gets a write-mirror placeholder intent: ${JSON.stringify(edge.map(row => row.desc))}`);
   assert.equal((placeholder!.derivation as { requestQuote?: string }).requestQuote, 'Use the same index-selection semantics as read slicing.', 'run 29: the placeholder cites the triggering sentence');

@@ -196,15 +196,16 @@ function p1(): void {
     check(step.reason === 'plan_authoring' && step.kind === 'agent', 'verdict missing + open intent blockers: next returns plan_authoring, not the reviewer launch', JSON.stringify(step));
     check(!JSON.stringify(step).includes('host_run'), 'no reviewer launch is offered while deterministic blockers are open', JSON.stringify(step));
     const one = updateFor('CHK-001');
-    const adversarial = (one?.cli.payload.verificationIntent as { adversarial?: Array<Record<string, unknown>> } | undefined)?.adversarial ?? [];
+    // Lab initplan: the batch is a row patch; a missing lane's row is appended (`CHK-001:adversarial:+`).
+    const patchesOf = (call: typeof one) => (call?.cli.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? [];
+    const adversarial = patchesOf(one).filter(row => row.ref === 'CHK-001:adversarial:+');
     check(adversarial.length === 1 && adversarial[0]!.requirementSource === 'story' && adversarial[0]!.scope === 'focused'
       && adversarial[0]!.expectation === 'absolute_pass' && typeof (adversarial[0]!.verification as { command?: string } | undefined)?.command === 'string',
     'CHK-001 checklist_update adds a classified, pinned adversarial placeholder row', JSON.stringify(one));
-    const keptHappy = (one?.cli.payload.verificationIntent as { happy?: Array<{ desc: string }> } | undefined)?.happy ?? [];
-    check(keptHappy.length === 1 && keptHappy[0]!.desc.includes(LIT_STATED), 'CHK-001 checklist_update keeps the existing intents (full replacement value)', JSON.stringify(one));
+    check(one?.cli.payload.verificationIntent === undefined && !patchesOf(one).some(row => String(row.ref).startsWith('CHK-001:happy:')), 'CHK-001 checklist_update keeps the existing intents (a row patch leaves them untouched)', JSON.stringify(one));
     const two = updateFor('CHK-002');
     check(typeof two?.cli.payload.userSees === 'string' && /^<.*>$/.test(String(two.cli.payload.userSees)), 'CHK-002 checklist_update asks for the missing userSees', JSON.stringify(two));
-    const twoHappy = (two?.cli.payload.verificationIntent as { happy?: Array<{ verification?: { command?: string } }> } | undefined)?.happy ?? [];
+    const twoHappy = patchesOf(two).filter(row => row.ref === 'CHK-002:happy:0') as Array<{ verification?: { command?: string } }>;
     check(typeof twoHappy[0]?.verification?.command === 'string', 'CHK-002 checklist_update pins the unpinned happy intent', JSON.stringify(two));
     check(step.why.includes(LIT_UNMAPPED), 'the unmapped request literal is named in the authoring step', step.why);
     check(!step.why.includes(`\`${LIT_STATED}\``) && !step.why.includes(`\`${LIT_EXCLUDED}\``), 'stated and PLAN-excluded literals are not reported', step.why);
@@ -396,7 +397,8 @@ function p5(): void {
     t.store.writeChecklist(t.storyId, { items } as ChecklistData);
     const stepNow = t.next();
     const update = (stepNow.batch ?? []).find(call => call.cli.command === 'checklist_update' && call.cli.payload.itemId === 'CHK-001');
-    const edgeRow = ((update?.cli.payload.verificationIntent as { edge?: Array<Record<string, unknown>> } | undefined)?.edge ?? [])[0];
+    // Lab initplan: a row patch of CHK-001:edge:0.
+    const edgeRow = ((update?.cli.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? []).find(row => row.ref === 'CHK-001:edge:0');
     const derivation = edgeRow?.derivation as { requestQuote?: string; computation?: string } | undefined;
     check(stepNow.reason === 'plan_authoring' && /^<.*>$/.test(derivation?.requestQuote ?? '') && /^<.*>$/.test(derivation?.computation ?? ''),
       'next returns plan_authoring with a derivation placeholder on the row that lacks one', JSON.stringify(stepNow));

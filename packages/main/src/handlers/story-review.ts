@@ -48,7 +48,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
 import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
 import { missingVerificationPinIssues } from '../core/plan-verification-pins.js';
-import { checklistDerivationGaps, describeDerivationProblem, MISSING_INTENT_DERIVATION, PIN_AUDIT_GAP_PREFIX, ASYMMETRIC_EXAMPLE_GAP_PREFIX } from '../core/intent-derivation.js';
+import { checklistDerivationGaps, describeDerivationProblem, pinAuditRowPatchCommand, MISSING_INTENT_DERIVATION, PIN_AUDIT_GAP_PREFIX, ASYMMETRIC_EXAMPLE_GAP_PREFIX } from '../core/intent-derivation.js';
 import { describeCoverageGap, MISSING_COVERAGE_ROW, planCoverageGapsFor } from '../core/plan-coverage-matrix.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
@@ -805,7 +805,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               severity: 'blocker',
               message: pinAudit && !checklistChangedSinceVerdict
                 ? `scope gap${source}: the scope-plan reviewer recomputed a pinned intent from the request and reports "${gap.feature}". `
-                  + `Next (PLAN): if the reviewer is right, fix that row's expected value and its derivation (or add the asymmetric example) with \`proof-or-stop checklist_update --storyId=${args.storyId} --itemId=<CHK-id> --verificationIntent='<full intent with the corrected row and "derivation":{"requestQuote":"...","computation":"..."}>'\`; `
+                  // Lab initplan (initplan-breakdown.md rank 6): a row patch of the named row (or an appended asymmetric example), not the whole intent.
+                  + `Next (PLAN): if the reviewer is right, fix that row's expected value and its derivation (or add the asymmetric example) with \`${pinAuditRowPatchCommand(args.storyId, gap.feature ?? '')}\`; `
                   + `if the pin is right, make the derivation show why (cite the deciding request sentence). Then run \`${rerunScopeReviewer}\`: ${rerunWhat}.`
                 : checklistChangedSinceVerdict
                 ? `scope gap${source}: the scope-plan reviewer verdict of ${scopeData.checkedAt} lists "${gap.feature}" as neither covered nor excluded, and the checklist changed since that verdict. `

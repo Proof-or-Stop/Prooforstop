@@ -364,7 +364,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -451,7 +451,7 @@ export class Owner {
   private readonly providerBin: string;
   private get installedCliBin(): string { return `${this.root}-installed-cli`; }
   private readonly scripts: string;
-  private readonly env: NodeJS.ProcessEnv;
+  readonly env: NodeJS.ProcessEnv;
 
   constructor(readonly scenario: string, public storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[], readonly bareGitignore = false,
     private readonly fixtureOpts: { trackedGateFailureCounts?: boolean;
@@ -1756,6 +1756,8 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
    * in a helper that branches on two operands (N2).
    */
   roundCut?: 'dup' | 'matrix';
+  /** Lab initplan (NIP): the scope-plan reviewer saves a clean verdict covering every checklist item. */
+  scopePlanPass?: boolean;
 
   /** Detection A/B control D9-r1 / D2-r3 / refused critic: how the FIRST round-1 critic restates or omits findings (scenarios NC, NC2, NC3). */
   criticRestate?: CriticRestateMode;
@@ -2154,6 +2156,14 @@ function provideScript(root: string, storyId: string, scriptsDir: string, modeJs
     return;
   }
   const store = new StoryStore(worktree);
+  if (mode.scopePlanPass && spec.agentType === 'proof-or-stop-review-scope-plan') {
+    // Lab initplan (NIP): a clean scope-plan verdict, one covered feature per item.
+    const features = store.readChecklist(storyId).items.map(item => ({ feature: item.title, covered_by: item.id, status: 'covered', excluded_by: null, source: 'request.md' }));
+    mkdirSync(join(scriptsDir, 'byrun'), { recursive: true });
+    writeFileSync(join(scriptsDir, 'byrun', `${runId}.json`), JSON.stringify({ final: 'Scope review saved.', commands: [[process.execPath, CLI, 'scope_check_save', JSON.stringify({ storyId, features,
+      summary: { total: features.length, covered: features.length, excluded: 0, gaps: 0 }, readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, openQuestions: [] })]] }));
+    return;
+  }
   if (spec.agentType === DELIVERY) {
     // Run 27 (NDL/NDS): only the first delivery run carries the fault.
     const runsRoot = join(root, '.proof-or-stop', 'runtime', 'host-runs');
@@ -4688,7 +4698,8 @@ function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.match(authoring.why, /CHK-001:happy:1/, '[NP] the authoring step names the underived pinned row');
     assert.match(authoring.why, /derivation/, '[NP] the authoring step asks for its derivation');
     const proposed = (authoring.batch ?? []).find(call => call.cli.command === 'checklist_update' && call.cli.payload.itemId === 'CHK-001');
-    const proposedPin = ((proposed?.cli.payload.verificationIntent as { happy?: Array<Record<string, unknown>> } | undefined)?.happy ?? [])[1];
+    // Lab initplan: a row patch of CHK-001:happy:1.
+    const proposedPin = ((proposed?.cli.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? []).find(patch => patch.ref === 'CHK-001:happy:1');
     assert.match(String((proposedPin?.derivation as Record<string, unknown> | undefined)?.requestQuote ?? ''), /^<.*>$/, '[NP] the exact checklist_update carries a derivation placeholder');
 
     const wrongRow = row(NP_WRONG_PIN, 'TestUpperXY');
@@ -4724,7 +4735,8 @@ function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 
     const review = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (pin-audit gap)' });
     assert.match(review.out, /pin-audit CHK-001:happy:1/, '[NP] story_review reports the pin-audit gap');
-    assert.match(review.out, /checklist_update[^\n]*verificationIntent/, '[NP] the pin-audit gap names the intent fix (checklist_update verificationIntent)');
+    // Lab initplan: the fix is a row patch of the named row (intentRows), not the whole intent.
+    assert.match(review.out, /checklist_update[^\n]*--intentRows='\[\{\\?"ref\\?":\\?"CHK-001:happy:1/, '[NP] the pin-audit gap names the intent fix (checklist_update row patch of CHK-001:happy:1)');
     const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused)' });
     assert.notEqual(dev.status, 0, '[NP] the wrong pin must not reach DEV');
     assert.match(dev.out, /story_review round has 1 unresolved blocker/, '[NP] the only DEV blocker is the pin-audit gap');
@@ -4856,7 +4868,8 @@ function scenarioNCV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     }
     const placeholders = (itemId: string): string[] => {
       const update = (authoring.batch ?? []).find(call => call.cli.command === 'checklist_update' && call.cli.payload.itemId === itemId);
-      return ((update?.cli.payload.verificationIntent as { edge?: Array<{ desc: string }> } | undefined)?.edge ?? []).map(entry => entry.desc).filter(desc => desc.startsWith('<'));
+      // Lab initplan: the coverage rows are appended to edge by a row patch.
+      return ((update?.cli.payload.intentRows as Array<{ ref: string; desc?: string }> | undefined) ?? []).filter(entry => entry.ref.endsWith(':edge:+')).map(entry => String(entry.desc)).filter(desc => desc.startsWith('<'));
     };
     assert.ok(placeholders('CHK-002').some(desc => desc.startsWith('<write-mirror:')), `[NCV] CHK-002 gets the write-mirror placeholder: ${JSON.stringify(placeholders('CHK-002'))}`);
     assert.ok(placeholders('CHK-001').some(desc => desc.startsWith('<omit-combination:')), `[NCV] CHK-001 gets the omission-pattern placeholder: ${JSON.stringify(placeholders('CHK-001'))}`);
@@ -5078,6 +5091,191 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   } catch (error) {
     console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
     return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Lab initplan (bench-staging/oldpos/initplan-breakdown.md §5 ranks 4, 5, 6, 8-11): INIT + PLAN from an
+// empty project to DEV entry, driven by `next` like the bench owner, with the owner turns counted.
+
+const NIP_REQUEST = [
+  'Fix `strs.Upper` as documented in docs/types/string.md:',
+  '',
+  '- `strs.Upper(s)` returns the upper-case form of `s`, for example `Upper("ab")` is `"AB"`.',
+  '- Another example: `Upper("xyz")` is `"XYZ"`.',
+  '- `Upper` of a number reports an error that starts with `Upper expects a string`.',
+].join('\n');
+const NIP_QUOTE = '`strs.Upper(s)` returns the upper-case form of `s`';
+const NIP_ERROR_ROW = 'Upper(1) -> the whole error text is exactly "Upper expects a string"';
+const isPlaceholder = (value: unknown): value is string => typeof value === 'string' && /^<[\s\S]*>$/.test(value.trim());
+
+/** The NIP owner's authored values for every <...> field next or a refusal hands it (both payload shapes: whole intent rows and intentRows patches). */
+function fillNipPlaceholders(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(fillNipPlaceholders);
+  if (!value || typeof value !== 'object') return value;
+  const row = { ...(value as Record<string, unknown>) };
+  if (isPlaceholder(row.desc)) row.desc = /error/i.test(row.desc) ? 'Upper(1) -> an error that starts with "Upper expects a string"' : 'strs.Upper(s): Upper("xyz") -> "XYZ"';
+  const desc = typeof row.desc === 'string' ? row.desc : '';
+  const verification = row.verification as Record<string, unknown> | undefined;
+  if (verification && (isPlaceholder(verification.command) || isPlaceholder(verification.selector))) {
+    const test = /error|Upper\(1\)/.test(desc) ? 'TestUpperNumber' : 'TestUpperXYZ';
+    row.verification = { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` };
+  }
+  const derivation = row.derivation as Record<string, unknown> | undefined;
+  if (derivation && (isPlaceholder(derivation.requestQuote) || isPlaceholder(derivation.computation))) {
+    const pinned = desc.split('->')[1]?.trim() ?? desc;
+    row.derivation = { requestQuote: NIP_QUOTE, computation: `the upper-case form of the input, as the sentence says, is ${pinned}` };
+  }
+  if (isPlaceholder(row.reason)) row.reason = 'the request says the error message starts with the reason, so the row pins that prefix';
+  if (isPlaceholder(row.userSees)) row.userSees = 'go test -v ./strs -run TestUpper prints --- PASS: TestUpper';
+  for (const [key, inner] of Object.entries(row)) if (inner && typeof inner === 'object') row[key] = fillNipPlaceholders(inner);
+  return row;
+}
+
+/**
+ * NIP: INIT + PLAN to DEV entry from an empty project (lab initplan). The request has an example no
+ * row states (plan_authoring: a request-literal row) and CHK-001 pins an exact whole error text
+ * (exact_error_pin_check); the Story is created once refused (a CJK character and an underived row,
+ * both in ONE refusal), then accepted. The owner acts on every agent step `next` returns (fills the
+ * placeholders of exactly the commands it gives) and on the story_create PLAN pre-check when one is
+ * printed. Checks: the base validation runs in the background from the first `next` and story_create
+ * hands out its result; both INIT reviewers launch in ONE step; a refused whole-intent checklist_update
+ * names the staged payload (@file); the dev-memory acknowledgement is a framework step (empty pack);
+ * the PLAN lints come at most as ONE agent step before the scope-plan reviewer. Reports owner turns.
+ */
+function scenarioNIP(machineEnv: NodeJS.ProcessEnv, steps: Step[], skipPreCheck = false): Outcome {
+  // NIP-M: the owner ignores the story_create PLAN pre-check, so PLAN's merged lint step does the work.
+  const tag = skipPreCheck ? 'NIP-M' : 'NIP';
+  const name = `${tag} lab initplan${skipPreCheck ? ' (owner skips the PLAN pre-check)' : ''}: INIT + PLAN to DEV entry from an empty project; background base validation, one INIT launch step, row-level refusal Nexts, framework dev-memory ack, PLAN lints in one step; owner turns counted`;
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true });
+  const lines: string[] = [];
+  const unmet: string[] = [];
+  const expect = (ok: boolean, what: string): void => { if (!ok) unmet.push(what); };
+  const memory = `${o.root}-memory`;
+  try {
+    mkdirSync(memory, { recursive: true });
+    o.setEnv('PROOF_OR_STOP_GLOBAL_MEMORY_DIR', memory);
+    o.mustCli('story_request_set', { request: NIP_REQUEST }, { label: 'story_request_set (staged, adapter)' });
+    let ownerTurns = 0;
+
+    // 1. The first next: the story_create template; the framework starts the base validation in the background.
+    const first = o.cli('next', { json: true }, { label: 'next (no Story)' });
+    ownerTurns += 1;
+    const template = parseJson(first.stdout) as unknown as NextStepJson;
+    assert.equal(template?.reason, 'story_create_authoring', `[${tag}] template: ${first.out.slice(-800)}`);
+    expect(/base validation/i.test(template.why), 'the template names the background base validation (the owner does not run it)');
+    const baseDir = join(o.root, '.proof-or-stop', 'runtime', 'base-validation');
+    const deadline = Date.now() + 60_000;
+    let record: { state?: string; status?: string } | null = null;
+    while (Date.now() < deadline) {
+      const file = existsSync(baseDir) ? readdirSync(baseDir).find(entry => entry.endsWith('.json')) : undefined;
+      record = file ? JSON.parse(readFileSync(join(baseDir, file), 'utf8')) as { state?: string; status?: string } : null;
+      if (record?.state === 'done' || (!file && Date.now() > deadline - 55_000)) break;
+      spawnSync(process.execPath, ['-e', 'setTimeout(() => {}, 250)']);
+    }
+    expect(record?.state === 'done' && record.status === 'pass', `the base validation ran in the background and passed (record: ${JSON.stringify(record)})`);
+
+    // 2. story_create: refused ONCE for a CJK character and an underived row, then accepted.
+    const filled = fillStoryCreateTemplate(template.cli!.payload) as Record<string, any>;
+    const item = filled.checklist[0];
+    const happy = item.verificationIntent.happy[0];
+    const { derivation: _quoted, ...plain } = happy;
+    item.verificationIntent.edge = [{ ...plain, desc: 'Upper("") -> ""', verification: { command: 'go test -v ./strs -run ^TestUpperEmpty$', selector: '--- PASS: TestUpperEmpty' } }];
+    item.verificationIntent.adversarial = [{ ...plain, desc: NIP_ERROR_ROW, verification: { command: 'go test -v ./strs -run ^TestUpperNumber$', selector: '--- PASS: TestUpperNumber' } }];
+    const broken = JSON.parse(JSON.stringify(filled)) as Record<string, any>;
+    broken.background = String(broken.background).replace('## Key Insights\n\n', '## Key Insights\n\nThe reporter wrote \u5927\u5199 in the ticket. ');
+    broken.checklist[0].verificationIntent.happy = [{ ...plain, desc: 'Upper("q") -> "Q"' }];
+    const refused = o.cli('story_create', broken, { label: 'story_create (CJK + underived row)' });
+    ownerTurns += 1;
+    assert.notEqual(refused.status, 0, `[${tag}] the broken story_create is refused`);
+    expect(/\[intent_derivation_required\]/.test(refused.out) && /\[english_artifact_cjk_authoring\]/.test(refused.out), 'ONE story_create refusal lists both the underived row and the CJK text');
+    const created = o.mustCli('story_create', filled, { label: 'story_create' });
+    ownerTurns += 1;
+    const id = created.stdout.match(/Story (B-[a-f0-9]+) created/)?.[1];
+    assert.ok(id, `[${tag}] story_create returned an id:\n${created.out.slice(-1500)}`);
+    o.storyId = id!;
+    expect(/Base validation/.test(created.stdout), 'story_create hands out the base validation result');
+    writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir, JSON.stringify({ findingRound1: false, scopePlanPass: true })] }));
+
+    // 4. The PLAN pre-check story_create printed: the owner runs its commands now (INIT, before the reviewers judge the Story).
+    const preCheck = created.stdout.includes('PLAN pre-check');
+    expect(preCheck, 'story_create prints the PLAN pre-check (the lints PLAN would ask for, at once)');
+    if (skipPreCheck) lines.push('the owner skips the PLAN pre-check');
+    const runCalls = (label: string, calls: Array<{ command: string; payload: Record<string, unknown> }>): void => {
+      for (const call of calls) {
+        const payload = fillNipPlaceholders(call.payload) as Record<string, unknown>;
+        const left = JSON.stringify(payload).match(/"<[^"]*>"/g);
+        assert.equal(left, null, `[${tag}] ${label}: unfilled placeholders ${String(left)}`);
+        o.mustCli(call.command, payload, { label: `${label}: ${call.command} ${String(payload.itemId ?? '')}` });
+      }
+    };
+    if (preCheck && !skipPreCheck) {
+      const block = created.stdout.slice(created.stdout.indexOf('PLAN pre-check'));
+      const calls = [...block.matchAll(/proof-or-stop (checklist_update) '(\{[^\n]*\})'/g)].map(match => ({ command: match[1]!, payload: JSON.parse(match[2]!.replace(/'"'"'/g, "'")) as Record<string, unknown> }));
+      expect(calls.length > 0, 'the PLAN pre-check carries runnable commands');
+      if (calls.length) { runCalls('PLAN pre-check', calls); ownerTurns += 1; }
+    }
+
+    // 3. A refused whole-intent checklist_update names the staged payload; the owner patches the file and resubmits it.
+    const underived = { ...plain, desc: 'Upper("q") -> "Q"', verification: { command: 'go test -v ./strs -run ^TestUpperQ$', selector: '--- PASS: TestUpperQ' } };
+    const whole = { storyId: id, itemId: 'CHK-001', verificationIntent: { ...(new StoryStore(o.root).readChecklist(id!).items[0]!.verificationIntent as Record<string, unknown>), happy: [happy, underived] } };
+    const refusedUpdate = o.cli('checklist_update', whole, { label: 'checklist_update CHK-001 (underived row, whole intent)' });
+    assert.notEqual(refusedUpdate.status, 0, `[${tag}] the underived row is refused`);
+    const stagedPath = refusedUpdate.out.match(/proof-or-stop checklist_update @(\S+\.json)/)?.[1];
+    expect(Boolean(stagedPath), `the whole-intent refusal names the staged payload (@file), not the whole intent: ${refusedUpdate.out.split('\n').filter(line => line.startsWith('Next')).join(' | ').slice(0, 300)}`);
+    if (stagedPath) {
+      const staged = JSON.parse(readFileSync(stagedPath, 'utf8')) as Record<string, any>;
+      staged.verificationIntent.happy[1].derivation = { requestQuote: NIP_QUOTE, computation: 'the upper-case form of "q" is "Q"' };
+      writeFileSync(stagedPath, JSON.stringify(staged));
+      const resubmitted = spawnSync(process.execPath, [CLI, 'checklist_update', `@${stagedPath}`], { cwd: o.root, encoding: 'utf8', env: o.env });
+      expect(resubmitted.status === 0, `checklist_update @staged (fixed) is accepted: ${(resubmitted.stdout + resubmitted.stderr).slice(-400)}`);
+    }
+
+    // 5. INIT: the freeze check, then both reviewers in ONE launch step.
+    const freeze = parseJson(o.cli('next', { storyId: id, run: true, json: true, maxSteps: 1 }, { label: 'next --run (one step)' }).stdout);
+    assert.ok(freeze, `[${tag}] next --run (one step) answered`);
+    const launch = parseJson(o.cli('next', { storyId: id, json: true }, { label: 'next --json (INIT launch)' }).stdout) as unknown as NextStepJson;
+    expect(launch?.reason === 'init_review_launch' && (launch.parallel?.length ?? 0) === 2, `both INIT reviewers launch in ONE step (got ${launch?.reason} with ${launch?.parallel?.length ?? 0} parallel calls)`);
+
+    // 6. next --run to DEV; the owner acts on each agent step.
+    const ran: string[] = [];
+    const agentSteps: string[] = [];
+    let nextCalls = 0;
+    let reachedDev = false;
+    for (let call = 0; call < 24 && !reachedDev; call += 1) {
+      const asked = o.cli('next', { storyId: id, run: true, json: true }, { label: 'next --run' });
+      nextCalls += 1;
+      ownerTurns += 1;
+      const parsed = parseJson(asked.stdout);
+      const next = parsed?.next as NextStepJson | undefined;
+      assert.ok(next, `[${tag}] next --run returned no step:\n${asked.out.slice(-2000)}`);
+      for (const row of (parsed!.executed ?? []) as Array<{ reason: string; exit: number; command: string; tail: string }>) {
+        ran.push(row.reason);
+        assert.equal(row.exit, 0, `[${tag}] next --run executed a refused step: ${row.command}\n${row.tail}`);
+      }
+      assert.equal(parsed!.stopped ?? null, null, `[${tag}] next --run stopped: ${String(parsed!.stopped)}\n${asked.out.slice(-1500)}`);
+      if (next.phase === 'DEV' || ran.includes('enter_dev')) { reachedDev = true; break; }
+      if (next.wait || parsed!.paused || next.kind === 'framework') continue;
+      assert.ok(['PLAN', 'INIT', 'INIT_CHECK'].includes(next.phase), `[${tag}] unexpected phase ${next.phase}`);
+      agentSteps.push(`${next.phase}:${next.reason}`);
+      ownerTurns += 1;
+      const calls = next.batch?.length ? next.batch.map(entry => entry.cli) : next.cli ? [next.cli] : [];
+      assert.ok(calls.length > 0, `[${tag}] agent step ${next.reason} has no command: ${next.why.slice(0, 400)}`);
+      runCalls(next.reason, calls);
+    }
+    assert.ok(reachedDev, `[${tag}] DEV entry reached (ran: ${ran.join(' > ')}; agent steps: ${agentSteps.join(', ')})`);
+    const planAgentSteps = agentSteps.filter(row => row.startsWith('PLAN:'));
+    expect(!agentSteps.includes('PLAN:dev_memory_preflight_ack'), 'the dev-memory acknowledgement (empty pack) is a framework step');
+    expect(planAgentSteps.length <= 1, `the PLAN lints come at most as ONE agent step before the scope-plan reviewer (got ${planAgentSteps.join(', ') || 'none'})`);
+    lines.push(`owner turns from the first next to DEV entry: ${ownerTurns} (next x1, story_create x2, ${nextCalls} next --run, ${agentSteps.length} agent step(s) acted on${preCheck && !skipPreCheck ? ', 1 PLAN pre-check' : ''}); agent steps: ${agentSteps.join(', ') || 'none'}`);
+    lines.push(`framework steps: ${ran.join(' > ')}`);
+    assert.deepEqual(unmet, [], `[${tag}] unmet:\n  - ${unmet.join('\n  - ')}`);
+    o.cleanup();
+    rmSync(memory, { recursive: true, force: true });
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, ...unmet.map(row => `unmet: ${row}`), error instanceof Error ? error.message : String(error)] };
   }
 }
 
@@ -5493,12 +5691,15 @@ function scenarioNCC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.match(blocked.why, /negative, out of range/, '[NCC] the uncovered classes are named');
     assert.match(blocked.why, /Bin\.Put[^]*?only second/, '[NCC] another receiver\'s same operation is the second oracle only');
     assert.equal(blocked.cli?.command, 'checklist_update', '[NCC] ONE next action: a checklist_update');
-    const intentPatch = blocked.cli?.payload.verificationIntent as { edge?: Array<{ desc: string }> } | undefined;
-    assert.equal(intentPatch?.edge?.filter(rowValue => rowValue.desc.startsWith('<')).length, 2, '[NCC] one placeholder row per uncovered class');
+    // Lab initplan: a row patch appending one placeholder row per class (`CHK-001:edge:+`), no whole intent.
+    const intentPatch = blocked.cli?.payload.intentRows as Array<{ ref: string; desc: string }> | undefined;
+    assert.equal(blocked.cli?.payload.verificationIntent, undefined, '[NCC] a row patch, not the whole intent');
+    // The merged PLAN lint step (lab initplan) may append other lints' rows (e.g. a request-literal row) to the same item.
+    assert.equal(intentPatch?.filter(rowValue => rowValue.ref === 'CHK-001:edge:+' && rowValue.desc.startsWith('<Shelf.Put on ')).length, 2, '[NCC] one placeholder row per uncovered class');
     const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused: counterpart cases)' });
     assert.notEqual(dev.status, 0, '[NCC] the uncovered counterpart cases must not reach DEV');
     assert.match(dev.out, /\[counterpart_coverage_missing\]/, `[NCC] the DEV gate names the rule:\n${dev.out.slice(-1500)}`);
-    assert.match(dev.out, /Next: proof-or-stop checklist_update '[^\n]*verificationIntent/, '[NCC] the refusal carries one Next');
+    assert.match(dev.out, /Next: proof-or-stop checklist_update '[^\n]*intentRows/, '[NCC] the refusal carries one Next (a row patch)');
     const evidencePath = [o.root, o.worktree].map(dir => join(dir, '.proof-or-stop', 'runtime', 'counterpart-coverage', `${o.storyId}.json`)).find(path => existsSync(path));
     assert.ok(evidencePath, '[NCC] the discovery is recorded with its A/B evidence');
     const evidence = JSON.parse(readFileSync(evidencePath!, 'utf8')) as { abVariant?: { flags?: Record<string, string> }; refusals?: unknown[]; scanned?: number };
@@ -6986,7 +7187,7 @@ function scenarioNPA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const lines: string[] = [];
   try {
     planFixture(o, 30, ' (each case is one input in the request syntax and the exact output the request states for it)');
-    // Missing userSees + unpinned rows make a pre-scope authoring batch carrying the full intents.
+    // Missing userSees + unpinned rows make a pre-scope authoring batch (row patches since lab initplan; smaller than the full intents it carried before).
     const store = new StoryStore(o.worktree);
     const cl = store.readChecklist(o.storyId);
     store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => ({ ...item, userSees: '',
@@ -6998,14 +7199,15 @@ function scenarioNPA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const full = JSON.stringify(step).length;
     const text = o.cli('next', { storyId: o.storyId }, { label: 'next (text, plan authoring)' });
     assert.equal(text.status, 0, `[${tag}] next text render failed:\n${text.out.slice(-1500)}`);
-    assert.ok(full > 16000, `[${tag}] the fixture step is large (${full} chars as JSON)`);
     assert.ok(text.stdout.length <= 8000, `[${tag}] the text step is capped at ~2k tokens: ${text.stdout.length} chars`);
     const files = [...text.stdout.matchAll(/ @(\S+\.json)/g)].map(match => match[1]!);
-    assert.ok(files.length >= 1, `[${tag}] the long commands read their payload from a file:\n${text.stdout.slice(0, 3000)}`);
-    const payloadFile = files[0]!.startsWith('/') ? files[0]! : join(o.worktree, files[0]!);
-    const payload = JSON.parse(readFileSync(payloadFile, 'utf8')) as Record<string, unknown>;
-    assert.equal(payload.storyId, o.storyId, `[${tag}] the file holds the command payload`);
-    assert.ok('verificationIntent' in payload, `[${tag}] the file carries the full verificationIntent`);
+    if (full > 8000) assert.ok(files.length >= 1, `[${tag}] the long commands read their payload from a file:\n${text.stdout.slice(0, 3000)}`);
+    if (files.length) {
+      const payloadFile = files[0]!.startsWith('/') ? files[0]! : join(o.worktree, files[0]!);
+      const payload = JSON.parse(readFileSync(payloadFile, 'utf8')) as Record<string, unknown>;
+      assert.equal(payload.storyId, o.storyId, `[${tag}] the file holds the command payload`);
+      assert.ok('intentRows' in payload, `[${tag}] the file carries the row patch`);
+    }
     lines.push(`plan_authoring: ${full} chars as JSON, ${text.stdout.length} chars printed, ${files.length} payload file(s)`);
     o.cleanup();
     return { name, status: 'PASS', lines };
@@ -7790,7 +7992,7 @@ function scenarioNRD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -7858,6 +8060,9 @@ async function main(): Promise<void> {
     if (only.includes('NRQ')) outcomes.push(scenarioNRQ(machine.env, steps));
     if (only.includes('NXT')) outcomes.push(scenarioNXT(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
+    // Lab initplan: INIT + PLAN from story_create to DEV entry, owner turns counted.
+    if (only.includes('NIP')) outcomes.push(scenarioNIP(machine.env, steps));
+    if (only.includes('NIP-M')) outcomes.push(scenarioNIP(machine.env, steps, true));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     if (only.includes('NCV')) outcomes.push(scenarioNCV(machine.env, steps));
     if (only.includes('NX')) outcomes.push(scenarioNX(machine.env, steps));
@@ -7909,7 +8114,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

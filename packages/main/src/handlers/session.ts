@@ -19,6 +19,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  *   - "what should be done now" inferred by computeNextStep
  */
 
+import { renderBaseValidationLine, startBaseValidation } from '../core/base-validation.js';
 import { execSync } from 'child_process';
 import { loadVerifiedCertificationWindow, type CertificationWindowState } from '../core/certification-window.js';
 import { existsSync, readFileSync, realpathSync } from 'fs';
@@ -781,6 +782,9 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('**No active story** — no stories yet.');
           lines.push('');
           lines.push('Start with `proof-or-stop story_create` to create your first story.');
+          // Lab initplan (initplan-breakdown.md rank 5): the baseline validation starts now, in the background.
+          const baseValidation = renderBaseValidationLine(startBaseValidation(ctx.root));
+          if (baseValidation) lines.push('', baseValidation);
           for (const l of renderConfiguredGitRootSessionStatus(configuredGitRootStatus)) lines.push(l);
           for (const l of renderStoryDirOutsideGitRootAdvisory(ctx.root)) lines.push(l);
           if (!gitReady) {

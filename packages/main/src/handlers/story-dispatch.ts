@@ -38,6 +38,7 @@ import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiter
 import { renderPinAudit } from '../core/intent-derivation.js';
 import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
 import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
+import { renderScopePlanPreload } from '../core/scope-plan-preload.js';
 import { mergedPlanReviewLines, planReviewMergeActive } from '../core/plan-review-merge.js';
 import { IMPLEMENTER_PROBE_LINE, IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, PRODUCT_CODE_NO_POS_METADATA_RULE, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
@@ -743,6 +744,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push(`4. ${planPath}`);
     lines.push(`5. ${decisionPath} (if present)`);
     lines.push('- Also read relatedDocs referenced by checklist items and any decisions/docs cited by the story artifacts.');
+    // Lab initplan (A/B plan.reviewerPreload=on, core/scope-plan-preload.ts): the must-read files inline; off = nothing added.
+    lines.push(...renderScopePlanPreload(store, root, args.storyId));
     if (!decisionsPresent) {
       lines.push('- Controller preflight: decisions directory is absent; review the Story description and named story artifacts for concrete promises. Do not search for a missing decisions corpus.');
     }

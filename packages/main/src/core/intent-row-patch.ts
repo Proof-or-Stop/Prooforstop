@@ -13,6 +13,12 @@
  * classification, pin allowlist, pin oracle, planned-path declarations, the
  * identity / integrity of the stored checklist): a row patch is never a
  * weaker write. Refusals name ONE next action.
+ *
+ * Lab initplan (initplan-breakdown.md rank 6, run 80: 28 owner requests with
+ * mktemp / jq / apply_patch to add covering rows): `ref: "<CHK>:<lane>:+"`
+ * APPENDS a new row to that lane (its other keys are the row; `desc` is
+ * required). Appended rows get the next indexes in patch order, so the refs of
+ * existing rows never shift. An item without rows takes appends only.
  */
 import type { ChecklistItem, VerificationIntent } from './types.js';
 import { VERIFICATION_LANES } from './verification.js';
@@ -23,6 +29,13 @@ export const INTENT_ROWS_INVALID = 'intent_rows_invalid';
 export interface IntentRowPatch { ref: string; [field: string]: unknown }
 
 const LANE_REF = /^(CHK-\d+):([a-z]+):(\d+)$/;
+/** Lab initplan: `CHK-NNN:<lane>:+` appends a row to that lane. */
+const APPEND_REF = /^(CHK-\d+):([a-z]+):\+$/;
+
+/** The ref that appends a row to an item's lane (`CHK-002:edge:+`). */
+export function appendRowRef(itemId: string, lane: string): string {
+  return `${itemId}:${lane}:+`;
+}
 
 /** Every row ref of an item, in lane order (`CHK-001:happy:0`, ...). */
 export function intentRowRefs(item: Pick<ChecklistItem, 'id' | 'verificationIntent'>): string[] {
@@ -38,7 +51,7 @@ function refuse(detail: string, next: string): never {
  * caller passes it on as `verificationIntent`, so every intent check runs.
  */
 export function applyIntentRowPatches(args: { storyId: string; item: Pick<ChecklistItem, 'id' | 'verificationIntent'>; patches: unknown;
-  withWholeIntent: boolean; withProposalApproval: boolean }): { verificationIntent: VerificationIntent; refs: string[] } {
+  withWholeIntent: boolean; withProposalApproval: boolean }): { verificationIntent: VerificationIntent; refs: string[]; patchRefs: string[] } {
   const { storyId, item } = args;
   const command = (payload: Record<string, unknown>) => `proof-or-stop checklist_update ${shellQuote(JSON.stringify(payload))}`;
   const refs = intentRowRefs(item);
@@ -51,19 +64,39 @@ export function applyIntentRowPatches(args: { storyId: string; item: Pick<Checkl
     refuse('an intentProposalApproval binds the exact bytes of a whole verificationIntent; a row patch cannot carry it',
       `proof-or-stop checklist_get '${JSON.stringify({ storyId, itemId: item.id })}' and approve the complete proposed verificationIntent`);
   }
-  if (!item.verificationIntent || refs.length === 0) {
-    refuse(`${item.id} has no verificationIntent rows to patch`,
-      command({ storyId, itemId: item.id, verificationIntent: '<the complete verificationIntent JSON>' }));
+  const appendsOnly = Array.isArray(args.patches) && args.patches.length > 0
+    && (args.patches as unknown[]).every(raw => raw && typeof raw === 'object' && typeof (raw as Record<string, unknown>).ref === 'string' && APPEND_REF.test(String((raw as Record<string, unknown>).ref).trim()));
+  if ((!item.verificationIntent || refs.length === 0) && !appendsOnly) {
+    refuse(`${item.id} has no verificationIntent rows to patch (append one with ${item.id}:<lane>:+)`,
+      command({ storyId, itemId: item.id, intentRows: [{ ref: appendRowRef(item.id, 'happy'), desc: '<input> -> <expected>' }] }));
   }
   if (!Array.isArray(args.patches) || args.patches.length === 0) {
     refuse('intentRows must list at least one {ref, <field>: <value>} row patch', command({ storyId, itemId: item.id, intentRows: [example] }));
   }
-  const intent = structuredClone(item.verificationIntent) as VerificationIntent;
+  const intent = structuredClone(item.verificationIntent ?? { happy: [], edge: [], adversarial: [] }) as VerificationIntent;
+  for (const lane of VERIFICATION_LANES) if (!Array.isArray(intent[lane])) (intent as unknown as Record<string, unknown[]>)[lane] = [];
   const seen = new Set<string>();
   const patched: string[] = [];
-  for (const raw of args.patches as unknown[]) {
+  const appended: Array<{ lane: (typeof VERIFICATION_LANES)[number]; row: Record<string, unknown>; at: number }> = [];
+  /** The resulting row ref of each patch, in patch order (an append gets its new index). */
+  const patchRefs: string[] = [];
+  for (const [at, raw] of (args.patches as unknown[]).entries()) {
     const patch = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw as Record<string, unknown> : null;
     const ref = typeof patch?.ref === 'string' ? patch.ref.trim() : '';
+    const append = ref.match(APPEND_REF);
+    if (patch && append) {
+      if (append[1] !== item.id || !(VERIFICATION_LANES as readonly string[]).includes(append[2]!)) {
+        refuse(`${ref} does not append to a lane of ${item.id} (lanes: ${VERIFICATION_LANES.join(', ')})`,
+          command({ storyId, itemId: item.id, intentRows: [{ ...patch, ref: appendRowRef(item.id, 'edge') }] }));
+      }
+      const { ref: _ref, ...row } = patch;
+      for (const key of Object.keys(row)) if (row[key] === null) delete row[key];
+      if (typeof row.desc !== 'string' || !row.desc.trim()) {
+        refuse(`the new row ${ref} has no desc`, command({ storyId, itemId: item.id, intentRows: [{ ...patch, desc: '<input> -> <expected>' }] }));
+      }
+      appended.push({ lane: append[2] as (typeof VERIFICATION_LANES)[number], row, at });
+      continue;
+    }
     let lane: (typeof VERIFICATION_LANES)[number] | undefined;
     let index = -1;
     const byRef = ref.match(LANE_REF);
@@ -73,8 +106,8 @@ export function applyIntentRowPatches(args: { storyId: string; item: Pick<Checkl
       if (!intent[lane]?.[index]) lane = undefined;
     } else if (ref) {
       for (const candidate of VERIFICATION_LANES) {
-        const at = (intent[candidate] ?? []).findIndex(row => row.id === ref);
-        if (at >= 0) { lane = candidate; index = at; break; }
+        const found = (intent[candidate] ?? []).findIndex(row => row.id === ref);
+        if (found >= 0) { lane = candidate; index = found; break; }
       }
     }
     if (!patch || !lane) {
@@ -94,6 +127,13 @@ export function applyIntentRowPatches(args: { storyId: string; item: Pick<Checkl
     }
     (intent[lane] as unknown as Array<Record<string, unknown>>)[index] = row;
     patched.push(`${item.id}:${lane}:${index}`);
+    patchRefs[at] = `${item.id}:${lane}:${index}`;
   }
-  return { verificationIntent: intent, refs: patched };
+  // Appends after every in-place patch, in patch order: existing refs keep their indexes.
+  for (const { lane, row, at } of appended) {
+    (intent[lane] as unknown as Array<Record<string, unknown>>).push(row);
+    patched.push(`${item.id}:${lane}:${intent[lane].length - 1}`);
+    patchRefs[at] = `${item.id}:${lane}:${intent[lane].length - 1}`;
+  }
+  return { verificationIntent: intent, refs: patched, patchRefs };
 }

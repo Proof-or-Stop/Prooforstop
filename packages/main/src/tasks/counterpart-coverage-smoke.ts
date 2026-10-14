@@ -28,8 +28,8 @@
  *   N4. One signal only (branch, no base test, no probe): advisory, no refusal.
  *   N5. The receiver already has the operation in the base (a change): advisory.
  *   T1. Refusal text: rule code, item, operation, counterpart, classes, oracle
- *       order, ONE Next with the item's whole verificationIntent plus one
- *       placeholder row per uncovered class.
+ *       order, ONE Next (since lab initplan a row patch appending one
+ *       placeholder row per uncovered class).
  *   I1. Implementer block: probe the counterpart on the Story base, report
  *       `[counterpart] <op> :: <case> -> <base result>` lines; byte size printed.
  * End to end (DEV entry refused, next step, fix, switch-absent control, the
@@ -258,10 +258,12 @@ await check('T1 refusal text: rule, item, operation, counterpart first, sibling 
   assert.match(text, /oracle order: the same receiver's counterpart first[^]*Bin\.Put[^]*second/);
   const next = text.split('\n').filter(line => line.startsWith('Next: '));
   assert.equal(next.length, 1, 'ONE Next');
-  const payload = JSON.parse(next[0]!.replace(/^Next: proof-or-stop checklist_update '/, '').replace(/'$/, '')) as { itemId: string; verificationIntent: { happy: unknown[]; edge: Array<{ desc: string }> } };
+  const payload = JSON.parse(next[0]!.replace(/^Next: proof-or-stop checklist_update '/, '').replace(/'$/, '')) as { itemId: string; verificationIntent?: unknown; intentRows: Array<{ ref: string; desc: string }> };
   assert.equal(payload.itemId, 'CHK-001');
-  assert.equal(payload.verificationIntent.happy.length, 1, 'existing rows are kept');
-  const placeholders = payload.verificationIntent.edge.filter(rowValue => rowValue.desc.startsWith('<'));
+  // Lab initplan: a row patch that appends the rows; the existing rows are untouched (no whole intent).
+  assert.equal(payload.verificationIntent, undefined, 'existing rows are kept (row patch, no whole intent)');
+  assert.ok(payload.intentRows.every(rowValue => rowValue.ref === 'CHK-001:edge:+'), 'every placeholder row is appended to edge');
+  const placeholders = payload.intentRows.filter(rowValue => rowValue.desc.startsWith('<'));
   assert.equal(placeholders.length, 2, 'one placeholder row per uncovered class');
   assert.match(placeholders[0]!.desc, /Shelf\.Put on a negative operand -> the result Shelf\.Get gives for it/);
 });
