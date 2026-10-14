@@ -22,7 +22,10 @@
 import { isStoryMetadataFinding } from '../core/metadata-finding-class.js';
 import { isMetadataTargetFinding } from '../core/metadata-correction.js';
 import { renderPinOracleAudit, storyPinOracle, type PinOracleContext } from '../core/pin-oracle.js';
-import { renderExactTextRelaunch } from '../core/exact-text-assertions.js';
+import { renderExactTextRelaunch, renderRequestExactLiterals } from '../core/exact-text-assertions.js';
+import { renderRemovedGuardAdvisory, renderRemovedGuardRelaunch, storyRemovedGuards } from '../core/removed-guard-scan.js';
+import { boundMatrixFor, branchTestProblem, recordBoundMatrix, renderBoundMatrix } from '../core/bound-matrix.js';
+import { managedRunFinalMessage } from '../core/managed-run-final-message.js';
 import { appendExactRequiredOutput, itemsForFinding } from '../core/exact-required-output.js';
 import { omittedPromptNote } from './review-run.js';
 import { existsSync, readFileSync } from 'fs';
@@ -855,6 +858,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     // Old-PoS run 46 (core/resolved-finding-guard.ts): resolved findings are re-probed, not trusted.
     const reprobe = renderResolvedReprobe(store.readFindings(args.storyId).findings ?? [], args.storyId, lane);
     if (reprobe.length > 0) lines.push('', ...reprobe);
+    // Lab round-cut N1 (core/removed-guard-scan.ts, dev.removedGuardScan advisory|on): base operand guards the change dropped.
+    let removedGuards: string[] = [];
+    try { removedGuards = renderRemovedGuardAdvisory(storyRemovedGuards(store, root, args.storyId, resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }))); } catch { removedGuards = []; }
+    if (removedGuards.length > 0) lines.push('', ...removedGuards);
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);
     appendReviewerExecutionModes(lines, args.storyId, lane);
@@ -1041,6 +1048,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`Severity: ${fSeverity}  Category: ${fCategory}  Reviewer: ${fReviewer}`);
       lines.push(`Description: ${fDesc}`);
       appendExactRequiredOutput(lines, itemsForFinding(store.readChecklist(args.storyId).items, finding));
+      // Lab round-cut N3b: the request's exact-text literals at launch (the exact-text gate checks them before REVIEW).
+      const requestLiterals = (() => { const request = readStoryRequest(store, args.storyId); return renderRequestExactLiterals(request.status === 'ok' ? request.text : null); })();
+      if (requestLiterals.length) lines.push('', ...requestLiterals);
       lines.push('');
       lines.push('Repair the defect family, not only this counterexample:');
       lines.push('- Before editing, name the root cause and list every sibling code path with the same root cause (the other arity, operand type, direction, or read/write variant of the same operation).');
@@ -1065,6 +1075,17 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       const familyBrief = regressionFamilyBrief({ findings: data.findings, storyId: args.storyId, finding,
         gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }) });
       if (familyBrief.length) lines.push(...familyBrief);
+      // Lab round-cut N2 (core/bound-matrix.ts): a finding in a helper with several operand branches is repaired branch-complete.
+      const findingGitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
+      const matrix = agentType === 'proof-or-stop-finding-repair' ? boundMatrixFor({ gitCwd: findingGitCwd, finding }) : null;
+      if (matrix) {
+        const recorded = recordBoundMatrix(root, args.storyId, finding.id, matrix);
+        lines.push(...renderBoundMatrix(recorded, shortFid));
+        for (const row of finding.status === 'open' ? earlierFindingRepairReports(root, args.storyId, finding.id) : []) {
+          const problem = branchTestProblem(managedRunFinalMessage(root, row.runId), recorded);
+          if (problem) lines.push(`- Earlier repair run ${row.runId} was not accepted: ${problem}. Test and report those branches now.`);
+        }
+      }
       const storyBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
       lines.push(storyBase
         ? `- Story base for that check: ${storyBase} (for example \`git worktree add --detach <tmp> ${storyBase.slice(0, 12)}\`, run the variants there, then remove it).`
@@ -1308,6 +1329,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       const probeGap = probeMatrix ? earlierImplementerProbeGap(root, args.storyId, args.itemId) : null;
       if (probeGap) lines.push(renderProbeTestGapLine(probeGap));
       lines.push(...renderExactTextRelaunch(root, args.storyId, args.itemId));
+      // Lab round-cut N3b / N1: the request's exact-text literals at launch; the removed base guards of a reopened item.
+      lines.push(...renderRequestExactLiterals(probeRequestText));
+      lines.push(...renderRemovedGuardRelaunch(root, args.storyId, args.itemId));
       // Lab sibling-gate (A/B plan.counterpartCoverage=on): probe the same receiver's counterpart before writing an added operation.
       const counterpart = planCounterpartCoverage(store, root, args.storyId, () => resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }));
       if (counterpart) lines.push(...counterpartImplementerLines(counterpart, args.itemId));

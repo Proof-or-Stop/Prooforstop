@@ -2,8 +2,8 @@
  * Old-PoS run 73 (bench-staging/oldpos/run73-analysis.md §6 D): the row-vs-request audit of the rows that answer a
  * scope-plan gap.
  *
- * Run 73's owner resolved two scope-plan gaps from the base's counterpart and pinned `[1,2,3][::-1] -> [1]` while the request
- * sentence "Negative step iterates backward." decides the opposite; the second scope-plan run passed the pins and the
+ * Run 73's owner resolved two scope-plan gaps from the base's counterpart and pinned a reversed-direction case to the base
+ * counterpart's clamped result while a request sentence decides the opposite; the second scope-plan run passed the pins and the
  * implementer raised the conflict (one DEV->PLAN trip, about 8 min). The oracle order is the one `pin_reversal_unstated`
  * (run 58) enforces for re-pins: a request sentence decides; a base-counterpart derivation is allowed only when no request
  * sentence speaks to the case.

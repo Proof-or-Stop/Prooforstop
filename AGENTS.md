@@ -905,6 +905,25 @@ deciding request sentence. Passing resolved-finding guards run in one `go test`
 invocation per package (a failure falls back to per-finding runs). See docs/CLI.md
 "Old-PoS run 73".
 
+Lab round-cut (lab `codex/lab-round-cut`; the review round count drives wall time): at
+DEV exit the framework diffs the Story base against HEAD for operand guards (null /
+omitted, negative, out of range, empty) that a function the Story kept lost, with no
+checklist row or request sentence stating the change (switch `dev.removedGuardScan`,
+default `advisory`: every review lane prompt names them with their base line and base
+test; `on`: clear evidence also reopens the item that declares the file before REVIEW
+and relaunches its implementer with them, once per guard set; report
+`[guard-intended] <file>:<line> <why>` when the change is intended). A finding located
+in a helper that branches on several operands gets a bound matrix in its repair prompt:
+the repair tests every branch and reports one `[branch-test] <fn> <operand>=<case>:
+<test> -> <result>` line per operand, else it is not accepted (relaunched once with what
+is missing). A critic duplicate whose own repro a test of the canonical's repair commit
+states is closed by a framework step (same coverage run and refusal path). Implementer
+and repair prompts carry the request's exact-text literals at launch. Pin probe: an
+inline index suffix on an assignment's right-hand side is kept, a write form a request
+example defines is new behaviour (advisory), and a whole-intent authoring payload carries
+`intentBasis` and is refused `[authoring_payload_stale]` when the rows changed since. See
+docs/CLI.md "Lab round-cut".
+
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
 (`<common git dir>/info/proof-or-stop-cache/`, each answer keyed by the exact

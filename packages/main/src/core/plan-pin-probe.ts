@@ -86,6 +86,11 @@ export interface PinProbeResult {
   /** Cases the base could not evaluate (new behaviour / new syntax): skipped. */
   skipped: number;
   mismatches: PinProbeMismatch[];
+  /**
+   * Lab round-cut N4b: base disagreements on a write whose target form a request example defines
+   * (new behaviour the Story adds on a statement the base also parses): advisory, never refused.
+   */
+  newBehaviour?: PinProbeMismatch[];
 }
 
 // ---------------------------------------------------------------------------
@@ -161,6 +166,43 @@ function baseErrorDisagreement(probe: Pick<ProbeCase, 'pinned'>, observations: R
 }
 
 // ---------------------------------------------------------------------------
+// New behaviour the request defines (lab round-cut N4b)
+
+/** The code with literals and names abstracted (`a[1:3]` -> `v[9:9]`), whitespace-free; a signed number is a number. */
+const shapeOf = (code: string): string => code.replace(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g, '"').replace(/[A-Za-z_$][\w$]*/g, 'v')
+  .replace(/\d+(?:\.\d+)?/g, '9').replace(/\s+/g, '').replace(/-9/g, '9');
+/** The left-hand side of a top-level single `=` (not `==`, `=>`, `<=`, `>=`, `!=`), or null. */
+function assignmentTarget(code: string): string | null {
+  let depth = 0;
+  for (let index = 0; index < code.length; index += 1) {
+    const char = code[index]!;
+    if ('([{'.includes(char)) depth += 1;
+    else if (')]}'.includes(char)) depth = Math.max(0, depth - 1);
+    else if (char === '=' && depth === 0 && !'=!<>'.includes(code[index - 1] ?? '') && !'=>'.includes(code[index + 1] ?? '')) return code.slice(0, index).trim() || null;
+  }
+  return null;
+}
+
+/**
+ * Run 75: `a[1:3]=[20,30]` was refused because the base (which has no range assignment) computes
+ * something else for it; the Story defines that statement. A case whose in-place write (an index or
+ * member target; the shape of its left-hand side, e.g. `v[9:9]`) appears as an assignment target in a
+ * request example is new behaviour: its base disagreement is advisory. Reads, plain name bindings and
+ * write forms the request does not show stay judged on the base.
+ */
+export function requestDefinesWrite(probe: Pick<ProbeCase, 'write' | 'statements'>, requestText: string | null): boolean {
+  if (!requestText) return false;
+  // The case's in-place writes (an index / member target, never a plain name binding), the probed write included.
+  const shapes = new Set(probe.statements.map(assignmentTarget).filter((target): target is string => Boolean(target && /[[.]/.test(target))).map(shapeOf));
+  if (!shapes.size) return false;
+  for (const match of requestText.matchAll(/`([^`\n]+)`/g)) {
+    const defined = assignmentTarget(match[1]!);
+    if (defined && /[[.]/.test(defined) && shapes.has(shapeOf(defined))) return true;
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------
 // Evaluation
 
 function rowBaseValues(items: readonly Pick<ChecklistItem, 'id' | 'verificationIntent'>[]): Map<string, string> {
@@ -228,6 +270,7 @@ export function pinProbeMismatches(args: { store: Pick<StoryStore, 'readStory' |
   const baseValues = rowBaseValues(items);
   let judged = 0;
   let skipped = 0;
+  const newBehaviour: PinProbeMismatch[] = [];
   for (const probe of runnable) {
     const observations = programsOf(probe).map(program => observed.get(program));
     const value = baseDisagreement(probe, observations, baseValues.get(probe.ref));
@@ -236,9 +279,11 @@ export function pinProbeMismatches(args: { store: Pick<StoryStore, 'readStory' |
     if (!answered) { skipped += 1; continue; }
     judged += 1;
     if (value === null || flaggedKeys.has(`${probe.ref}|${probe.code}`)) continue;
-    mismatches.push({ itemId: probe.itemId, ref: probe.ref, code: probe.code, pinned: probe.pinnedText, observed: value, source: 'base' });
+    const row: PinProbeMismatch = { itemId: probe.itemId, ref: probe.ref, code: probe.code, pinned: probe.pinnedText, observed: value, source: 'base' };
+    if (requestDefinesWrite(probe, requestText)) newBehaviour.push(row);
+    else mismatches.push(row);
   }
-  return { runner: evaluator.kind, base: evaluator.base, judged, skipped, mismatches };
+  return { runner: evaluator.kind, base: evaluator.base, judged, skipped, mismatches, ...(newBehaviour.length ? { newBehaviour } : {}) };
 }
 
 /**
@@ -318,7 +363,10 @@ export function pinProbeDevEntryFailure(store: Pick<StoryStore, 'readStory' | 'r
   if (!result || !result.mismatches.length) return null;
   const listed = result.mismatches.slice(0, MAX_LISTED).map(describePinProbeMismatch);
   const more = result.mismatches.length > MAX_LISTED ? ` +${result.mismatches.length - MAX_LISTED} more` : '';
+  const advisory = result.newBehaviour?.length
+    ? ` Not refused (a write form the request defines, new behaviour): ${result.newBehaviour.slice(0, 4).map(describePinProbeMismatch).join('; ')}; record "baseValue" on such a row if the Story deliberately changes what the base computes.`
+    : '';
   return `Cannot enter DEV: ${result.mismatches.length} pinned value(s) disagree with the Story base or the request [${PIN_PROBE_MISMATCH}] (A/B switch plan.pinProbe=on): `
-    + `${listed.join('; ')}${more}. ${pinProbeRule(result)}\n`
+    + `${listed.join('; ')}${more}. ${pinProbeRule(result)}${advisory}\n`
     + `Next: proof-or-stop checklist_update ${shellQuote(JSON.stringify(pinProbeNextPayload(storyId, result.mismatches[0]!)))}`;
 }

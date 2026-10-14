@@ -1,4 +1,5 @@
 import { planIntentPrecheckWarnings } from '../core/plan-intent-precheck.js';
+import { intentBasisRefusal } from '../core/intent-basis.js';
 import { describeMetadataCorrection, literalOccurrences, METADATA_CORRECTION_APPLIED_EVENT, METADATA_CORRECTION_UNCHANGED, metadataCorrectionCleared, metadataFieldHash, metadataFieldText, openMetadataCorrections } from '../core/metadata-correction.js';
 import { observedImplementationDigest, withVerificationCommitObservation, withVerificationCompletionObservation, withVerificationLaunchObservation, withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
 import { assertGitObservationInactive, observedGit, withGitTreeObservation, withoutGitObservation } from '../core/git-tree-observation.js';
@@ -3430,7 +3431,19 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
        * intent before any check, so every intent check runs unchanged.
        */
       intentRows?: unknown[];
+      /**
+       * Lab round-cut N4c (core/intent-basis.ts): the digest of the verificationIntent a `next`
+       * authoring payload was built from; refused [authoring_payload_stale] when the rows changed since.
+       */
+      intentBasis?: string;
     }): string {
+      if (args.intentBasis !== undefined) {
+        const current = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
+        const refusal = intentBasisRefusal({ storyId: args.storyId, itemId: args.itemId, currentIntent: current?.verificationIntent, basis: args.intentBasis });
+        if (refusal) throw new Error(refusal);
+        const { intentBasis: _basis, ...rest } = args;
+        args = rest;
+      }
       if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.excludes === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined && args.intentRows === undefined) {
         throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/intentRows/verificationEvidence must be provided');
       }

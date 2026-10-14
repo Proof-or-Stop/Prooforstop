@@ -108,6 +108,15 @@
  *                              new operation refuses DEV entry with ONE Next, weak evidence is an advisory note; the
  *                              implementer prompt asks for `[counterpart]` base probes (core/counterpart-coverage.ts)
  *
+ * Lab round-cut (old-PoS runs 65/71/73/74/75, bench-staging/oldpos/run74-75-analysis.md §7 N1): one detection switch
+ * whose production value is the middle arm:
+ *   dev.removedGuardScan       'advisory' (default) | 'off' | 'on'  at DEV exit the framework diffs the Story base against
+ *                              HEAD for operand guards (null / omitted, negative, out of range, empty) a changed function
+ *                              lost, unjustified by a checklist row or the request (core/removed-guard-scan.ts).
+ *                              advisory: every review lane prompt names them; on: a clear one reopens the item that
+ *                              declares the file before REVIEW (the implementer relaunch carries it, once per guard set),
+ *                              a weak one stays advisory; off: no scan
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -138,6 +147,7 @@ export const AB_VARIANT_FLAGS = {
   'plan.reviewMerge': ['off', 'on'],
   'plan.rowBudget': ['off', 'on'],
   'plan.counterpartCoverage': ['off', 'on'],
+  'dev.removedGuardScan': ['advisory', 'off', 'on'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -148,7 +158,7 @@ export interface AbVariantConfigSlice {
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
   plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string };
-  dev?: { probeEnforcement?: string };
+  dev?: { probeEnforcement?: string; removedGuardScan?: string };
 }
 
 export interface AbVariants {
@@ -175,6 +185,7 @@ export interface AbVariants {
   reviewMerge: AbVariantValue<'plan.reviewMerge'>;
   rowBudget: AbVariantValue<'plan.rowBudget'>;
   counterpartCoverage: AbVariantValue<'plan.counterpartCoverage'>;
+  removedGuardScan: AbVariantValue<'dev.removedGuardScan'>;
 }
 
 export interface AbVariantEvidence {
@@ -224,6 +235,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     reviewMerge: pick('plan.reviewMerge', section(config, 'plan').reviewMerge),
     rowBudget: pick('plan.rowBudget', section(config, 'plan').rowBudget),
     counterpartCoverage: pick('plan.counterpartCoverage', section(config, 'plan').counterpartCoverage),
+    removedGuardScan: pick('dev.removedGuardScan', section(config, 'dev').removedGuardScan),
   };
 }
 
@@ -253,6 +265,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.reviewMerge !== 'off') flags['plan.reviewMerge'] = variants.reviewMerge;
   if (variants.rowBudget !== 'off') flags['plan.rowBudget'] = variants.rowBudget;
   if (variants.counterpartCoverage !== 'off') flags['plan.counterpartCoverage'] = variants.counterpartCoverage;
+  if (variants.removedGuardScan !== 'advisory') flags['dev.removedGuardScan'] = variants.removedGuardScan;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -266,7 +279,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -301,6 +314,8 @@ export const reviewMergeOn = (config: unknown): boolean => catchEarlierPick(conf
 export const rowBudgetOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.rowBudget') === 'on';
 /** EXPERIMENTAL plan.counterpartCoverage=on: an added operation's same-receiver counterpart cases must have rows before DEV (core/counterpart-coverage.ts); malformed = off. */
 export const counterpartCoverageOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.counterpartCoverage') === 'on';
+/** Lab round-cut dev.removedGuardScan: 'advisory' (default) | 'off' | 'on' (core/removed-guard-scan.ts); malformed = advisory. */
+export const removedGuardScanMode = (config: unknown): AbVariantValue<'dev.removedGuardScan'> => catchEarlierPick(config, 'dev.removedGuardScan');
 /** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }

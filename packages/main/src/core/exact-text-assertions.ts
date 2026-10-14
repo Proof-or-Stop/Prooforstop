@@ -670,3 +670,20 @@ export function renderExactTextRelaunch(root: string, storyId: string, itemId: s
   return ['- Reopened before REVIEW: request-quoted exact strings your tests compare only by prefix / contains (the row named below is compared that way). Add an exact (full-string equality) assertion of each; a reused project helper that compares by prefix does not count:',
     ...state.gaps.slice(0, 10).map(gap => `  ${describeExactTextGap(gap)}`)];
 }
+
+/**
+ * Lab round-cut N3b (bench-staging/oldpos/run74-75-analysis.md §7 N3b): the exact-text gate reopened an
+ * implementer run once per run (runs 74/75: 3 of 3; 1.1-1.9 min each) because a request literal was
+ * asserted only through a cut or a prefix. The implementer and finding-repair prompts now carry the
+ * request's exact-text literals (the same `requestExactLiterals` the gate checks) with the whole-text
+ * rule at launch, instead of learning it from the reopen. Prompt only; the gate is unchanged.
+ */
+export function renderRequestExactLiterals(requestText: string | null | undefined, max = 10): string[] {
+  const literals = requestText ? requestExactLiterals(requestText) : [];
+  if (!literals.length) return [];
+  return [
+    'Request exact-text literals (the exact-text gate checks each before REVIEW): wherever a test of yours asserts one of these messages, compare the WHOLE message with full-string equality (==, Equal / DeepEqual, toBe / toEqual, assertEqual), never through HasPrefix / Contains / startsWith / a cut of the actual text or a helper that wraps one; the `<placeholder>` part is the runtime value:',
+    ...literals.slice(0, max).map(literal => `  - \`${literal}\``),
+    ...(literals.length > max ? [`  - ${literals.length - max} more in request.md`] : []),
+  ];
+}

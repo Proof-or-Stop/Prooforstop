@@ -1750,6 +1750,12 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
    * its repair (ngsRepairScript) changes the expected value of a table row a checklist intent row also pins.
    */
   repin?: boolean;
+  /**
+   * Lab round-cut (run74-75-analysis.md §7): 'dup' = round 1 reports D_FINDING and NRD_DUP_FINDING (the critic marks the
+   * latter a duplicate whose repro the canonical repair test states, N3); 'matrix' = round 1 reports NRM_FINDING, located
+   * in a helper that branches on two operands (N2).
+   */
+  roundCut?: 'dup' | 'matrix';
 
   /** Detection A/B control D9-r1 / D2-r3 / refused critic: how the FIRST round-1 critic restates or omits findings (scenarios NC, NC2, NC3). */
   criticRestate?: CriticRestateMode;
@@ -1851,6 +1857,13 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
     // Old-PoS run 68 (NRV): round 1 reports the trailing-newline defect; later rounds pass.
     const index = reviewRoundIndex(worktree, storyId, reviewRunId);
     const envelope = index === 0 ? { conclusion: 'findings', note: 'Scripted run 68 lane.', findings: [NGS_FINDING2] } : PASS_ENVELOPE(lane);
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
+  }
+  if (mode.roundCut && lane === 'proof-or-stop-review-test-coverage') {
+    // Lab round-cut: round 1 reports the mode's findings; later rounds pass.
+    const index = reviewRoundIndex(worktree, storyId, reviewRunId);
+    const findings = index !== 0 ? [] : mode.roundCut === 'dup' ? [D_FINDING, NRD_DUP_FINDING] : [NRM_FINDING];
+    const envelope = findings.length ? { conclusion: 'findings', note: 'Scripted round-cut lane.', findings } : PASS_ENVELOPE(lane);
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
   }
   if (mode.regFamily && lane === 'proof-or-stop-review-test-coverage') {
@@ -1970,9 +1983,11 @@ function criticScript(worktree: string, storyId: string, reviewRunId: string, re
   if (newFinding && epoch.reviewRound === firstRound) return waveCriticScript(worktree, storyId, reviewRunId, epoch, firstCritic);
   // Run 17 Q1: the NU duplicate is dispositioned `duplicate` of D_FINDING (same root cause).
   const canonical = raw.find(f => f.desc === D_FINDING.desc);
-  const dispositions = raw.map(f => (f.desc === NU_DUP_FINDING.desc || f.desc === NU_DUP_FINDING2.desc) && canonical
+  const dispositions = raw.map(f => (f.desc === NU_DUP_FINDING.desc || f.desc === NU_DUP_FINDING2.desc || f.desc === NRD_DUP_FINDING.desc) && canonical
     ? { finding: { findingId: f.id }, disposition: 'duplicate', familyKey: 'reverse-empty-string', canonicalFinding: { findingId: canonical.id },
       reason: 'Same root cause as the canonical finding: Reverse indexes the last rune of an empty string.' }
+    : f.desc === NRM_FINDING.desc
+    ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'window-bounds', reason: 'Window clamps its bounds; one verified family.' }
     : f.desc === PX_FINDING.desc
     ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'array-doc-range-drift', reason: 'The array doc shows end-inclusive range results; one verified family.' }
     : untagged(f.desc).startsWith('Upper ')
@@ -2299,6 +2314,10 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   suspectedConflict?: boolean;
   /** Old-PoS run 68 (NRV): see ScriptMode.repin. */
   repin?: boolean;
+  /** Lab round-cut (NRM / NRD): see ScriptMode.roundCut. */
+  roundCut?: 'dup' | 'matrix';
+  /** Lab round-cut (NRC): the scripted implementer of a relaunch (default implementerScript). */
+  implementerScript?: (itemId: string) => ProviderScript;
   /** Owner-driver lab (owner.driver=framework): drive with `next --untilAgent` (implies run); the owner only gets agent steps. */
   drive?: boolean;
   /** Run 16: round 1 also reports two LOW findings; the owner repairs the first itself (managed finding-repair) when next says enter_review. */
@@ -2504,6 +2523,14 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           o.script(FINDING_REPAIR, nrgRepairScript(id, String(payload.findingId)));
           break;
         }
+        if (mode.roundCut === 'matrix' && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NRM_FINDING.desc) {
+          // Lab round-cut (NRM): the first repair reports only the finding's own branch; the second every operand.
+          const attempt = (repairRunsByFinding.get(String(payload.findingId)) ?? []).length + 1;
+          // The earlier run is terminal: retire its script key now, not after this run reads its script.
+          retireTerminalScripts();
+          o.script(FINDING_REPAIR, nrmRepairScript(id, attempt));
+          break;
+        }
         if ((mode.staleRow || mode.repin) && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NGS_FINDING2.desc) {
           o.script(FINDING_REPAIR, ngsRepairScript(id, String(payload.findingId)));
           break;
@@ -2515,7 +2542,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         break;
       }
       case 'implement_item':
-        o.script(IMPLEMENTER, implementerScript(id, String(payload.itemId)));
+        if (mode.implementerScript) retireTerminalScripts();
+        o.script(IMPLEMENTER, mode.implementerScript?.(String(payload.itemId)) ?? implementerScript(id, String(payload.itemId)));
         break;
       case 'enter_review': {
         // Run 16: next proposed enter_review with a verified LOW finding open
@@ -2589,6 +2617,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         const findingId = String(payload.findingId);
         const canonicalId = String(payload.duplicateOf);
         assert.ok(!repairRunsByFinding.has(findingId), `[${o.scenario}] next proposed the duplicate resolve for ${findingId} after a repair of its own was launched`);
+        // Lab round-cut (N3): the framework authored the coverage itself; run it as proposed.
+        if (next.kind === 'framework') break;
         payload.coverage = mode.duplicate === 'uncovered'
           ? { command: 'go test -v ./strs -run TestReverseEmptyDup', selector: '--- PASS: TestReverseEmptyDup' }
           : { command: 'go test -v ./strs -run TestReverseEmpty', selector: '--- PASS: TestReverseEmpty' };
@@ -7578,8 +7608,189 @@ function scenarioNRV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Lab round-cut (bench-staging/oldpos/run74-75-analysis.md §7 N1-N3): fewer review rounds.
+
+/** NRC: the task base has a Clip helper whose nil-n branch keeps the whole string; its base test exercises it. */
+const NRC_CLIP_BASE = '\n// Clip returns s[:*n]; a nil n keeps the whole string.\nfunc Clip(s string, n *int) string {\n\tif n != nil {\n\t\treturn s[:*n]\n\t}\n\treturn s\n}\n';
+/** NRC: the Story's refactor of Clip drops the nil branch (run-75 shape: `end != NULL` became `!endOmitted`). */
+const NRC_CLIP_HEAD = '\n// Clip returns s[:*n]; a nil n keeps the whole string.\nfunc Clip(s string, n *int) string {\n\treturn s[:*n]\n}\n';
+const NRC_BASE_STRS = `package strs\n\n// Upper returns s unchanged (baseline bug).\nfunc Upper(s string) string { return s }\n${NRC_CLIP_BASE}`;
+const NRC_CLIP_TEST = '\nfunc TestClipNil(t *testing.T) {\n\tif Clip("abc", nil) != "abc" {\n\t\tt.Fatal("a nil n keeps the whole string")\n\t}\n}\n';
+const NRC_BASE_TESTS = `package strs\n\nimport "testing"\n\nfunc TestBaseline(t *testing.T) {}\n${NRC_CLIP_TEST}`;
+
+/** NRC: the relaunched implementer restores the base branch and tests it. */
+function nrcRestoreScript(storyId: string, itemId: string): ProviderScript {
+  const writeFiles = `const fs=require('fs');fs.writeFileSync('strs/strs.go',${JSON.stringify(`${IMPL}${NRC_CLIP_BASE}`)});fs.writeFileSync('strs/strs_test.go',${JSON.stringify(`${TESTS}${NRC_CLIP_TEST}`)});`;
+  return { commands: [
+    [process.execPath, '-e', writeFiles],
+    // A framework git read (a status poll) may hold the index lock for a moment: retry the commit.
+    ['/bin/sh', '-c', `for i in 1 2 3 4 5 6 7 8; do git add strs && git -c user.name=${IMPLEMENTER} commit -qm '${storyId} ${itemId}: keep the base nil branch of Clip' && break; sleep 1; done; git log --format=%h -1`],
+    [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId, itemId, status: 'done' })],
+  ], final: `Restored the nil-n branch of Clip and tested it (TestClipNil); ${itemId} marked done.\n[intent-conflict] none` };
+}
+
+/**
+ * NRC / NRC-ADV (lab round-cut N1, run 75 F-006 / runs 65, 71, 73, 74): the Story's refactor of a
+ * helper drops a base operand guard (a nil branch) that no row covers. RED on the base: nothing
+ * looked at the base→HEAD diff before REVIEW, so the regression waited for a lane (1-3 rounds
+ * late). Now (dev.removedGuardScan=on, NRC) the DEV exit reopens the item that declares the file
+ * and relaunches its implementer with the removed guard, its base line and the base test (a
+ * framework step, once per guard set): the relaunch restores it and the Story passes REVIEW in one
+ * round. With the default (advisory, NRC-ADV) nothing is reopened and every review lane's prompt
+ * carries the removed guard as an advisory note.
+ */
+function scenarioNRC(machineEnv: NodeJS.ProcessEnv, steps: Step[], advisory: boolean): Outcome {
+  const tag = advisory ? 'NRC-ADV' : 'NRC';
+  const name = advisory
+    ? 'NRC-ADV lab round-cut N1 (default advisory): a base operand guard the Story removed is named in every review lane prompt; nothing is reopened'
+    : 'NRC lab round-cut N1 (dev.removedGuardScan=on): a base operand guard the Story removed reopens its item before REVIEW; the relaunch restores it; one review round';
+  const o = new Owner(tag, advisory ? 'B-7c02' : 'B-7c01', machineEnv, steps, false, { trackedGateFailureCounts: true,
+    baseFiles: { 'strs/strs.go': NRC_BASE_STRS, 'strs/strs_test.go': NRC_BASE_TESTS }, ...(advisory ? {} : { config: { dev: { removedGuardScan: 'on' } } }) });
+  const lines: string[] = [];
+  const seen: Array<{ phase: string; reason: string; kind: string }> = [];
+  try {
+    // The Story's implementation keeps Clip but drops its nil branch.
+    writeFileSync(join(o.worktree, 'strs/strs.go'), `${IMPL}${NRC_CLIP_HEAD}`);
+    git(o.worktree, ['add', 'strs/strs.go']);
+    git(o.worktree, ['-c', 'user.name=proof-or-stop-implementer', 'commit', '-qm', 'refactor Clip']);
+    devSetup(o);
+    driveWithNext(o, { findingRound1: false, run: false, implementerScript: itemId => nrcRestoreScript(o.storyId, itemId) }, lines, next => {
+      seen.push({ phase: next.phase, reason: next.reason, kind: next.kind });
+    });
+    const order = seen.map(row => `${row.phase}:${row.reason}`);
+    const reopen = seen.findIndex(row => row.reason === 'removed_guard_reopen');
+    const review = seen.findIndex(row => row.reason === 'enter_review');
+    lines.push(`steps to REVIEW: ${order.slice(0, review + 1).join(' > ')}`);
+    const lanePrompts = managedPrompts(o).filter(row => /proof-or-stop-review-(?:test-coverage|quality|concept|docs)/.test(row.agentType));
+    if (advisory) {
+      assert.equal(reopen, -1, `${tag}: advisory mode never reopens: ${order.join(' > ')}`);
+      assert.ok(lanePrompts.length > 0, `${tag}: lanes ran`);
+      for (const row of lanePrompts) {
+        assert.match(row.prompt, /Removed base guard/, `${tag}: ${row.agentType} prompt names the removed guard`);
+        assert.match(row.prompt, /strs\/strs\.go:\d+[^\n]*n != nil/, `${tag}: with its base line`);
+      }
+    } else {
+      assert.ok(reopen >= 0 && reopen < review, `${tag}: the removed guard reopens an item before REVIEW: ${order.join(' > ')}`);
+      assert.equal(seen[reopen]!.kind, 'framework', `${tag}: the reopen is a framework step`);
+      const relaunch = managedPrompts(o, IMPLEMENTER).at(-1);
+      assert.ok(relaunch, `${tag}: an implementer relaunch`);
+      assert.match(relaunch!.prompt, /Removed base guard/, `${tag}: the relaunch prompt carries the guard`);
+      assert.match(relaunch!.prompt, /strs\/strs\.go:\d+[^\n]*n != nil/, `${tag}: with its base line`);
+      assert.match(relaunch!.prompt, /TestClipNil|Clip\("abc", nil\)/, `${tag}: and the base test of the class`);
+      assert.equal(reviewRoundCount(o), 1, `${tag}: one review round`);
+      assert.match(readFileSync(join(o.root, 'strs/strs.go'), 'utf8'), /if n != nil/, `${tag}: the merged code keeps the base branch`);
+    }
+    assert.equal(new StoryStore(o.root).readStory(o.storyId).phase, 'DONE', `${tag}: DONE`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${seen.map(row => `${row.phase}:${row.reason}(${row.kind})`).join(' > ')}`, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NRM: the Story adds a Window helper that branches on two operands (start, end). */
+const NRM_WINDOW = '\n// Window returns s[start:end] with both bounds clamped to the string.\nfunc Window(s string, start, end int) string {\n\tif start < 0 {\n\t\tstart = 0\n\t}\n\tif end > len(s) {\n\t\tend = len(s)\n\t}\n\treturn s[start:end]\n}\n';
+const NRM_START_LINE = `${IMPL}${NRM_WINDOW}`.split('\n').findIndex(line => line === '\tif start < 0 {') + 1;
+const NRM_FINDING = {
+  desc: `strs/strs.go:${NRM_START_LINE} Window clamps a negative start to 0 without a test of the start branch. Repro: \`Window("abc", -1, 3)\``,
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
+const NRM_TEST_START = '\nfunc TestWindowNegativeStart(t *testing.T) {\n\tif Window("abc", -1, 3) != "abc" {\n\t\tt.Fatal("start")\n\t}\n}\n';
+const NRM_TEST_END = '\nfunc TestWindowEndBeyond(t *testing.T) {\n\tif Window("abc", 0, 9) != "abc" {\n\t\tt.Fatal("end")\n\t}\n}\n';
+/** NRM: attempt 1 tests and reports only the finding's own branch; attempt 2 every operand of the helper. */
+function nrmRepairScript(storyId: string, attempt: number): ProviderScript {
+  const test = attempt === 1 ? NRM_TEST_START : NRM_TEST_END;
+  const lines = attempt === 1 ? ['[branch-test] Window start=-1: TestWindowNegativeStart -> abc']
+    : ['[branch-test] Window start=-1: TestWindowNegativeStart -> abc', '[branch-test] Window end=9 (beyond len): TestWindowEndBeyond -> abc'];
+  return { commands: [['/bin/sh', '-c', `printf '%s' '${test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm 'test: Window bounds (attempt ${attempt})' && git log --format=%h -1`]],
+    final: `Tested Window's bounds (attempt ${attempt}); committed.\n${lines.join('\n')}` };
+}
+
+/**
+ * NRM (lab round-cut N2, run 75 F-001 -> F-003): a finding sits in a helper that branches on two
+ * operands. RED on the base: the repair tested only the finding's branch and was accepted; the
+ * sibling branch waited for the next round. Now the repair prompt carries a bound matrix (every
+ * branch of the helper) and a repair whose report lacks a `[branch-test]` line for an operand is not
+ * accepted: one relaunch, whose report covers both, closes the finding.
+ */
+function scenarioNRM(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRM';
+  const name = 'NRM lab round-cut N2: a repair of a finding in a two-operand helper must test every branch ([branch-test] per operand); the partial repair is relaunched, not accepted';
+  const o = new Owner(tag, 'B-7c03', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const seen: Array<{ phase: string; reason: string; kind: string; why: string }> = [];
+  try {
+    writeFileSync(join(o.worktree, 'strs/strs.go'), `${IMPL}${NRM_WINDOW}`);
+    git(o.worktree, ['add', 'strs/strs.go']);
+    git(o.worktree, ['-c', 'user.name=proof-or-stop-implementer', 'commit', '-qm', 'add Window']);
+    devSetup(o);
+    driveWithNext(o, { findingRound1: false, run: false, roundCut: 'matrix' }, lines, next => {
+      seen.push({ phase: next.phase, reason: next.reason, kind: next.kind, why: next.why });
+    });
+    const repairs = managedPrompts(o, FINDING_REPAIR);
+    lines.push(`repair runs: ${repairs.length}; steps: ${seen.filter(row => /finding_/.test(row.reason)).map(row => row.reason).join(' > ')}`);
+    assert.equal(repairs.length, 2, `${tag}: the partial repair is relaunched once (got ${repairs.length})`);
+    assert.match(repairs[0]!.prompt, /Bound matrix/, `${tag}: the repair prompt carries the bound matrix`);
+    assert.match(repairs[0]!.prompt, /Window[\s\S]*\[branch-test\]/, `${tag}: naming the helper and the report line`);
+    const relaunch = seen.filter(row => row.reason === 'finding_repair')[1];
+    assert.ok(relaunch && /branch-test/.test(relaunch.why), `${tag}: the relaunch why names the missing [branch-test] lines: ${relaunch?.why.slice(0, 400)}`);
+    assert.match(repairs[1]!.prompt, /not accepted[\s\S]*end|end[\s\S]*not accepted/, `${tag}: the relaunch prompt names the untested operand`);
+    const finding = new StoryStore(o.root).readFindings(o.storyId).findings.find(f => f.desc === NRM_FINDING.desc);
+    assert.equal(finding?.status, 'resolved', `${tag}: resolved`);
+    assert.equal(new StoryStore(o.root).readStory(o.storyId).phase, 'DONE', `${tag}: DONE`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${seen.map(row => `${row.phase}:${row.reason}(${row.kind})`).join(' > ')}`, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NRD: a critic duplicate of D_FINDING whose own repro is the call the canonical repair's test makes. */
+const NRD_DUP_FINDING = {
+  desc: 'Reverse of an empty input reads the last rune of an empty slice (same root cause as the empty-string edge). Repro: `Reverse("")`',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
+
+/**
+ * NRD (lab round-cut N3, run 75: three owner duplicate closures, about 2.4 min): a critic duplicate
+ * whose repro a test of the canonical repair commit states is closed by the framework (it authors
+ * the coverage command and selector; the same coverage run and refusal path decide). RED on the
+ * base: an agent step with placeholders the owner had to fill.
+ */
+function scenarioNRD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRD';
+  const name = 'NRD lab round-cut N3: an accepted duplicate (its repro is in the canonical repair test) is closed by a framework step, no owner turn';
+  const o = new Owner(tag, 'B-7c04', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const seen: Array<{ reason: string; kind: string; placeholders: string[]; payload: Record<string, unknown> }> = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: false, run: false, roundCut: 'dup' }, lines, next => {
+      if (/finding_/.test(next.reason)) seen.push({ reason: next.reason, kind: next.kind, placeholders: next.placeholders ?? [], payload: next.cli?.payload ?? {} });
+    });
+    lines.push(`finding steps: ${seen.map(row => `${row.reason}(${row.kind})`).join(' > ')}`);
+    const dupStep = seen.find(row => row.reason === 'finding_duplicate_resolve');
+    assert.ok(dupStep, `${tag}: a duplicate closure step`);
+    assert.equal(dupStep!.kind, 'framework', `${tag}: the framework closes the duplicate (no owner turn): ${JSON.stringify(dupStep)}`);
+    assert.deepEqual(dupStep!.placeholders, [], `${tag}: nothing for the owner to author`);
+    assert.match(String((dupStep!.payload.coverage as { command?: string } | undefined)?.command ?? ''), /-run \^TestReverseEmpty\$/, `${tag}: the canonical repair test runs the duplicate's repro`);
+    const dup = new StoryStore(o.root).readFindings(o.storyId).findings.find(f => f.desc === NRD_DUP_FINDING.desc);
+    assert.equal(dup?.status, 'resolved', `${tag}: resolved`);
+    assert.equal(dup?.resolutionType, 'duplicate', `${tag}: as a duplicate`);
+    assert.equal(managedPrompts(o, FINDING_REPAIR).length, 1, `${tag}: no repair of its own`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -7675,6 +7886,11 @@ async function main(): Promise<void> {
     if (only.includes('NRB') || only.includes('PL')) outcomes.push(scenarioNRB(machine.env, steps));
     // Lab sibling-gate: plan.counterpartCoverage (NCC, with its switch-absent control NCC-off).
     if (only.includes('NCC')) outcomes.push(scenarioNCC(machine.env, steps));
+    // Lab round-cut: removed-guard scan (NRC on, NRC-ADV advisory default), bound matrix (NRM), framework duplicate closure (NRD).
+    if (only.includes('NRC')) outcomes.push(scenarioNRC(machine.env, steps, false));
+    if (only.includes('NRC-ADV')) outcomes.push(scenarioNRC(machine.env, steps, true));
+    if (only.includes('NRM')) outcomes.push(scenarioNRM(machine.env, steps));
+    if (only.includes('NRD')) outcomes.push(scenarioNRD(machine.env, steps));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
@@ -7693,7 +7909,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
