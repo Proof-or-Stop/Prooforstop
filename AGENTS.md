@@ -892,6 +892,19 @@ sweeps every row of any item stating that form; PLAN offers one skippable
 `exact_error_pin_check` step for exact whole-error pins (advisory without a declared
 evaluator). See docs/CLI.md "Old-PoS run 68".
 
+Old-PoS run 73 (lab `codex/lab-run73-fixes`, detection-neutral, no switch): a finding
+whose duplicate-coverage check was recorded failed / refused, or that is tagged
+`[regression-of F-x]` with F-x resolved, joins the ONE grouped finding-repair run and is
+never offered the duplicate-coverage path (each finding is still resolved with its own
+commit). The repair prompt of a regression finding carries the earlier repair's diff and
+repro and asks for one `[family-test]` covering every call site / target shape. PLAN
+offers one skippable `request_pin_check` step (pins contradicting a request literal
+example; rows answering a scope gap whose derivation does not quote the nearest request
+sentence); the `plan_review_blockers` step and the scope-plan rerun context ask for the
+deciding request sentence. Passing resolved-finding guards run in one `go test`
+invocation per package (a failure falls back to per-finding runs). See docs/CLI.md
+"Old-PoS run 73".
+
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
 (`<common git dir>/info/proof-or-stop-cache/`, each answer keyed by the exact
