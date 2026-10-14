@@ -22,6 +22,9 @@ import { VERIFICATION_LANES } from './verification.js';
 import { excludesEntryCheck } from './scope-exclusion-rationale.js';
 
 const MAX_DIFF_LINES = 40;
+/** Old-PoS run 73 (D): the rows added in answer to the previous verdict are judged against the request sentence that decides each case. */
+export const ROW_VS_REQUEST_AUDIT = 'Row-vs-request audit (the rows marked + above answer your previous verdict): for each added row quote the request sentence that mentions the same operand class and say whether the pin contradicts it; '
+  + 'a request sentence decides the case, and a derivation from the base counterpart holds only when no request sentence speaks to it. A pin that contradicts a request sentence is a blocking pin-audit gap.';
 const clip = (text: string, max = 200): string => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 
 /** The checklist as of the commit that last published scope-check.json, or null. */
@@ -38,6 +41,29 @@ function checklistAtVerdict(gitCwd: string, storyDir: string, scope: Pick<ScopeC
   } catch {
     return null;
   }
+}
+
+/**
+ * Old-PoS run 73 (D): refs (`CHK-NNN:<lane>:<n>`) of the intent rows added or changed since the last scope-plan verdict, i.e. the rows
+ * that answer its gaps. Empty without a verdict whose judged checklist is reconstructable.
+ */
+export function changedIntentRowRefs(args: { store: StoryStore; storyId: string; gitCwd: string }): Set<string> {
+  const out = new Set<string>();
+  try {
+    const scope = args.store.readScopeCheck(args.storyId);
+    if (!scope) return out;
+    const before = checklistAtVerdict(args.gitCwd, args.store.storyDirPath(args.storyId), scope);
+    if (!before) return out;
+    const old = new Map(before.items.map(item => [item.id, item]));
+    for (const item of args.store.readChecklist(args.storyId).items) {
+      const prior = old.get(item.id);
+      for (const lane of VERIFICATION_LANES) {
+        const seen = new Set((prior?.verificationIntent?.[lane] ?? []).map(row => String(row.desc ?? '')));
+        (item.verificationIntent?.[lane] ?? []).forEach((row, index) => { if (!seen.has(String(row.desc ?? ''))) out.add(`${item.id}:${lane}:${index}`); });
+      }
+    }
+  } catch { /* evidence only */ }
+  return out;
 }
 
 function intentRows(item: Pick<ChecklistItem, 'verificationIntent'>): string[] {
@@ -132,6 +158,7 @@ export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: 
     lines.push(diff.length ? 'Checklist changes since that verdict:' : 'Checklist changes since that verdict: none.');
     lines.push(...diff.slice(0, MAX_DIFF_LINES));
     if (diff.length > MAX_DIFF_LINES) lines.push(`- +${diff.length - MAX_DIFF_LINES} more lines (read checklist.json)`);
+    if (diff.some(line => /^\s+\+ /.test(line))) lines.push(ROW_VS_REQUEST_AUDIT);
     if (args.root) lines.push(...ownerExcludesLines(args.root, flagged.map(feature => feature.feature), before, current));
     if (args.confirmation) return [...lines, ...confirmationLines(scope, changedScopeItemIds(before, current))];
   } else {

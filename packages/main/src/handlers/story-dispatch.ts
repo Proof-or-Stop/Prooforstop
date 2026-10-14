@@ -47,6 +47,7 @@ import { loadConfig } from '../core/config.js';
 import { probeMatrixOn } from '../core/ab-variants.js';
 import { counterpartImplementerLines, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { renderSiblingParity } from '../core/sibling-parity.js';
+import { regressionFamilyBrief } from '../core/regression-family-brief.js';
 import { baseDisagreementActive, SCOPE_PLAN_BASE_DISAGREEMENT_CHECK } from '../core/base-disagreement.js';
 import { rejectedRepairCommits, renderRepairResolvedContext, renderResolvedReprobe } from '../core/resolved-finding-guard.js';
 import { exclusionRationaleCheckActive, SCOPE_PLAN_EXCLUSION_CHECK } from '../core/scope-exclusion-rationale.js';
@@ -1060,6 +1061,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       const resolvedContext = renderRepairResolvedContext({ findings: data.findings, storyId: args.storyId, finding,
         rejected: rejectedAll.get(finding.id) ?? [], rejectedAll });
       if (resolvedContext.length) lines.push(...resolvedContext);
+      // Old-PoS run 73 (B): a regression of a resolved finding gets the earlier repair's diff and repro and a family-complete test requirement.
+      const familyBrief = regressionFamilyBrief({ findings: data.findings, storyId: args.storyId, finding,
+        gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }) });
+      if (familyBrief.length) lines.push(...familyBrief);
       const storyBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
       lines.push(storyBase
         ? `- Story base for that check: ${storyBase} (for example \`git worktree add --detach <tmp> ${storyBase.slice(0, 12)}\`, run the variants there, then remove it).`

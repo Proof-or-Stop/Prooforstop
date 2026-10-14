@@ -608,6 +608,85 @@ export function canonicalFixLiveness(args: { projectRoot: string; gitCwd: string
 }
 
 // ---------------------------------------------------------------------------
+// One invocation for all passing guards (old-PoS run 73, E)
+
+/**
+ * The top-level declaration blocks of a Go source (a block starts at a column-0 func / type / var / const /
+ * import / package line, or at the run of column-0 comment lines right above it; trailing blanks trimmed).
+ */
+export function goTopLevelBlocks(text: string): string[] {
+  const lines = text.split('\n');
+  const starts: number[] = [];
+  let comment: number | null = null;
+  lines.forEach((line, index) => {
+    if (/^(?:func|type|var|const|import|package)\b/.test(line)) { starts.push(comment ?? index); comment = null; }
+    else if (/^\/\//.test(line)) comment ??= index;
+    else comment = null;
+  });
+  return starts.map((start, index) => lines.slice(start, starts[index + 1] ?? lines.length).join('\n').replace(/\s+$/, ''));
+}
+
+/**
+ * Whether the guard's recorded test files are, as they stand in the working tree, the snapshot plus whole
+ * declarations added later (every recorded top-level block present verbatim): then a run on the current tree
+ * exercises the recorded test source exactly as the restored run does.
+ */
+function recordedTestsUnchanged(gitCwd: string, guard: FindingGuard): boolean {
+  if (guard.filtered?.length) return false;
+  for (const file of guard.testFiles) {
+    const recorded = tryGit(gitCwd, ['show', `${guard.snapshotRef}:${file}`]);
+    let current: string;
+    try { current = readFileSync(join(gitCwd, file), 'utf8'); } catch { return false; }
+    if (recorded === null) return false;
+    const have = new Set(goTopLevelBlocks(current));
+    if (!goTopLevelBlocks(recorded).every(block => have.has(block))) return false;
+  }
+  return true;
+}
+
+const UNION_COMMAND = /^go test -v (\S+) -run \^\(([A-Za-z0-9_|]+)\)\$$/;
+
+/** The `go test` package and test names of a guard that a merged invocation can stand for, else null. */
+function unionPlanOf(gitCwd: string, guard: FindingGuard, currentTests: boolean): { pkg: string; names: string[]; restoredTests: boolean } | null {
+  if (guard.runs.length !== 1) return null;
+  const match = guard.runs[0]!.command.match(UNION_COMMAND);
+  if (!match) return null;
+  const names = match[2]!.split('|').filter(Boolean);
+  if (!names.length || guard.runs[0]!.selectors.length !== names.length || !names.every(name => guard.runs[0]!.selectors.includes(`--- PASS: ${name}`))) return null;
+  const testsChanged = guard.testFiles.length > 0 && (tryGit(gitCwd, ['diff', '--name-only', guard.snapshotRef, 'HEAD', '--', ...guard.testFiles]) ?? '').trim() !== '';
+  if (currentTests) return { pkg: match[1]!, names, restoredTests: false };
+  if (guard.filtered?.length) return null;
+  if (!testsChanged) return { pkg: match[1]!, names, restoredTests: false };
+  return recordedTestsUnchanged(gitCwd, guard) ? { pkg: match[1]!, names, restoredTests: true } : null;
+}
+
+/**
+ * Run the passing guards of one package in ONE `go test` invocation (the findings of a long review accumulate:
+ * one invocation per resolved finding grew `finding_resolve` to 55 s). A merged pass stands for each member's own
+ * pass (same package, same tests, recorded source unchanged); a merged failure, a build failure or a missing tool
+ * stands for nothing: every member then runs on its own exactly as before, so a decision never changes.
+ */
+export function unionGuardPasses(args: { projectRoot: string; gitCwd: string; entries: ReadonlyArray<{ guard: FindingGuard; currentTests: boolean }> }): Map<string, GuardResult> {
+  const byPackage = new Map<string, Array<{ guard: FindingGuard; names: string[]; restoredTests: boolean }>>();
+  for (const { guard, currentTests } of args.entries) {
+    const plan = unionPlanOf(args.gitCwd, guard, currentTests);
+    if (plan) byPackage.set(plan.pkg, [...(byPackage.get(plan.pkg) ?? []), { guard, names: plan.names, restoredTests: plan.restoredTests }]);
+  }
+  const out = new Map<string, GuardResult>();
+  for (const [pkg, members] of byPackage) {
+    if (members.length < 2) continue;
+    const names = [...new Set(members.flatMap(member => member.names))];
+    let result;
+    try { result = runCommand(args.projectRoot, args.gitCwd, `go test -v ${pkg} -run ^(${names.join('|')})$`); } catch { continue; }
+    if (result.missingTool || result.status !== 0 || !names.every(name => result.output.includes(`--- PASS: ${name}`))) continue;
+    for (const member of members) {
+      out.set(member.guard.findingId, { passed: true, inconclusive: false, command: member.guard.runs.map(run => run.command).join(' && '), outputTail: '', restoredTests: member.restoredTests });
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // The post-repair guard check
 
 /** Resolved findings that a later resolved regression finding superseded (their old test source no longer guards them). */
@@ -663,6 +742,7 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
   }
   const repairFiles = new Map(repairs.map(row => [row.findingId, new Set(commitFiles(args.gitCwd, row.commit).map(file => file.path))]));
   const failures: GuardFailure[] = [];
+  const pending: Array<{ guarded: Finding; guard: FindingGuard; currentTests: boolean }> = [];
   for (const guarded of guardableResolved(findings)) {
     if (batch.has(guarded.id) || superseded.has(guarded.id) || retired.has(guarded.id)) continue;
     const guard = findingGuard({ gitCwd: args.gitCwd, finding: guarded, repairCommit: args.repairCommitOf(guarded), coverage: args.coverageOf(guarded) });
@@ -690,7 +770,13 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
         currentTests = true;
       }
     }
-    const result = runFindingGuard({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard, currentTests });
+    pending.push({ guarded, guard, currentTests });
+  }
+  // Old-PoS run 73 (E): the guards that pass run in one invocation per package; any other (or failing) guard runs on its own.
+  const merged = unionGuardPasses({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, entries: pending });
+  for (const { guarded, guard, currentTests } of pending) {
+    const unionResult = merged.get(guard.findingId);
+    const result: GuardResult & { output?: string } = unionResult ?? runFindingGuard({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard, currentTests });
     // Old-PoS run 58 (B): the current pins of the case, else the Story base, before blaming.
     let excused: { reason: 'checklist_pin' | 'story_base'; why: string } | null = null;
     if (!result.passed && !result.inconclusive) {
@@ -709,7 +795,7 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
       .map(row => ({ findingId: row.findingId, commit: row.commit }));
     try {
       store.appendProcessEvent(storyId, { type: REGRESSION_GUARD_EVENT, findingId: guarded.id, headHash: args.headHash, materialHash: args.materialHash ?? null, passed: result.passed, inconclusive: result.inconclusive,
-        command: result.command, restoredTests: result.restoredTests, scope: guard.scope ?? 'functions', ...(currentTests ? { currentTests: true } : {}),
+        command: result.command, restoredTests: result.restoredTests, scope: guard.scope ?? 'functions', ...(currentTests ? { currentTests: true } : {}), ...(unionResult ? { unionRun: true } : {}),
         ...(result.passed ? {} : excused ? { outputTail: result.outputTail, excused: excused.reason, excusedWhy: excused.why } : { outputTail: result.outputTail, rejectedRepairs: blamed }) });
     } catch { /* the refusal still carries the facts */ }
     if (!result.passed && !excused) failures.push({ guarded, guard, result, blamed });

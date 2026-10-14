@@ -1647,6 +1647,58 @@ P1-P5) and harness `e2e-review-to-done-smoke.js NMW NRV`.
   (`baseErrorDecorationOf`, core/plan-pin-probe.ts) and an error rendered with a trailing decoration after its first line
   (a position, a source line) is quoted as confirmation; without one (the default bench config) the step is advisory.
 
+### Old-PoS run 73: regression findings join the grouped repair, family-complete brief, row-vs-request audit, one guard invocation (lab `codex/lab-run73-fixes`)
+
+Source: `bench-staging/oldpos/run73-analysis.md` section 6 (fixes A, B, D, E; C is a detection-affecting PLAN gate and F is
+optional, neither is done). Run 73 (all switches off) took 150 min vs 49-65 for runs 70/72 on the same build: 9 of 15
+findings were one defect family repaired one repro at a time ("selector evaluated twice" four times), and findings
+whose duplicate-coverage check was refused, or that were tagged `[regression-of F-x]`, each got their own serial repair
+run (REM3 25 min). No switch is added; every change is detection-neutral: no lane, critic, round or verification is
+skipped, and every finding is still closed only through its own verified repair. Tests: `node
+packages/main/dist/tasks/run73-fixes-smoke.js` (A1-A3, B, D1-D4, E1-E2) and harness `e2e-review-to-done-smoke.js NRF`.
+
+- **A. Repair grouping.** `groupedFindingRepairIds` excluded every duplicate (`findingDuplicateOf`), so a duplicate whose
+  coverage the owner had tried and the framework refused still waited for a run of its own. Now a duplicate joins the
+  group when its coverage check was recorded failed or refused (`duplicateJoinsRepairGroup`), or when it is a
+  `[regression-of F-x]` (or "reintroduces F-x") finding whose F-x is resolved with a repair (`regressionOfResolvedFinding`):
+  the earlier repair is shown not to fix it, so `duplicateResolveCandidate` no longer offers it the coverage path at all
+  (the owner's refused `finding_resolve duplicateOf` attempts, 2.4 min per round in run 73) and `duplicateOfOpenCanonical`
+  no longer holds it back. A duplicate whose coverage was never refused keeps its coverage path; a regression whose target
+  is still open is held back like any duplicate of an open canonical. Each member of the group still gets its own commit
+  naming its id and its own `finding_resolve` (batch). Harness NRF: round 2 re-finds round 1's defect through two other
+  shapes beside one distinct finding: ONE grouped run of three, no duplicate step (RED on the base:
+  `finding_duplicate_resolve_batch`, then a second round-2 run).
+- **B. Family-complete brief for a regression finding (prompt only).** `core/regression-family-brief.ts`
+  `regressionFamilyBrief`: for a finding that names a resolved finding (`regressionTargets`), the repair prompt (single
+  prompt, and the grouped section of `host_run` for each member) carries the earlier finding and its repro, the earlier
+  repair's diff (`git show -U2`, 3.5 KB cap) and requires: list every call site and every target shape of the mechanism
+  (grep the function and each caller), add ONE test covering every call site and target shape (earlier repro, this
+  repro, each shape found), and report `[family-test] <test name>: <shape>, ...`. Generic wording; about 1.2 KB plus the
+  diff, only on a regression finding.
+- **D. Row-vs-request audit (PLAN).** Run 73's owner resolved two scope-plan gaps from the base counterpart and pinned the
+  opposite of a request sentence ("Negative step iterates backward."); one DEV->PLAN trip (about 8 min). Now: (1) the
+  owner-facing `plan_review_blockers` step adds `GAP_ROW_QUOTE_RULE` (quote the request sentence that decides each case in
+  `derivation.requestQuote`; a base-counterpart derivation only when no request sentence speaks); (2) the scope-plan rerun
+  context adds one `ROW_VS_REQUEST_AUDIT` line when the checklist diff has added rows (state, per added row, the request
+  sentence on the same operand class and whether the pin contradicts it); (3) one skippable PLAN step `request_pin_check`
+  (`requestPinStep`, before the scope-plan reviewer, after `exact_error_pin_check`) lists `contradiction` rows (a pin whose
+  case a request literal example states with another value; the request line is quoted) and `unquoted_sentence` rows (a row
+  added or changed since the last scope verdict, `changedIntentRowRefs`, whose derivation does not quote the request
+  sentence nearest its case, `closestRequestSentence`), with a row-level `checklist_update` template per item. Offered once
+  per set of rows, at most twice per Story, evidence in `runtime/request-pin-audit/<storyId>.jsonl`; never a gate, the
+  framework never rewrites a pin. Only literal request examples are mechanical; everything else stays prompt-only.
+- **E. Framework time that scales with findings.** The regression guard re-ran every earlier resolved finding's covering
+  test separately (41 checks, `finding_resolve` up to 55 s). `unionGuardPasses` (core/resolved-finding-guard.ts) now runs
+  the guards of one package that need no restored test source in ONE `go test -v <pkg> -run ^(A|B|...)$` invocation: a
+  guard qualifies when its test files are unchanged since its snapshot, or when every recorded top-level declaration of
+  them is still present verbatim (the snapshot plus later additions, `goTopLevelBlocks`), and it has no filtered repro rows.
+  A merged pass (exit 0, every `--- PASS: <name>`) stands for each member's pass (event `resolved_finding_guard_checked`
+  as before, plus `unionRun: true`); a merged failure, build failure or missing tool stands for nothing, every member
+  then runs on its own exactly as before, so blame, events and decisions are unchanged (run73-fixes-smoke E2). Not done:
+  refreshing only the evidence rows whose files changed (`verification_evidence_refresh_stale`): a stale receipt can be
+  re-stamped without execution only under a declared dependency manifest (`planVerificationExecutionReuse`), which a
+  file-diff heuristic would weaken; the refresh still re-runs each distinct stale pinned command once.
+
 ### `next --untilAgent`: the framework owner driver (`owner.driver`, owner-driver lab)
 
 `proof-or-stop next --storyId=<id> --untilAgent` (no `--storyId`: the one unfinished
