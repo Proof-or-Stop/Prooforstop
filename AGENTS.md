@@ -397,7 +397,7 @@ DEV→REVIEW then requires it (present, signed, delivered, no gap:
 `[scope_check_pending]` / `[scope_gap]`); a gap found after DEV started sends
 the Story back to PLAN. `next` in PLAN first returns the
 deterministic PLAN blockers as one `plan_authoring` batch (run 19: one exact
-`checklist_update` per item for missing intent lanes, unpinned intents, a
+`checklist_update` row patch (`intentRows`, since lab initplan) per item for missing intent lanes, unpinned intents, a
 missing `userSees`, examples without a valid `derivation`, and request literals
 no item states or excludes), and only
 when those are clear launches the reviewer, so it runs once on the final
@@ -564,7 +564,7 @@ value. `story_create`, `checklist_add`, `checklist_update` and
 (`[intent_derivation_required]`, nothing written); a quoted example needs none.
 A row stored without one (request recorded or amended later) is a
 `missing_intent_derivation` blocker, and `next`'s `plan_authoring` batch gives
-the exact `checklist_update` with a derivation placeholder. Whether the
+the exact `checklist_update` row patch with a derivation placeholder. Whether the
 derivation is right is the scope-plan reviewer's pin audit: its prompt lists
 every such row (ref, desc, requestQuote, computation) and requires it to
 recompute each value from the request; a mismatch is a blocking `pin-audit
@@ -924,6 +924,23 @@ example defines is new behaviour (advisory), and a whole-intent authoring payloa
 `intentBasis` and is refused `[authoring_payload_stale]` when the rows changed since. See
 docs/CLI.md "Lab round-cut".
 
+Lab initplan (lab `codex/lab-initplan`; INIT + PLAN owner turns): every row-level fix the
+framework names is a `checklist_update {intentRows}` row patch (`ref: "CHK-NNN:<lane>:+"`
+appends a row): `plan_authoring`, `counterpart_coverage_missing`, `pin_oracle_mismatch`,
+the pin-audit / covering-row `scope_gap` remedies and `plan_review_blockers` (now a batch
+of those patches); a derivation refusal names the same row patch, or the staged payload
+(`checklist_update @<file>`) for a whole-intent write. story_create's intake refusal also
+lists CJK fields. `next` returns the PLAN lints that are due together (pre-scope
+authoring, exact whole-error pins, row-vs-request audit, counterpart coverage when on) as
+ONE step, and story_create / an INIT checklist_update print them at once as a "PLAN
+pre-check"; the dev-memory acknowledgement is a framework step when the preflight pack is
+empty; both INIT reviewers launch in one parallel step. The project validate commands run
+once on the base in the background from the first `next` / `session_brief` (record
+`.proof-or-stop/runtime/base-validation/`); the template and story_create print the
+result: do not rerun them for a baseline. EXPERIMENTAL A/B `plan.reviewerPreload` (default
+off): the scope-plan prompt carries the Story artifacts it must read. See docs/CLI.md
+"Lab initplan".
+
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
 (`<common git dir>/info/proof-or-stop-cache/`, each answer keyed by the exact
@@ -995,7 +1012,7 @@ the SAME receiver's counterpart in the Story base (its read for a new write) and
 the operand classes it special-cases (negative, out of range, empty, null, type)
 from its branches, base tests and, with a declared evaluator, base probes. A
 class with clear evidence and no row on the new operation refuses DEV entry
-(`[counterpart_coverage_missing]`, one Next with a placeholder row per class) and
+(`[counterpart_coverage_missing]`, one Next that appends a placeholder row per class, `intentRows` `<item>:edge:+`) and
 `next` names it before the plan review: add the rows, their expected value
 following the counterpart unless the request says otherwise (another receiver's
 same operation is only the second oracle). Weak evidence is a `story_review`
