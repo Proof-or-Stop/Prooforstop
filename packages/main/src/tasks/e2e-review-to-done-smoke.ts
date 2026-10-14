@@ -1321,6 +1321,21 @@ const NRG_MARKER = '\tif s == "" {\n\t\treturn "-"\n\t}\n';
 const NRG_TEST_FIXED = 'if Reverse("") != "" {';
 const NRG_TEST_REVERSED = 'if Reverse("") != "-" {';
 
+/**
+ * NRF (old-PoS run 73): round 2 re-finds round 1's defect through two other call shapes (`[regression-of F-001]`, the critic marks them
+ * duplicates of F-001) and also reports one distinct finding. Each regression finding has its own regression test (a copy of one test would not compile).
+ */
+const NRF_REG1 = {
+  desc: '[regression-of F-001] Reverse of an empty string reached through a computed argument still reads r[len(r)-1]: Reverse("") must return "" for this call shape too (same root cause as the untested empty-string edge).',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
+const NRF_REG2 = {
+  desc: '[regression-of F-001] Reverse of an empty string reached through a nested call still reads past the end of the rune slice: Reverse("") must return "" for this call shape as well (same root cause as the untested empty-string edge).',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
+const NRF_REPAIR_TEST1 = '\nfunc TestReverseEmptyFamilyA(t *testing.T) {\n\tif got := Reverse(""); got != "" {\n\t\tt.Fatalf("got %q", got)\n\t}\n}\n';
+const NRF_REPAIR_TEST2 = '\nfunc TestReverseEmptyFamilyB(t *testing.T) {\n\tif got := Reverse(""); got != "" {\n\t\tt.Fatalf("got %q", got)\n\t}\n}\n';
+
 /** NRG: the repair of NRG_FINDING reverses F-001's behaviour and rewrites F-001's test to match (the run-46 F-011 / run-47 F-022 repair). */
 function nrgRepairScript(storyId: string, findingId: string): ProviderScript {
   const short = findingId.startsWith(`${storyId}:`) ? findingId.slice(storyId.length + 1) : findingId;
@@ -1426,6 +1441,8 @@ function untagged(desc: string): string {
 function repairFor(tagged: string): { test: string; subject: string; name: string } {
   const desc = untagged(tagged);
   if (desc === PX_FINDING.desc) return { test: '', subject: `test: ${PX_REPAIR_SUBJECT}`, name: PX_DOC_PATH };
+  if (desc === NRF_REG1.desc) return { test: NRF_REPAIR_TEST1, subject: 'test: Reverse empty family A', name: 'TestReverseEmptyFamilyA' };
+  if (desc === NRF_REG2.desc) return { test: NRF_REPAIR_TEST2, subject: 'test: Reverse empty family B', name: 'TestReverseEmptyFamilyB' };
   if (desc === NU_DUP_FINDING.desc) return { test: NU_DUP_REPAIR_TEST, subject: 'test: Reverse empty duplicate case', name: 'TestReverseEmptyDup' };
   if (desc === NGS_FINDING1.desc) return { test: NGS_REPAIR_TEST, subject: 'test: Reverse edge table', name: 'TestReverseEdges' };
   return desc.startsWith('Upper ')
@@ -1722,6 +1739,8 @@ const VERIFIED_PROMISES = [
 interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFindings?: boolean; duplicate?: 'covered' | 'uncovered' | 'covered2';
   /** Old-PoS run 46 (NRG): round 2's test-coverage lane reports NRG_FINDING. */
   reversing?: boolean;
+  /** Old-PoS run 73 (NRF): round 1 reports D_FINDING; round 2 reports NRF_REG1, NRF_REG2 (regressions of F-001) and NF_FINDING. */
+  regFamily?: boolean;
   /** Old-PoS run 58 (NGS): round 1 reports NGS_FINDING1, round 2 NGS_FINDING2 (test-coverage lane). */
   staleRow?: boolean;
   /** Old-PoS run 58 (NGF): round 1 reports D_FINDING and the suspected NGF_SUSPECTED_CONFLICT. */
@@ -1832,6 +1851,13 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
     // Old-PoS run 68 (NRV): round 1 reports the trailing-newline defect; later rounds pass.
     const index = reviewRoundIndex(worktree, storyId, reviewRunId);
     const envelope = index === 0 ? { conclusion: 'findings', note: 'Scripted run 68 lane.', findings: [NGS_FINDING2] } : PASS_ENVELOPE(lane);
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
+  }
+  if (mode.regFamily && lane === 'proof-or-stop-review-test-coverage') {
+    // Old-PoS run 73 (NRF): round 1 reports D_FINDING; round 2 re-finds it through two other call shapes and adds one distinct finding.
+    const index = reviewRoundIndex(worktree, storyId, reviewRunId);
+    const findings = index === 0 ? [D_FINDING] : index === 1 ? [NRF_REG1, NRF_REG2, NF_FINDING] : [];
+    const envelope = findings.length ? { conclusion: 'findings', note: 'Scripted run 73 lane.', findings } : PASS_ENVELOPE(lane);
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
   }
   if ((mode.staleRow || mode.suspectedConflict) && lane === 'proof-or-stop-review-test-coverage') {
@@ -2266,6 +2292,8 @@ export interface DriveStats {
 export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean; twoFindings?: boolean;
   /** Old-PoS run 46 (NRG): round 2 reports NRG_FINDING, whose first repair reverses round 1's fix. */
   reversing?: boolean;
+  /** Old-PoS run 73 (NRF): see ScriptMode.regFamily. */
+  regFamily?: boolean;
   /** Old-PoS run 58 (NGS / NGF): see ScriptMode.staleRow / suspectedConflict. */
   staleRow?: boolean;
   suspectedConflict?: boolean;
@@ -2570,7 +2598,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           // (never close on the critic label alone) and name the next step.
           const refused = o.cli(next.cli.command, payload, { label: '  a:finding_duplicate_resolve (uncovered)' });
           assert.notEqual(refused.status, 0, `[${o.scenario}] finding_resolve closed duplicate ${findingId} although its coverage command has no passing selector:\n${refused.out.slice(-1500)}`);
-          assert.match(refused.out, /duplicate_coverage_failed/, `[${o.scenario}] refusal names the failed coverage:\n${refused.out.slice(-1500)}`);
+          assert.match(refused.out, /duplicate_coverage_(?:failed|lacks_repro)/, `[${o.scenario}] refusal names the failed coverage:\n${refused.out.slice(-1500)}`);
           assert.match(refused.out, /Next: /, `[${o.scenario}] refusal carries one Next line:\n${refused.out.slice(-1500)}`);
           assert.equal(new StoryStore(o.worktree).readFindings(id).findings.find(f => f.id === findingId)?.status, 'open', `[${o.scenario}] refused duplicate stays open`);
           reasons.push('duplicate_coverage_refused');
@@ -7287,6 +7315,50 @@ function scenarioNRG(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 /**
+ * NRF (old-PoS run 73, run73-analysis.md §6 A/B): round 2 re-finds round 1's defect through two other call shapes (two
+ * `[regression-of F-001]` findings, F-001 resolved) beside one distinct finding. The base repaired them one after the other:
+ * the owner first tried `finding_resolve duplicateOf` on each regression (coverage refused), then F-002 and the distinct
+ * finding shared a run and F-003 got its own serial run. Now a regression of a resolved finding is never offered the
+ * duplicate-coverage path and joins the ONE grouped repair run (three findings, one run); its prompt carries the earlier
+ * repair's diff and repro and asks for a family test (`[family-test]`); each finding is still resolved with its own commit.
+ * RED on the base: `duplicate_coverage_refused` steps and a second round-2 repair run.
+ */
+function scenarioNRF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRF';
+  const name = 'NRF old-PoS run 73: two regression-of findings of a resolved finding and one distinct finding are repaired in ONE grouped run (no duplicate-coverage attempt, no serial repair); the prompt carries the earlier repair diff and the family-test requirement';
+  const o = new Owner(tag, 'B-73f1', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, regFamily: true, duplicate: 'uncovered' }, lines, next => {
+      if (next.reason === 'finding_repair' || next.reason === 'finding_resolve' || next.reason === 'finding_resolve_batch' || next.reason === 'finding_duplicate_resolve' || next.reason === 'finding_duplicate_resolve_batch') {
+        const group = next.cli?.payload.groupFindingIds;
+        const ids = Array.isArray(group) ? (group as string[]).map(row => row.split(':').pop()).join('+') : String(next.cli?.payload.findingId ?? '').split(':').pop();
+        reasons.push(`${next.reason}:${ids}`);
+      }
+    });
+    const order = reasons.filter((row, index) => row !== reasons[index - 1]);
+    lines.push(`finding steps: ${order.join(' > ')}`);
+    assert.ok(!order.some(row => row.startsWith('finding_duplicate_resolve')), `${tag}: a regression of a resolved finding is never offered the duplicate-coverage path: ${order.join(' > ')}`);
+    const repairs = managedPrompts(o, FINDING_REPAIR);
+    assert.equal(repairs.length, 2, `${tag}: round 1's repair plus ONE grouped round-2 run (got ${repairs.length}): ${order.join(' > ')}`);
+    assert.equal((repairs[1]!.target?.groupFindingIds as string[] | undefined)?.length, 3, `${tag}: the round-2 run binds the three findings: ${JSON.stringify(repairs[1]!.target)}`);
+    assert.match(repairs[1]!.prompt, /\[family-test\]/, `${tag}: the grouped run's prompt asks for the family test`);
+    assert.match(repairs[1]!.prompt, /Family-complete repair/, `${tag}: the prompt carries the family-complete brief`);
+    const findings = new StoryStore(o.root).readFindings(o.storyId).findings;
+    for (const finding of findings) assert.equal(finding.status, 'resolved', `${tag}: ${finding.id} resolved`);
+    const commits = findings.filter(f => /F-00[234]$/.test(f.id)).map(f => String(f.resolvedReason).match(/\[repair commit ([0-9a-f]+)/)?.[1]);
+    assert.equal(new Set(commits).size, 3, `${tag}: each of the three findings cites its own commit (${commits.join(', ')})`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${reasons.join(' > ')}`, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
  * NGS (old-PoS run 58, run58-analysis.md §4 "Why the guard loops"): the
  * resolved-finding guard judges a later repair by the finding's OWN repro rows
  * of its repair test, not by every row of the test function as it stood in the
@@ -7507,7 +7579,7 @@ function scenarioNRV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -7590,6 +7662,7 @@ async function main(): Promise<void> {
     for (const token of ['NPXR', 'NPXRE', 'NPXRN'] as const) if (only.includes(token)) outcomes.push(scenarioNPXR(machine.env, steps, token));
     if (only.includes('NRW')) outcomes.push(scenarioNRW(machine.env, steps));
     if (only.includes('NRG')) outcomes.push(scenarioNRG(machine.env, steps));
+    if (only.includes('NRF')) outcomes.push(scenarioNRF(machine.env, steps));
     if (only.includes('NGS')) outcomes.push(scenarioNGS(machine.env, steps));
     if (only.includes('NGF')) outcomes.push(scenarioNGF(machine.env, steps));
     // Old-PoS run 68: metadata-only wave (NMW) and a repair that changes a pinned value (NRV).
@@ -7620,7 +7693,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
