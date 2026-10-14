@@ -36,7 +36,10 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationEvidenceReceipt, VerificationExecutionReceiptV3, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord, VerificationReuseReceiptV1 } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
 import { verificationIntentClassificationFailure } from '../core/verification-intent-classification.js';
-import { intentDerivationFailure, type DerivationCommand } from '../core/intent-derivation.js';
+import { intentDerivationFailure, type DerivationCommand, type DerivationRefusalNext } from '../core/intent-derivation.js';
+import { stageChecklistUpdatePayload } from '../core/story-create-intake.js';
+import { planLintPreview } from '../core/plan-lint-preview.js';
+import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_COMPLETE_OUTPUT_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, formatValidationProgressEvent, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
@@ -327,11 +330,29 @@ function assertVerificationIntentClassification(
  * derivation citing a request sentence. Refused before anything is written.
  */
 function assertIntentDerivations(store: HandlerContext['store'], command: DerivationCommand, storyId: string, itemId: string,
-  verificationIntent: VerificationIntent | undefined): void {
-  if (!verificationIntent) return;
-  const request = readStoryRequest(store, storyId);
-  const failure = intentDerivationFailure(command, itemId, verificationIntent, request.status === 'ok' ? request.text : null);
+  verificationIntent: VerificationIntent | undefined, route?: ChecklistDerivationRoute): void {
+  const failure = intentDerivationRefusal(store, command, storyId, itemId, verificationIntent, route);
   if (failure) throw new Error(failure);
+}
+
+/**
+ * Lab initplan (initplan-breakdown.md rank 6): how the refused write was sent, so the refusal's ONE Next
+ * is a row-level fix: the same intentRows patch with each listed row's derivation, or (a whole-intent
+ * write) the payload staged in a runtime file to fix and resubmit with @file. Same rule, same rows.
+ */
+interface ChecklistDerivationRoute { patches?: ReadonlyArray<Record<string, unknown>>; patchRefs?: readonly string[]; stage?: () => string | null }
+
+function intentDerivationRefusal(store: HandlerContext['store'], command: DerivationCommand, storyId: string, itemId: string,
+  verificationIntent: VerificationIntent | undefined, route?: ChecklistDerivationRoute): string | null {
+  if (!verificationIntent) return null;
+  const request = readStoryRequest(store, storyId);
+  const requestText = request.status === 'ok' ? request.text : null;
+  const failure = intentDerivationFailure(command, itemId, verificationIntent, requestText);
+  if (!failure || !route) return failure;
+  const next: DerivationRefusalNext = route.patches && route.patchRefs
+    ? { storyId, patches: route.patches, patchRefs: route.patchRefs }
+    : { storyId, stagedPath: route.stage?.() ?? null };
+  return intentDerivationFailure(command, itemId, verificationIntent, requestText, next);
 }
 
 function checklistActorFrom(args: { agent?: string; actor?: string }): string {
@@ -3448,6 +3469,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/intentRows/verificationEvidence must be provided');
       }
       let rowPatchNote = '';
+      // Lab initplan: how this write was sent (row patch, or a whole-intent payload staged on refusal).
+      const submittedPayload = { ...args } as Record<string, unknown>;
+      let derivationRoute: ChecklistDerivationRoute = { stage: () => stageChecklistUpdatePayload(resolveMainRepoRoot(root), args.storyId, args.itemId, submittedPayload) };
       if (args.intentRows !== undefined) {
         const current = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
         if (!current) throw new Error(`Checklist item ${args.itemId} not found`);
@@ -3456,12 +3480,21 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const { intentRows: _patches, ...rest } = args;
         args = { ...rest, verificationIntent: expanded.verificationIntent };
         rowPatchNote = ` (rows ${expanded.refs.join(', ')})`;
+        derivationRoute = { patches: submittedPayload.intentRows as Array<Record<string, unknown>>, patchRefs: expanded.patchRefs };
       }
 
-      assertEnglishAuthoringText(
-        'checklist_update',
-        checklistEnglishAuthoringFields({...args, reason:args.intentProposalApproval?.reason ?? args.reason}, args.itemId),
-      );
+      // Lab initplan (initplan-breakdown.md rank 8): a CJK refusal also lists the rows the derivation rule
+      // refuses, so ONE resend fixes both (run 72: the second refusal came only after the first was fixed).
+      try {
+        assertEnglishAuthoringText(
+          'checklist_update',
+          checklistEnglishAuthoringFields({...args, reason:args.intentProposalApproval?.reason ?? args.reason}, args.itemId),
+        );
+      } catch (error) {
+        const derivation = (() => { try { return intentDerivationRefusal(store, 'checklist_update', args.storyId, args.itemId, args.verificationIntent, derivationRoute); } catch { return null; } })();
+        if (!derivation) throw error;
+        throw new Error(`${error instanceof Error ? error.message : String(error)}\n\n${derivation}`);
+      }
 
       // B-1909 CHK-001/CHK-005: 'withdrawn' is a terminal disposition that can
       // only originate from a confirmed + userConfirmed scope-shrinkage decision.
@@ -3623,7 +3656,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           `verificationIntent is the source of truth for test intent in the PLAN phase; after DEV you can only append verificationEvidence or use a finding to request going back to PLAN.`
         );
       }
-      assertIntentDerivations(store, 'checklist_update', args.storyId, args.itemId, args.verificationIntent);
+      assertIntentDerivations(store, 'checklist_update', args.storyId, args.itemId, args.verificationIntent, derivationRoute);
       // Old-PoS run 31 pin oracle (core/pin-oracle.ts): an example the project's own
       // evaluator computes differently at the Story base is refused, computed value shown.
       if (args.verificationIntent !== undefined && pinExamples(args.itemId, args.verificationIntent).length > 0) {
@@ -4118,7 +4151,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         ? probeRowSaveNote({ storyId: args.storyId, itemId: args.itemId, verificationIntent: args.verificationIntent,
           enabled: (() => { try { return probeExtractionEnabled(store, args.storyId, resolveStoryGitCwd(args.storyId), loadConfig(root)); } catch { return false; } })() })
         : '';
-      return `${probeNote ? `${updated}${probeNote}` : updated}${commitNote}${rowsNote ? `\n\n${rowsNote}` : ''}`;
+      // Lab initplan (initplan-breakdown.md rank 4): an intent / userSees edit in INIT reprints the PLAN lints still due,
+      // all at once (core/plan-lint-preview.ts), so the owner finishes them in the same authoring pass.
+      const planPreCheck = (args.verificationIntent !== undefined || args.userSees !== undefined) && !args.metadataCorrection
+        ? (() => { try { return store.readStory(args.storyId).phase === 'INIT' ? planLintPreview({ store, root, storyId: args.storyId }) : null; } catch { return null; } })()
+        : null;
+      return `${probeNote ? `${updated}${probeNote}` : updated}${commitNote}${rowsNote ? `\n\n${rowsNote}` : ''}${planPreCheck ? `\n\n${planPreCheck}` : ''}`;
     },
 
     light_review(args: {

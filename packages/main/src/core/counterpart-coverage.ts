@@ -790,11 +790,12 @@ export function counterpartPlaceholderRows(refusal: CounterpartRefusal): Array<R
 }
 
 /** The ONE next action: the item's whole verificationIntent with the placeholder rows appended to edge. */
-export function counterpartNextPayload(storyId: string, item: ItemLike | undefined, refusal: CounterpartRefusal): Record<string, unknown> {
-  const intent: Record<string, unknown[]> = {};
-  for (const lane of VERIFICATION_LANES) intent[lane] = [...((item?.verificationIntent?.[lane] ?? []) as unknown[])];
-  intent.edge = [...intent.edge!, ...counterpartPlaceholderRows(refusal)];
-  return { storyId, itemId: refusal.itemId, verificationIntent: intent };
+/**
+ * Lab initplan (initplan-breakdown.md rank 6): a row patch that APPENDS one placeholder edge row per uncovered
+ * class (`<item>:edge:+`), not the item's whole verificationIntent; the existing rows are untouched.
+ */
+export function counterpartNextPayload(storyId: string, _item: ItemLike | undefined, refusal: CounterpartRefusal): Record<string, unknown> {
+  return { storyId, itemId: refusal.itemId, intentRows: counterpartPlaceholderRows(refusal).map(row => ({ ref: `${refusal.itemId}:edge:+`, ...(row as Record<string, unknown>) })) };
 }
 
 export function describeCounterpartRefusal(refusal: CounterpartRefusal): string {

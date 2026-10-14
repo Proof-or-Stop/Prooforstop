@@ -31,6 +31,25 @@ export function stageStoryCreatePayload(mainRoot: string, payload: Record<string
   } catch { return null; }
 }
 
+/** Lab initplan: the staged payload of a refused whole-intent checklist_update (runtime, one per item). */
+export function checklistUpdateStagedPayloadPath(mainRoot: string, storyId: string, itemId: string): string {
+  return join(mainRoot, '.proof-or-stop', 'runtime', 'checklist-update', `${storyId}-${itemId}.json`);
+}
+
+/**
+ * Lab initplan (initplan-breakdown.md rank 6): a refused whole-intent checklist_update stages the payload it
+ * was given, so the ONE Next is "fix the listed rows in that file, then `checklist_update @<file>`" instead
+ * of re-sending the item's whole verificationIntent. Returns the path (null when it cannot be written).
+ */
+export function stageChecklistUpdatePayload(mainRoot: string, storyId: string, itemId: string, payload: Record<string, unknown>): string | null {
+  const path = checklistUpdateStagedPayloadPath(mainRoot, storyId, itemId);
+  try {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, `${JSON.stringify(Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== undefined)), null, 2)}\n`);
+    return path;
+  } catch { return null; }
+}
+
 /** Every underived example row of every item (the same rule as intentDerivationFailure), or null. */
 export function storyCreateDerivationFailure(items: ReadonlyArray<{ itemId: string; verificationIntent: VerificationIntent | undefined }>, requestText: string | null): string | null {
   if (requestText === null) return null;

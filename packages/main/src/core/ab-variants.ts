@@ -117,6 +117,13 @@
  *                              declares the file before REVIEW (the implementer relaunch carries it, once per guard set),
  *                              a weak one stays advisory; off: no scan
  *
+ * Lab initplan (bench-staging/oldpos/initplan-breakdown.md §5 rank 2): the scope-plan reviewer spends 82-143 s per run
+ * re-reading the Story artifacts (7-8 small requests). This changes the reviewer's input, so it is a switch:
+ *   plan.reviewerPreload       'off' (default) | 'on'  the scope-plan dispatch prompt carries background.md, the checklist
+ *                              rows, plan.md / decision.json / understanding.json when present and the project validate
+ *                              config, and tells the reviewer not to re-read them (core/scope-plan-preload.ts); the
+ *                              review rules, the request block and the pin audit are unchanged
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -148,6 +155,7 @@ export const AB_VARIANT_FLAGS = {
   'plan.rowBudget': ['off', 'on'],
   'plan.counterpartCoverage': ['off', 'on'],
   'dev.removedGuardScan': ['advisory', 'off', 'on'],
+  'plan.reviewerPreload': ['off', 'on'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -157,7 +165,7 @@ export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string };
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
-  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string };
   dev?: { probeEnforcement?: string; removedGuardScan?: string };
 }
 
@@ -186,6 +194,7 @@ export interface AbVariants {
   rowBudget: AbVariantValue<'plan.rowBudget'>;
   counterpartCoverage: AbVariantValue<'plan.counterpartCoverage'>;
   removedGuardScan: AbVariantValue<'dev.removedGuardScan'>;
+  reviewerPreload: AbVariantValue<'plan.reviewerPreload'>;
 }
 
 export interface AbVariantEvidence {
@@ -236,6 +245,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     rowBudget: pick('plan.rowBudget', section(config, 'plan').rowBudget),
     counterpartCoverage: pick('plan.counterpartCoverage', section(config, 'plan').counterpartCoverage),
     removedGuardScan: pick('dev.removedGuardScan', section(config, 'dev').removedGuardScan),
+    reviewerPreload: pick('plan.reviewerPreload', section(config, 'plan').reviewerPreload),
   };
 }
 
@@ -266,6 +276,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.rowBudget !== 'off') flags['plan.rowBudget'] = variants.rowBudget;
   if (variants.counterpartCoverage !== 'off') flags['plan.counterpartCoverage'] = variants.counterpartCoverage;
   if (variants.removedGuardScan !== 'advisory') flags['dev.removedGuardScan'] = variants.removedGuardScan;
+  if (variants.reviewerPreload !== 'off') flags['plan.reviewerPreload'] = variants.reviewerPreload;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -279,7 +290,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -316,6 +327,8 @@ export const rowBudgetOn = (config: unknown): boolean => catchEarlierPick(config
 export const counterpartCoverageOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.counterpartCoverage') === 'on';
 /** Lab round-cut dev.removedGuardScan: 'advisory' (default) | 'off' | 'on' (core/removed-guard-scan.ts); malformed = advisory. */
 export const removedGuardScanMode = (config: unknown): AbVariantValue<'dev.removedGuardScan'> => catchEarlierPick(config, 'dev.removedGuardScan');
+/** EXPERIMENTAL plan.reviewerPreload=on: the scope-plan reviewer prompt carries background.md, the checklist rows, plan.md / decision.json / understanding.json and the validate config (core/scope-plan-preload.ts); malformed = off. */
+export const reviewerPreloadOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.reviewerPreload') === 'on';
 /** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }

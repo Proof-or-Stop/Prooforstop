@@ -383,7 +383,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Lab run44-fixes (2026-10-10): an applied metadata correction is journaled (metadata_correction_applied); the REVIEW intent-row refusal points at next --run; repinned.
   // Lab run58-fixes (2026-10-12): a PLAN pin keeps a done item whose pinned tests pass (core/pin-amendment.ts), [pin_reversal_unstated]; repinned.
   // Lab round-cut (2026-10-14): checklist_update refuses a whole-intent payload built from older rows (intentBasis, core/intent-basis.ts); repinned.
-  'packages/main/src/handlers/checklist.ts': 'e81f4bd9248407d97dd8691f4aa06315722838803e59bcba9323de2b5fb29fc7',
+  // Lab initplan (2026-10-15): the derivation refusal names a row patch / the staged payload, a CJK refusal also lists the underived rows, an INIT intent edit reprints the PLAN pre-check; repinned.
+  'packages/main/src/handlers/checklist.ts': '40a2da3032d00a863218494f22e2d2b541fb3cf0ea92a9914d224d5fc8035daa',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 

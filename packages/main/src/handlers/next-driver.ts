@@ -51,6 +51,11 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { checklistDerivationGaps, derivationPlaceholder, MISSING_INTENT_DERIVATION } from '../core/intent-derivation.js';
+import { appendRowRef } from '../core/intent-row-patch.js';
+import { coverageIntentRows, mergeChecklistUpdateCalls, placeholderIntentRow, preScopeItemPayload } from '../core/plan-lint-preview.js';
+export { mergeChecklistUpdateCalls } from '../core/plan-lint-preview.js';
+import { buildPreflightPack } from '../core/dev-memory.js';
+import { renderBaseValidationLine, startBaseValidation } from '../core/base-validation.js';
 import { coveragePlaceholders, MISSING_COVERAGE_ROW, nearMissReason, planCoverageGapsFor, type CoverageGap } from '../core/plan-coverage-matrix.js';
 import { scopeVerdictDeferral, scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
 import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
@@ -1150,10 +1155,13 @@ export function probeSyntaxStep(base: { storyId: string; phase: string }, store:
   const broken = probeSyntaxErrors(runner, store.readChecklist(base.storyId).items);
   if (!broken.length) return null;
   const first = broken[0]!;
-  return step(base, 'agent', 'probe_row_syntax', { command: 'checklist_update', payload: { storyId: base.storyId, itemId: first.itemId,
-    verificationIntent: '<the complete verificationIntent with each listed row written in valid syntax>' } },
+  // Lab initplan (rank 6): a row patch of the listed rows of that item, not the whole intent.
+  const syntaxPayload = { storyId: base.storyId, itemId: first.itemId,
+    intentRows: [...new Set(broken.filter(row => row.itemId === first.itemId).map(row => row.ref.match(/CHK-\d+:[a-z]+:\d+/)?.[0] ?? row.ref))]
+      .map(ref => ({ ref, desc: `<${ref} written in valid syntax, or as plain prose if it is not runnable code>` })) };
+  return step(base, 'agent', 'probe_row_syntax', { command: 'checklist_update', payload: syntaxPayload },
   `Example rows the Story base cannot parse outside the request's new syntax (the project's own parser, Story base ${runner.base.slice(0, 12)}): ${broken.map(row => `${row.key}: ${row.code.slice(0, 140)} -> ${row.error}`).join('; ').slice(0, 1500)}. A parse error inside the new syntax is expected; one outside it is a row no implementation can satisfy. Fix ${first.itemId} now (valid syntax, or plain prose if the row is not runnable code); next names any other item.`,
-  'probeSyntaxErrors (proof-or-stop.config.json probeRunner parseErrorPattern + newSyntaxPattern)', { placeholders: ['verificationIntent'] });
+  'probeSyntaxErrors (proof-or-stop.config.json probeRunner parseErrorPattern + newSyntaxPattern)', { placeholders: placeholderPaths(syntaxPayload) });
 }
 
 /**
@@ -1606,16 +1614,14 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
         const gap = derivations.find(entry => entry.itemId === item.id);
         const placeholders = coverageIntentRows(coverage, item.id);
         if (!gap && !placeholders.length) continue;
-        const intent: Record<string, Array<Record<string, unknown>>> = {};
-        for (const lane of VERIFICATION_LANES) {
-          intent[lane] = (item.verificationIntent?.[lane] ?? []).map((row, index) => {
-            const underived = gap?.rows.find(entry => entry.lane === lane && entry.index === index);
-            return underived ? { ...(row as unknown as Record<string, unknown>), derivation: derivationPlaceholder(underived, request.text) } : { ...(row as unknown as Record<string, unknown>) };
-          });
-        }
-        intent.edge!.push(...placeholders);
+        // Lab initplan (initplan-breakdown.md rank 6): a row patch (the underived rows' derivations, the coverage
+        // rows appended), not the item's whole verificationIntent.
+        const intentRows: Array<Record<string, unknown>> = [
+          ...(gap?.rows ?? []).map(entry => ({ ref: `${item.id}:${entry.lane}:${entry.index}`, derivation: derivationPlaceholder(entry, request.text) })),
+          ...placeholders.map(row => ({ ref: appendRowRef(item.id, 'edge'), ...row })),
+        ];
         // Lab round-cut N4c: built from the current rows; refused if they change before it is applied.
-        calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload: { storyId, itemId: item.id, verificationIntent: intent, intentBasis: intentBasisDigest(item.verificationIntent) } }));
+        calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload: { storyId, itemId: item.id, intentRows, intentBasis: intentBasisDigest(item.verificationIntent) } }));
       }
     }
   }
@@ -1627,17 +1633,6 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
   return batchStep(base, 'plan_authoring', calls,
     `The latest story_review round has blockers the PLAN writers fix: author every <...> field and run these ${calls.length} commands in one turn (story_review last), then \`proof-or-stop next --storyId=${storyId} --run\`.${coverageGapWhy(coverage)}${rest}`,
     'story_review latest round (review.json) + getGuardFailureReason(DEV)');
-}
-
-/** The classified, pinned placeholder row a pre-scope checklist_update adds. */
-function placeholderIntentRow(desc: string): Record<string, unknown> {
-  return { desc, type: 'logic', priority: 'must', ...STORY_FOCUSED_CLASSIFICATION,
-    verification: { command: '<pinned test command, e.g. go test -v ./pkg -run ^TestName$>', selector: '<line its passing run prints, e.g. --- PASS: TestName>' } };
-}
-
-/** Coverage-matrix placeholder rows for one item (core/plan-coverage-matrix.ts), pinned like any authored row. */
-function coverageIntentRows(gaps: readonly CoverageGap[], itemId: string): Array<Record<string, unknown>> {
-  return coveragePlaceholders(gaps, itemId).map(row => ({ ...placeholderIntentRow(row.desc), derivation: row.derivation }));
 }
 
 /** The Why text of coverage gaps: the rows and the request sentences that demand them. */
@@ -1652,7 +1647,7 @@ function coverageGapWhy(gaps: readonly CoverageGap[]): string {
 /**
  * Old-PoS run 31: the first item whose stored example rows the project's pin
  * oracle computes differently at the Story base (core/pin-oracle.ts), as one
- * checklist_update of that item (the complete verificationIntent placeholder;
+ * checklist_update row patch of that item (since lab initplan; was the complete verificationIntent placeholder;
  * the framework never rewrites the pin). Null without a declared oracle.
  */
 export function pinOracleStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: string): NextStep | null {
@@ -1663,10 +1658,12 @@ export function pinOracleStep(base: { storyId: string; phase: string }, store: H
   const mismatched = pinOracleMismatches(oracle, items);
   if (!mismatched.length) return null;
   const first = mismatched[0]!;
-  return step(base, 'agent', PIN_ORACLE_MISMATCH, { command: 'checklist_update', payload: { storyId: base.storyId, itemId: first.itemId,
-    verificationIntent: '<the complete verificationIntent with each listed row corrected, or with "baseValue" set to the computed base value>' } },
+  // Lab initplan (rank 6): a row patch of the listed rows, not the whole intent.
+  const pinPayload = { storyId: base.storyId, itemId: first.itemId,
+    intentRows: first.rows.map(row => ({ ref: `${first.itemId}:${row.lane}:${row.index}`, desc: `<${first.itemId}:${row.lane}:${row.index} with the corrected value (the project computes ${row.computed.slice(0, 80)})>` })) };
+  return step(base, 'agent', PIN_ORACLE_MISMATCH, { command: 'checklist_update', payload: pinPayload },
   `Pinned examples differ from what the project computes at the Story base [${PIN_ORACLE_MISMATCH}]: ${mismatched.flatMap(entry => entry.rows).map(describePinMismatch).join('; ')}. ${pinMismatchRule(oracle)} Fix ${first.itemId} now; next names any other item.`,
-  'pinOracleMismatches (proof-or-stop.config.json pinOracle at the Story base)', { placeholders: ['verificationIntent'] });
+  'pinOracleMismatches (proof-or-stop.config.json pinOracle at the Story base)', { placeholders: placeholderPaths(pinPayload) });
 }
 
 /**
@@ -1732,32 +1729,8 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
     const need = byId.get(item.id);
     const coverage = coverageIntentRows(blockers.coverageGaps, item.id);
     if (!need && !literals.length && !coverage.length) continue;
-    const payload: Record<string, unknown> = { storyId, itemId: item.id };
-    if (need?.missingUserSees) payload.userSees = `<exact text the user sees once ${item.id} is done (quote outputs exactly)>`;
-    const touchesIntent = Boolean(need?.missingLanes.length || need?.unpinned.length || need?.missingDerivations.length || literals.length || coverage.length);
-    if (touchesIntent) {
-      const intent: Record<string, Array<Record<string, unknown>>> = {};
-      for (const lane of VERIFICATION_LANES) {
-        intent[lane] = (item.verificationIntent?.[lane] ?? []).map((row, index) => {
-          const copy = { ...(row as unknown as Record<string, unknown>) };
-          if (need?.unpinned.some(entry => entry.lane === lane && entry.index === index)) {
-            copy.verification = { command: `<pinned test command for ${item.id}:${lane}:${index}, e.g. go test -v ./pkg -run ^TestName$>`,
-              selector: '<line its passing run prints, e.g. --- PASS: TestName>' };
-          }
-          const underived = need?.missingDerivations.find(entry => entry.lane === lane && entry.index === index);
-          if (underived) copy.derivation = derivationPlaceholder(underived);
-          return copy;
-        });
-        if (need?.missingLanes.includes(lane)) intent[lane]!.push(placeholderIntentRow(`<${item.id} ${lane}: action or condition -> exact expected result>`));
-      }
-      intent.edge!.push(...coverage);
-      if (literals.length) {
-        intent.edge!.push(placeholderIntentRow(`<input -> exact output naming each unstated request literal ${item.id} delivers, quoted exactly; drop this row if ${item.id} delivers none>`));
-      }
-      payload.verificationIntent = intent;
-      // Lab round-cut N4c: built from the current rows; refused if they change before it is applied.
-      payload.intentBasis = intentBasisDigest(item.verificationIntent);
-    }
+    // Lab initplan (initplan-breakdown.md rank 6): ONE row patch per item (core/plan-lint-preview.ts).
+    const payload = preScopeItemPayload(storyId, item, need, coverage, literals);
     calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload }));
     const parts = [
       need?.missingLanes.length ? `missing ${need.missingLanes.join('/')} intent` : '',
@@ -1778,7 +1751,7 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
       + (blockers.items.some(row => row.missingDerivations.length)
         ? 'A derivation is required on an example whose expected value request.md does not quote: requestQuote is the verbatim request sentence the value follows from, computation the steps from it to the pinned value; if they reach another value, fix the pinned value. '
         : '')
-      + `Author every <...> field (keep the existing rows; type may be logic/cli/browser/manual/docs) and run these ${calls.length} checklist_update commands in one turn, `
+      + `Author every <...> field (each command patches only the listed rows by ref and appends new rows with <item>:<lane>:+; drop an appended row you do not need; type may be logic/cli/browser/manual/docs) and run these ${calls.length} checklist_update commands in one turn, `
       + `then \`proof-or-stop next --storyId=${storyId} --run\`: it launches the scope-plan reviewer once, on the final checklist.`,
     'planPreScopeBlockers (story_review missing_verification_intent / missing_verification_pin / missing_user_sees / missing_intent_derivation / missing_coverage_row + story_create request-literal pre-check)');
 }
@@ -1973,7 +1946,7 @@ export function requestPinStep(base: { storyId: string; phase: string }, store: 
  * commands follow), every authored value a placeholder with a one-line hint.
  * No --help read is needed for it.
  */
-export function storyCreateTemplateStep(root: string): NextStep {
+export function storyCreateTemplateStep(root: string, baseValidation: string | null = null): NextStep {
   const payload: Record<string, unknown> = {
     name: '<short kebab-case name>',
     title: '<one-line title>',
@@ -2011,7 +1984,9 @@ export function storyCreateTemplateStep(root: string): NextStep {
       + (planReviewMergeActive(root)
         ? 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check and advances to PLAN, where ONE merged plan review judges the complete plan (A/B plan.reviewMerge=on: no INIT reviewer).'
         : 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check, launches both managed INIT reviewers, waits for them and advances to PLAN.')
-      + (rowBudgetOnFor(root) ? ` ${ROW_BUDGET_GUIDANCE}` : ''),
+      + (rowBudgetOnFor(root) ? ` ${ROW_BUDGET_GUIDANCE}` : '')
+      // Lab initplan (initplan-breakdown.md rank 5): the framework already runs the baseline validation.
+      + (baseValidation ? ` ${baseValidation}` : ''),
     'story_create schema (command-catalog) + INIT_CHECK gate (scope boundary, execution boundary)', { placeholders: placeholderPaths(payload) }));
   return ownerDriverFramework(root) ? frameworkOwnerStep(template) : template;
 }
@@ -2203,12 +2178,57 @@ export function storyReviewBlockersStep(base: { storyId: string; phase: string }
   // Old-PoS runs 61 / 63: when every open scope gap is one an excludes entry cannot close, the header does not offer that route.
   const scopeGaps = blockers.filter(row => row.type === 'scope_gap');
   const excludesRoute = scopeGaps.length > 0 && scopeGaps.every(row => /excludes entry cannot close it/.test(row.message)) ? '' : ', or add an excludes entry naming it and why';
-  return step(base, 'agent', 'plan_review_blockers', null,
-    `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is current; fix each blocker in PLAN `
-      + `(checklist_update: cover the point, correct the pinned value${excludesRoute}): ${listed}${blockers.length > 8 ? ` +${blockers.length - 8} more` : ''}. `
-      + `${GAP_ROW_QUOTE_RULE} `
-      + `Then run \`proof-or-stop next --storyId=${base.storyId} --run\`: the changed checklist stales the round and the scope-plan verdict, so it reruns story_review and relaunches the scope-plan reviewer once on the final checklist (do not run story_review or host_run by hand).`,
-    'getGuardFailureReason(DEV) + latest story_review round blockers');
+  // Lab initplan (initplan-breakdown.md rank 6, run 80: 28 owner requests, mktemp / jq -f / apply_patch, to answer two
+  // verdicts): the blockers' own row patches (a pin-audit row, an appended covering row) as ONE batch, one
+  // checklist_update per item; a blocker without a row patch keeps its message.
+  const calls = mergeChecklistUpdateCalls(blockers.flatMap(row => blockerRowPatchCalls(row.message)));
+  const why = `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is current; fix each blocker in PLAN `
+    + `(checklist_update: cover the point, correct the pinned value${excludesRoute}): ${listed}${blockers.length > 8 ? ` +${blockers.length - 8} more` : ''}. `
+    + `${GAP_ROW_QUOTE_RULE} `
+    + (calls.length ? `The row patches below carry those blockers' rows (${calls.length} checklist_update command(s), one per item: each patches only the named rows by ref and appends new rows with <item>:<lane>:+; author every <...> field). ` : '')
+    + `Then run \`proof-or-stop next --storyId=${base.storyId} --run\`: the changed checklist stales the round and the scope-plan verdict, so it reruns story_review and relaunches the scope-plan reviewer once on the final checklist (do not run story_review or host_run by hand).`;
+  if (calls.length) return batchStep(base, 'plan_review_blockers', calls.map(call => nextStepCall('plan_review_blockers', call)), why, 'getGuardFailureReason(DEV) + latest story_review round blockers (row patches)');
+  return step(base, 'agent', 'plan_review_blockers', null, why, 'getGuardFailureReason(DEV) + latest story_review round blockers');
+}
+
+/**
+ * Lab initplan: whether the dev-memory preflight pack the acknowledgement records is empty (no project or global
+ * lesson), i.e. the acknowledgement has nothing for the owner to read. An unreadable pack is not empty.
+ */
+export function devMemoryPackEmpty(root: string): boolean {
+  try { return buildPreflightPack({ projectRoot: root }).entries.length === 0; } catch { return false; }
+}
+
+/** Lab initplan: the `--intentRows='[...]'` row patches a story_review blocker message names, as checklist_update calls. */
+function blockerRowPatchCalls(message: string): Array<{ command: string; payload: Record<string, unknown> }> {
+  const out: Array<{ command: string; payload: Record<string, unknown> }> = [];
+  for (const match of message.matchAll(/proof-or-stop checklist_update --storyId=(\S+) --itemId=(CHK-\d+) --intentRows='(\[[^\n]*?\])'/g)) {
+    try {
+      const intentRows = JSON.parse(match[3]!) as unknown;
+      if (Array.isArray(intentRows) && intentRows.length) out.push({ command: 'checklist_update', payload: { storyId: match[1]!, itemId: match[2]!, intentRows } });
+    } catch { /* not a row patch */ }
+  }
+  return out;
+}
+
+/**
+ * Lab initplan (initplan-breakdown.md rank 4 / 9: 88-118 s of serial PLAN round trips before the first scope-plan run):
+ * the deterministic PLAN lint steps that are due together (counterpart coverage when on, the pre-scope authoring
+ * batch, exact whole-error pins, the row-vs-request audit) as ONE agent step: their calls merged per item, every
+ * check's own text kept. The first step's reason names it; a single due step is returned unchanged. Each lint keeps
+ * its semantics: the gates still refuse what they refused, the skippable lints are still skippable (the owner drops
+ * those patches), and each lint records its offer as before.
+ */
+export function mergedPlanLintStep(base: { storyId: string; phase: string }, due: ReadonlyArray<NextStep>): NextStep | null {
+  if (!due.length) return null;
+  if (due.length === 1) return due[0]!;
+  const calls = mergeChecklistUpdateCalls(due.flatMap(entry => entry.batch?.length ? entry.batch.map(call => call.cli!) : entry.cli ? [entry.cli] : []))
+    .map(call => nextStepCall(due[0]!.reason, call));
+  const parts = due.map((entry, index) => `(${index + 1}) [${entry.reason}] ${entry.why}`).join(' ');
+  return batchStep(base, due[0]!.reason, calls,
+    `${due.length} PLAN lints are due before the scope-plan reviewer; they come in ONE step (each check unchanged, its calls merged per item): ${parts} `
+      + `Author every <...> field and run these ${calls.length} command(s) in one turn (a skippable lint's rows may be dropped from the patch, as its own text says), then \`proof-or-stop next --storyId=${base.storyId} --run\`.`,
+    due.map(entry => entry.source).join(' + '));
 }
 
 /**
@@ -2376,10 +2396,15 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     if (!evaluateDevMemoryPreflightGate(storyId, ctx.store)) {
       // Old-PoS run 64 (lab neutral-64): with owner.driver=framework this turn only ran the command (0.2 min, a model round
       // trip); `next --run` runs it, and its lessons stay in the dev-memory pack the acknowledgement records.
-      const frameworkAck = ownerDriverFramework(ctx.root);
+      // Lab initplan (initplan-breakdown.md rank 4: 2 owner requests + 2 CLI calls, 14-22 s per run): an empty
+      // preflight pack has no lesson to read and nothing to decide, so the acknowledgement is a framework step
+      // `next --run` records and chains into the next step. A pack with lessons stays the owner's (it reads them).
+      const frameworkAck = ownerDriverFramework(ctx.root) || devMemoryPackEmpty(ctx.root);
       return step(base, frameworkAck ? 'framework' : 'agent', 'dev_memory_preflight_ack', { command: 'dev_memory_preflight_ack', payload: { storyId } },
         frameworkAck
-          ? 'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. owner.driver=framework: `next --run` records it now (the lessons it prints are in the run output; the gate only needs the acknowledgement).'
+          ? (ownerDriverFramework(ctx.root)
+            ? 'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. owner.driver=framework: `next --run` records it now (the lessons it prints are in the run output; the gate only needs the acknowledgement).'
+            : 'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. The preflight pack is empty (no project or global lesson to read), so `next --run` records it now.')
           : 'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. Run it now and read the lessons it prints before planning the implementation.',
         'evaluateDevMemoryPreflightGate (DEV-entry gate)');
     }
@@ -2387,9 +2412,6 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // request literals before the plan review is launched (ADR-105) and before DEV entry.
     const pinProbe = pinProbeStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
     if (pinProbe) return pinProbe;
-    // Lab sibling-gate (A/B plan.counterpartCoverage=on): an added operation's counterpart cases, same order as the DEV gate.
-    const counterpart = counterpartCoverageStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
-    if (counterpart) return counterpart;
     // Run 16: the scope-plan reviewer verdict the DEV-entry gate requires
     // (missingPlanScopeCheckFailure, the gate's own predicate). Launched with the
     // owner's own managed selection, or waited on while its run is in flight.
@@ -2400,6 +2422,35 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const policy = policyOf(storyId);
     const scopeFailure = missingPlanScopeCheckFailure(ctx.store, story, policy);
     const rerun = scopeFailure ? null : scopePlanRerunReason(ctx.store, story, ctx.root);
+    // Lab initplan (initplan-breakdown.md rank 4): the deterministic PLAN lints due before the scope-plan reviewer,
+    // in their old order (the pre-scope authoring batch; else the plan.rowBudget trim alone; then the exact
+    // whole-error pins and the row-vs-request audit). Each builder records its own offer, so only due ones are built.
+    const planLintSteps = (allowRowTrim: boolean): NextStep[] => {
+      const authoring = preScopeAuthoringStep(base, planPreScopeBlockers(ctx.store, story, policy), ctx.store.readChecklist(storyId).items);
+      if (!authoring && allowRowTrim) {
+        // Lab neutral-64 (A/B plan.rowBudget=on): the plan is authored; one skippable trim before the reviewer judges it.
+        const rowTrim = rowBudgetTrimStep(base, ctx.store, ctx.root);
+        if (rowTrim) return [rowTrim];
+      }
+      const due = authoring ? [authoring] : [];
+      // Old-PoS run 68 (fix 4): one skippable lint of exact whole-error pins before the reviewer judges the checklist.
+      const exactErrorPins = exactErrorPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+      if (exactErrorPins) due.push(exactErrorPins);
+      // Old-PoS run 73 (D): one skippable row-vs-request audit (contradicting pins, unquoted deciding sentences).
+      const requestPins = requestPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+      if (requestPins) due.push(requestPins);
+      return due;
+    };
+    // Lab sibling-gate (A/B plan.counterpartCoverage=on): an added operation's counterpart cases, same order as the DEV gate.
+    // Lab initplan: when the scope-plan reviewer is still to be launched, the other due PLAN lints join this step.
+    const counterpart = counterpartCoverageStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+    if (counterpart) {
+      if (scopeFailure || rerun) {
+        const scopeRunLive = listStoryHostRuns(ctx, storyId).some(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal);
+        if (!scopeRunLive && !pinOracleStep(base, ctx.store, ctx.root, gitCwdOf(storyId))) return mergedPlanLintStep(base, [counterpart, ...planLintSteps(false)])!;
+      }
+      return counterpart;
+    }
     // N8 (v4.1 cost plan, core/scope-plan-deferral.ts): a MISSING verdict whose
     // managed scope-plan run (launched in PLAN) is live no longer holds DEV: the
     // DEV-entry gate defers it to DEV→REVIEW, so PLAN finishes and the first
@@ -2427,17 +2478,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // (and before the authoring batch, whose checklist_update would be refused on it).
       const pinStep = pinOracleStep(base, ctx.store, ctx.root, gitCwdOf(storyId));
       if (pinStep) return pinStep;
-      const authoring = preScopeAuthoringStep(base, planPreScopeBlockers(ctx.store, story, policy), ctx.store.readChecklist(storyId).items);
-      if (authoring) return authoring;
-      // Lab neutral-64 (A/B plan.rowBudget=on): the plan is authored; one skippable trim before the reviewer judges it.
-      const rowTrim = rowBudgetTrimStep(base, ctx.store, ctx.root);
-      if (rowTrim) return rowTrim;
-      // Old-PoS run 68 (fix 4): one skippable lint of exact whole-error pins before the reviewer judges the checklist.
-      const exactErrorPins = exactErrorPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
-      if (exactErrorPins) return exactErrorPins;
-      // Old-PoS run 73 (D): one skippable row-vs-request audit (contradicting pins, unquoted deciding sentences).
-      const requestPins = requestPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
-      if (requestPins) return requestPins;
+      // Lab initplan (initplan-breakdown.md rank 4): every PLAN lint due now in ONE step (a single one unchanged).
+      const lints = mergedPlanLintStep(base, planLintSteps(true));
+      if (lints) return lints;
       const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
       const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
@@ -2550,6 +2593,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const hostRuns = listStoryHostRuns(ctx, storyId);
     const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
     const waits: HostRunView[] = [];
+    const launches: NextStep[] = [];
     for (const agentType of REQUIRED_INIT_CHECK_AGENTS) {
       if (!missing.has(agentType) && !invalid.has(agentType)) continue;
       const runs = hostRuns.filter(run => run.agentType === agentType);
@@ -2573,11 +2617,21 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
             ? `${agentType} run ${last.runId} recorded blocking issues, and the INIT inputs it judged (authorityInputHash: priority, userSees, verificationIntent, boundaries, ...) changed since; rerun it on the current Story.`
             : `The Story's signed INIT inputs changed after ${agentType} run ${last.runId} judged them [init_check_tampered]; rerun it on the current text.`
           : `${agentType} has no current delivered verdict; its last run ${last.runId} ended ${last.state}${invalid.has(agentType) ? ' and its delivery is not acknowledged' : ''}. Inspect it (proof-or-stop host_run_status --runId=${last.runId}) before relaunching.`;
-      return managedLaunchStep(base, 'init_review_launch', { ...selection, storyId, agentType, managedDispatch: true, detach: true, json: true },
+      launches.push(managedLaunchStep(base, 'init_review_launch', { ...selection, storyId, agentType, managedDispatch: true, detach: true, json: true },
         auto, `${why} Launch the managed INIT reviewer; it records its verdict with init_check_set.`,
         'getGuardFailureReason(INIT_CHECK) + init-check.json (missingRequiredInitCheckAgents / invalidInitReviewerDeliveries / recomputeInitCheckHash)',
-        !last ? `first run of this reviewer${bound ? '' : ', qualified managed-reviewer default selection'}` : 'replacement of its own failed or stale run');
+        !last ? `first run of this reviewer${bound ? '' : ', qualified managed-reviewer default selection'}` : 'replacement of its own failed or stale run'));
     }
+    // Lab initplan (initplan-breakdown.md rank 11: two serial host_run launch steps, 3.7 + 5.0 s): when both INIT
+    // reviewer launches are fully bound framework launches, ONE step starts them concurrently (each its own
+    // host_run process, the same command as alone; N2's parallel step). Otherwise the first launch, as before.
+    const boundLaunches = launches.filter(launch => launch.kind === 'framework' && launch.launch && launch.cli);
+    if (boundLaunches.length > 1 && boundLaunches[0] === launches[0]) {
+      return step(base, 'framework', 'init_review_launch', boundLaunches[0]!.cli,
+        `Launch the ${boundLaunches.length} INIT reviewers concurrently (${boundLaunches.map(launch => String(launch.cli!.payload.agentType).replace('proof-or-stop-', '')).join(', ')}), each in its own host_run process, before waiting. ${boundLaunches[0]!.why}`,
+        boundLaunches[0]!.source, { launch: true, parallel: boundLaunches.map(launch => nextStepCall(launch.reason, launch.cli!)) });
+    }
+    if (launches.length > 0) return launches[0]!;
     if (waits.length > 0) return waitStep(base, waits[0]!, 'INIT reviewer run');
     return delegated(base, 'agent', `init_check_${code}`, nextLine(failure) ?? '', `story_advance --phase=INIT_CHECK would be refused: ${failure.slice(0, 1600)}`, 'getGuardFailureReason(INIT_CHECK)');
   }
@@ -3847,7 +3901,7 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
           : rendered;
       }
       if (!unfinished.length) {
-        const template = storyCreateTemplateStep(ctx.root);
+        const template = storyCreateTemplateStep(ctx.root, renderBaseValidationLine(startBaseValidation(ctx.root)));
         const rendered = renderNextStep(capped(template));
         return args.json
           ? { schemaVersion: NEXT_DRIVE_SCHEMA, storyId: null, outcome: 'agent', ownerDriver: driver, calls: [], executed: [], watchdog: [], stopped: null, next: template, rendered }
@@ -3905,7 +3959,7 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
       if (!args.storyId) {
         // N4: with no unfinished Story, the next step is the one story_create template.
         if (!hasUnfinishedStory(ctx)) {
-          const template = storyCreateTemplateStep(ctx.root);
+          const template = storyCreateTemplateStep(ctx.root, renderBaseValidationLine(startBaseValidation(ctx.root)));
           return args.json ? template as unknown as Record<string, unknown> : renderNextStep(template);
         }
         if (!fallbackNext) throw new Error('next: storyId is required');

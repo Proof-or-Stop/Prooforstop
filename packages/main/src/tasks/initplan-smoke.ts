@@ -250,7 +250,7 @@ await check('L1 dev_memory_preflight_ack with an empty preflight pack is a frame
   } finally { cleanup(f); }
   const g = planStory({}, items(), { ack: false });
   try {
-    write(g.root, '.proof-or-stop/dev-memory/experience.jsonl', `${JSON.stringify({ id: 'mem0001', createdAt: '2026-10-01T00:00:00.000Z', sourceAgent: 'main-agent', category: 'failure-mode', scope: 'project', summary: 'Store keys are signed in range writes', trigger: 'range writes', lesson: 'test a negative key on every new write path', reusePrompt: 'store put negative key' })}\n`);
+    write(g.root, '.proof-or-stop/dev-memory/experience.jsonl', `${JSON.stringify({ id: 'mem0001', createdAt: '2026-10-01T00:00:00.000Z', sourceAgent: 'main-agent', category: 'failure-mode', scope: 'project', summary: 'Store keys are signed in range writes', trigger: 'range writes', lesson: 'test a negative key on every new write path', reusePrompt: 'store put negative key', gateEvidence: false, authority: 'non_authoritative' })}\n`);
     const step = decide(g);
     assert.equal(step.reason, 'dev_memory_preflight_ack');
     assert.equal(step.kind, 'agent', 'a pack with lessons stays the owner\'s (it reads them)');

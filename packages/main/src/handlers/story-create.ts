@@ -1,4 +1,6 @@
 
+import { renderBaseValidationLine, startBaseValidation } from '../core/base-validation.js';
+import { planLintPreview } from '../core/plan-lint-preview.js';
 import type { HandlerContext } from './context.js';
 import { collectContext, nextStoryId } from './context.js';
 import type { ChecklistData, MilestoneLedgerData, ScopeBoundaryMode, StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
@@ -21,6 +23,8 @@ import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-worksp
 import {
   assertEnglishAuthoringText,
   checklistEnglishAuthoringFields,
+  findFirstEnglishAuthoringViolation,
+  renderEnglishAuthoringRefusal,
   type EnglishAuthoringTextSource,
 } from './english-artifact-gate.js';
 import {
@@ -581,6 +585,14 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           const requestText = raw && raw.trim().length > 0 ? boundStoryRequest(raw).text : null;
           const derivation = storyCreateDerivationFailure((args.checklist ?? []).map((item, index) => ({ itemId: `CHK-${String(index + 1).padStart(3, '0')}`, verificationIntent: item.verificationIntent })), requestText);
           if (derivation) refusals.push(derivation);
+        }
+        // Lab initplan (initplan-breakdown.md rank 8, run 72: refused for an underived row, then again for one CJK
+        // character): the English-only rule joins the same refusal, one line per field with CJK text.
+        if (!args.fromDraft) {
+          for (const field of storyCreateAuthoringFields(args)) {
+            const violation = findFirstEnglishAuthoringViolation([field]);
+            if (violation) refusals.push(renderEnglishAuthoringRefusal('story_create', violation));
+          }
         }
         if (refusals.length) throw new Error(renderStoryCreateIntakeRefusal(refusals, stageStoryCreatePayload(resolveMainRepoRoot(ctx.root), args as unknown as Record<string, unknown>)));
       }
@@ -1304,6 +1316,9 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ Current directory is not a git repo: story is recorded, but INIT_CHECK/worktree flow still requires git init + initial commit first.`
           : '';
+        // Lab initplan (initplan-breakdown.md rank 5): the base validation (started by the first `next` /
+        // session_brief, else now, before the metadata commit moves HEAD) and its result for the owner.
+        const baseValidation = (() => { try { return renderBaseValidationLine(startBaseValidation(ctx.root)); } catch { return null; } })();
         // B-02a6 CHK-002: make the freshly written INIT metadata a tracked
         // clean-proof git object on the current branch HEAD (inside the lock),
         // closing the INIT-window data-loss window against a concurrent
@@ -1330,7 +1345,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             return note ? `\n⚠ ${note}` : '';
           } catch { return ''; }
         })();
-        return `Story ${storyId} created (INIT) with ${preflightChecklist.items.length} checklist items${hint}${probeRows}${rowBudget}${requestHint}${initReviewHint}${nonGitHint}`;
+        // Lab initplan (initplan-breakdown.md rank 4): the PLAN lints, at once, while the owner still authors INIT.
+        const planPreCheck = (() => { try { return planLintPreview({ store, root: ctx.root, storyId }); } catch { return null; } })();
+        return `Story ${storyId} created (INIT) with ${preflightChecklist.items.length} checklist items${hint}${probeRows}${rowBudget}${requestHint}`
+          + `${baseValidation ? `\n${baseValidation}` : ''}${planPreCheck ? `\n${planPreCheck}` : ''}${initReviewHint}${nonGitHint}`;
       }
 
       // B-02a6 CHK-002: an IDEA story still persists index.json + background.md on

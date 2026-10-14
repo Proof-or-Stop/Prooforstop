@@ -126,9 +126,9 @@ try {
   // The pre-scope authoring step: grouped placeholders, the exact-text one demands an exact-match assertion.
   const authoring = preScopeAuthoringStep({ storyId: 'B-d030', phase: 'PLAN' }, planPreScopeBlockers(store, store.readStory('B-d030'), { profile: 'balanced' } as never), store.readChecklist('B-d030').items);
   assert.ok(authoring, 'run 30: next proposes the coverage rows before the scope-plan reviewer');
-  const placeholders = (authoring!.batch ?? []).flatMap(call => ['happy', 'edge', 'adversarial']
-    .flatMap(lane => ((call.cli.payload.verificationIntent as Record<string, Array<Record<string, unknown>>> | undefined)?.[lane] ?? []))
-    .map(row => String(row.desc)).filter(desc => desc.startsWith('<')));
+  // Lab initplan: the authoring batch is a row patch (appended placeholder rows carry their desc).
+  const placeholders = (authoring!.batch ?? []).flatMap(call => ((call.cli.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? []))
+    .map(row => String(row.desc)).filter(desc => desc.startsWith('<'));
   const exactPlaceholder = placeholders.find(desc => desc.startsWith('<exact-text:'));
   assert.ok(exactPlaceholder && /exact|equal/i.test(exactPlaceholder) && /prefix/i.test(exactPlaceholder), `run 30: the exact-text placeholder asks for an exact-match (not prefix) assertion: ${JSON.stringify(placeholders)}`);
 

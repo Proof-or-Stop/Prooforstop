@@ -36,6 +36,7 @@
  */
 import type { ChecklistItem, VerificationIntent, VerificationIntentDerivation, VerificationLane } from './types.js';
 import { VERIFICATION_LANES } from './verification.js';
+import { shellQuote } from './shell-quote.js';
 
 export const INTENT_DERIVATION_REQUIRED = 'intent_derivation_required';
 export const MISSING_INTENT_DERIVATION = 'missing_intent_derivation';
@@ -242,19 +243,69 @@ export function derivationPlaceholder(row: Pick<IntentDerivationRow, 'unquoted'>
 
 export type DerivationCommand = 'story_create' | 'checklist_add' | 'checklist_update' | 'plan_acceptance_prepare' | 'plan_acceptance_apply';
 
+/**
+ * How the refused checklist_update was sent, so its ONE Next can be a row-level fix (lab initplan,
+ * initplan-breakdown.md rank 6): `patches` + `patchRefs` = it was an `intentRows` patch (the Next is
+ * the same patch with a derivation added to each listed row); `stagedPath` = a whole-intent write whose
+ * payload the handler staged (the Next fixes the listed rows in that file and resubmits it with @file).
+ */
+export interface DerivationRefusalNext {
+  storyId: string;
+  patches?: ReadonlyArray<Record<string, unknown>>;
+  /** The resulting row ref of each patch, in patch order (applyIntentRowPatches.patchRefs). */
+  patchRefs?: readonly string[];
+  stagedPath?: string | null;
+}
+
 /** The refusal text when any example row of the item lacks a valid derivation, else null. */
-export function intentDerivationFailure(command: DerivationCommand, itemId: string, verificationIntent: VerificationIntent | undefined, requestText: string | null): string | null {
+export function intentDerivationFailure(command: DerivationCommand, itemId: string, verificationIntent: VerificationIntent | undefined, requestText: string | null,
+  route?: DerivationRefusalNext): string | null {
   if (requestText === null) return null;
   const bad = intentDerivationRows(itemId, verificationIntent, requestText).filter(row => row.problem !== null);
   if (!bad.length) return null;
-  const next = command === 'story_create'
-    ? 'Next: rerun story_create with a derivation on each listed row, or quote the expected value from request.md (no Story was created).'
-    : `Next: rerun ${command} with the complete verificationIntent and a derivation on each listed row.`;
+  let next: string;
+  if (command === 'story_create') {
+    next = 'Next: rerun story_create with a derivation on each listed row, or quote the expected value from request.md (no Story was created).';
+  } else if (route?.patches && route.patchRefs) {
+    // Lab initplan: the owner sent a row patch; the fix is the same patch with a derivation on each listed row.
+    const listed = new Map(bad.map(row => [`${itemId}:${row.lane}:${row.index}`, row]));
+    const patches = route.patches.map((patch, at) => {
+      const row = listed.get(route.patchRefs![at] ?? '');
+      return row ? { ...patch, derivation: derivationPlaceholder({ unquoted: row.unquoted, desc: row.desc }, requestText) } : patch;
+    });
+    const covered = new Set(route.patchRefs);
+    const extra = bad.filter(row => !covered.has(`${itemId}:${row.lane}:${row.index}`))
+      .map(row => ({ ref: `${itemId}:${row.lane}:${row.index}`, derivation: derivationPlaceholder({ unquoted: row.unquoted, desc: row.desc }, requestText) }));
+    next = `Next: proof-or-stop ${command} ${shellQuote(JSON.stringify({ storyId: route.storyId, itemId, intentRows: [...patches, ...extra] }))}`;
+  } else if (route?.stagedPath) {
+    next = `Next: fix only the rows listed above in ${route.stagedPath} (the payload you submitted, staged; add each derivation or correct the value there, do not re-send the whole payload), then run: proof-or-stop ${command} @${route.stagedPath}`;
+  } else if (route) {
+    next = `Next: proof-or-stop ${command} ${shellQuote(JSON.stringify({ storyId: route.storyId, itemId,
+      intentRows: bad.map(row => ({ ref: `${itemId}:${row.lane}:${row.index}`, derivation: derivationPlaceholder({ unquoted: row.unquoted, desc: row.desc }, requestText) })) }))}`;
+  } else {
+    next = `Next: rerun ${command} with a derivation on each listed row (only those rows change).`;
+  }
   return `${command} REFUSED, nothing was written: an example whose expected value is not quoted verbatim from request.md must carry a derivation [${INTENT_DERIVATION_REQUIRED}]\n`
     + `${bad.map(row => describeDerivationProblem(row, requestText)).join('\n')}\n`
     + 'Add to each row: "derivation":{"requestQuote":"<verbatim request.md sentence the value follows from>","computation":"<steps from that sentence to the pinned value, ending at that value>"}. '
     + 'If the computation reaches a different value, the pinned value is wrong: fix it.\n'
     + next;
+}
+
+/**
+ * Lab initplan (initplan-breakdown.md rank 6): the row patch that answers a scope-plan `pin-audit <ref>` gap
+ * (the named row, its value and derivation re-authored) or an `asymmetric-example` gap (one appended row on
+ * the item, `<CHK-id>` when the gap names none). Flag form, so the remedy stays ONE command line.
+ */
+export function pinAuditRowPatchCommand(storyId: string, feature: string): string {
+  const ref = feature.match(/\b(CHK-\d+):(happy|edge|adversarial):(\d+)\b/);
+  const itemId = ref?.[1] ?? feature.match(/\b(CHK-\d+)\b/)?.[1] ?? '<CHK-id>';
+  const derivation = { requestQuote: '<the deciding request sentence, verbatim>', computation: '<the steps from it to the pinned value>' };
+  const patch = ref
+    ? { ref: ref[0], desc: `<${ref[0]} with the expected value the request gives>`, derivation }
+    : { ref: `${itemId}:edge:+`, desc: '<an input the plausible readings treat differently -> the value the request gives>', type: 'logic', priority: 'must', scope: 'focused',
+      expectation: 'absolute_pass', requirementSource: 'story', verification: { command: '<pinned test command>', selector: '<line its passing run prints>' }, derivation };
+  return `proof-or-stop checklist_update --storyId=${storyId} --itemId=${itemId} --intentRows='${JSON.stringify([patch])}'`;
 }
 
 /** Underived rows of a checklist (story_review / next pre-scope), by item. */

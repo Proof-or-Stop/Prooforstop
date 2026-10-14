@@ -364,7 +364,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -4698,7 +4698,8 @@ function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.match(authoring.why, /CHK-001:happy:1/, '[NP] the authoring step names the underived pinned row');
     assert.match(authoring.why, /derivation/, '[NP] the authoring step asks for its derivation');
     const proposed = (authoring.batch ?? []).find(call => call.cli.command === 'checklist_update' && call.cli.payload.itemId === 'CHK-001');
-    const proposedPin = ((proposed?.cli.payload.verificationIntent as { happy?: Array<Record<string, unknown>> } | undefined)?.happy ?? [])[1];
+    // Lab initplan: a row patch of CHK-001:happy:1.
+    const proposedPin = ((proposed?.cli.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? []).find(patch => patch.ref === 'CHK-001:happy:1');
     assert.match(String((proposedPin?.derivation as Record<string, unknown> | undefined)?.requestQuote ?? ''), /^<.*>$/, '[NP] the exact checklist_update carries a derivation placeholder');
 
     const wrongRow = row(NP_WRONG_PIN, 'TestUpperXY');
@@ -4734,7 +4735,8 @@ function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 
     const review = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (pin-audit gap)' });
     assert.match(review.out, /pin-audit CHK-001:happy:1/, '[NP] story_review reports the pin-audit gap');
-    assert.match(review.out, /checklist_update[^\n]*verificationIntent/, '[NP] the pin-audit gap names the intent fix (checklist_update verificationIntent)');
+    // Lab initplan: the fix is a row patch of the named row (intentRows), not the whole intent.
+    assert.match(review.out, /checklist_update[^\n]*--intentRows='\[\{\\?"ref\\?":\\?"CHK-001:happy:1/, '[NP] the pin-audit gap names the intent fix (checklist_update row patch of CHK-001:happy:1)');
     const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused)' });
     assert.notEqual(dev.status, 0, '[NP] the wrong pin must not reach DEV');
     assert.match(dev.out, /story_review round has 1 unresolved blocker/, '[NP] the only DEV blocker is the pin-audit gap');
@@ -4866,7 +4868,8 @@ function scenarioNCV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     }
     const placeholders = (itemId: string): string[] => {
       const update = (authoring.batch ?? []).find(call => call.cli.command === 'checklist_update' && call.cli.payload.itemId === itemId);
-      return ((update?.cli.payload.verificationIntent as { edge?: Array<{ desc: string }> } | undefined)?.edge ?? []).map(entry => entry.desc).filter(desc => desc.startsWith('<'));
+      // Lab initplan: the coverage rows are appended to edge by a row patch.
+      return ((update?.cli.payload.intentRows as Array<{ ref: string; desc?: string }> | undefined) ?? []).filter(entry => entry.ref.endsWith(':edge:+')).map(entry => String(entry.desc)).filter(desc => desc.startsWith('<'));
     };
     assert.ok(placeholders('CHK-002').some(desc => desc.startsWith('<write-mirror:')), `[NCV] CHK-002 gets the write-mirror placeholder: ${JSON.stringify(placeholders('CHK-002'))}`);
     assert.ok(placeholders('CHK-001').some(desc => desc.startsWith('<omit-combination:')), `[NCV] CHK-001 gets the omission-pattern placeholder: ${JSON.stringify(placeholders('CHK-001'))}`);
@@ -5140,9 +5143,10 @@ function fillNipPlaceholders(value: unknown): unknown {
  * names the staged payload (@file); the dev-memory acknowledgement is a framework step (empty pack);
  * the PLAN lints come at most as ONE agent step before the scope-plan reviewer. Reports owner turns.
  */
-function scenarioNIP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
-  const tag = 'NIP';
-  const name = 'NIP lab initplan: INIT + PLAN to DEV entry from an empty project; background base validation, one INIT launch step, row-level refusal Nexts, framework dev-memory ack, PLAN lints in one step; owner turns counted';
+function scenarioNIP(machineEnv: NodeJS.ProcessEnv, steps: Step[], skipPreCheck = false): Outcome {
+  // NIP-M: the owner ignores the story_create PLAN pre-check, so PLAN's merged lint step does the work.
+  const tag = skipPreCheck ? 'NIP-M' : 'NIP';
+  const name = `${tag} lab initplan${skipPreCheck ? ' (owner skips the PLAN pre-check)' : ''}: INIT + PLAN to DEV entry from an empty project; background base validation, one INIT launch step, row-level refusal Nexts, framework dev-memory ack, PLAN lints in one step; owner turns counted`;
   const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true });
   const lines: string[] = [];
   const unmet: string[] = [];
@@ -5193,9 +5197,28 @@ function scenarioNIP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     expect(/Base validation/.test(created.stdout), 'story_create hands out the base validation result');
     writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir, JSON.stringify({ findingRound1: false, scopePlanPass: true })] }));
 
+    // 4. The PLAN pre-check story_create printed: the owner runs its commands now (INIT, before the reviewers judge the Story).
+    const preCheck = created.stdout.includes('PLAN pre-check');
+    expect(preCheck, 'story_create prints the PLAN pre-check (the lints PLAN would ask for, at once)');
+    if (skipPreCheck) lines.push('the owner skips the PLAN pre-check');
+    const runCalls = (label: string, calls: Array<{ command: string; payload: Record<string, unknown> }>): void => {
+      for (const call of calls) {
+        const payload = fillNipPlaceholders(call.payload) as Record<string, unknown>;
+        const left = JSON.stringify(payload).match(/"<[^"]*>"/g);
+        assert.equal(left, null, `[${tag}] ${label}: unfilled placeholders ${String(left)}`);
+        o.mustCli(call.command, payload, { label: `${label}: ${call.command} ${String(payload.itemId ?? '')}` });
+      }
+    };
+    if (preCheck && !skipPreCheck) {
+      const block = created.stdout.slice(created.stdout.indexOf('PLAN pre-check'));
+      const calls = [...block.matchAll(/proof-or-stop (checklist_update) '(\{[^\n]*\})'/g)].map(match => ({ command: match[1]!, payload: JSON.parse(match[2]!.replace(/'"'"'/g, "'")) as Record<string, unknown> }));
+      expect(calls.length > 0, 'the PLAN pre-check carries runnable commands');
+      if (calls.length) { runCalls('PLAN pre-check', calls); ownerTurns += 1; }
+    }
+
     // 3. A refused whole-intent checklist_update names the staged payload; the owner patches the file and resubmits it.
     const underived = { ...plain, desc: 'Upper("q") -> "Q"', verification: { command: 'go test -v ./strs -run ^TestUpperQ$', selector: '--- PASS: TestUpperQ' } };
-    const whole = { storyId: id, itemId: 'CHK-001', verificationIntent: { ...item.verificationIntent, happy: [happy, underived] } };
+    const whole = { storyId: id, itemId: 'CHK-001', verificationIntent: { ...(new StoryStore(o.root).readChecklist(id!).items[0]!.verificationIntent as Record<string, unknown>), happy: [happy, underived] } };
     const refusedUpdate = o.cli('checklist_update', whole, { label: 'checklist_update CHK-001 (underived row, whole intent)' });
     assert.notEqual(refusedUpdate.status, 0, `[${tag}] the underived row is refused`);
     const stagedPath = refusedUpdate.out.match(/proof-or-stop checklist_update @(\S+\.json)/)?.[1];
@@ -5206,24 +5229,6 @@ function scenarioNIP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
       writeFileSync(stagedPath, JSON.stringify(staged));
       const resubmitted = spawnSync(process.execPath, [CLI, 'checklist_update', `@${stagedPath}`], { cwd: o.root, encoding: 'utf8', env: o.env });
       expect(resubmitted.status === 0, `checklist_update @staged (fixed) is accepted: ${(resubmitted.stdout + resubmitted.stderr).slice(-400)}`);
-    }
-
-    // 4. The PLAN pre-check story_create printed: the owner runs its commands now (INIT, before the reviewers judge the Story).
-    const preCheck = created.stdout.includes('PLAN pre-check');
-    expect(preCheck, 'story_create prints the PLAN pre-check (the lints PLAN would ask for, at once)');
-    const runCalls = (label: string, calls: Array<{ command: string; payload: Record<string, unknown> }>): void => {
-      for (const call of calls) {
-        const payload = fillNipPlaceholders(call.payload) as Record<string, unknown>;
-        const left = JSON.stringify(payload).match(/"<[^"]*>"/g);
-        assert.equal(left, null, `[${tag}] ${label}: unfilled placeholders ${String(left)}`);
-        o.mustCli(call.command, payload, { label: `${label}: ${call.command} ${String(payload.itemId ?? '')}` });
-      }
-    };
-    if (preCheck) {
-      const block = created.stdout.slice(created.stdout.indexOf('PLAN pre-check'));
-      const calls = [...block.matchAll(/proof-or-stop (checklist_update) '(\{[^\n]*\})'/g)].map(match => ({ command: match[1]!, payload: JSON.parse(match[2]!.replace(/'\\''/g, "'")) as Record<string, unknown> }));
-      expect(calls.length > 0, 'the PLAN pre-check carries runnable commands');
-      if (calls.length) { runCalls('PLAN pre-check', calls); ownerTurns += 1; }
     }
 
     // 5. INIT: the freeze check, then both reviewers in ONE launch step.
@@ -5262,7 +5267,7 @@ function scenarioNIP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const planAgentSteps = agentSteps.filter(row => row.startsWith('PLAN:'));
     expect(!agentSteps.includes('PLAN:dev_memory_preflight_ack'), 'the dev-memory acknowledgement (empty pack) is a framework step');
     expect(planAgentSteps.length <= 1, `the PLAN lints come at most as ONE agent step before the scope-plan reviewer (got ${planAgentSteps.join(', ') || 'none'})`);
-    lines.push(`owner turns from the first next to DEV entry: ${ownerTurns} (next x1, story_create x2, ${nextCalls} next --run, ${agentSteps.length} agent step(s) acted on${preCheck ? ', 1 PLAN pre-check' : ''}); agent steps: ${agentSteps.join(', ') || 'none'}`);
+    lines.push(`owner turns from the first next to DEV entry: ${ownerTurns} (next x1, story_create x2, ${nextCalls} next --run, ${agentSteps.length} agent step(s) acted on${preCheck && !skipPreCheck ? ', 1 PLAN pre-check' : ''}); agent steps: ${agentSteps.join(', ') || 'none'}`);
     lines.push(`framework steps: ${ran.join(' > ')}`);
     assert.deepEqual(unmet, [], `[${tag}] unmet:\n  - ${unmet.join('\n  - ')}`);
     o.cleanup();
@@ -5686,12 +5691,15 @@ function scenarioNCC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.match(blocked.why, /negative, out of range/, '[NCC] the uncovered classes are named');
     assert.match(blocked.why, /Bin\.Put[^]*?only second/, '[NCC] another receiver\'s same operation is the second oracle only');
     assert.equal(blocked.cli?.command, 'checklist_update', '[NCC] ONE next action: a checklist_update');
-    const intentPatch = blocked.cli?.payload.verificationIntent as { edge?: Array<{ desc: string }> } | undefined;
-    assert.equal(intentPatch?.edge?.filter(rowValue => rowValue.desc.startsWith('<')).length, 2, '[NCC] one placeholder row per uncovered class');
+    // Lab initplan: a row patch appending one placeholder row per class (`CHK-001:edge:+`), no whole intent.
+    const intentPatch = blocked.cli?.payload.intentRows as Array<{ ref: string; desc: string }> | undefined;
+    assert.equal(blocked.cli?.payload.verificationIntent, undefined, '[NCC] a row patch, not the whole intent');
+    // The merged PLAN lint step (lab initplan) may append other lints' rows (e.g. a request-literal row) to the same item.
+    assert.equal(intentPatch?.filter(rowValue => rowValue.ref === 'CHK-001:edge:+' && rowValue.desc.startsWith('<Shelf.Put on ')).length, 2, '[NCC] one placeholder row per uncovered class');
     const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused: counterpart cases)' });
     assert.notEqual(dev.status, 0, '[NCC] the uncovered counterpart cases must not reach DEV');
     assert.match(dev.out, /\[counterpart_coverage_missing\]/, `[NCC] the DEV gate names the rule:\n${dev.out.slice(-1500)}`);
-    assert.match(dev.out, /Next: proof-or-stop checklist_update '[^\n]*verificationIntent/, '[NCC] the refusal carries one Next');
+    assert.match(dev.out, /Next: proof-or-stop checklist_update '[^\n]*intentRows/, '[NCC] the refusal carries one Next (a row patch)');
     const evidencePath = [o.root, o.worktree].map(dir => join(dir, '.proof-or-stop', 'runtime', 'counterpart-coverage', `${o.storyId}.json`)).find(path => existsSync(path));
     assert.ok(evidencePath, '[NCC] the discovery is recorded with its A/B evidence');
     const evidence = JSON.parse(readFileSync(evidencePath!, 'utf8')) as { abVariant?: { flags?: Record<string, string> }; refusals?: unknown[]; scanned?: number };
@@ -7179,7 +7187,7 @@ function scenarioNPA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const lines: string[] = [];
   try {
     planFixture(o, 30, ' (each case is one input in the request syntax and the exact output the request states for it)');
-    // Missing userSees + unpinned rows make a pre-scope authoring batch carrying the full intents.
+    // Missing userSees + unpinned rows make a pre-scope authoring batch (row patches since lab initplan; smaller than the full intents it carried before).
     const store = new StoryStore(o.worktree);
     const cl = store.readChecklist(o.storyId);
     store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => ({ ...item, userSees: '',
@@ -7191,14 +7199,15 @@ function scenarioNPA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const full = JSON.stringify(step).length;
     const text = o.cli('next', { storyId: o.storyId }, { label: 'next (text, plan authoring)' });
     assert.equal(text.status, 0, `[${tag}] next text render failed:\n${text.out.slice(-1500)}`);
-    assert.ok(full > 16000, `[${tag}] the fixture step is large (${full} chars as JSON)`);
     assert.ok(text.stdout.length <= 8000, `[${tag}] the text step is capped at ~2k tokens: ${text.stdout.length} chars`);
     const files = [...text.stdout.matchAll(/ @(\S+\.json)/g)].map(match => match[1]!);
-    assert.ok(files.length >= 1, `[${tag}] the long commands read their payload from a file:\n${text.stdout.slice(0, 3000)}`);
-    const payloadFile = files[0]!.startsWith('/') ? files[0]! : join(o.worktree, files[0]!);
-    const payload = JSON.parse(readFileSync(payloadFile, 'utf8')) as Record<string, unknown>;
-    assert.equal(payload.storyId, o.storyId, `[${tag}] the file holds the command payload`);
-    assert.ok('verificationIntent' in payload, `[${tag}] the file carries the full verificationIntent`);
+    if (full > 8000) assert.ok(files.length >= 1, `[${tag}] the long commands read their payload from a file:\n${text.stdout.slice(0, 3000)}`);
+    if (files.length) {
+      const payloadFile = files[0]!.startsWith('/') ? files[0]! : join(o.worktree, files[0]!);
+      const payload = JSON.parse(readFileSync(payloadFile, 'utf8')) as Record<string, unknown>;
+      assert.equal(payload.storyId, o.storyId, `[${tag}] the file holds the command payload`);
+      assert.ok('intentRows' in payload, `[${tag}] the file carries the row patch`);
+    }
     lines.push(`plan_authoring: ${full} chars as JSON, ${text.stdout.length} chars printed, ${files.length} payload file(s)`);
     o.cleanup();
     return { name, status: 'PASS', lines };
@@ -7983,7 +7992,7 @@ function scenarioNRD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -8053,6 +8062,7 @@ async function main(): Promise<void> {
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
     // Lab initplan: INIT + PLAN from story_create to DEV entry, owner turns counted.
     if (only.includes('NIP')) outcomes.push(scenarioNIP(machine.env, steps));
+    if (only.includes('NIP-M')) outcomes.push(scenarioNIP(machine.env, steps, true));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     if (only.includes('NCV')) outcomes.push(scenarioNCV(machine.env, steps));
     if (only.includes('NX')) outcomes.push(scenarioNX(machine.env, steps));
@@ -8104,7 +8114,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

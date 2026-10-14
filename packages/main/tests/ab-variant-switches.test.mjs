@@ -40,6 +40,8 @@
  *   Lab round-cut (production `advisory`; behaviour in tasks/round-cut-smoke.ts G, end to end in NRC / NRC-ADV):
  *   dev.removedGuardScan             advisory: review lane prompts name base operand guards the Story dropped; on: a clear one
  *                                    reopens its item before REVIEW (once per set); off: no scan
+ *   Lab initplan (EXPERIMENTAL, default `off`; behaviour in tasks/initplan-smoke.ts P1):
+ *   plan.reviewerPreload             the scope-plan dispatch prompt carries the Story artifacts it must read (no re-read)
  *   Old-PoS run 43 (`off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
  *   review.siblingParity             the test-coverage and quality lane prompts carry the sibling-parity check
  *                                    (old-PoS run 58: default OFF, `on` = the recorded arm; tasks/run58-fixes-smoke.ts P)
@@ -90,7 +92,7 @@ await check('config: absent switches resolve to production values; malformed fai
     // EXPERIMENTAL lab sibling-gate switch: off by default.
     counterpartCoverage: 'off',
     // Lab round-cut: the removed-guard scan is advisory by default (lane prompts only).
-    removedGuardScan: 'advisory' });
+    removedGuardScan: 'advisory', reviewerPreload: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'on' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.counterpartCoverage': 'on' } }, 'lab sibling-gate: the arm is recorded');
@@ -106,6 +108,12 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ dev: { removedGuardScan: 'off' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'dev.removedGuardScan': 'off' } }, 'lab round-cut: the off arm is recorded');
   assert.throws(() => resolveAbVariants({ dev: { removedGuardScan: 'maybe' } }), /invalid_ab_variant_config: dev\.removedGuardScan/);
+  // Lab initplan (plan.reviewerPreload): off is production (not recorded); on is the recorded arm; malformed = off where consumed.
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { reviewerPreload: 'on' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.reviewerPreload': 'on' } }, 'lab initplan: the on arm is recorded');
+  assert.throws(() => resolveAbVariants({ plan: { reviewerPreload: 'maybe' } }), /invalid_ab_variant_config: plan\.reviewerPreload/);
+  const { reviewerPreloadOn } = await load('core/ab-variants.js');
+  assert.equal(reviewerPreloadOn({ plan: { reviewerPreload: 'maybe' } }), false, 'malformed = off where it is consumed');
   const { removedGuardScanMode } = await load('core/ab-variants.js');
   assert.equal(removedGuardScanMode({ dev: { removedGuardScan: 'maybe' } }), 'advisory', 'malformed = advisory where it is consumed');
   assert.equal(removedGuardScanMode({ dev: { removedGuardScan: 'on' } }), 'on');
