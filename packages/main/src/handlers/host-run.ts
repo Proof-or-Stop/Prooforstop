@@ -12,6 +12,7 @@ import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { buildImplementerItemPack } from '../core/implementer-item-pack.js';
 import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId } from '../core/ab-dispatch-grouping.js';
 import { regressionFamilyBrief } from '../core/regression-family-brief.js';
+import { boundMatrixFor, recordBoundMatrix, renderBoundMatrix } from '../core/bound-matrix.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { hostRunStatusBlocksUntilTerminal, ownerWaitBlockMs, ownerWaitYieldMs } from '../core/owner-wait-guidance.js';
 import { renderHostRunStatusSummary } from './host-run-status-summary.js';
@@ -1206,7 +1207,12 @@ export function resolveGroupedManagedDispatch(ctx: HandlerContext, args: {
     if (ids[0] !== args.findingId || ids.length < 2) throw new Error('host_run: --groupFindingIds must list findingId first and at least one other finding');
     const members = ids.map(id => findings.find(row => row.id === id)!);
     const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-    const briefs = new Map(members.filter(row => row.id !== args.findingId).map(row => [row.id, regressionFamilyBrief({ findings, storyId: args.storyId, finding: row, gitCwd })] as const));
+    // Lab round-cut N2 (core/bound-matrix.ts): each member located in a multi-branch helper also gets its bound matrix.
+    const briefs = new Map(members.filter(row => row.id !== args.findingId).map(row => {
+      const matrix = boundMatrixFor({ gitCwd, finding: row });
+      const matrixLines = matrix ? renderBoundMatrix(recordBoundMatrix(ctx.root, args.storyId, row.id, matrix), shortFindingId(args.storyId, row.id)) : [];
+      return [row.id, [...regressionFamilyBrief({ findings, storyId: args.storyId, finding: row, gitCwd }), ...matrixLines]] as const;
+    }));
     return { section: renderGroupedFindingRepairSection(args.storyId, args.findingId, members, briefs),
       target: { groupFindingIds: ids, ...(evidence ? { abVariant: evidence } : {}) } };
   }

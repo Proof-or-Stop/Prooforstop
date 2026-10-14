@@ -161,8 +161,8 @@ const SKIPPED_DIR = /(?:^|\/)(?:node_modules|vendor|third_party|dist|build|targe
 const TEST_PATH = /(?:^|\/)(?:tests?|__tests__|specs?)\/|_test\.(?:go|py)$|(?:^|\/)test_[^/]*\.py$|\.(?:test|spec)\.[cm]?[jt]sx?$|Tests?\.(?:java|kt|cs|swift|scala)$/;
 export const isScannedSource = (path: string): boolean => SOURCE_PATH.test(path) && !SKIPPED_DIR.test(path) && !path.endsWith('.d.ts');
 export const isTestSource = (path: string): boolean => TEST_PATH.test(path);
-type Lang = 'go' | 'py' | 'brace';
-const langOf = (path: string): Lang => (/\.go$/i.test(path) ? 'go' : /\.py$/i.test(path) ? 'py' : 'brace');
+export type Lang = 'go' | 'py' | 'brace';
+export const langOf = (path: string): Lang => (/\.go$/i.test(path) ? 'go' : /\.py$/i.test(path) ? 'py' : 'brace');
 
 /** The text with comment and string-literal interiors blanked (same offsets; quotes kept so `== ""` stays visible). */
 export function maskSource(text: string, lang: Lang): string {
@@ -369,7 +369,7 @@ const words = (text: string, list: Iterable<string>): RegExp => new RegExp(`(?<!
 const LENGTHISH = /\blen\s*\(|\.len\s*\(|\.length\b|\.size\s*\(|\.size\b|\.Len\s*\(|\.Count\b|\.count\b|\bcount\s*\(|\blength\s*\(/;
 const CONDITION = /\b(?:if|elif|else\s+if|while|case|when|guard|unless|assert|require|ensure|match|switch)\b/;
 
-function derivedNames(fn: FnDef): { operands: Set<string>; lengths: Set<string> } {
+export function derivedNames(fn: FnDef): { operands: Set<string>; lengths: Set<string> } {
   const operands = new Set(fn.params);
   const lengths = new Set<string>();
   const lines = fn.masked.split('\n');

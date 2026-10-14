@@ -2526,6 +2526,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         if (mode.roundCut === 'matrix' && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NRM_FINDING.desc) {
           // Lab round-cut (NRM): the first repair reports only the finding's own branch; the second every operand.
           const attempt = (repairRunsByFinding.get(String(payload.findingId)) ?? []).length + 1;
+          // The earlier run is terminal: retire its script key now, not after this run reads its script.
+          retireTerminalScripts();
           o.script(FINDING_REPAIR, nrmRepairScript(id, attempt));
           break;
         }
@@ -2540,6 +2542,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         break;
       }
       case 'implement_item':
+        if (mode.implementerScript) retireTerminalScripts();
         o.script(IMPLEMENTER, mode.implementerScript?.(String(payload.itemId)) ?? implementerScript(id, String(payload.itemId)));
         break;
       case 'enter_review': {
@@ -7621,7 +7624,8 @@ function nrcRestoreScript(storyId: string, itemId: string): ProviderScript {
   const writeFiles = `const fs=require('fs');fs.writeFileSync('strs/strs.go',${JSON.stringify(`${IMPL}${NRC_CLIP_BASE}`)});fs.writeFileSync('strs/strs_test.go',${JSON.stringify(`${TESTS}${NRC_CLIP_TEST}`)});`;
   return { commands: [
     [process.execPath, '-e', writeFiles],
-    ['/bin/sh', '-c', `git add strs && git -c user.name=${IMPLEMENTER} commit -qm '${storyId} ${itemId}: keep the base nil branch of Clip' && git log --format=%h -1`],
+    // A framework git read (a status poll) may hold the index lock for a moment: retry the commit.
+    ['/bin/sh', '-c', `for i in 1 2 3 4 5 6 7 8; do git add strs && git -c user.name=${IMPLEMENTER} commit -qm '${storyId} ${itemId}: keep the base nil branch of Clip' && break; sleep 1; done; git log --format=%h -1`],
     [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId, itemId, status: 'done' })],
   ], final: `Restored the nil-n branch of Clip and tested it (TestClipNil); ${itemId} marked done.\n[intent-conflict] none` };
 }

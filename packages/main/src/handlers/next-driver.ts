@@ -124,6 +124,10 @@ import { maxLaneRunsOnMaterial, STALE_WAVE_STOP_LOSS } from '../core/review-stop
 import { resolutionCitationRefusal } from '../core/finding-resolution-integrity.js';
 import { storyReviewRoundStale } from '../core/story-review-staleness.js';
 import { orderLanesForLaunch } from '../core/review-lane-launch-order.js';
+import { intentBasisDigest } from '../core/intent-basis.js';
+import { describeRemovedGuard, openRemovedGuardGap, removedGuardRelaunchPending, type RemovedGuard } from '../core/removed-guard-scan.js';
+import { repairRunBoundMatrixProblem } from '../core/bound-matrix.js';
+import { frameworkDuplicateCoverage, type FrameworkDuplicateCoverage } from '../core/duplicate-auto-coverage.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
@@ -645,7 +649,9 @@ function repairRunTestProblem(root: string, gitCwd: string, storyId: string, fin
   if (repairTestProblemCache.has(key)) return repairTestProblemCache.get(key)!;
   let desc = '';
   try { desc = new StoryStore(root).readFindings(storyId).findings.find(row => row.id === findingId)?.desc ?? ''; } catch { desc = ''; }
-  const problem = repairTestIntegrityProblem({ gitCwd, commits, desc });
+  // Lab round-cut N2 (core/bound-matrix.ts): a repair of a finding whose prompt carried a bound matrix must report every operand.
+  const problem = repairTestIntegrityProblem({ gitCwd, commits, desc })
+    ?? repairRunBoundMatrixProblem(root, storyId, findingId, run, () => managedRunFinalMessage(root, run.runId));
   repairTestProblemCache.set(key, problem);
   return problem;
 }
@@ -1608,7 +1614,8 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
           });
         }
         intent.edge!.push(...placeholders);
-        calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload: { storyId, itemId: item.id, verificationIntent: intent } }));
+        // Lab round-cut N4c: built from the current rows; refused if they change before it is applied.
+        calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload: { storyId, itemId: item.id, verificationIntent: intent, intentBasis: intentBasisDigest(item.verificationIntent) } }));
       }
     }
   }
@@ -1748,6 +1755,8 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
         intent.edge!.push(placeholderIntentRow(`<input -> exact output naming each unstated request literal ${item.id} delivers, quoted exactly; drop this row if ${item.id} delivers none>`));
       }
       payload.verificationIntent = intent;
+      // Lab round-cut N4c: built from the current rows; refused if they change before it is applied.
+      payload.intentBasis = intentBasisDigest(item.verificationIntent);
     }
     calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload }));
     const parts = [
@@ -2040,6 +2049,30 @@ export function initBoundaryAuthoringStep(root: string, base: { storyId: string;
  * coverage run of its own case that the framework executes; a failing run is
  * recorded and the finding then gets its own managed repair.
  */
+/**
+ * Lab round-cut N3 (core/duplicate-auto-coverage.ts): a duplicate whose own repro a test of the
+ * canonical's repair commit states is closed by the framework with that coverage (the same
+ * finding_resolve duplicateOf + coverage path, its checks and its refusal route); no owner turn.
+ */
+export function frameworkDuplicateResolveStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string }, canonical: { id: string }, familyKey: string | null,
+  coverage: FrameworkDuplicateCoverage): NextStep {
+  return step(base, 'framework', 'finding_duplicate_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id, duplicateOf: canonical.id,
+    coverage: { command: coverage.command, selector: coverage.selector }, resolution: coverage.resolution } },
+  `Verified ${finding.severity} finding ${finding.id} is a duplicate of ${canonical.id}${familyKey ? ` (family ${familyKey})` : ''}, which was repaired and resolved; its repair commit ${coverage.commit.slice(0, 12)} added or changed ${coverage.test} (${coverage.file}), which states ${finding.id}'s own repro. `
+    + `The framework closes it through that coverage run (exit 0 with \`${coverage.selector}\`); a failing or refused run is recorded and ${finding.id} gets its own managed repair.`,
+  'unclosedBlockingFindings + duplicateResolveCandidate + frameworkDuplicateCoverage (lab round-cut N3)');
+}
+
+/** Lab round-cut N1 (core/removed-guard-scan.ts): the framework reopens the item that declares the file of a removed base guard. */
+export function removedGuardStep(base: { storyId: string; phase: string }, gap: { itemId: string; guards: readonly RemovedGuard[] }): NextStep {
+  const listed = gap.guards.slice(0, 6).map(describeRemovedGuard).join('; ');
+  return step(base, 'framework', 'removed_guard_reopen', { command: 'checklist_update',
+    payload: { storyId: base.storyId, itemId: gap.itemId, status: 'in_progress', reason: `Removed base operand guard(s) no row or request sentence covers: ${listed.slice(0, 300)}; reopened to keep the base behaviour (or state why the change is intended) before REVIEW.` } },
+  `The Story base→HEAD diff removed or weakened ${gap.guards.length} operand guard(s) in functions the Story kept, with no checklist row or request sentence stating the change (dev.removedGuardScan=on): ${listed.slice(0, 1400)}. `
+    + `The framework reopens ${gap.itemId} and relaunches its implementer with them (once per guard set; no review round).`,
+  'scanRemovedGuards (core/removed-guard-scan.ts, dev.removedGuardScan=on)');
+}
+
 export function duplicateFindingResolveStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string }, canonical: { id: string }, familyKey: string | null): NextStep {
   const next = step(base, 'agent', 'finding_duplicate_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id, duplicateOf: canonical.id,
     coverage: { command: DUPLICATE_COVERAGE_COMMAND_PLACEHOLDER, selector: DUPLICATE_COVERAGE_SELECTOR_PLACEHOLDER }, resolution: DUPLICATE_RESOLUTION_PLACEHOLDER } },
@@ -2568,6 +2601,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     return null;
   }
 
+  /** Lab round-cut N1: whether an implementer run of the item started after `since`. */
+  const implementerRunsSince = (hostRuns: HostRunView[]) => (itemId: string, since: string): boolean =>
+    runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId }).some(run => run.createdAt > since);
+
   function devNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
     const checklist = ctx.store.readChecklist(storyId);
@@ -2654,13 +2691,17 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       }
       // Old-PoS run 40 (N1): the relaunch after the framework's exact-text reopen is the framework's too.
       const exactRelaunch = exactTextRelaunchPending(ctx.root, storyId, item.id, hostRuns);
+      // Lab round-cut N1: so is the relaunch after the framework's removed-guard reopen.
+      const guardRelaunch = !exactRelaunch && removedGuardRelaunchPending(ctx.root, storyId, item.id, implementerRunsSince(hostRuns));
       return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
         agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true },
-      bound && (exactRelaunch || targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }))),
+      bound && (exactRelaunch || guardRelaunch || targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }))),
       exactRelaunch
         ? `${item.id} (${item.title}) was reopened by the exact-text gate: relaunch its implementer to assert the request-quoted strings exactly (its prompt names each row and comparison), then it marks the item done.`
+        : guardRelaunch
+        ? `${item.id} (${item.title}) was reopened for removed base guards: relaunch its implementer to keep the base behaviour of each listed operand class (its prompt names each guard, base line and base test) or report why the change is intended, then it marks the item done.`
         : `${item.id} (${item.title}) is ${item.status}: implement and commit it (managed implementer shown; a native fresh-context implementer with the dispatch prompt is equivalent), then mark it done.`,
-      'checklist.json', exactRelaunch ? 'relaunch after the framework exact-text reopen' : undefined);
+      'checklist.json', exactRelaunch ? 'relaunch after the framework exact-text reopen' : guardRelaunch ? 'relaunch after the framework removed-guard reopen' : undefined);
     }
 
     // Verified blocking findings must be closed (finding-closure rule) before
@@ -2720,6 +2761,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
             const candidate = duplicateResolveCandidate(ctx.store, storyId, other, allFindings);
             return candidate ? [{ finding: other, ...candidate }] : [];
           })];
+          // Lab round-cut N3: a duplicate whose repro its canonical's repair test states is closed by the framework.
+          for (const row of batch) {
+            const canonical = allFindings.find(other => other.id === row.canonical.id);
+            const coverage = canonical ? frameworkDuplicateCoverage({ gitCwd: gitCwdOf(storyId), finding: row.finding, canonical }) : null;
+            if (coverage) return frameworkDuplicateResolveStep(base, row.finding, row.canonical, row.familyKey, coverage);
+          }
           if (batch.length > 1) return duplicateResolveBatchStep(base, batch);
           return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
         }
@@ -2750,6 +2797,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
         `${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; closure is required whichever round raised it. Name the repair commit and its passing focused evidence.`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState', { placeholders: ['resolution'] });
+    }
+    // Lab round-cut N1 (dev.removedGuardScan=on): a base operand guard the Story dropped reopens its item once before REVIEW.
+    if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
+      const guardGap = openRemovedGuardGap({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, items: checklist.items, implementerRunsSince: implementerRunsSince(hostRuns) });
+      if (guardGap) return removedGuardStep(base, guardGap);
     }
     const chain = chainOf();
     if (chain.blocking && chain.nextAction) {

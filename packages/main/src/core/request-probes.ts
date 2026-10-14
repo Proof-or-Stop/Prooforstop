@@ -280,7 +280,11 @@ const ASSIGNMENT = /^([A-Za-z_][\w.]*)\s*=(?!=)\s*(.+)$/s;
 function bindingStatement(text: string): string | null {
   const match = text.trim().match(ASSIGNMENT);
   if (!match) return null;
-  const value = leadingValue(match[2]!);
+  const rhs = match[2]!.trimStart();
+  const value = leadingValue(rhs);
+  // Lab round-cut N4a (run 75): an index / call / member suffix on the literal (`a = [1..9][1:4]`) is part of the
+  // right-hand side; binding only the literal dropped it and the probe judged another program (a false mismatch).
+  if (value && /^\s*[[.(]/.test(rhs.slice(value.length))) return null;
   return value ? `${match[1]}=${value}` : null;
 }
 
