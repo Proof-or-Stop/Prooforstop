@@ -57,7 +57,9 @@ import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classi
 import { collectVerificationIntents, VERIFICATION_LANES } from '../core/verification.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
-import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
+import { requestPinFindings, requestPinOfferDue, recordRequestPinOffer, GAP_ROW_QUOTE_RULE } from '../core/request-pin-audit.js';
+import { changedIntentRowRefs } from '../core/scope-plan-rerun-context.js';
+import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate, duplicateJoinsRepairGroup } from '../core/duplicate-finding-coverage.js';
 import { findingConflictOf, findingRepros, isReproCommand, rejectedRepairCommits, repairTestIntegrityProblem, rowsCitingCase } from '../core/resolved-finding-guard.js';
 import { StoryStore } from '../core/store.js';
 import {
@@ -1246,7 +1248,9 @@ function isBoundRepairState(state: FindingRepairState): boolean {
  * covers when `primary` has no bound repair yet — the primary finding plus
  * every other open blocking finding with no bound repair run that is not a
  * duplicate (findingDuplicateOf: critic `duplicate` or superseded-run
- * restatement; duplicates keep their coverage path). Fewer than two
+ * restatement; duplicates keep their coverage path) unless its coverage check
+ * was recorded failed / refused or it is a `[regression-of F-x]` of a resolved
+ * finding (old-PoS run 73, A: those join the group). Fewer than two
  * members: [] (the single-target repair). Only open BLOCKING findings are
  * grouped; an advisory (low / suspected) finding the owner chooses to repair
  * keeps its own bound run. A member the grouped run leaves without a commit
@@ -1256,8 +1260,10 @@ function isBoundRepairState(state: FindingRepairState): boolean {
 export function groupedFindingRepairIds(args: { root: string; store: HandlerContext['store']; gitCwd: string; storyId: string;
   primary: { id: string }; primaryBound: boolean; findings: ReadonlyArray<{ id: string; createdAt?: string }>; runs: readonly FindingRepairRunView[] }): string[] {
   if (args.primaryBound || args.findings.length < 2 || !remediationGroupingSingle(args.root)) return [];
+  // Old-PoS run 73 (A): a duplicate with a failed / refused coverage check, or a regression of a resolved finding, is repaired in the group.
+  const all = args.store.readFindings(args.storyId).findings ?? [];
   const others = args.findings.filter(row => row.id !== args.primary.id
-    && !findingDuplicateOf(args.store, args.storyId, row.id)
+    && (!findingDuplicateOf(args.store, args.storyId, row.id) || duplicateJoinsRepairGroup(args.store, args.storyId, { id: row.id, desc: all.find(f => f.id === row.id)?.desc ?? '' }, all))
     && !isBoundRepairState(managedFindingRepairState({ root: args.root, gitCwd: args.gitCwd, storyId: args.storyId, finding: row, runs: args.runs })));
   return others.length ? [args.primary.id, ...others.map(row => row.id)] : [];
 }
@@ -1922,6 +1928,37 @@ export function exactErrorPinStep(base: { storyId: string; phase: string }, stor
 }
 
 /**
+ * Old-PoS run 73 (D; core/request-pin-audit.ts): ONE skippable PLAN step before the scope-plan reviewer judges the checklist. It lists the
+ * rows whose pin contradicts a request example and the rows added or changed since the last scope verdict (the rows that answer its gaps)
+ * whose derivation does not quote the request sentence nearest their case, with that sentence. Offered once per set of rows (at most
+ * twice per Story); the framework never rewrites a pin and nothing blocks on it. Null when nothing is listed or the offer was made.
+ */
+export function requestPinStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: () => string): NextStep | null {
+  try {
+    const request = readStoryRequest(store, base.storyId);
+    if (request.status !== 'ok') return null;
+    const items = store.readChecklist(base.storyId).items;
+    const rows = requestPinFindings(items, request.text, { changedRefs: changedIntentRowRefs({ store: store as never, storyId: base.storyId, gitCwd: gitCwd() }) });
+    if (!requestPinOfferDue(root, base.storyId, rows)) return null;
+    recordRequestPinOffer(root, base.storyId, rows);
+    const byItem = new Map<string, typeof rows>();
+    for (const row of rows) byItem.set(row.itemId, [...(byItem.get(row.itemId) ?? []), row]);
+    const calls = [...byItem].map(([itemId, itemRows]) => nextStepCall('request_pin_check', { command: 'checklist_update', payload: { storyId: base.storyId, itemId,
+      intentRows: itemRows.map(row => ({ ref: row.ref, desc: `<${row.ref} pinned as the request sentence decides: "${row.sentence.slice(0, 160)}">`,
+        derivation: { requestQuote: '<that request sentence, verbatim>', computation: '<the steps from it to the pinned value>' } })),
+      reason: '<why: the request sentence that decides the case>' } }));
+    const listed = rows.slice(0, 6).map(row => row.kind === 'contradiction'
+      ? `${row.ref} pins \`${row.pinned.slice(0, 60)}\` but the request says: "${row.sentence.slice(0, 200)}"`
+      : `${row.ref} (answers a scope gap) cites "${row.pinned.slice(0, 80)}" while the nearest request sentence is: "${row.sentence.slice(0, 200)}"`).join('; ') + (rows.length > 6 ? ` +${rows.length - 6} more` : '');
+    return batchStep(base, 'request_pin_check', calls,
+      `Row-vs-request audit [request_pin]: ${rows.length} row(s) may contradict the request: ${listed}. A request sentence decides the case; a base-counterpart derivation is allowed only when no request sentence speaks to it. `
+        + `Re-pin to what the request says (or quote the deciding sentence), one row-level checklist_update per item, then \`proof-or-stop next --storyId=${base.storyId} --run\`. `
+        + `If the pin is right, skip it: run \`proof-or-stop next --storyId=${base.storyId} --run\` without them. Nothing blocks on it, and it is offered once for this set of rows.`,
+      'requestPinFindings (core/request-pin-audit.ts)');
+  } catch { return null; }
+}
+
+/**
  * The first INIT step when no Story exists yet: ONE complete story_create
  * command (scope and execution boundary inline, so no separate boundary
  * commands follow), every authored value a placeholder with a one-line hint.
@@ -2136,6 +2173,7 @@ export function storyReviewBlockersStep(base: { storyId: string; phase: string }
   return step(base, 'agent', 'plan_review_blockers', null,
     `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is current; fix each blocker in PLAN `
       + `(checklist_update: cover the point, correct the pinned value${excludesRoute}): ${listed}${blockers.length > 8 ? ` +${blockers.length - 8} more` : ''}. `
+      + `${GAP_ROW_QUOTE_RULE} `
       + `Then run \`proof-or-stop next --storyId=${base.storyId} --run\`: the changed checklist stales the round and the scope-plan verdict, so it reruns story_review and relaunches the scope-plan reviewer once on the final checklist (do not run story_review or host_run by hand).`,
     'getGuardFailureReason(DEV) + latest story_review round blockers');
 }
@@ -2364,6 +2402,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // Old-PoS run 68 (fix 4): one skippable lint of exact whole-error pins before the reviewer judges the checklist.
       const exactErrorPins = exactErrorPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
       if (exactErrorPins) return exactErrorPins;
+      // Old-PoS run 73 (D): one skippable row-vs-request audit (contradicting pins, unquoted deciding sentences).
+      const requestPins = requestPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+      if (requestPins) return requestPins;
       const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
       const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');

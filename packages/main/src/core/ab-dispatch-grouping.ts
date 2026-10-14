@@ -63,7 +63,9 @@ export function commitMessageNamesFinding(message: string, storyId: string, find
   return new RegExp(`(^|[^A-Za-z0-9-])${short}(?![0-9])`).test(message);
 }
 
-export function renderGroupedFindingRepairSection(storyId: string, primaryId: string, findings: readonly Pick<Finding, 'id' | 'severity' | 'category' | 'desc'>[]): string[] {
+export function renderGroupedFindingRepairSection(storyId: string, primaryId: string, findings: readonly Pick<Finding, 'id' | 'severity' | 'category' | 'desc'>[],
+  /** Old-PoS run 73 (B): per member, the family-complete brief of a `[regression-of F-x]` finding (core/regression-family-brief.ts). */
+  briefs: ReadonlyMap<string, readonly string[]> = new Map()): string[] {
   const others = findings.filter(finding => finding.id !== primaryId);
   return [
     '',
@@ -73,7 +75,8 @@ export function renderGroupedFindingRepairSection(storyId: string, primaryId: st
     `"${storyId} <F-id>: resolve finding" (for example "${storyId} ${shortFindingId(storyId, primaryId)}: resolve finding"). A finding with no commit naming its id`,
     'is treated as NOT repaired by this run and gets its own repair dispatch later. Do not call finding_resolve; the owner resolves each finding separately with its own evidence.',
     'Additional findings in this run:',
-    ...others.map(finding => `- ${shortFindingId(storyId, finding.id)} [severity=${finding.severity ?? 'n/a'}, category=${finding.category ?? 'n/a'}] ${(finding.desc ?? '').replace(/\s+/g, ' ').trim()}`),
+    ...others.flatMap(finding => [`- ${shortFindingId(storyId, finding.id)} [severity=${finding.severity ?? 'n/a'}, category=${finding.category ?? 'n/a'}] ${(finding.desc ?? '').replace(/\s+/g, ' ').trim()}`,
+      ...(briefs.get(finding.id) ?? [])]),
     '--- END GROUPED FINDING REPAIR ---',
   ];
 }

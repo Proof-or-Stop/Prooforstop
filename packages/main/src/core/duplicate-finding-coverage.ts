@@ -33,6 +33,7 @@ import { effectiveValidationCommandEnvironment } from './validation-command-envi
 import { findingClaimRestates, findingClaimSimilarity } from './managed-inventory-critic.js';
 import { agentRoleIdsEqual } from './agent-role-identity.js';
 import { commitMessageNamesFinding } from './ab-dispatch-grouping.js';
+import { regressionTargets } from './resolved-finding-guard.js';
 
 export { DUPLICATE_FINDING_COVERAGE_FILE, DUPLICATE_FINDING_COVERAGE_SCHEMA } from './types.js';
 export type { DuplicateCoverageReceipt, DuplicateFindingCoverageData } from './types.js';
@@ -186,6 +187,9 @@ export function duplicateResolveCandidate(store: StoryStore, storyId: string, fi
   if (finding.status !== 'open') return null;
   const duplicate = findingDuplicateOf(store, storyId, finding.id);
   if (!duplicate) return null;
+  // Old-PoS run 73 (A): a finding tagged `[regression-of F-x]` with F-x resolved says the earlier repair does not fix it: no coverage path, its own (grouped) repair.
+  const row = findings.find(candidate => candidate.id === finding.id);
+  if (row && regressionOfResolvedFinding(storyId, row, findings)) return null;
   let canonical = findings.find(row => row.id === duplicate.canonicalFindingId);
   // Old-PoS run 44: a duplicate of a duplicate closes against the resolved root of its chain, in the same batch.
   if (canonical?.status !== 'resolved') {
@@ -198,6 +202,24 @@ export function duplicateResolveCandidate(store: StoryStore, storyId: string, fi
   if (closedWithoutFix(canonical)) return null;
   if (duplicateCoverageReceipts(store, storyId, finding.id).some(row => !row.passed)) return null;
   return { canonical, familyKey: duplicate.familyKey };
+}
+
+/**
+ * Old-PoS run 73 (A): the finding says it re-found (`[regression-of F-x]`, "reintroduces F-x", ...) a finding that is resolved with a
+ * repair: that repair is shown not to fix this case, so the finding closes only through a repair of its own.
+ */
+export function regressionOfResolvedFinding(storyId: string, finding: Pick<Finding, 'id' | 'desc'>, findings: readonly Finding[]): boolean {
+  return regressionTargets(finding.desc ?? '', storyId).some(id => id !== finding.id
+    && findings.some(row => row.id === id && row.status === 'resolved' && !closedWithoutFix(row)));
+}
+
+/**
+ * Old-PoS run 73 (A): a duplicate (critic label or restatement) that is repaired with the other open findings instead of going down
+ * the coverage path: its coverage check was recorded failed or refused (the canonical's repair is not shown to fix it), or it is a
+ * regression of a resolved finding. A duplicate whose coverage was never refused keeps its coverage path.
+ */
+export function duplicateJoinsRepairGroup(store: StoryStore, storyId: string, finding: Pick<Finding, 'id' | 'desc'>, findings: readonly Finding[]): boolean {
+  return duplicateCoverageReceipts(store, storyId, finding.id).some(row => !row.passed) || regressionOfResolvedFinding(storyId, finding, findings);
 }
 
 /**
@@ -215,6 +237,8 @@ export function closedWithoutFix(finding: Pick<Finding, 'status' | 'resolutionTy
 export function duplicateOfOpenCanonical(store: StoryStore, storyId: string, findingId: string, findings: readonly Finding[]): boolean {
   const duplicate = findingDuplicateOf(store, storyId, findingId);
   if (!duplicate) return false;
+  const self = findings.find(row => row.id === findingId);
+  if (self && regressionOfResolvedFinding(storyId, self, findings)) return false;
   if (duplicateCoverageReceipts(store, storyId, findingId).some(row => !row.passed)) return false;
   if (findings.find(row => row.id === duplicate.canonicalFindingId)?.status !== 'open') return false;
   // Old-PoS run 44: an open intermediate canonical whose chain root is resolved does not hold it back.

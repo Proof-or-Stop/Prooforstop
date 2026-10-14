@@ -11,6 +11,8 @@ import type { ReviewRun } from '../core/types.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { buildImplementerItemPack } from '../core/implementer-item-pack.js';
 import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId } from '../core/ab-dispatch-grouping.js';
+import { regressionFamilyBrief } from '../core/regression-family-brief.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { hostRunStatusBlocksUntilTerminal, ownerWaitBlockMs, ownerWaitYieldMs } from '../core/owner-wait-guidance.js';
 import { renderHostRunStatusSummary } from './host-run-status-summary.js';
 import { summarizeManagedRunDiagnostics } from '../core/managed-run-diagnostics.js';
@@ -1202,7 +1204,10 @@ export function resolveGroupedManagedDispatch(ctx: HandlerContext, args: {
     if (resolved.some(row => !row || row.status !== 'open')) throw new Error('host_run: every --groupFindingIds member must be an open finding of this Story');
     const ids = [...new Set(resolved.map(row => row!.id))];
     if (ids[0] !== args.findingId || ids.length < 2) throw new Error('host_run: --groupFindingIds must list findingId first and at least one other finding');
-    return { section: renderGroupedFindingRepairSection(args.storyId, args.findingId, ids.map(id => findings.find(row => row.id === id)!)),
+    const members = ids.map(id => findings.find(row => row.id === id)!);
+    const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    const briefs = new Map(members.filter(row => row.id !== args.findingId).map(row => [row.id, regressionFamilyBrief({ findings, storyId: args.storyId, finding: row, gitCwd })] as const));
+    return { section: renderGroupedFindingRepairSection(args.storyId, args.findingId, members, briefs),
       target: { groupFindingIds: ids, ...(evidence ? { abVariant: evidence } : {}) } };
   }
   if (args.agentType !== 'proof-or-stop-implementer' || !args.itemId) throw new Error('host_run: --groupItemIds is valid only for a managed proof-or-stop-implementer with itemId');
