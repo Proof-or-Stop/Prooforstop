@@ -6,6 +6,7 @@
 import { closeSync, openSync, readSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { managedHostRunsRoot } from './managed-host-run.js';
+import { finalMessageFromLiveOutput } from './repair-report-lines.js';
 
 /** Bytes read from the end of a managed run's retained output to find its final message. */
 const FINAL_MESSAGE_TAIL_BYTES = 256 * 1024;
@@ -31,23 +32,7 @@ export function managedRunFinalMessage(root: string, runId: string): string | nu
   } catch {
     return null;
   }
-  let stdout = '';
-  for (const line of raw.split('\n')) {
-    if (!line.trim()) continue;
-    try {
-      const frame = JSON.parse(line) as { stream?: string; text?: string };
-      if (frame.stream === 'stdout' && typeof frame.text === 'string') stdout += frame.text;
-    } catch { /* a partial frame at the tail boundary */ }
-  }
-  let last: string | null = null;
-  for (const line of stdout.split('\n')) {
-    if (!line.startsWith('{')) continue;
-    try {
-      const event = JSON.parse(line) as { type?: string; item?: { type?: string; text?: unknown }; result?: unknown };
-      if (event.type === 'item.completed' && event.item?.type === 'agent_message' && typeof event.item.text === 'string') last = event.item.text;
-      else if (event.type === 'result' && typeof event.result === 'string') last = event.result;
-    } catch { /* not a provider event */ }
-  }
-  return last;
+  // Lab run89: the frame parser is shared with the managed worker's report follow-up (core/repair-report-lines.ts).
+  return finalMessageFromLiveOutput(raw);
 }
 

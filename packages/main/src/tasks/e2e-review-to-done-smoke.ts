@@ -707,7 +707,7 @@ export class Owner {
     return notes.join('; ') || 'clean';
   }
 
-  script(key: string, script: { final: string; commands?: string[][] }): void {
+  script(key: string, script: { final: string; commands?: string[][]; resume?: { final: string; commands?: string[][] } }): void {
     writeFileSync(join(this.scripts, `${key}.json`), JSON.stringify(script));
   }
 
@@ -826,8 +826,14 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   const key = file ? undefined : fs.readdirSync(dir).filter(f => f.endsWith('.json') && f !== 'resolver.json').find(f => input.includes(f.slice(0, -5)));
   if (key) file = path.join(dir, key);
   if (!file) { fs.writeFileSync(path.join(dir, 'unmatched-' + process.pid + '.txt'), input); process.exit(3); }
-  announceThread();
   const script = JSON.parse(fs.readFileSync(file, 'utf8'));
+  // Lab run89 (NFR / NRX): a key script with a \`resume\` turn makes this run resumable; the managed worker's
+  // report follow-up (exec resume) then plays that turn.
+  if (!resume && script.resume && runId) {
+    fs.mkdirSync(path.join(dir, 'byrun'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'byrun', runId + '.resume.json'), JSON.stringify(script.resume));
+  }
+  announceThread();
   // EXPERIMENTAL A/B review.deltaRounds (ND-DR*): a confirmation lane answers the
   // check items its sealed prompt lists, as a reviewer reading the prompt would.
   if (script.delta && input.includes('--- BEGIN DELTA ROUND CONFIRMATION')) {
@@ -2534,7 +2540,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           break;
         }
         if (mode.roundCut === 'matrix' && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NRM_FINDING.desc) {
-          // Lab round-cut (NRM): the first repair reports only the finding's own branch; the second every operand.
+          // Lab round-cut (NRM): the first repair reports only the finding's own branch (lab run89: accepted; the miss is journaled).
           const attempt = (repairRunsByFinding.get(String(payload.findingId)) ?? []).length + 1;
           // The earlier run is terminal: retire its script key now, not after this run reads its script.
           retireTerminalScripts();
@@ -7901,7 +7907,7 @@ const NRM_FINDING = {
 };
 const NRM_TEST_START = '\nfunc TestWindowNegativeStart(t *testing.T) {\n\tif Window("abc", -1, 3) != "abc" {\n\t\tt.Fatal("start")\n\t}\n}\n';
 const NRM_TEST_END = '\nfunc TestWindowEndBeyond(t *testing.T) {\n\tif Window("abc", 0, 9) != "abc" {\n\t\tt.Fatal("end")\n\t}\n}\n';
-/** NRM: attempt 1 tests and reports only the finding's own branch; attempt 2 every operand of the helper. */
+/** NRM: attempt 1 tests and reports only the finding's own branch; attempt 2 (only reached before lab run89) every operand. */
 function nrmRepairScript(storyId: string, attempt: number): ProviderScript {
   const test = attempt === 1 ? NRM_TEST_START : NRM_TEST_END;
   const lines = attempt === 1 ? ['[branch-test] Window start=-1: TestWindowNegativeStart -> abc']
@@ -7912,14 +7918,15 @@ function nrmRepairScript(storyId: string, attempt: number): ProviderScript {
 
 /**
  * NRM (lab round-cut N2, run 75 F-001 -> F-003): a finding sits in a helper that branches on two
- * operands. RED on the base: the repair tested only the finding's branch and was accepted; the
- * sibling branch waited for the next round. Now the repair prompt carries a bound matrix (every
- * branch of the helper) and a repair whose report lacks a `[branch-test]` line for an operand is not
- * accepted: one relaunch, whose report covers both, closes the finding.
+ * operands. The repair prompt carries a bound matrix (every branch of the helper) with the exact
+ * `[branch-test]` line per operand. Lab run89 (fix 2c, run 89 REM3): a report that misses a line is a
+ * report problem, not a repair problem: the worker asks the same session for the missing line (NFR);
+ * here the provider session cannot be resumed, so the miss is journaled and the commit-bearing repair is
+ * accepted: no relaunch, no replan (before run89: relaunched, a second miss sent the Story to PLAN).
  */
 function scenarioNRM(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NRM';
-  const name = 'NRM lab round-cut N2: a repair of a finding in a two-operand helper must test every branch ([branch-test] per operand); the partial repair is relaunched, not accepted';
+  const name = 'NRM lab round-cut N2 + lab run89: the repair prompt carries the bound matrix with the exact [branch-test] line per operand; a partial report (session not resumable) is journaled and the commit-bearing repair is accepted (no relaunch, no replan)';
   const o = new Owner(tag, 'B-7c03', machineEnv, steps, false, { trackedGateFailureCounts: true });
   const lines: string[] = [];
   const seen: Array<{ phase: string; reason: string; kind: string; why: string }> = [];
@@ -7933,12 +7940,12 @@ function scenarioNRM(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     });
     const repairs = managedPrompts(o, FINDING_REPAIR);
     lines.push(`repair runs: ${repairs.length}; steps: ${seen.filter(row => /finding_/.test(row.reason)).map(row => row.reason).join(' > ')}`);
-    assert.equal(repairs.length, 2, `${tag}: the partial repair is relaunched once (got ${repairs.length})`);
+    assert.equal(repairs.length, 1, `${tag}: the commit-bearing repair is accepted, not relaunched (got ${repairs.length})`);
     assert.match(repairs[0]!.prompt, /Bound matrix/, `${tag}: the repair prompt carries the bound matrix`);
-    assert.match(repairs[0]!.prompt, /Window[\s\S]*\[branch-test\]/, `${tag}: naming the helper and the report line`);
-    const relaunch = seen.filter(row => row.reason === 'finding_repair')[1];
-    assert.ok(relaunch && /branch-test/.test(relaunch.why), `${tag}: the relaunch why names the missing [branch-test] lines: ${relaunch?.why.slice(0, 400)}`);
-    assert.match(repairs[1]!.prompt, /not accepted[\s\S]*end|end[\s\S]*not accepted/, `${tag}: the relaunch prompt names the untested operand`);
+    assert.match(repairs[0]!.prompt, /\[branch-test\] Window end=<case>: <test name> -> <result>/, `${tag}: with the exact line per operand`);
+    assert.ok(!seen.some(row => row.reason === 'finding_repair_replan'), `${tag}: no replan`);
+    const events = readFileSync(join(o.root, '.proof-or-stop', 'runtime', 'host-runs', repairs[0]!.runId, 'events.jsonl'), 'utf8');
+    assert.match(events, /managed_repair_report_follow_up_unavailable/, `${tag}: the missing line is journaled (session not resumable)`);
     const finding = new StoryStore(o.root).readFindings(o.storyId).findings.find(f => f.desc === NRM_FINDING.desc);
     assert.equal(finding?.status, 'resolved', `${tag}: resolved`);
     assert.equal(new StoryStore(o.root).readStory(o.storyId).phase, 'DONE', `${tag}: DONE`);
@@ -7991,8 +7998,290 @@ function scenarioNRD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Lab run89 (bench-staging/oldpos/run88-89-analysis.md §5): NPB, NPD, NTS, NFR, NRX. Synthetic `pipe` printer and
+// `strs` helpers only; the run-89 shapes, not its values.
+
+/** The base printer tests: an infix operator renders spaced inside parentheses (the base already prints it). */
+const PIPE_PRINTER_TEST = ['package strs', '', 'import "testing"', '', 'var printCases = []struct {', '\tinput    string', '\texpected string', '}{',
+  '\t{"a + b", "(a + b)"},', '\t{"a * b + c", "((a * b) + c)"},', '\t{"a * b - c", "((a * b) - c)"},', '}', '', 'func TestPrintCases(t *testing.T) {', '\tif len(printCases) == 0 {', '\t\tt.Fatal("no cases")', '\t}', '}', ''].join('\n');
+const PIPE_REQUEST = ['Add a pipe operator `x |> f` that passes `x` to `f`.', '', '- Accept `value |> fn` as an expression.',
+  '- AST stringification must parenthesize pipes, for example:', '  - `x |> f` -> `(x |> f)`', '  - `x |> f |> g` -> `((x |> f) |> g)`', ''].join('\n');
+const PIPE_QUOTE = 'Accept `value |> fn` as an expression.';
+/** The invented pin (run-89 shape): the request is silent on infix operands, the owner pinned them compact. */
+const PIPE_INVENTED = '1 + 2 |> f -> ((1+2) |> f)';
+const PIPE_BASE_FORM_ROW = '1 + 2 |> f -> ((1 + 2) |> f)';
+const pipeRow = (desc: string) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
+  verification: { command: 'go test -v ./strs -run ^TestPipePrint$', selector: '--- PASS: TestPipePrint' },
+  derivation: { requestQuote: PIPE_QUOTE, computation: 'each operand is a full expression and the printer keeps the infix compact: ((1+2) |> f)' } });
+
+function askNextOf(o: Owner, tag: string, lines: string[]): (label: string) => NextStepJson {
+  return label => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[${tag}] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+}
+
+/** A managed launch the harness runs for an agent-kind step (placeholders filled with the qualified selection). */
+function launchManaged(o: Owner, tag: string, step: NextStepJson, label: string): { runId: string; state: string; reason: string } {
+  const payload = { ...step.cli!.payload };
+  for (const [key, value] of Object.entries({ host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort })) {
+    if (typeof payload[key] !== 'string' || /^<.*>$/.test(String(payload[key]))) payload[key] = value;
+  }
+  const launched = o.mustCli(step.cli!.command, payload, { label });
+  const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+  const terminal = waitTerminal(o, label, runId);
+  assert.equal(terminal.state, 'completed', `[${tag}] ${label} terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+  return { runId, ...terminal };
+}
+
+/** Open findings written as the review import leaves them (committed Story metadata). */
+function seedFindings(o: Owner, findings: Array<Record<string, unknown>>): void {
+  const store = new StoryStore(o.worktree);
+  store.writeFindings(o.storyId, { findings: findings.map((row, index) => ({ id: `${o.storyId}:F-${String(index + 1).padStart(3, '0')}`, agent: 'proof-or-stop-review-quality',
+    createdAt: '2026-10-15T00:00:00.000Z', status: 'open', evidenceState: 'verified', severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], ...row })) } as never);
+  commitFixtureMetadata(o, `proof-or-stop: review findings ${o.storyId}`);
+}
+
+function runEvents(o: Owner, runId: string): Array<{ type?: string; detail?: Record<string, unknown> }> {
+  const path = join(o.root, '.proof-or-stop', 'runtime', 'host-runs', runId, 'events.jsonl');
+  if (!existsSync(path)) return [];
+  return readFileSync(path, 'utf8').split('\n').filter(Boolean).flatMap(line => { try { return [JSON.parse(line) as { type?: string; detail?: Record<string, unknown> }]; } catch { return []; } });
+}
+
+/**
+ * NPB (lab run89 fix 1, run 89 CHK-001:adversarial:0): a PLAN row pins a printed form whose infix operand the base
+ * printer renders differently ((1+2) vs the base's (a + b)), the request silent on it. RED on the base: no PLAN step
+ * or pre-check names it; the implementer built a compaction mechanism for it and 6 of 11 findings followed. Now the
+ * checklist_update pre-check and PLAN's lint step list it with the base sample and a concrete row patch to the base
+ * form; once applied it is not offered again.
+ */
+function scenarioNPB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPB';
+  const name = 'NPB lab run89 fix 1: a pinned printed form contradicting the base printer (request silent) is listed at PLAN with the base sample and a concrete row patch to the base form';
+  const o = new Owner(tag, 'B-89b1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: PIPE_REQUEST, baseFiles: { 'strs/print_test.go': PIPE_PRINTER_TEST } });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    const store = new StoryStore(o.worktree);
+    // INIT authoring (the PLAN pre-check prints on an INIT checklist_update), then PLAN.
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'INIT' });
+    const added = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:adversarial:+', ...pipeRow(PIPE_INVENTED) }],
+      reason: 'adversarial printer row for infix operands' }, { label: 'checklist_update CHK-001 (invented printer pin)' });
+    assert.match(added.out, /CHK-001:adversarial:0[^\n]*\[pin_base_form\]/, `[${tag}] the INIT checklist_update pre-check lists the row: ${added.out.slice(-1500)}`);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+    const step = ask('next (PLAN, invented pin)');
+    assert.match(step.why, /\[pin_base_form\]/, `[${tag}] PLAN's lint step names the pin: ${step.reason}: ${step.why.slice(0, 600)}`);
+    assert.match(step.why, /strs\/print_test\.go:\d+/, `[${tag}] with the base printer sample`);
+    const calls = step.batch?.length ? step.batch.map(call => call.cli) : step.cli ? [step.cli] : [];
+    const patch = calls.flatMap(call => call.command === 'checklist_update' && call.payload.itemId === 'CHK-001' ? (call.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? [] : [])
+      .find(row => row.ref === 'CHK-001:adversarial:0');
+    assert.ok(patch, `[${tag}] a row patch of CHK-001:adversarial:0: ${JSON.stringify(calls).slice(0, 800)}`);
+    assert.equal(patch!.desc, PIPE_BASE_FORM_ROW, `[${tag}] the patch states the base form`);
+    assert.doesNotMatch(JSON.stringify(patch), /"<[^"]*>"/, `[${tag}] nothing for the owner to author`);
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [patch], reason: 'pin re-derived from the base printer (request silent)' }, { label: 'checklist_update CHK-001 (base form)' });
+    const after = ask('next (PLAN, base form)');
+    assert.doesNotMatch(after.why, /\[pin_base_form\]/, `[${tag}] not offered again: ${after.why.slice(0, 400)}`);
+    const rowNow = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-001')!.verificationIntent!.adversarial[0]!;
+    assert.equal(rowNow.desc, PIPE_BASE_FORM_ROW, `[${tag}] the row pins the base form`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NPD (lab run89 fix 1, implementer half; run 89 DEV 12:43 "altering String to compact spaces is odd ... request examples
+ * don't include expressions", then built it): the implementer reports `[pin-doubt]` for a row the base contradicts and
+ * the request does not state. RED on the base: the line is not read, next goes on (the mechanism ships). Now the DEV->PLAN
+ * hop and the row re-derivation to the base form are framework steps; the item is implemented again.
+ */
+function scenarioNPD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPD';
+  const name = 'NPD lab run89 fix 1: an implementer [pin-doubt] on a base-contradicted, request-silent row is routed to a framework row re-derivation (DEV->PLAN, row patch, item pending)';
+  const o = new Owner(tag, 'B-89d1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: PIPE_REQUEST, baseFiles: { 'strs/print_test.go': PIPE_PRINTER_TEST } });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    const store = new StoryStore(o.worktree);
+    const checklist = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...checklist, items: checklist.items.map(item => item.id !== 'CHK-001' ? item
+      : { ...item, verificationIntent: { ...item.verificationIntent!, happy: [...item.verificationIntent!.happy, pipeRow(PIPE_INVENTED) as never] } }) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: PLAN revision ${o.storyId}`);
+    devSetup(o, false);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[${tag}] first DEV step: ${launch.reason}: ${launch.why}`);
+    const script = implementerScript(o.storyId, String(launch.cli!.payload.itemId));
+    o.script(IMPLEMENTER, { ...script, final: `${script.final}\n[pin-doubt] CHK-001:happy:1 | base prints: ((1 + 2) |> f) | request: silent\n[intent-conflict] none` });
+    launchManaged(o, tag, launch, 'host_run implementer (pin doubt)');
+    o.unscript(IMPLEMENTER);
+    assert.match(managedPrompts(o, IMPLEMENTER)[0]!.prompt, /\[pin-doubt\]/, `[${tag}] the implementer prompt names the pin-doubt route`);
+    const hop = ask('next (pin doubt reported)');
+    assert.equal(hop.reason, 'pin_doubt_plan', `[${tag}] the doubt returns the Story to PLAN: ${hop.reason}: ${hop.why.slice(0, 400)}`);
+    assert.equal(hop.kind, 'framework', `[${tag}] a framework hop`);
+    assert.match(hop.why, /CHK-001:happy:1/, `[${tag}] naming the row`);
+    o.mustCli(hop.cli!.command, hop.cli!.payload, { label: 'story_advance PLAN (pin doubt)' });
+    const amend = ask('next (PLAN, pin doubt)');
+    assert.equal(amend.reason, 'pin_doubt_amend', `[${tag}] the row is re-derived: ${amend.reason}: ${amend.why.slice(0, 400)}`);
+    assert.equal(amend.kind, 'framework', `[${tag}] by the framework (base form verified)`);
+    const rows = amend.cli!.payload.intentRows as Array<Record<string, unknown>>;
+    assert.equal(rows?.[0]?.ref, 'CHK-001:happy:1');
+    assert.equal(rows?.[0]?.desc, PIPE_BASE_FORM_ROW, `[${tag}] to the base form`);
+    assert.equal(amend.cli!.payload.status, 'pending', `[${tag}] the item is implemented again`);
+    o.mustCli(amend.cli!.command, amend.cli!.payload, { label: 'checklist_update CHK-001 (pin doubt amend)' });
+    const after = ask('next (PLAN, amended)');
+    assert.doesNotMatch(after.reason, /^(?:intent_conflict|pin_doubt)/, `[${tag}] the amended doubt does not block again: ${after.reason}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NTS: the Story adds a helper that dispatches on the type of one operand (a type switch). */
+const NTS_KIND = '\n// Kind names the kind of v.\nfunc Kind(v interface{}) string {\n\tswitch v := v.(type) {\n\tcase string:\n\t\treturn "string:" + v\n\tcase int:\n\t\treturn "int"\n\tcase []string:\n\t\treturn "list"\n\tdefault:\n\t\treturn "?"\n\t}\n}\n';
+const NTS_LINE = `${IMPL}${NTS_KIND}`.split('\n').findIndex(line => line === '\t\treturn "string:" + v') + 1;
+const NTS_TEST = '\nfunc TestKindString(t *testing.T) {\n\tif Kind("a b") != "string:a b" {\n\t\tt.Fatal("string")\n\t}\n}\n';
+
+/**
+ * NTS (lab run89 fix 2a, run 89 F-010: a type switch with 11 case arms was read as 12 branches of one operand and the
+ * repair was refused five times for a missing `[branch-test] <fn> component=` line). RED on the base: the commit-bearing
+ * repair is not accepted, relaunched, then sent to PLAN. Now a single-operand type switch is a dispatch table: the
+ * prompt names its arms, no operand line is required, the first repair is accepted.
+ */
+function scenarioNTS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NTS';
+  const name = 'NTS lab run89 fix 2a: a repair in a single-operand type switch is not held to per-operand [branch-test] lines; one repair run is accepted (no relaunch, no PLAN trip)';
+  const o = new Owner(tag, 'B-89c1', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    writeFileSync(join(o.worktree, 'strs/strs.go'), `${IMPL}${NTS_KIND}`);
+    git(o.worktree, ['add', 'strs/strs.go']);
+    git(o.worktree, ['-c', 'user.name=proof-or-stop-implementer', 'commit', '-qm', 'add Kind']);
+    devSetup(o);
+    seedFindings(o, [{ desc: `strs/strs.go:${NTS_LINE} Kind loses the payload of a string with a space. Repro: \`Kind("a b")\`` }]);
+    const launch = ask('next (open finding)');
+    assert.equal(launch.reason, 'finding_repair', `[${tag}] ${launch.reason}: ${launch.why.slice(0, 300)}`);
+    o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `printf '%s' '${NTS_TEST}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${o.storyId} F-001: test Kind string payload' && git log --format=%h -1`]],
+      final: 'Tested the string arm of Kind; committed.\n[family] string payload: fixed\n[family] int, list arms: unaffected (no payload)\n[intent-conflict] none' });
+    launchManaged(o, tag, launch, 'host_run finding-repair (type switch)');
+    o.unscript(FINDING_REPAIR);
+    const prompt = managedPrompts(o, FINDING_REPAIR)[0]!.prompt;
+    assert.doesNotMatch(prompt, /\[branch-test\] Kind v=/, `[${tag}] no per-operand [branch-test] requirement for a type switch`);
+    const after = ask('next (repaired)');
+    assert.match(after.reason, /^(?:evidence_chain|finding_resolve)/, `[${tag}] the commit-bearing repair is accepted (receipts, then its resolution): ${after.reason}: ${after.why.slice(0, 400)}`);
+    assert.equal(managedPrompts(o, FINDING_REPAIR).length, 1, `[${tag}] one repair run`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NFR (lab run89 fix 2b-d, run 89 REM3: 5 repair runs, 2 DEV->PLAN trips, 28.5 min for a report line): a commit-bearing
+ * repair of a finding in a two-operand helper reports only one operand. RED on the base: the run is "without a repair
+ * commit", the owner relaunches it, a second miss sends the Story to PLAN. Now the managed worker asks the same session
+ * for the missing line only (the exact template) and the run is accepted: one run, no relaunch, no replan.
+ */
+function scenarioNFR(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NFR';
+  const name = 'NFR lab run89 fix 2b-d: a report-format miss of a commit-bearing repair is asked for in the same session (exact missing line); one run accepted, no relaunch, no PLAN trip';
+  const o = new Owner(tag, 'B-89f1', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    writeFileSync(join(o.worktree, 'strs/strs.go'), `${IMPL}${NRM_WINDOW}`);
+    git(o.worktree, ['add', 'strs/strs.go']);
+    git(o.worktree, ['-c', 'user.name=proof-or-stop-implementer', 'commit', '-qm', 'add Window']);
+    devSetup(o);
+    seedFindings(o, [{ desc: NRM_FINDING.desc }]);
+    const launch = ask('next (open finding)');
+    assert.equal(launch.reason, 'finding_repair', `[${tag}] ${launch.reason}: ${launch.why.slice(0, 300)}`);
+    const commitTest = (test: string, subject: string) => ['/bin/sh', '-c', `printf '%s' '${test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${o.storyId} F-001: ${subject}' && git log --format=%h -1`];
+    o.script(FINDING_REPAIR, { commands: [commitTest(NRM_TEST_START, 'test Window start')], final: 'Tested the start branch; committed.\n[branch-test] Window start=-1: TestWindowNegativeStart -> abc\n[intent-conflict] none',
+      resume: { commands: [commitTest(NRM_TEST_END, 'test Window end')], final: 'Added the end branch test; committed.\n[branch-test] Window start=-1: TestWindowNegativeStart -> abc\n[branch-test] Window end=9: TestWindowEndBeyond -> abc\n[intent-conflict] none' } });
+    const run = launchManaged(o, tag, launch, 'host_run finding-repair (partial report)');
+    o.unscript(FINDING_REPAIR);
+    const resumePrompt = join(o.scriptsDir, 'prompts', `${run.runId}.resume.txt`);
+    assert.ok(existsSync(resumePrompt), `[${tag}] the worker resumed the session for the missing line: ${JSON.stringify(runEvents(o, run.runId).map(row => row.type))}`);
+    const asked = readFileSync(resumePrompt, 'utf8');
+    assert.match(asked, /\[branch-test\] Window end=<case>: <test name> -> <result>/, `[${tag}] the follow-up quotes the exact missing line: ${asked.slice(0, 600)}`);
+    assert.doesNotMatch(asked, /Window start=<case>/, `[${tag}] only the missing line`);
+    assert.ok(runEvents(o, run.runId).some(row => row.type === 'managed_repair_report_follow_up'), `[${tag}] the follow-up is journaled`);
+    const after = ask('next (repaired)');
+    assert.match(after.reason, /^(?:evidence_chain|finding_resolve)/, `[${tag}] accepted (receipts, then its resolution): ${after.reason}: ${after.why.slice(0, 400)}`);
+    assert.equal(managedPrompts(o, FINDING_REPAIR).length, 1, `[${tag}] one repair run (no relaunch)`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NRX (lab run89 fix 3, run 89 F-004 -> F-007 -> F-010 -> F-011): the third finding of one chain (two `[regression-of]`
+ * links). RED on the base: the repair prompt carried the family brief only and the repair patched one more variant. Now
+ * it carries the mechanism-level block, and a report without the `[mechanism]` line is asked for that line in the
+ * same session before the run seals.
+ */
+function scenarioNRX(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRX';
+  const name = 'NRX lab run89 fix 3: the second [regression-of] link of a chain requires the repair to name what requires the mechanism ([mechanism] line, asked in the same session when missing)';
+  const o = new Owner(tag, 'B-89e1', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    devSetup(o);
+    const commitTest = (name: string, body: string): string => {
+      writeFileSync(join(o.worktree, 'strs/strs_test.go'), `${readFileSync(join(o.worktree, 'strs/strs_test.go'), 'utf8')}\nfunc ${name}(t *testing.T) {\n\t${body}\n}\n`);
+      git(o.worktree, ['add', 'strs/strs_test.go']);
+      git(o.worktree, ['-c', `user.name=${FINDING_REPAIR}`, 'commit', '-qm', `test ${name}`]);
+      return git(o.worktree, ['rev-parse', 'HEAD']);
+    };
+    const first = commitTest('TestReverseEmptyChain', 'if Reverse("") != "" {\n\t\tt.Fatal("empty")\n\t}');
+    const second = commitTest('TestReverseOneChain', 'if Reverse("a") != "a" {\n\t\tt.Fatal("one")\n\t}');
+    seedFindings(o, [
+      { desc: 'strs/strs.go:9 Reverse of an empty string indexes past the end. Repro: `Reverse("")`', status: 'resolved', resolvedReason: `Repaired [repair commit ${first.slice(0, 12)}]` },
+      { desc: '[regression-of F-001] strs/strs.go:9 Reverse of a one-rune string swaps it with itself. Repro: `Reverse("a")`', status: 'resolved', resolvedReason: `Repaired [repair commit ${second.slice(0, 12)}]` },
+      { desc: '[regression-of F-002] strs/strs.go:9 Reverse of a two-rune string with a combining mark splits it. Repro: `Reverse("e\\u0301x")`' },
+    ]);
+    const launch = ask('next (third chain finding)');
+    assert.equal(launch.reason, 'finding_repair', `[${tag}] ${launch.reason}: ${launch.why.slice(0, 300)}`);
+    const third = '\nfunc TestReverseMarkChain(t *testing.T) {\n\tif Reverse("ab") != "ba" {\n\t\tt.Fatal("two")\n\t}\n}\n';
+    o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `printf '%s' '${third}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${o.storyId} F-003: test two runes' && git log --format=%h -1`]],
+      final: 'Tested the two-rune case; committed.\n[family-test] TestReverseMarkChain: two runes\n[intent-conflict] none',
+      resume: { final: 'Tested the two-rune case; committed.\n[family-test] TestReverseMarkChain: two runes\n[mechanism] Reverse rune loop: required by row CHK-002:happy:0\n[intent-conflict] none' } });
+    const run = launchManaged(o, tag, launch, 'host_run finding-repair (chain)');
+    o.unscript(FINDING_REPAIR);
+    const prompt = managedPrompts(o, FINDING_REPAIR)[0]!.prompt;
+    assert.match(prompt, /Mechanism-level repair/, `[${tag}] the repair prompt carries the mechanism-level block`);
+    assert.match(prompt, /F-001 -> F-002 -> F-003/, `[${tag}] naming the chain`);
+    const resumePrompt = join(o.scriptsDir, 'prompts', `${run.runId}.resume.txt`);
+    assert.ok(existsSync(resumePrompt), `[${tag}] the missing [mechanism] line is asked in the same session: ${JSON.stringify(runEvents(o, run.runId).map(row => row.type))}`);
+    assert.match(readFileSync(resumePrompt, 'utf8'), /\[mechanism\]/, `[${tag}] the follow-up asks for the [mechanism] line`);
+    const after = ask('next (repaired)');
+    assert.match(after.reason, /^(?:evidence_chain|finding_resolve)/, `[${tag}] accepted (receipts, then its resolution): ${after.reason}: ${after.why.slice(0, 400)}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -8096,6 +8385,12 @@ async function main(): Promise<void> {
     if (only.includes('NRC-ADV')) outcomes.push(scenarioNRC(machine.env, steps, true));
     if (only.includes('NRM')) outcomes.push(scenarioNRM(machine.env, steps));
     if (only.includes('NRD')) outcomes.push(scenarioNRD(machine.env, steps));
+    // Lab run89: pinned form vs base printer (NPB), [pin-doubt] route (NPD), type-switch matrix (NTS), report follow-up (NFR), regression chain (NRX).
+    if (only.includes('NPB')) outcomes.push(scenarioNPB(machine.env, steps));
+    if (only.includes('NPD')) outcomes.push(scenarioNPD(machine.env, steps));
+    if (only.includes('NTS')) outcomes.push(scenarioNTS(machine.env, steps));
+    if (only.includes('NFR')) outcomes.push(scenarioNFR(machine.env, steps));
+    if (only.includes('NRX')) outcomes.push(scenarioNRX(machine.env, steps));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
@@ -8114,7 +8409,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

@@ -28,6 +28,8 @@ import { requestExactStrings } from './plan-coverage-matrix.js';
 const TEST_COVERAGE_LANE = 'proof-or-stop-review-test-coverage';
 
 export const INTENT_CONFLICT_TAG = '[intent-conflict]';
+/** Lab run89 (fix 1): a pinned row the Story base contradicts and the request does not state (routed to a row re-derivation). */
+export const PIN_DOUBT_TAG = '[pin-doubt]';
 
 /** D2 rubric, shared by every REVIEW lane and the inventory critic (like REVIEW_SEVERITY_RUBRIC). */
 export const REQUEST_OUTRANKS_INTENT_RUBRIC = 'Request authority rubric: the verbatim request above outranks the checklist. Intents, userSees, context and pinned tests are owner-authored and can be wrong. For every behavior the request specifies, re-derive the expected value from the request text yourself (compute it; do not copy it from an intent or test). A pinned intent, userSees or test assertion that contradicts the request is a finding of at least medium severity against that intent and test, even when the test passes. "The checklist is the requirement source" or "the intent pins it" never resolves a contradiction with the request. Follow the intent only where the request is silent.';
@@ -41,6 +43,10 @@ export const INTENT_CONFLICT_RETURN_CONTRACT = [
   `- End your final result with \`${INTENT_CONFLICT_TAG} none\` when no pinned expectation (verificationIntent, userSees, context or an existing test) contradicts the request.`,
   `- Otherwise write one line per conflict: \`${INTENT_CONFLICT_TAG} <intentRef, e.g. CHK-004:happy:3> | request: "<the request sentence you rely on>" | request implies: <value the request gives> | intent pins: <value the intent pins>\`.`,
   '- The request outranks the intent. Never resolve a conflict silently: a "deliberate choice" that follows an intent over the request, or that deviates from the request in any other way, must be listed here; prose notes are not read. The Story owner amends the intent before the item counts done.',
+  // Lab run89 (run88-89-analysis.md §3.4, fix 1): run 89's implementer saw that a pinned printed form was odd and the request
+  // silent ("altering String to compact spaces is odd ... request examples don't include expressions"), had no route for it,
+  // and built a compaction mechanism that produced 6 of 11 findings.
+  `- Pin doubt: when a pinned row's expected output contradicts what the Story base already produces for the same construct (how an existing node, value or error already prints or behaves) and no request sentence states that value, do not build a mechanism to satisfy it. Keep the base behaviour for it and write one line per such row: \`${PIN_DOUBT_TAG} <intentRef, e.g. CHK-004:edge:1> | base prints: <the base's output> | request: silent\`; the framework re-derives the row. A value the request states is never a pin doubt.`,
 ].join('\n');
 
 /**
@@ -170,6 +176,11 @@ export interface IntentConflict {
   raw: string;
   /** True when the result declared no conflict but its prose states a deliberate deviation. */
   undeclared: boolean;
+  /**
+   * Lab run89 (fix 1): a `[pin-doubt]` line: the row's pin contradicts the Story base and the request is silent.
+   * `requestImplies` then holds what the base prints (the oracle where the request is silent).
+   */
+  pinDoubt?: boolean;
 }
 
 /**
@@ -287,6 +298,27 @@ export function parseIntentConflicts(text: string | null | undefined, boundItemI
       intentPins: field(parts, 'intent pins', 'pins'),
       raw: line.trim(),
       undeclared: false,
+    });
+  }
+  // Lab run89 (fix 1): `[pin-doubt] <ref> | base prints: <x> | request: silent`.
+  for (const line of lines) {
+    const at = line.indexOf(PIN_DOUBT_TAG);
+    if (at < 0) continue;
+    const body = line.slice(at + PIN_DOUBT_TAG.length).trim().replace(/^[:\-–—]\s*/, '');
+    if (!body || /^<intentRef/i.test(body) || /^none\b/i.test(body)) continue;
+    const parts = body.split(/\s+\|\s+/);
+    const ref = parts[0]!.trim().replace(/^`|`$/g, '');
+    const itemMatch = ref.match(ITEM_REF);
+    const base = field(parts, 'base prints', 'base', 'base renders', 'base returns');
+    conflicts.push({
+      intentRef: ref,
+      itemId: itemMatch ? itemMatch[1]! : boundItemId,
+      requestSentence: null,
+      requestImplies: base ? (/^`.*`$/.test(base) ? base : `\`${base}\``) : null,
+      intentPins: null,
+      raw: line.trim(),
+      undeclared: false,
+      pinDoubt: true,
     });
   }
   if (conflicts.length > 0) return { section: 'declared', conflicts };

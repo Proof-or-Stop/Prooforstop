@@ -11,7 +11,8 @@ import type { ReviewRun } from '../core/types.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { buildImplementerItemPack } from '../core/implementer-item-pack.js';
 import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId } from '../core/ab-dispatch-grouping.js';
-import { regressionFamilyBrief } from '../core/regression-family-brief.js';
+import { recordChainMechanismRequirement, regressionFamilyBrief } from '../core/regression-family-brief.js';
+import { readStoryRequest } from '../core/story-request.js';
 import { boundMatrixFor, recordBoundMatrix, renderBoundMatrix } from '../core/bound-matrix.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { hostRunStatusBlocksUntilTerminal, ownerWaitBlockMs, ownerWaitYieldMs } from '../core/owner-wait-guidance.js';
@@ -1208,6 +1209,9 @@ export function resolveGroupedManagedDispatch(ctx: HandlerContext, args: {
     const members = ids.map(id => findings.find(row => row.id === id)!);
     const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
     // Lab round-cut N2 (core/bound-matrix.ts): each member located in a multi-branch helper also gets its bound matrix.
+    // Lab run89 (fix 3): a member that is the third report of one mechanism owes a `[mechanism]` line (the worker checks it).
+    const requestText = (() => { try { const request = readStoryRequest(ctx.store, args.storyId); return request.status === 'ok' ? request.text : null; } catch { return null; } })();
+    for (const row of members) recordChainMechanismRequirement({ root: ctx.root, storyId: args.storyId, findings, finding: row, requestText });
     const briefs = new Map(members.filter(row => row.id !== args.findingId).map(row => {
       const matrix = boundMatrixFor({ gitCwd, finding: row });
       const matrixLines = matrix ? renderBoundMatrix(recordBoundMatrix(ctx.root, args.storyId, row.id, matrix), shortFindingId(args.storyId, row.id)) : [];

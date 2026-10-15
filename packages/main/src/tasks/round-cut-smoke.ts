@@ -12,7 +12,8 @@
  *      a checklist row / request sentence states, are not. Switch dev.removedGuardScan.
  *   M. N2 bound matrix: a finding located in a helper that branches on several operands (or on
  *      the sign of one) gets a matrix block naming every branch; the repair's final report must
- *      carry one `[branch-test]` line per operand, else the repair is not accepted.
+ *      carry one `[branch-test]` line per operand (lab run89: the exact line is printed and a
+ *      missing one is asked for by the worker in the same session, never a rejected repair).
  *   D. N3 framework duplicate closure: a critic duplicate whose own repro is stated in a test
  *      the canonical's repair commit added gets its coverage command from the framework.
  *   X. N3b request exact-text literals in the implementer and repair prompts at launch.
@@ -228,7 +229,9 @@ await check('M1 a finding located in a helper that branches on several operands 
     const text = (render(matrix) as string[]).join('\n');
     assert.match(text, /\[branch-test\]/);
     assert.match(text, /every branch/i);
-    assert.match(text, /not accepted/i, 'the check is stated');
+    // Lab run89 (fix 2b-c): the exact line per operand; a missing one is asked for before the run ends (not a relaunch).
+    assert.match(text, /^\s*\[branch-test\] Bounds start=<case>: <test name> -> <result>$/m, 'the exact line is stated');
+    assert.match(text, /asked for the missing line/i, 'the check is stated');
     const byName = matrixFor({ gitCwd: root, finding: { id: 'B-1:F-002', desc: 'Bounds drops index 0 when end is below -n.', files: ['span/span.go'] } }) as { fn: string } | null;
     assert.equal(byName?.fn, 'Bounds', 'a finding naming the function (no line) is located by name');
     assert.equal(matrixFor({ gitCwd: root, finding: { id: 'B-1:F-003', desc: 'span/span.go:26 Clamp returns max for v == max.', files: ['span/span.go'] } }), null, 'one branch, one operand: no matrix');

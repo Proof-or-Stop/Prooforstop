@@ -51,7 +51,7 @@ import { loadConfig } from '../core/config.js';
 import { probeMatrixOn } from '../core/ab-variants.js';
 import { counterpartImplementerLines, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { renderSiblingParity } from '../core/sibling-parity.js';
-import { regressionFamilyBrief } from '../core/regression-family-brief.js';
+import { recordChainMechanismRequirement, regressionFamilyBrief } from '../core/regression-family-brief.js';
 import { baseDisagreementActive, SCOPE_PLAN_BASE_DISAGREEMENT_CHECK } from '../core/base-disagreement.js';
 import { rejectedRepairCommits, renderRepairResolvedContext, renderResolvedReprobe } from '../core/resolved-finding-guard.js';
 import { exclusionRationaleCheckActive, SCOPE_PLAN_EXCLUSION_CHECK } from '../core/scope-exclusion-rationale.js';
@@ -1078,6 +1078,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       const familyBrief = regressionFamilyBrief({ findings: data.findings, storyId: args.storyId, finding,
         gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }) });
       if (familyBrief.length) lines.push(...familyBrief);
+      // Lab run89 (fix 3): the third report of one mechanism owes a `[mechanism]` line; the worker asks for it before the run seals.
+      if (agentType === 'proof-or-stop-finding-repair' && familyBrief.length) {
+        const requestText = (() => { try { const request = readStoryRequest(store, args.storyId); return request.status === 'ok' ? request.text : null; } catch { return null; } })();
+        recordChainMechanismRequirement({ root, storyId: args.storyId, findings: data.findings, finding, requestText });
+      }
       // Lab round-cut N2 (core/bound-matrix.ts): a finding in a helper with several operand branches is repaired branch-complete.
       const findingGitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
       const matrix = agentType === 'proof-or-stop-finding-repair' ? boundMatrixFor({ gitCwd: findingGitCwd, finding }) : null;
@@ -1086,7 +1091,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push(...renderBoundMatrix(recorded, shortFid));
         for (const row of finding.status === 'open' ? earlierFindingRepairReports(root, args.storyId, finding.id) : []) {
           const problem = branchTestProblem(managedRunFinalMessage(root, row.runId), recorded);
-          if (problem) lines.push(`- Earlier repair run ${row.runId} was not accepted: ${problem}. Test and report those branches now.`);
+          if (problem) lines.push(`- Earlier repair run ${row.runId} did not report every branch: ${problem}. Test and report those branches now.`);
         }
       }
       const storyBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
@@ -1100,9 +1105,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // Old-PoS run 30: a relaunched repair starts from what the earlier run(s) reported.
       const earlier = finding.status === 'open' ? earlierFindingRepairReports(root, args.storyId, finding.id) : [];
       if (earlier.length) {
-        lines.push(`Earlier repair run(s) of ${shortFid} ended without a repair commit (the finding is still open). Their final reports:`);
+        lines.push(`Earlier repair run(s) of ${shortFid} ended without an accepted repair (no commit, or a commit the framework did not accept; the finding is still open). Their final reports:`);
         for (const row of earlier) lines.push(`- run ${row.runId}: ${row.report.replace(/\s*\n\s*/g, ' ')}`);
-        lines.push('- Start from those reports. Commit the repair; if it truly cannot be made inside this Story, name exactly what blocks it (path, rule or request sentence). Another run without a commit returns the Story to PLAN.', '');
+        lines.push('- Start from those reports. Commit the repair; if it truly cannot be made inside this Story, name exactly what blocks it (path, rule or request sentence). Another run without an accepted repair returns the Story to PLAN.', '');
       }
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);

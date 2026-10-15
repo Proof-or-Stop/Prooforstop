@@ -85,6 +85,7 @@ import {
 } from './host-run.js';
 import { providerDiagnosticLineText } from './host-execution-readiness.js';
 import { createManagedRunDiagnostics } from './managed-run-diagnostics.js';
+import { finalMessageFromLiveOutput, readRepairReportRequirements, repairReportFollowUp } from './repair-report-lines.js';
 import { MANAGED_SCOPE_CHECKED_WRITERS, MANAGED_WRITER_SCOPE_REPAIR_MAX_ATTEMPTS, managedWriterScopeBaseHead, managedWriterScopeRepairPrompt,
   managedWriterScopeViolations } from './managed-writer-scope.js';
 import type {
@@ -837,6 +838,9 @@ function readWorkerProposalInvocationPrivateKey(
   }
   return key;
 }
+
+/** Lab run89 (fix 2c): resumed turns a finding repair gets to add a report line it owes before its run seals. */
+export const MANAGED_REPAIR_REPORT_FOLLOW_UP_MAX_ATTEMPTS = 2;
 
 interface ManagedHostRunPaths {
   /**
@@ -4457,6 +4461,64 @@ export async function runManagedHostRunWorker(
         });
         const repairExitTerminal = await settleProviderExit(result, failureReason);
         if (repairExitTerminal) return repairExitTerminal;
+      }
+      // Lab run89 (run88-89-analysis.md §3.3, fix 2c): a finding repair whose final report misses a line it owes (the bound
+      // matrix's `[branch-test]` lines, a regression chain's `[mechanism]` line, core/repair-report-lines.ts) is asked for
+      // exactly those lines in its own resumed session before the run seals. Run 89 counted such a commit-bearing repair
+      // as "without a repair commit": four owner relaunches and two DEV->PLAN trips for one report line (28.5 min). The
+      // commit stands either way; a line still missing after the follow-up is journaled and the run seals as usual. Runs
+      // before the writer-scope check, so a test the follow-up commits is scope-checked like the repair's own.
+      const reportTarget = spec.agentType === 'proof-or-stop-finding-repair' ? spec.managedDispatchTarget as { findingId?: string; groupFindingIds?: string[] } | null | undefined : null;
+      const reportFindingIds = [...new Set([reportTarget?.findingId, ...(reportTarget?.groupFindingIds ?? [])].filter((id): id is string => typeof id === 'string' && id.length > 0))];
+      for (let attempt = 1; reportFindingIds.length && spec.storyId && spec.host === 'codex'; attempt += 1) {
+        const requirements = readRepairReportRequirements(spec.root, spec.storyId, reportFindingIds);
+        if (!requirements.matrices.length && !requirements.mechanisms.length) break;
+        let report: string | null = null;
+        try { report = finalMessageFromLiveOutput(readFileSync(paths.output, 'utf8')); } catch { report = null; }
+        const followUp = repairReportFollowUp({ report, ...requirements });
+        if (attempt > 1) {
+          appendEvent(paths, {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'managed_repair_report_follow_up_outcome',
+            detail: { attempt: attempt - 1, outcome: followUp ? 'still_missing' : 'complete', exitCode: result.exitCode },
+          });
+        }
+        if (!followUp) break;
+        const resumeSessionId = attempt <= MANAGED_REPAIR_REPORT_FOLLOW_UP_MAX_ATTEMPTS && result.replacementSafe
+          ? resumableManagedRunCodexSession(paths, codexHome)
+          : null;
+        if (resumeSessionId === null) {
+          appendEvent(paths, {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'managed_repair_report_follow_up_unavailable',
+            detail: { attempt, findingIds: reportFindingIds,
+              reason: attempt > MANAGED_REPAIR_REPORT_FOLLOW_UP_MAX_ATTEMPTS ? 'attempts_exhausted' : !result.replacementSafe ? 'provider_not_replacement_safe' : 'session_not_resumable' },
+          });
+          break;
+        }
+        const journaled = updateSnapshotAndAppendEvent(paths, current => ({
+          ...current, generation: current.generation + 1, providerClosedAt: null, supervisionDiagnostic: null,
+        }), {
+          schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+          type: 'managed_repair_report_follow_up',
+          detail: { attempt, maxAttempts: MANAGED_REPAIR_REPORT_FOLLOW_UP_MAX_ATTEMPTS, findingIds: reportFindingIds, resumeSessionId, prompt: followUp.slice(0, 2000) },
+        });
+        if (!journaled) return readTerminal(paths)!;
+        const followUpRefusal = await authorizeLaunch();
+        if (followUpRefusal) {
+          if (followUpRefusal === 'absolute_deadline_exceeded') {
+            deadlineTriggered = true;
+            return writeTerminal(paths, 'timed_out', followUpRefusal, result.replacementSafe, result, now());
+          }
+          cancelTriggered = readCancelRequest(paths) !== null;
+          if (cancelTriggered) return writeTerminal(paths, 'cancelled', followUpRefusal, result.replacementSafe, result, now());
+          break;
+        }
+        providerClosed = false;
+        result = null;
+        result = await launchProvider(followUp, resumeSessionId, Math.max(1, Math.min(spec.timeoutMs, Date.parse(spec.deadlineAt) - now())));
+        const followUpExitTerminal = await settleProviderExit(result, 'managed_repair_report_follow_up_failed');
+        if (followUpExitTerminal) return followUpExitTerminal;
       }
       // Old-PoS run 29 REM2: a writer's change outside the Story's declared files
       // is fixed by the writer itself, in its own resumed session, before the run

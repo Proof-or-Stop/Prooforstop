@@ -162,6 +162,11 @@
  * prompt carries the earlier report. The golden fixture's findings cite no
  * path:line site and every repair commits, so its states are unchanged.
  *
+ * Deliberate change (lab run89, bench-staging/oldpos/run88-89-analysis.md §5 fix 2): the one relaunch the
+ * route allows after a run without an accepted repair is a framework launch, the replan step names why each
+ * run was not accepted, and a missing report line never counts (the worker asks for it). The golden fixture's
+ * repairs commit and report completely, so its states are unchanged.
+ *
  * Deliberate change (old-PoS run 34, bench-staging/oldpos/run34-analysis.md §4):
  * a repaired finding's finding_resolve / finding_resolve_batch is a framework
  * step with framework-authored resolutions in the resolutions[] form (one entry
@@ -213,7 +218,7 @@ import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } fr
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
 import { findingRepairRoute } from '../../core/finding-preexisting.js';
 import { evaluatePreexistingFinding } from '../../handlers/finding-preexisting.js';
-import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairReplanStep, findingConflictStep } from '../../handlers/next-driver.js';
+import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairReplanStep, findingConflictStep, unacceptedRepairWhys } from '../../handlers/next-driver.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
   groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, frameworkResolveStep, managedRunsWaitStep, adoptedAmendmentRun, intentAmendmentVerifyStep, guardRefusalSummary, storyReviewBlockersStep, openIntentConflicts, intentConflictStep, nextStepCall, DONE_TERMINAL_STATEMENT, type NextStep } from '../../handlers/next-driver.js';
@@ -509,7 +514,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         if (repairRun) return waitStep(base, repairRun, 'Finding repair run');
         const noCommit = noCommitRepairRunsSincePlan(ctx.store, storyId, repair);
         const route = findingRepairRoute({ preexistingOutOfScope: false, noCommitRunsSincePlan: noCommit.length });
-        if (route.kind === 'replan') return findingRepairReplanStep(base, finding, noCommit);
+        if (route.kind === 'replan') return findingRepairReplanStep(base, finding, noCommit, unacceptedRepairWhys(repair));
         const duplicate = repair.bound ? null : duplicateResolveCandidate(ctx.store, storyId, finding, ctx.store.readFindings(storyId).findings ?? []);
         if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
@@ -518,10 +523,11 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         const group = groupedFindingRepairIds({ root: ctx.root, store: ctx.store, gitCwd: gitCwdOf(storyId), storyId, primary: finding,
           primaryBound: repair.bound, findings: findings.map(row => row.finding), runs: hostRuns });
         if (group.length > 1) return groupedFindingRepairStep(ctx.root, base, group, selection, bound, hostRuns);
+        // Lab run89 (fix 2d, shared with the live driver): the one relaunch the route allows is a framework launch.
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
-          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
-        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).${route.kind === 'repair' && route.relaunch ? ' The relaunched run\'s prompt carries the earlier run\'s report; another run without a commit returns the Story to PLAN.' : ''}`,
-        'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
+          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && (targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })) || (route.kind === 'repair' && route.relaunch)),
+        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).${route.kind === 'repair' && route.relaunch ? ' The relaunched run\'s prompt carries the earlier run\'s report; another run without an accepted repair returns the Story to PLAN.' : ''}`,
+        'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState', route.kind === 'repair' && route.relaunch ? 'relaunch after a run without an accepted repair' : undefined);
       }
       if (chain.blocking && chain.nextAction) {
         return evidenceChainStep(base, chain, 'The repair changed material, so pinned receipts are stale; refresh them before recording the resolution.');
