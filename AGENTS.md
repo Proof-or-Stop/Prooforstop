@@ -593,7 +593,9 @@ row of any item stating the same pinned fragment and patches each sibling item
 with `checklist_update {itemId, intentRows}` (old-PoS run 37: one pin, three
 DEV->PLAN trips). To fix single rows use `checklist_update {storyId, itemId,
 intentRows: [{ref: "CHK-002:edge:3", desc: "..."}]}` (every intent check still
-runs) instead of resending the whole intent. The conflict clears once the item's verificationIntent or userSees
+runs) instead of resending the whole intent; `{ref, remove: true}` removes a row
+(later rows move up one index, named in the output) and a key that is not a row
+field is refused (lab run95). The conflict clears once the item's verificationIntent or userSees
 differs from the one the run was dispatched against, or once the item states the
 value the request implies in place of the pinned literal (old-PoS run 31). In
 PLAN, changing a done item's verificationIntent or userSees without a `status`
@@ -957,6 +959,25 @@ which request sentence or row requires the mechanism (`[mechanism]`), else remov
 `exact_error_pin` never lists a row that instantiates a request-exact template. See
 docs/CLI.md "Old-PoS runs 88 / 89".
 
+Old-PoS runs 93-96 (lab `codex/lab-run95`; detection-neutral except the EXPERIMENTAL A/B
+`plan.disputeConfirm`, default off): a PLAN row pinning an exact text (three words or more)
+that neither the request states nor a Story base source contains, or a request-template
+instance answering a scope-plan verdict whose derivation quotes no line of that template's
+scope, is listed in the PLAN pre-check `[unstated_pin]` and as ONE skippable PLAN step
+`unstated_pin_check` with a ready patch (an error row pins only the error, `<case> -> error`;
+any other row is removed). `checklist_update {intentRows: [{ref, remove: true}]}` removes a
+row (`drop: true` is the same op); a key that is not a row field is refused. When the
+scope-plan reviewer raises the same row in two consecutive verdicts, `next` returns
+`plan_pin_dispute` with ONE ready remedy (relax the error pin; or remove the row and exclude
+the case with the matching `userSees` edit; or re-pin to the request / base value) instead of
+another guess; the rerun prompt names the disputed row (`plan.disputeConfirm=on`: a
+confirmation re-review). An excludes entry the item's own `userSees` still names gets one
+`checklist_update` for both fields. The pre-existing finding disposition is a framework step:
+`next --run` records it and launches the repair of the others (no agent step ever comes before
+a managed repair launch). In a consumer project the installed framework (e.g. `/opt/pos` on
+the bench) is not the project: an owner never reads it; every rule a check applies is printed
+with its command. See docs/CLI.md "Old-PoS runs 93-96".
+
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
 (`<common git dir>/info/proof-or-stop-cache/`, each answer keyed by the exact
@@ -1125,8 +1146,10 @@ only on exit 0 plus the selector; otherwise it refuses and `next` dispatches the
 duplicate's own repair (run 17). A finding whose cited `path:line` defect sites
 are unchanged since the Story base and that no scope-contract path, checklist
 file, scope-boundary entry or request sentence covers (old-PoS run 30) is never
-routed to repair: `next` proposes one `finding_resolve` with
-`disposition: preexisting_out_of_scope`, which recomputes that evidence and
+routed to repair: `next` returns one `finding_resolve` with
+`disposition: preexisting_out_of_scope` (since lab run95 a framework step that
+`next --run` records before launching the repair of the other open findings;
+never repair them yourself), which recomputes that evidence and
 records it with a follow-up (severity unchanged; `finding_applicability_assess
 --verdict=pre_existing_unaffected --proposalRef=<finding id>` is the same
 disposition). For a `doc-code-drift:` finding only its documentation anchors are

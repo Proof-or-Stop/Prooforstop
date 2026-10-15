@@ -40,6 +40,8 @@
  *   Lab round-cut (production `advisory`; behaviour in tasks/round-cut-smoke.ts G, end to end in NRC / NRC-ADV):
  *   dev.removedGuardScan             advisory: review lane prompts name base operand guards the Story dropped; on: a clear one
  *                                    reopens its item before REVIEW (once per set); off: no scan
+ *   Lab run95 (EXPERIMENTAL, default `off`; behaviour in tasks/run95-fixes-smoke.ts S1, end to end in NPR / NPR-C):
+ *   plan.disputeConfirm              the scope-plan rerun after a pin-dispute remedy is a confirmation re-review
  *   Lab initplan (EXPERIMENTAL, default `off`; behaviour in tasks/initplan-smoke.ts P1):
  *   plan.reviewerPreload             the scope-plan dispatch prompt carries the Story artifacts it must read (no re-read)
  *   Old-PoS run 43 (`off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
@@ -92,7 +94,9 @@ await check('config: absent switches resolve to production values; malformed fai
     // EXPERIMENTAL lab sibling-gate switch: off by default.
     counterpartCoverage: 'off',
     // Lab round-cut: the removed-guard scan is advisory by default (lane prompts only).
-    removedGuardScan: 'advisory', reviewerPreload: 'off' });
+    removedGuardScan: 'advisory', reviewerPreload: 'off',
+    // Lab run95: the pin-dispute rerun is a full rerun by default; `on` = confirmation re-review (detection-affecting arm).
+    disputeConfirm: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'on' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.counterpartCoverage': 'on' } }, 'lab sibling-gate: the arm is recorded');
@@ -112,6 +116,13 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { reviewerPreload: 'on' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.reviewerPreload': 'on' } }, 'lab initplan: the on arm is recorded');
   assert.throws(() => resolveAbVariants({ plan: { reviewerPreload: 'maybe' } }), /invalid_ab_variant_config: plan\.reviewerPreload/);
+  // Lab run95 (plan.disputeConfirm): off is production (not recorded); on is the recorded arm; malformed = off where consumed.
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { disputeConfirm: 'on' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.disputeConfirm': 'on' } }, 'lab run95: the on arm is recorded');
+  assert.throws(() => resolveAbVariants({ plan: { disputeConfirm: 'maybe' } }), /invalid_ab_variant_config: plan\.disputeConfirm/);
+  const { disputeConfirmOn } = await load('core/ab-variants.js');
+  assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
+  assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');
   const { reviewerPreloadOn } = await load('core/ab-variants.js');
   assert.equal(reviewerPreloadOn({ plan: { reviewerPreload: 'maybe' } }), false, 'malformed = off where it is consumed');
   const { removedGuardScanMode } = await load('core/ab-variants.js');

@@ -63,7 +63,7 @@ import { collectVerificationIntents, VERIFICATION_LANES } from '../core/verifica
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
 import { requestPinFindings, requestPinOfferDue, recordRequestPinOffer, GAP_ROW_QUOTE_RULE } from '../core/request-pin-audit.js';
-import { changedIntentRowRefs } from '../core/scope-plan-rerun-context.js';
+import { changedIntentRowRefs, FRAMEWORK_SOURCE_RULE } from '../core/scope-plan-rerun-context.js';
 import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate, duplicateJoinsRepairGroup } from '../core/duplicate-finding-coverage.js';
 import { findingConflictOf, findingRepros, isReproCommand, rejectedRepairCommits, repairTestIntegrityProblem, rowsCitingCase } from '../core/resolved-finding-guard.js';
 import { StoryStore } from '../core/store.js';
@@ -119,6 +119,8 @@ import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule,
 import { baseErrorDecorationOf, describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
 import { COUNTERPART_COVERAGE_MISSING, counterpartNextPayload, counterpartRule, describeCounterpartRefusal, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { exactErrorPinOfferDue, exactWholeErrorPins, recordExactErrorPinOffer } from '../core/exact-error-pin-lint.js';
+import { describeUnstatedPin, planUnstatedPins, recordUnstatedPinOffer, unstatedPinOfferDue, unstatedPinRowPatch } from '../core/unstated-pin.js';
+import { disputedRows, pinDisputeRemedy, recordPinDispute, scopeVerdictHistory, type PinDisputeRemedy } from '../core/pin-dispute.js';
 import { initReviewDeferredToPlan, planReviewMergeActive } from '../core/plan-review-merge.js';
 import { intentRowCount, recordRowBudgetOffer, ROW_BUDGET_GUIDANCE, rowBudgetExtras, rowBudgetOfferDue, rowBudgetTrimPayloads } from '../core/plan-row-budget.js';
 import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
@@ -1497,12 +1499,18 @@ export function noCommitRepairRunsSincePlan(store: HandlerContext['store'], stor
  * the same repair forever). ONE audited disposition closes it; finding_resolve
  * rechecks the evidence and records it with the follow-up. Shared by the live
  * and the reference driver.
+ *
+ * Lab run95 (bench-staging/oldpos/run93-96-analysis.md §5.3, fix 2): a FRAMEWORK step. Its payload is complete and
+ * finding_resolve rechecks the same base evidence (evaluatePreexistingFinding) itself, so nothing is the owner's to
+ * decide; as an agent step in front of the managed repair launch it made run 95's owner take the whole remediation over
+ * (11.6 min of self-repair, then five duplicates closed by hand). `next --run` records it and goes on to launch the
+ * repair of the other findings in the same call.
  */
 export function preexistingDispositionStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity' | 'desc'>, verdict: PreexistingFindingVerdict): NextStep {
   const summary = finding.desc.length > 160 ? `${finding.desc.slice(0, 160)}...` : finding.desc;
-  return step(base, 'agent', 'finding_preexisting_disposition', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
+  return step(base, 'framework', 'finding_preexisting_disposition', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
     disposition: PREEXISTING_OUT_OF_SCOPE, resolution: `repair in a separate Story: ${summary}` } },
-  `Verified ${finding.severity} finding ${finding.id} is ${verdict.reason}. It is not routed to repair: close it with ONE audited disposition (${PREEXISTING_OUT_OF_SCOPE}); finding_resolve rechecks the base evidence and records it with the follow-up, severity unchanged. If this Story's own change caused it after all, repair it instead (managed finding-repair).`,
+  `Verified ${finding.severity} finding ${finding.id} is ${verdict.reason}. It is not routed to repair: the framework closes it with ONE audited disposition (${PREEXISTING_OUT_OF_SCOPE}); finding_resolve rechecks the base evidence and records it with the follow-up, severity unchanged. \`proof-or-stop next --storyId=${base.storyId} --run\` records it and launches the managed repair of the other open findings; do not repair them yourself.`,
   'evaluatePreexistingFinding (core/finding-preexisting.ts) + unclosedBlockingFindings');
 }
 
@@ -1670,14 +1678,18 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
       coverage = types.has(MISSING_COVERAGE_ROW) ? planCoverageGapsFor(storeConfig(store), items, request.text) : [];
       for (const item of items) {
         const gap = derivations.find(entry => entry.itemId === item.id);
-        const placeholders = coverageIntentRows(coverage, item.id);
+        const placeholders = coverageIntentRows(coverage, item.id, item);
         if (!gap && !placeholders.length) continue;
         // Lab initplan (initplan-breakdown.md rank 6): a row patch (the underived rows' derivations, the coverage
         // rows appended), not the item's whole verificationIntent.
         const intentRows: Array<Record<string, unknown>> = [
           ...(gap?.rows ?? []).map(entry => ({ ref: `${item.id}:${entry.lane}:${entry.index}`, derivation: derivationPlaceholder(entry, request.text) })),
-          ...placeholders.map(row => ({ ref: appendRowRef(item.id, 'edge'), ...row })),
         ];
+        // Lab run95: a near-miss exact row is a patch of that row (merged with its derivation patch), the rest are appends.
+        for (const row of placeholders) {
+          const same = typeof row.ref === 'string' && !row.ref.endsWith(':+') ? intentRows.find(entry => entry.ref === row.ref) : undefined;
+          if (same) Object.assign(same, row); else intentRows.push({ ref: appendRowRef(item.id, 'edge'), ...row });
+        }
         // Lab round-cut N4c: built from the current rows; refused if they change before it is applied.
         calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload: { storyId, itemId: item.id, intentRows, intentBasis: intentBasisDigest(item.verificationIntent) } }));
       }
@@ -1785,7 +1797,7 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
   for (const item of items) {
     if (item.status === 'withdrawn') continue;
     const need = byId.get(item.id);
-    const coverage = coverageIntentRows(blockers.coverageGaps, item.id);
+    const coverage = coverageIntentRows(blockers.coverageGaps, item.id, item);
     if (!need && !literals.length && !coverage.length) continue;
     // Lab initplan (initplan-breakdown.md rank 6): ONE row patch per item (core/plan-lint-preview.ts).
     const payload = preScopeItemPayload(storyId, item, need, coverage, literals);
@@ -1809,7 +1821,7 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
       + (blockers.items.some(row => row.missingDerivations.length)
         ? 'A derivation is required on an example whose expected value request.md does not quote: requestQuote is the verbatim request sentence the value follows from, computation the steps from it to the pinned value; if they reach another value, fix the pinned value. '
         : '')
-      + `Author every <...> field (each command patches only the listed rows by ref and appends new rows with <item>:<lane>:+; drop an appended row you do not need; type may be logic/cli/browser/manual/docs) and run these ${calls.length} checklist_update commands in one turn, `
+      + `Author every <...> field (each command patches only the listed rows by ref and appends new rows with <item>:<lane>:+; leave an append you do not need out of the patch, and {"ref":"<row>","remove":true} removes a stored row; type may be logic/cli/browser/manual/docs) and run these ${calls.length} checklist_update commands in one turn, `
       + `then \`proof-or-stop next --storyId=${storyId} --run\`: it launches the scope-plan reviewer once, on the final checklist.`,
     'planPreScopeBlockers (story_review missing_verification_intent / missing_verification_pin / missing_user_sees / missing_intent_derivation / missing_coverage_row + story_create request-literal pre-check)');
 }
@@ -1940,7 +1952,9 @@ export function exactErrorPinStep(base: { storyId: string; phase: string }, stor
   try {
     const items = store.readChecklist(base.storyId).items;
     const request = readStoryRequest(store, base.storyId);
-    const pins = exactWholeErrorPins(items, request.status === 'ok' ? request.text : null);
+    // Lab run95 (fix 1a): a row the unstated-text lint lists gets its ready patch there, not this placeholder.
+    const unstated = new Set((planUnstatedPins(store, root, base.storyId, gitCwd, changedIntentRowRefs({ store: store as never, storyId: base.storyId, gitCwd: gitCwd() }))?.pins ?? []).map(pin => pin.ref));
+    const pins = exactWholeErrorPins(items, request.status === 'ok' ? request.text : null).filter(pin => !unstated.has(pin.ref));
     if (!exactErrorPinOfferDue(root, base.storyId, pins)) return null;
     const refs = new Set(pins.flatMap(pin => {
       const [itemId, lane, index] = pin.ref.split(':');
@@ -2031,6 +2045,79 @@ export function pinBaseFormStep(base: { storyId: string; phase: string }, store:
 }
 
 /**
+ * Lab run95 (fix 1a; core/unstated-pin.ts): ONE skippable PLAN step, before the scope-plan reviewer, for rows pinning an exact
+ * text (an error message, an output sentence) that neither the request states nor a Story base source contains, and for a
+ * request-template instance answering a scope-plan verdict whose derivation quotes no line of that template's scope (run 95:
+ * five verdicts disputed one such row). Each row patch is ready: an error row is relaxed to "<case> -> error", any other row
+ * is removed. A printed-form row is left to pin_base_form; the exact whole-error lint leaves these rows to this one. Offered once per set of rows
+ * (at most twice per Story); nothing blocks on it. Null when nothing is listed or the offer was made.
+ */
+export function unstatedPinStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: () => string): NextStep | null {
+  try {
+    const request = readStoryRequest(store, base.storyId);
+    if (request.status !== 'ok') return null;
+    const items = store.readChecklist(base.storyId).items;
+    const other = new Set((planPinBaseForm(store, root, base.storyId, gitCwd)?.conflicts ?? []).map(row => row.ref));
+    const changed = changedIntentRowRefs({ store: store as never, storyId: base.storyId, gitCwd: gitCwd() });
+    const pins = (planUnstatedPins(store, root, base.storyId, gitCwd, changed)?.pins ?? []).filter(pin => !other.has(pin.ref));
+    if (!unstatedPinOfferDue(root, base.storyId, pins)) return null;
+    recordUnstatedPinOffer(root, base.storyId, pins);
+    const rowOf = (ref: string) => {
+      const [itemId, lane, index] = ref.split(':');
+      return (items.find(item => item.id === itemId)?.verificationIntent?.[lane as 'happy' | 'edge' | 'adversarial'] ?? [])[Number(index)];
+    };
+    const byItem = new Map<string, typeof pins>();
+    for (const pin of pins) byItem.set(pin.itemId, [...(byItem.get(pin.itemId) ?? []), pin]);
+    const calls = [...byItem].map(([itemId, rows]) => nextStepCall('unstated_pin_check', { command: 'checklist_update', payload: { storyId: base.storyId, itemId,
+      intentRows: rows.map(row => unstatedPinRowPatch(row, rowOf(row.ref) as never, request.text)),
+      reason: `pinned text the request does not state: ${rows.map(row => row.ref).join(', ')}` } }));
+    const listed = pins.slice(0, 6).map(describeUnstatedPin).join('; ') + (pins.length > 6 ? ` +${pins.length - 6} more` : '');
+    return batchStep(base, 'unstated_pin_check', calls,
+      `Unstated pinned text [unstated_pin]: ${pins.length} row(s) pin an exact text the request does not state for that case: ${listed}. `
+        + 'Oracle order: a request sentence decides; where the request is silent, the Story base\'s own behaviour; a text neither states is an invention the implementer would build and the scope-plan reviewer disputes. '
+        + 'Each row patch is ready (an error row keeps its case and pins only the error; any other row is removed with {"ref":"<row>","remove":true}). The other exits: quote the request sentence that states the text (derivation.requestQuote), or re-pin to the value a base probe of the same receiver prints. '
+        + `Run the patch (or yours), then \`proof-or-stop next --storyId=${base.storyId} --run\`. If the request does state the text, skip it: run \`proof-or-stop next --storyId=${base.storyId} --run\` without it. Nothing blocks on it, and it is offered once for this set of rows.`,
+      'planUnstatedPins (core/unstated-pin.ts)');
+  } catch { return null; }
+}
+
+/**
+ * Lab run95 (fix 1c; core/pin-dispute.ts): the scope-plan reviewer raised the same row again (a gap of the current verdict
+ * cites a row a gap of the previous verdict cited). Instead of the generic blocker patches and another guess, ONE step with
+ * the framework's remedy per disputed row (relax an error pin / remove + exclude with the userSees edit / re-pin to the
+ * request or base value), merged with the round's other blockers' row patches. Null when no row is disputed.
+ */
+export function pinDisputeStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: string,
+  blockers: ReadonlyArray<{ type: string; message: string }>): NextStep | null {
+  try {
+    const history = scopeVerdictHistory({ store: store as never, storyId: base.storyId, gitCwd });
+    const disputes = disputedRows(history);
+    if (!disputes.length) return null;
+    const request = readStoryRequest(store, base.storyId);
+    const items = store.readChecklist(base.storyId).items;
+    const remedies = disputes.flatMap(dispute => {
+      const item = items.find(row => row.id === dispute.itemId);
+      const remedy = item ? pinDisputeRemedy({ storyId: base.storyId, item: item as never, dispute, requestText: request.status === 'ok' ? request.text : null }) : null;
+      return remedy ? [remedy] : [];
+    });
+    if (!remedies.length) return null;
+    recordPinDispute(root, base.storyId, history[0]!.checkedAt, remedies);
+    const disputed = new Set(remedies.map(row => row.ref));
+    const others = blockers.filter(row => ![...disputed].some(ref => row.message.includes(ref)));
+    const calls = mergeChecklistUpdateCalls([...remedies.map(row => ({ command: 'checklist_update', payload: row.payload })), ...others.flatMap(row => blockerRowPatchCalls(row.message))])
+      .map(call => nextStepCall('plan_pin_dispute', call));
+    const streaks = disputes.filter(row => disputed.has(row.ref)).map(row => `${row.ref} (${row.verdicts} verdicts in a row)`).join(', ');
+    const why = `The scope-plan reviewer raised the same row again: ${streaks}. Another guess at the value would be judged the same way, so the framework gives the remedy: `
+      + remedies.map((row: PinDisputeRemedy) => row.why).join('; ') + '. '
+      + (others.length ? `The round's other blocker(s) keep their row patches: ${others.slice(0, 4).map(row => `${row.type}: ${row.message.slice(0, 240)}`).join(' | ')}. ` : '')
+      + `Run ${calls.length > 1 ? `these ${calls.length} checklist_update commands` : 'this checklist_update'} (author a <...> field only where one is left), then \`proof-or-stop next --storyId=${base.storyId} --run\`: it reruns story_review and relaunches the scope-plan reviewer once, with the disputed rows and the remedy in its prompt.`;
+    return calls.length === 1 && !/"<[^"]*>"/.test(JSON.stringify(calls[0]!.cli.payload))
+      ? step(base, 'agent', 'plan_pin_dispute', calls[0]!.cli, why, 'scopeVerdictHistory + disputedRows (core/pin-dispute.ts)')
+      : batchStep(base, 'plan_pin_dispute', calls, why, 'scopeVerdictHistory + disputedRows (core/pin-dispute.ts)');
+  } catch { return null; }
+}
+
+/**
  * The first INIT step when no Story exists yet: ONE complete story_create
  * command (scope and execution boundary inline, so no separate boundary
  * commands follow), every authored value a placeholder with a one-line hint.
@@ -2074,6 +2161,11 @@ export function storyCreateTemplateStep(root: string, baseValidation: string | n
       // Lab run89 (fix 5): run 89's owner spent 2.5 min reading the installed framework's source (32 calls) to learn how to
       // pass a long payload and which lint rules story_create applies; both are the framework's to say.
       + 'A long payload can go in a file: `proof-or-stop story_create @<file.json>`. You do not need the installed framework source (it is not this project): story_create checks the payload itself and prints every refusal and the PLAN pre-check with ONE Next each (a staged payload to edit, or row patches to run). '
+      // Lab run95 (run93-96-analysis.md §6: run 96's owner still read the installed framework 30 times, first to learn how rows are
+      // parsed): the row rules, stated here.
+      + 'Row rules the checks apply: an example row reads `<input> -> <expected>` (one top-level arrow; the framework probe runs the input part); a row pinning an exact text quotes it and says `exact` / `equals` / `whole error`; '
+      + 'an exact text the request does not state for that case is listed for you [unstated_pin] (pin only the error, or quote the request sentence that states it). '
+      + `${FRAMEWORK_SOURCE_RULE} `
       + (planReviewMergeActive(root)
         ? 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check and advances to PLAN, where ONE merged plan review judges the complete plan (A/B plan.reviewMerge=on: no INIT reviewer).'
         : 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check, launches both managed INIT reviewers, waits for them and advances to PLAN.')
@@ -2320,7 +2412,7 @@ export function mergedPlanLintStep(base: { storyId: string; phase: string }, due
   const parts = due.map((entry, index) => `(${index + 1}) [${entry.reason}] ${entry.why}`).join(' ');
   return batchStep(base, due[0]!.reason, calls,
     `${due.length} PLAN lints are due before the scope-plan reviewer; they come in ONE step (each check unchanged, its calls merged per item): ${parts} `
-      + `Author every <...> field and run these ${calls.length} command(s) in one turn (a skippable lint's rows may be dropped from the patch, as its own text says), then \`proof-or-stop next --storyId=${base.storyId} --run\`.`,
+      + `Author every <...> field and run these ${calls.length} command(s) in one turn (a skippable lint's row patches may be left out of the command, as its own text says), then \`proof-or-stop next --storyId=${base.storyId} --run\`.`,
     due.map(entry => entry.source).join(' + '));
 }
 
@@ -2436,6 +2528,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // above, and the scope-plan relaunch in planNext), never a hand-run story_review / host_run.
     if (target === 'DEV' && /proof-or-stop story_review\b/.test(hint)) {
       const blockers = currentStoryReviewBlockers(base.storyId);
+      // Lab run95 (fix 1c): the same row raised in two consecutive scope-plan verdicts gets the framework's remedy.
+      const dispute = blockers.length ? pinDisputeStep(base, ctx.store, ctx.root, gitCwdOf(base.storyId), blockers) : null;
+      if (dispute) return dispute;
       if (blockers.length) return storyReviewBlockersStep(base, failure, blockers);
     }
     // Old-PoS run 68 (fix 2, dead-end audit): never hand the owner a step whose only command is a read-only
@@ -2535,6 +2630,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // Lab run89 (fix 1): one skippable lint of pinned printed forms the base printer renders differently (request silent).
       const pinBaseForm = pinBaseFormStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
       if (pinBaseForm) due.push(pinBaseForm);
+      // Lab run95 (fix 1a): one skippable lint of exact texts neither the request nor the Story base supports.
+      const unstated = unstatedPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+      if (unstated) due.push(unstated);
       return due;
     };
     // Lab sibling-gate (A/B plan.counterpartCoverage=on): an added operation's counterpart cases, same order as the DEV gate.
@@ -2556,6 +2654,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // 'held', the DEV-entry gate's own predicate): its gap must land before DEV.
     // Old-PoS run 31 (D8): the verdict's pin-audit values, applied without a rerun.
     if (!scopeFailure && !rerun) {
+      // Lab run95 (fix 1c): a row the reviewer raised in consecutive verdicts gets the framework's remedy, not another value swap.
+      const dispute = pinDisputeStep(base, ctx.store, ctx.root, gitCwdOf(storyId), currentStoryReviewBlockers(storyId));
+      if (dispute) return dispute;
       const pinAudit = pinAuditCorrectionStep(base, ctx.store);
       if (pinAudit) return pinAudit;
     }
@@ -2862,8 +2963,16 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // Old-PoS run 33 (F-003): classified by correction target, not by lane (isMetadataTargetFinding).
     const isMetadata = (finding: Finding) => isMetadataTargetFinding({ store: ctx.store as never, storyId, gitCwd: gitCwdOf(storyId), finding });
     const metadataOnly = blockingAll.find(row => isMetadata(row.finding));
-    if (metadataOnly && !inFlight(FINDING_REPAIR_AGENT)) return metadataFindingResolveStep(base, metadataOnly.finding);
     const findings = blockingAll.filter(row => !isMetadata(row.finding));
+    // Lab run95 (fix 2): an agent closure never goes ahead of a managed repair launch. While another open finding still
+    // needs its repair, the metadata closure waits (the repair launches first; the closure comes once nothing is to launch).
+    const launchable = (row: { finding: Finding }): boolean => {
+      const state = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns });
+      return !state.repaired
+        && !evaluatePreexistingFinding({ store: ctx.store, root: ctx.root, storyId, finding: row.finding }).eligible
+        && !duplicateResolveCandidate(ctx.store, storyId, row.finding, ctx.store.readFindings(storyId).findings ?? []);
+    };
+    if (metadataOnly && !inFlight(FINDING_REPAIR_AGENT) && !findings.some(launchable)) return metadataFindingResolveStep(base, metadataOnly.finding);
     // The evidence chain is read only by the rows below that consult it (a
     // finding still awaiting repair or its run does not).
     let chainResult: ReturnType<typeof evaluateEvidenceChainForStory> | undefined;
@@ -2886,11 +2995,24 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
           repaired: row => managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row, runs: hostRuns }).repaired });
         if (conflictStep) return conflictStep;
       }
-      const { finding } = nextBlockingFinding(ctx.store, storyId, findings);
+      let { finding } = nextBlockingFinding(ctx.store, storyId, findings);
       // Per finding: only a completed managed repair bound to THIS finding id
       // (with its commit) makes it resolvable; a material change made by the
       // repair of another open finding does not (run 14).
-      const repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
+      let repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
+      // Lab run95 (fix 2): a duplicate the owner would have to close (no framework coverage) waits while another open
+      // finding still needs its repair launch: the launch comes first.
+      if (!repair.repaired && !repair.bound && !inFlight(FINDING_REPAIR_AGENT)) {
+        const all = ctx.store.readFindings(storyId).findings ?? [];
+        const dup = duplicateResolveCandidate(ctx.store, storyId, finding, all);
+        const canonical = dup ? all.find(other => other.id === dup.canonical.id) : undefined;
+        const agentOnly = dup && !(canonical && frameworkDuplicateCoverage({ gitCwd: gitCwdOf(storyId), finding, canonical }));
+        const alternative = agentOnly ? findings.find(row => row.finding.id !== finding.id && launchable(row)) : undefined;
+        if (alternative) {
+          finding = alternative.finding;
+          repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
+        }
+      }
       if (!repair.repaired) {
         const repairRun = hostRuns.filter(run => run.agentType === FINDING_REPAIR_AGENT && !run.terminal).at(-1);
         if (repairRun) return waitStep(base, repairRun, 'Finding repair run');

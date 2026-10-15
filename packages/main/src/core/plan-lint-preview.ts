@@ -23,6 +23,8 @@ import { exactWholeErrorPins } from './exact-error-pin-lint.js';
 import { requestPinFindings } from './request-pin-audit.js';
 import { counterpartNextPayload, planCounterpartCoverage } from './counterpart-coverage.js';
 import { describePinBaseForm, pinBaseFormRowPatch, planPinBaseForm } from './pin-base-form.js';
+import { describeUnstatedPin, planUnstatedPins, unstatedPinRowPatch } from './unstated-pin.js';
+import { changedIntentRowRefs } from './scope-plan-rerun-context.js';
 import { readStoryRequest } from './story-request.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
@@ -36,9 +38,26 @@ export function placeholderIntentRow(desc: string): Record<string, unknown> {
     verification: { command: '<pinned test command, e.g. go test -v ./pkg -run ^TestName$>', selector: '<line its passing run prints, e.g. --- PASS: TestName>' } };
 }
 
-/** Coverage-matrix placeholder rows for one item (core/plan-coverage-matrix.ts), pinned like any authored row. */
-export function coverageIntentRows(gaps: readonly CoverageGap[], itemId: string): Array<Record<string, unknown>> {
-  return coveragePlaceholders(gaps, itemId).map(row => ({ ...placeholderIntentRow(row.desc), derivation: row.derivation }));
+/**
+ * Coverage-matrix placeholder rows for one item (core/plan-coverage-matrix.ts), pinned like any authored row.
+ * Lab run95 (run93-96-analysis.md §6, run 96: the owner grepped the installed framework for the rule behind "carries the
+ * string but states no exact comparison"): with the item given, an exact-text gap whose string an existing row of the item
+ * already carries (a near miss) is a ready patch of that row (its desc states the exact comparison), not a new placeholder.
+ */
+export function coverageIntentRows(gaps: readonly CoverageGap[], itemId: string, item?: Pick<ChecklistItem, 'id' | 'verificationIntent'>): Array<Record<string, unknown>> {
+  const patches: Array<Record<string, unknown>> = [];
+  const rest = gaps.filter(gap => {
+    if (!item || gap.itemId !== itemId || gap.rule !== 'exact-text' || !gap.nearMiss?.length) return true;
+    const own = gap.nearMiss.filter(ref => ref.startsWith(`${item.id}:`));
+    if (!own.length) return true;
+    for (const ref of own) {
+      const [, lane, index] = ref.split(':');
+      const row = (item.verificationIntent?.[lane as 'happy' | 'edge' | 'adversarial'] ?? [])[Number(index)];
+      if (row && !patches.some(patch => patch.ref === ref)) patches.push({ ref, desc: `${String(row.desc)} (exact: the whole text equals it)` });
+    }
+    return false;
+  });
+  return [...patches, ...coveragePlaceholders(rest, itemId).map(row => ({ ...placeholderIntentRow(row.desc), derivation: row.derivation }))];
 }
 
 /**
@@ -65,9 +84,13 @@ export function preScopeItemPayload(storyId: string, item: Pick<ChecklistItem, '
   for (const entry of need?.missingDerivations ?? []) patchOf(entry.lane, entry.index).derivation = derivationPlaceholder(entry);
   const appended: Array<Record<string, unknown>> = [];
   for (const lane of need?.missingLanes ?? []) appended.push({ ref: appendRowRef(item.id, lane), ...placeholderIntentRow(`<${item.id} ${lane}: action or condition -> exact expected result>`) });
-  for (const row of coverage) appended.push({ ref: appendRowRef(item.id, 'edge'), ...row });
+  for (const row of coverage) {
+    // Lab run95: a near-miss exact row arrives as a patch of that row (merged with any other patch of it).
+    if (typeof row.ref === 'string' && !row.ref.endsWith(':+')) { Object.assign(patches.get(row.ref) ?? (patches.set(row.ref, { ref: row.ref }), patches.get(row.ref)!), row); continue; }
+    appended.push({ ref: appendRowRef(item.id, 'edge'), ...row });
+  }
   if (literals.length) {
-    appended.push({ ref: appendRowRef(item.id, 'edge'), ...placeholderIntentRow(`<input -> exact output naming each unstated request literal ${item.id} delivers, quoted exactly; drop this row if ${item.id} delivers none>`) });
+    appended.push({ ref: appendRowRef(item.id, 'edge'), ...placeholderIntentRow(`<input -> exact output naming each unstated request literal ${item.id} delivers, quoted exactly; leave this append out of the patch if ${item.id} delivers none>`) });
   }
   payload.intentRows = [...patches.values(), ...appended];
   // Lab round-cut N4c: built from the current rows; refused if they change before it is applied.
@@ -108,7 +131,8 @@ export function mergeChecklistUpdateCalls(calls: ReadonlyArray<Call>): Call[] {
  * The PLAN lints due on the Story's checklist now, at once, for the owner while it still authors INIT (story_create)
  * or PLAN (checklist_update): the pre-scope authoring blockers (missing lanes, unpinned rows, missing userSees,
  * missing derivations, unstated request literals, coverage rows), exact whole-error pins, rows contradicting a
- * request example, pinned printed forms the base printer renders differently (lab run89) and, with
+ * request example, pinned printed forms the base printer renders differently (lab run89), pinned texts neither the request
+ * nor the Story base supports (lab run95, core/unstated-pin.ts) and, with
  * plan.counterpartCoverage=on, uncovered counterpart cases. One text block, its ONE
  * Next the merged row patches (one checklist_update per item); null when nothing is due.
  */
@@ -126,7 +150,7 @@ export function planLintPreview(args: { store: StoryStore; root: string; storyId
   const byId = new Map(blockers.items.map(row => [row.itemId, row]));
   for (const item of items) {
     const need = byId.get(item.id);
-    const coverage = coverageIntentRows(blockers.coverageGaps, item.id);
+    const coverage = coverageIntentRows(blockers.coverageGaps, item.id, item);
     if (!need && !blockers.unmappedLiterals.length && !coverage.length) continue;
     const payload = preScopeItemPayload(storyId, item, need, coverage, blockers.unmappedLiterals);
     if (Object.keys(payload).length > 2) calls.push({ command: 'checklist_update', payload });
@@ -141,9 +165,14 @@ export function planLintPreview(args: { store: StoryStore; root: string; storyId
   }
   if (blockers.unmappedLiterals.length) {
     findings.push(`request literals no row or userSees states yet: ${blockers.unmappedLiterals.slice(0, 20).map(literal => `\`${literal}\``).join(', ')}${blockers.unmappedLiterals.length > 20 ? ` (+${blockers.unmappedLiterals.length - 20} more)` : ''} `
-      + '(state each in the item that delivers it; drop the appended row of an item that delivers none) [plan_authoring]');
+      + '(state each in the item that delivers it; leave the appended row out of the patch of an item that delivers none) [plan_authoring]');
   }
-  const exact = exactWholeErrorPins(items, requestText);
+  // Lab run95 (fix 1a): exact texts neither the request nor the Story base supports, with a ready patch; they take precedence
+  // over the exact-whole-error lint's placeholder for the same row, and leave a printed-form row to pin_base_form.
+  const baseForm = planPinBaseForm(store, root, storyId, root)?.conflicts ?? [];
+  const changed = (() => { try { return changedIntentRowRefs({ store, storyId, gitCwd: root }); } catch { return new Set<string>(); } })();
+  const unstated = (planUnstatedPins(store, root, storyId, root, changed)?.pins ?? []).filter(pin => !baseForm.some(row => row.ref === pin.ref));
+  const exact = exactWholeErrorPins(items, requestText).filter(pin => !unstated.some(row => row.ref === pin.ref));
   for (const pin of exact) {
     findings.push(`${pin.ref} pins the exact whole error text \`${pin.message.slice(0, 80)}\`; pin what the request states about the error (its message or the prefix it quotes), unless the request demands the whole text [exact_error_pin]`);
     calls.push({ command: 'checklist_update', payload: { storyId, itemId: pin.itemId, intentRows: [{ ref: pin.ref, desc: `<${pin.ref} pinning the error message as the request states it (the message or the prefix the request quotes), not the whole rendered error text>` }],
@@ -155,12 +184,19 @@ export function planLintPreview(args: { store: StoryStore; root: string; storyId
       derivation: { requestQuote: '<that request sentence, verbatim>', computation: '<the steps from it to the pinned value>' } }], reason: '<why: the request sentence that decides the case>' } });
   }
   // Lab run89 (fix 1): pinned printed forms the Story base printer renders differently (request silent), with the concrete row patch.
-  for (const conflict of planPinBaseForm(store, root, storyId, root)?.conflicts ?? []) {
+  for (const conflict of baseForm) {
     findings.push(`${describePinBaseForm(conflict)} [pin_base_form]`);
     const [itemId, lane, index] = conflict.ref.split(':');
     const row = (items.find(item => item.id === itemId)?.verificationIntent?.[lane as 'happy' | 'edge' | 'adversarial'] ?? [])[Number(index)];
     calls.push({ command: 'checklist_update', payload: { storyId, itemId: conflict.itemId, intentRows: [pinBaseFormRowPatch(conflict, row as never)],
       reason: `pin re-derived from the Story base printer (the request is silent on it): ${conflict.ref}` } });
+  }
+  for (const pin of unstated) {
+    findings.push(`${describeUnstatedPin(pin)} [unstated_pin]`);
+    const [itemId, lane, index] = pin.ref.split(':');
+    const row = (items.find(item => item.id === itemId)?.verificationIntent?.[lane as 'happy' | 'edge' | 'adversarial'] ?? [])[Number(index)];
+    calls.push({ command: 'checklist_update', payload: { storyId, itemId: pin.itemId, intentRows: [unstatedPinRowPatch(pin, row as never, requestText)],
+      reason: `pinned text the request does not state: ${pin.ref}` } });
   }
   const counterpart = (() => { try { return planCounterpartCoverage(store, root, storyId, root); } catch { return null; } })();
   for (const refusal of counterpart?.refusals ?? []) {
@@ -172,6 +208,6 @@ export function planLintPreview(args: { store: StoryStore; root: string; storyId
   return [
     `PLAN pre-check (the deterministic lints PLAN runs before the scope-plan reviewer; ${findings.length} due now, all at once; fix them now in one pass and PLAN will not stop for them):`,
     ...findings.map(line => `- ${line}`),
-    ...merged.map((call, index) => `${index === 0 ? 'Next' : 'And'} (author every <...> field; a skippable lint's row may be dropped): proof-or-stop ${call.command} ${shellQuote(JSON.stringify(call.payload))}`),
+    ...merged.map((call, index) => `${index === 0 ? 'Next' : 'And'} (author every <...> field; a skippable lint's row patch may be left out; {"ref":"<row>","remove":true} removes a stored row): proof-or-stop ${call.command} ${shellQuote(JSON.stringify(call.payload))}`),
   ].join('\n');
 }

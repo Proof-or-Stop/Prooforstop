@@ -6340,16 +6340,21 @@ function scenarioNIS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
  *        reports blocked without a commit, so next relaunches the repair with
  *        that report in the prompt; the second commits the doc fix; DONE.
  */
-function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 'NPXA' | 'NPXS' | 'NPXC'): Outcome {
+function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 'NPXA' | 'NPXS' | 'NPXC' | 'NPXF'): Outcome {
   const inScope = tag === 'NPXS';
+  // Lab run95 (fix 2, run 95 REM1): NPXF is NPX driven by `next --run`: the disposition is a framework step run inside
+  // next --run before the repair launch of the other finding; the owner is never handed a step about it.
+  const runMode = tag === 'NPXF';
   // Old-PoS runs 36/37: NPXC is NPX with a code evidence anchor in the finding.
   PX_FINDING.desc = tag === 'NPXC' ? PX_FINDING_CODE_ANCHOR : PX_FINDING_DOC_ONLY;
-  const name = tag === 'NPX' || tag === 'NPXC'
+  const name = tag === 'NPXF'
+    ? 'NPXF lab run95 fix 2: under next --run the pre-existing disposition is a framework step and the repair of the other finding launches in the same flow; the owner never gets a step about it; DONE'
+    : tag === 'NPX' || tag === 'NPXC'
     ? `${tag} run ${tag === 'NPX' ? '30' : '36/37'}: a pre-existing out-of-scope doc finding${tag === 'NPXC' ? ' citing an unchanged code line of an in-scope file' : ''} is closed by ONE audited disposition (base evidence + follow-up), never routed to repair; DONE`
     : tag === 'NPXA'
       ? 'NPXA run 30: the owner\'s applicability record (pre_existing_unaffected, proposalRef = finding id) is accepted on valid base evidence; DONE'
       : 'NPXS run 30: a pre-existing doc finding the request covers is repaired; a repair run without a commit is relaunched with its report; DONE';
-  const o = new Owner(tag, tag === 'NPX' ? 'B-e3a0' : tag === 'NPXA' ? 'B-e3a1' : tag === 'NPXC' ? 'B-e3a3' : 'B-e3a2', machineEnv, steps, false,
+  const o = new Owner(tag, tag === 'NPX' ? 'B-e3a0' : tag === 'NPXA' ? 'B-e3a1' : tag === 'NPXC' ? 'B-e3a3' : tag === 'NPXF' ? 'B-e3a5' : 'B-e3a2', machineEnv, steps, false,
     { trackedGateFailureCounts: true, preexistingDoc: true, request: inScope ? PX_REQUEST_IN : PX_REQUEST_OUT });
   const lines: string[] = [];
   const reasons: string[] = [];
@@ -6357,7 +6362,7 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
   try {
     devSetup(o);
     const pxOf = () => new StoryStore(existsSync(o.worktree) ? o.worktree : o.root).readFindings(o.storyId).findings.find(f => f.desc === PX_FINDING.desc);
-    driveWithNext(o, { findingRound1: true, run: false, preexisting: inScope ? 'in' : 'out',
+    const stats = driveWithNext(o, { findingRound1: true, run: runMode, preexisting: inScope ? 'in' : 'out',
       interject: tag !== 'NPXA' ? undefined : next => {
         // Run 30's owner: once the pre-existing finding is the subject of the step, record it as pre-existing.
         const px = pxOf();
@@ -6395,7 +6400,11 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
       assert.match(reason, /follow-up/i, `[${tag}] the record carries a follow-up: ${reason}`);
       assert.equal(doc, PX_DOC, `[${tag}] the doc on main is untouched (recorded follow-up, not a silent edit)`);
       if (tag === 'NPXC') assert.ok(reason.includes('strs/strs.go:1'), `[${tag}] the record names the code evidence anchor: ${reason}`);
-      if (tag === 'NPX' || tag === 'NPXC') assert.deepEqual(order, ['finding_preexisting_disposition:preexisting_out_of_scope'], `[${tag}] ONE disposition step: ${order.join(' > ')}`);
+      if (tag === 'NPXF') {
+        assert.deepEqual(order, [], `[${tag}] no step about the pre-existing finding is handed to the owner: ${order.join(' > ')}`);
+        assert.ok(!stats.ownerSteps.includes('finding_preexisting_disposition'), `[${tag}] the owner never ran the disposition: ${stats.ownerSteps.join(' > ')}`);
+        lines.push(`owner steps: ${stats.ownerSteps.join(' > ')}`);
+      } else if (tag === 'NPX' || tag === 'NPXC') assert.deepEqual(order, ['finding_preexisting_disposition:preexisting_out_of_scope'], `[${tag}] ONE disposition step: ${order.join(' > ')}`);
       // NPXA: next proposed the disposition; the owner recorded it the run 30 way instead.
       else assert.deepEqual(order, ['finding_preexisting_disposition:preexisting_out_of_scope', 'owner_applicability_assess'], `[${tag}] the owner's applicability record closed it: ${order.join(' > ')}`);
       lines.push(`${px.id} closed: ${reason.slice(0, 300)}`);
@@ -8280,8 +8289,190 @@ function scenarioNRX(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Lab run95 (bench-staging/oldpos/run93-96-analysis.md §7 fixes 1, 2): NUP, NPR, NPR-C, NPXF. Synthetic `strs` helpers
+// with a made-up error template only; the run-95 shapes, not its values.
+
+/** The request: one exact error template, scoped by its list line to Upper. */
+const R95_REQUEST = ['Implement the string helpers documented in docs/types/string.md:', '',
+  '- `strs.Upper(s)` returns the upper-case form of `s`, for example `Upper("ab")` is `"AB"`.',
+  '- `strs.Reverse(s)` returns `s` reversed by rune, for example `Reverse("héllo")` is `"olléh"`.',
+  '- Error strings must match exactly:',
+  '  - Upper of a value that is not a string:',
+  '    - `upper expects STRING, got <TYPE>`', ''].join('\n');
+const R95_HEADER = 'Error strings must match exactly:';
+const r95Row = (desc: string, test: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
+  requirementSource: 'story', verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` }, ...extra });
+/** A complete PLAN for both items (pins, derivations, the exact-text row) plus `extra` edge rows on CHK-002. */
+function r95Intents(extraReverse: Array<Record<string, unknown>>) {
+  return {
+    'CHK-001': { happy: [r95Row('strs.Upper(s): Upper("ab") -> "AB"', 'TestUpper')], edge: [r95Row('Upper("") -> ""', 'TestUpperEmpty')],
+      adversarial: [r95Row('Upper(5) -> error, the whole error equals "upper expects STRING, got NUMBER"', 'TestUpperNumber',
+        { derivation: { requestQuote: 'Upper of a value that is not a string:', computation: 'TYPE is NUMBER for 5, so the whole error equals "upper expects STRING, got NUMBER"' } })] },
+    'CHK-002': { happy: [r95Row('strs.Reverse(s): Reverse("héllo") -> "olléh"', 'TestReverse')], edge: [r95Row('Reverse("") -> ""', 'TestReverseEmpty'), ...extraReverse],
+      adversarial: [r95Row('Reverse of a one-rune string is that string', 'TestReverseOne')] },
+  };
+}
+
+/** Owner in PLAN with the two items authored from `intents` (the Story's INIT metadata kept). */
+function r95Plan(o: Owner, intents: ReturnType<typeof r95Intents>, phase: 'INIT' | 'PLAN' = 'PLAN'): void {
+  const store = new StoryStore(o.worktree);
+  store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase });
+  const checklist = store.readChecklist(o.storyId);
+  store.writeChecklist(o.storyId, { ...checklist, items: checklist.items.map(item => ({ ...item, status: 'pending', startTime: null })) } as never);
+  for (const [itemId, intent] of Object.entries(intents)) o.mustCli('checklist_update', { storyId: o.storyId, itemId, verificationIntent: intent }, { label: `checklist_update ${itemId} (authored)` });
+  if (phase === 'PLAN') o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+}
+
+/**
+ * NUP (lab run95 fix 1a/b/d): a PLAN row pins an exact error text neither the request nor the Story base states (run 95's
+ * CHK-003:edge:8 shape). RED on the base: no pre-check line or PLAN step names it; `{"ref":..,"drop":true}` printed
+ * "updated" and left the row; an unknown row field was written; an exclusion the item's own userSees names was accepted
+ * and refused only by the reviewer one rerun later. Now: the INIT pre-check and PLAN's lint step list it [unstated_pin]
+ * with a ready relax patch; the remove op removes the row; an unknown field is refused, nothing written; the exclusion
+ * gets ONE command that also edits userSees.
+ */
+function scenarioNUP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NUP';
+  const name = 'NUP lab run95 fix 1: an exact text neither request nor base states is listed at PLAN with a ready patch; {ref, remove} removes a row; an unknown row field is refused; an exclusion its own userSees names gets one command for both';
+  const o = new Owner(tag, 'B-95a1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: R95_REQUEST });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    const invented = r95Row('Reverse(nil) -> error, the whole error equals "reverse cannot take a nil value here"', 'TestReverseNil',
+      { derivation: { requestQuote: '`strs.Reverse(s)` returns `s` reversed by rune, for example `Reverse("héllo")` is `"olléh"`.', computation: 'a nil value is refused: "reverse cannot take a nil value here"' } });
+    r95Plan(o, r95Intents([]), 'INIT');
+    const added = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', intentRows: [{ ref: 'CHK-002:edge:+', ...invented }], reason: 'nil row' }, { label: 'checklist_update CHK-002 (invented exact text)' });
+    assert.match(added.out, /CHK-002:edge:1 pins `reverse cannot take a nil value here`[^\n]*\[unstated_pin\]/, `[${tag}] the INIT pre-check lists the row: ${added.out.slice(-1500)}`);
+    // Unknown row field: refused, nothing written.
+    const before = JSON.stringify(new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-002')!.verificationIntent);
+    const bogus = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', intentRows: [{ ref: 'CHK-002:edge:1', bogus: true }] }, { label: 'checklist_update CHK-002 (unknown field)' });
+    assert.notEqual(bogus.status, 0, `[${tag}] an unknown row field is refused`);
+    assert.match(bogus.out, /"bogus", which is not a row field[\s\S]*\[intent_rows_invalid\]/, `[${tag}] the refusal names the field: ${bogus.out.slice(-800)}`);
+    assert.equal(JSON.stringify(new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-002')!.verificationIntent), before, `[${tag}] nothing written`);
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+    const step = ask('next (PLAN, invented exact text)');
+    assert.match(step.why, /\[unstated_pin\][^\n]*CHK-002:edge:1/, `[${tag}] PLAN's lint step names the row: ${step.reason}: ${step.why.slice(0, 700)}`);
+    const calls = step.batch?.length ? step.batch.map(call => call.cli) : step.cli ? [step.cli] : [];
+    const patch = calls.flatMap(call => call.command === 'checklist_update' && call.payload.itemId === 'CHK-002' ? (call.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? [] : [])
+      .find(row => row.ref === 'CHK-002:edge:1');
+    assert.ok(patch, `[${tag}] a row patch of CHK-002:edge:1: ${JSON.stringify(calls).slice(0, 800)}`);
+    assert.equal(patch!.desc, 'Reverse(nil) -> error', `[${tag}] the ready patch keeps the case and pins only the error`);
+    assert.doesNotMatch(JSON.stringify(patch), /"<[^"]*>"/, `[${tag}] nothing to author`);
+    // The owner removes the row instead (the op run 95's owner reached for).
+    const removed = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', intentRows: [{ ref: 'CHK-002:edge:1', drop: true }], reason: 'row removed' }, { label: 'checklist_update CHK-002 (drop)' });
+    assert.match(removed.out, /removed CHK-002:edge:1/, `[${tag}] the removal is named: ${removed.out.slice(-600)}`);
+    const edge = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-002')!.verificationIntent!.edge;
+    assert.deepEqual(edge.map(row => row.desc), ['Reverse("") -> ""'], `[${tag}] the row is gone`);
+    // An exclusion the item's own userSees names: ONE command sets both.
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', userSees: 'Reverse returns the rune-reversed string. Reverse of a nil value fails with an error. Reverse("") returns "".' }, { label: 'checklist_update CHK-002 userSees' });
+    const excluded = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', excludes: ['Reverse of a nil value: the request does not state its error text'] }, { label: 'checklist_update CHK-002 excludes' });
+    assert.match(excluded.out, /Exclusion vs userSees[\s\S]*Reverse of a nil value fails with an error/, `[${tag}] the clause naming the case is quoted: ${excluded.out.slice(-1200)}`);
+    const next = excluded.out.split('\n').find(line => line.startsWith('Next (one command, both fields): '));
+    assert.ok(next, `[${tag}] ONE command for both fields`);
+    const both = o.shell('checklist_update (excludes + userSees, from the note)', next!.replace('Next (one command, both fields): ', ''));
+    assert.equal(both.status, 0, `[${tag}] the command runs: ${both.out.slice(-600)}`);
+    assert.doesNotMatch(both.out, /Exclusion vs userSees/, `[${tag}] consistent now`);
+    lines.push(`userSees now: ${new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-002')!.userSees}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** One scripted scope-plan verdict: every promise covered, plus the given gap rows. */
+function r95Verdict(o: Owner, gaps: string[]): void {
+  o.script('proof-or-stop-review-scope-plan', { final: 'Scope review saved.', commands: [[process.execPath, CLI, 'scope_check_save', JSON.stringify({ storyId: o.storyId,
+    features: [
+      { feature: 'strs.Upper returns the upper-case form', covered_by: 'CHK-001', status: 'covered', excluded_by: null, source: 'request.md' },
+      { feature: 'strs.Reverse reverses by rune', covered_by: 'CHK-002', status: 'covered', excluded_by: null, source: 'request.md' },
+      ...gaps.map(feature => ({ feature, covered_by: null, status: 'gap', excluded_by: null, source: 'request.md' })),
+    ],
+    summary: { total: 2 + gaps.length, covered: 2, excluded: 0, gaps: gaps.length },
+    readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, openQuestions: [] })]] });
+}
+
+/** next until the scope-plan launch (a skippable PLAN lint on the way is skipped: asked again), then the scripted run. */
+function r95ScopeRun(o: Owner, tag: string, ask: (label: string) => NextStepJson, label: string): { runId: string; prompt: string } {
+  let step = ask(`next (${label})`);
+  for (let guard = 0; guard < 4 && step.reason !== 'scope_plan_review_launch'; guard += 1) step = ask(`next (${label}, after ${step.reason})`);
+  assert.equal(step.reason, 'scope_plan_review_launch', `[${tag}] the scope-plan reviewer is (re)launched: ${step.reason}: ${step.why.slice(0, 500)}`);
+  const run = launchManaged(o, tag, step, `scope-plan (${label})`);
+  o.unscript('proof-or-stop-review-scope-plan');
+  const prompt = managedPrompts(o, 'proof-or-stop-review-scope-plan').find(row => row.runId === run.runId)?.prompt ?? '';
+  return { runId: run.runId, prompt };
+}
+
+/**
+ * NPR / NPR-C (lab run95 fix 1c, run 95 PLAN rounds 2-7): the scope-plan reviewer raises the same pin-audit gap on the
+ * same row twice. RED on the base: the second verdict gives the same generic plan_review_blockers placeholder patch
+ * ("<row with the expected value the request gives>") and another full rerun follows each guess. Now the second verdict
+ * gives ONE step plan_pin_dispute whose command needs no authoring (the error pin relaxed to "<case> -> error"); applied,
+ * the reviewer reruns once with the disputed row and the remedy in its prompt; under the A/B plan.disputeConfirm=on
+ * (NPR-C) that rerun is a confirmation re-review.
+ */
+function scenarioNPR(machineEnv: NodeJS.ProcessEnv, steps: Step[], confirm: boolean): Outcome {
+  const tag = confirm ? 'NPR-C' : 'NPR';
+  const name = `${tag} lab run95 fix 1c: the same row raised in two consecutive scope-plan verdicts gets ONE ready remedy (plan_pin_dispute), then one rerun naming it${confirm ? ' as a confirmation re-review (plan.disputeConfirm=on)' : ''}`;
+  const o = new Owner(tag, confirm ? 'B-95c2' : 'B-95b1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: R95_REQUEST,
+    ...(confirm ? { config: { plan: { disputeConfirm: 'on' } } } : {}) });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    const guess = (text: string) => r95Row(`Reverse(5) -> error, the whole error equals "${text}"`, 'TestReverseNumber',
+      { derivation: { requestQuote: R95_HEADER, computation: `TYPE is NUMBER for 5, so the whole error equals "${text}"` } });
+    r95Plan(o, r95Intents([guess('upper expects STRING, got NUMBER')]));
+    const gap = (pinned: string) => `pin-audit CHK-002:edge:1 pins Reverse(5) -> "${pinned}"; request gives no error text for Reverse (its template is scoped to Upper)`;
+    r95Verdict(o, [gap('upper expects STRING, got NUMBER')]);
+    r95ScopeRun(o, tag, ask, 'verdict 1');
+    const review1 = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (verdict 1)' });
+    assert.match(review1.out, /pin-audit CHK-002:edge:1/, `[${tag}] story_review reports the gap`);
+    const first = ask('next (verdict 1)');
+    assert.notEqual(first.reason, 'plan_pin_dispute', `[${tag}] one verdict is not a dispute: ${first.reason}`);
+    // The owner's second guess (run 95: five of them).
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', intentRows: [{ ref: 'CHK-002:edge:1', ...guess('reverse expects STRING, got NUMBER') }], reason: 'second guess' }, { label: 'checklist_update CHK-002 (second guess)' });
+    r95Verdict(o, [gap('reverse expects STRING, got NUMBER')]);
+    r95ScopeRun(o, tag, ask, 'verdict 2');
+    o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (verdict 2)' });
+    const dispute = ask('next (verdict 2, same row)');
+    assert.equal(dispute.reason, 'plan_pin_dispute', `[${tag}] the repeated gap is escalated: ${dispute.reason}: ${dispute.why.slice(0, 600)}`);
+    assert.match(dispute.why, /CHK-002:edge:1 \(2 verdicts in a row\)/, `[${tag}] the streak is named`);
+    const calls = dispute.batch?.length ? dispute.batch.map(call => call.cli) : dispute.cli ? [dispute.cli] : [];
+    assert.equal(calls.length, 1, `[${tag}] ONE command: ${JSON.stringify(calls).slice(0, 600)}`);
+    assert.doesNotMatch(JSON.stringify(calls[0]!.payload), /"<[^"]*>"/, `[${tag}] nothing to author`);
+    const rows = calls[0]!.payload.intentRows as Array<Record<string, unknown>>;
+    assert.equal(rows[0]!.desc, 'Reverse(5) -> error', `[${tag}] the error pin is relaxed to the error only`);
+    o.mustCli(calls[0]!.command, calls[0]!.payload, { label: 'checklist_update (dispute remedy)' });
+    r95Verdict(o, []);
+    const rerun = r95ScopeRun(o, tag, ask, 'after the remedy');
+    assert.match(rerun.prompt, /Disputed rows[^\n]*CHK-002:edge:1 \(relaxed to the error only/, `[${tag}] the rerun prompt names the disputed row and the remedy:\n${rerun.prompt.slice(0, 200)}`);
+    if (confirm) assert.match(rerun.prompt, /Confirmation re-review/, `[${tag}] plan.disputeConfirm=on: a confirmation re-review`);
+    else assert.doesNotMatch(rerun.prompt, /Confirmation re-review/, `[${tag}] default: a full rerun`);
+    const runs = listScopeRuns(o);
+    lines.push(`scope-plan runs: ${runs}`);
+    assert.equal(runs, 3, `[${tag}] three reviewer runs in all (two verdicts + one after the remedy)`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+function listScopeRuns(o: Owner): number {
+  const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+  if (!existsSync(runsRoot)) return 0;
+  return readdirSync(runsRoot).filter(runId => {
+    try { return (JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType?: string }).agentType === 'proof-or-stop-review-scope-plan'; } catch { return false; }
+  }).length;
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -8391,6 +8582,12 @@ async function main(): Promise<void> {
     if (only.includes('NTS')) outcomes.push(scenarioNTS(machine.env, steps));
     if (only.includes('NFR')) outcomes.push(scenarioNFR(machine.env, steps));
     if (only.includes('NRX')) outcomes.push(scenarioNRX(machine.env, steps));
+    // Lab run95: unstated pinned text / remove op / unknown field / exclusion vs userSees (NUP), pin dispute (NPR, NPR-C),
+    // the pre-existing disposition as a framework step before the repair launch (NPXF).
+    if (only.includes('NUP')) outcomes.push(scenarioNUP(machine.env, steps));
+    if (only.includes('NPR')) outcomes.push(scenarioNPR(machine.env, steps, false));
+    if (only.includes('NPR-C')) outcomes.push(scenarioNPR(machine.env, steps, true));
+    if (only.includes('NPXF')) outcomes.push(scenarioNPX(machine.env, steps, 'NPXF'));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
@@ -8409,7 +8606,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

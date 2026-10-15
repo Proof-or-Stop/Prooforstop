@@ -37,7 +37,7 @@ import { createDeliveryContextPackHandlers, renderDeliveryCheckSkeleton } from '
 import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
 import { renderPinAudit } from '../core/intent-derivation.js';
 import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
-import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
+import { FRAMEWORK_SOURCE_RULE, renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
 import { renderScopePlanPreload } from '../core/scope-plan-preload.js';
 import { mergedPlanReviewLines, planReviewMergeActive } from '../core/plan-review-merge.js';
 import { IMPLEMENTER_PROBE_LINE, IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, PRODUCT_CODE_NO_POS_METADATA_RULE, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
@@ -48,7 +48,8 @@ import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
-import { probeMatrixOn } from '../core/ab-variants.js';
+import { disputeConfirmOn, probeMatrixOn } from '../core/ab-variants.js';
+import { pinDisputeOffered } from '../core/pin-dispute.js';
 import { counterpartImplementerLines, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { renderSiblingParity } from '../core/sibling-parity.js';
 import { recordChainMechanismRequirement, regressionFamilyBrief } from '../core/regression-family-brief.js';
@@ -764,8 +765,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     // Old-PoS run 27 (row 4b): a rerun starts from the previous verdict and the checklist diff since it.
     // Lab plan-light (A/B plan.reviewMerge=on): a rerun is a confirmation re-review of the changed rows.
     const merged = planReviewMergeActive(root);
+    // Lab run95 (core/pin-dispute.ts): the rerun after the framework's pin-dispute remedy names the disputed rows (orientation);
+    // only under the A/B plan.disputeConfirm=on is it a confirmation re-review.
+    const dispute = (() => { try { return pinDisputeOffered(root, args.storyId, store.readScopeCheck(args.storyId)?.checkedAt); } catch { return null; } })();
+    const disputeConfirm = Boolean(dispute) && (() => { try { return disputeConfirmOn(loadConfig(root)); } catch { return false; } })();
     lines.push(...renderScopePlanRerunContext({ store, storyId: args.storyId, root,
-      gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }), ...(merged ? { confirmation: true } : {}) }));
+      gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }), ...(merged || disputeConfirm ? { confirmation: true } : {}),
+      ...(dispute ? { dispute } : {}) }));
     appendScopePlanRequestTraceability(lines, store, args.storyId,
       storyPinOracle(store, root, args.storyId, resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root })));
     appendScopePlanCoveredObligations(lines, store, args.storyId);
@@ -780,6 +786,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     // Lab plan-light (A/B plan.reviewMerge=on): this ONE session also answers the INIT questions; only real gaps / unanswered questions block.
     if (merged) lines.push(...mergedPlanReviewLines(root));
     lines.push('- Record open questions when the artifacts conflict or a promise is visible but cannot be safely classified.');
+    // Lab run95 (run93-96-analysis.md §5.2: run 95's last scope-plan reviewer spent about 6 min reading and running the installed framework).
+    lines.push(`- ${FRAMEWORK_SOURCE_RULE}`);
     lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest. Put full-read files in filesReadFully, filename/title-only triage in filesTriagedByName, and use scanEscalationReason only for a justified tool-driven full decisions-directory scan.');
     lines.push('');
     if (ownerBinding) {
