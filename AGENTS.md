@@ -915,8 +915,9 @@ and relaunches its implementer with them, once per guard set; report
 `[guard-intended] <file>:<line> <why>` when the change is intended). A finding located
 in a helper that branches on several operands gets a bound matrix in its repair prompt:
 the repair tests every branch and reports one `[branch-test] <fn> <operand>=<case>:
-<test> -> <result>` line per operand, else it is not accepted (relaunched once with what
-is missing). A critic duplicate whose own repro a test of the canonical's repair commit
+<test> -> <result>` line per operand (since lab run89 the exact line is printed, a missing
+one is asked for in the same session before the run seals and never rejects a
+commit-bearing repair; a single-operand type switch owes no line). A critic duplicate whose own repro a test of the canonical's repair commit
 states is closed by a framework step (same coverage run and refusal path). Implementer
 and repair prompts carry the request's exact-text literals at launch. Pin probe: an
 inline index suffix on an assignment's right-hand side is kept, a write form a request
@@ -940,6 +941,21 @@ once on the base in the background from the first `next` / `session_brief` (reco
 result: do not rerun them for a baseline. EXPERIMENTAL A/B `plan.reviewerPreload` (default
 off): the scope-plan prompt carries the Story artifacts it must read. See docs/CLI.md
 "Lab initplan".
+
+Old-PoS runs 88 / 89 (lab `codex/lab-run89`; detection-neutral, no switch): a PLAN row whose
+expected output is a rendering of its input and spaces an operator differently from the
+Story base printer (its own test pairs), with the request silent on it, is listed in the
+PLAN pre-check and as ONE skippable PLAN step `pin_base_form_check` with a concrete row
+patch to the base form. An implementer or repair that meets such a pin reports
+`[pin-doubt] <ref> | base prints: <x> | request: silent` instead of building a mechanism;
+a confirmed doubt is re-derived by framework steps (`pin_doubt_plan`, `pin_doubt_amend`).
+A finding repair that misses a report line it owes (`[branch-test]`, `[mechanism]`) is
+asked for exactly that line in its own session before the run seals; the commit is
+accepted either way and the one relaunch after a run without an accepted repair is a
+framework launch. From the second `[regression-of]` link of one chain the repair must say
+which request sentence or row requires the mechanism (`[mechanism]`), else remove it.
+`exact_error_pin` never lists a row that instantiates a request-exact template. See
+docs/CLI.md "Old-PoS runs 88 / 89".
 
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
