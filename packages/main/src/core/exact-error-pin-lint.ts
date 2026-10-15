@@ -10,7 +10,11 @@
  * The lint lists every open item's row whose expected side says the error text is exact / whole /
  * entire / full / complete / verbatim (literals masked, so the message itself never triggers it)
  * and names a message literal. A message the request itself says must match exactly
- * (requestExactStrings) is never listed: the request outranks the lint. When the project declares
+ * (requestExactStrings) is never listed: the request outranks the lint. Lab run89 (run88-89-analysis.md §2.2,
+ * fix 6): a request literal with placeholders (`size mismatch: want=<X> got=<Y>`) is a template, and a row
+ * whose message instantiates it is the text the request demands; a flat list right after an "... must match
+ * exactly:" sentence belongs to it as well (run 89 weakened three request-exact pins on the false positive).
+ * When the project declares
  * an evaluator (probeRunner, else pinOracle), the listed cases run on the Story base and an error
  * rendered with a trailing decoration after its first line (a position, a source line) confirms the
  * engine's format; without one the lint is advisory text only. Either way it is ONE skippable PLAN
@@ -65,8 +69,40 @@ function expectedSide(desc: string): string {
  * exact / whole / entire / full / complete / verbatim, and a literal follows that wording.
  * Rows whose message the request says must match exactly are not listed.
  */
+const EXACT_LEAD = /\bmust\s+match\s+exactly\b|\bmust\s+exactly\s+match\b|\bmatch(?:es)?\s+exactly\b|\bexact(?:ly)?\s+(?:the\s+)?(?:errors?|messages?|text|strings?|output)\b|\bverbatim\b|\bbyte-for-byte\b/i;
+const LIST_LINE = /^\s*(?:[-*+]|\d+[.)])\s+|^\s{2,}\S|^\s*```/;
+
+/**
+ * Lab run89 (fix 6): the request's exact literals, plus the backticked literals of a list that follows an "... exactly:"
+ * sentence at the same indentation (requestExactStrings reads only deeper-indented continuation lines).
+ */
+export function requestExactLiterals(requestText: string | null): string[] {
+  if (!requestText) return [];
+  const out = new Set(requestExactStrings(requestText).map(row => row.literal.trim()));
+  const lines = requestText.split('\n');
+  lines.forEach((line, at) => {
+    if (!EXACT_LEAD.test(line) || !/:\s*$/.test(line) || !/\b(?:errors?|messages?|strings?|text|output)\b/i.test(line)) return;
+    let next = at + 1;
+    while (next < lines.length && !lines[next]!.trim()) next += 1;
+    for (; next < lines.length && lines[next]!.trim() && LIST_LINE.test(lines[next]!); next += 1) {
+      for (const span of lines[next]!.matchAll(/`([^`\n]+)`/g)) if (span[1]!.trim().length >= 6) out.add(span[1]!.trim());
+    }
+  });
+  return [...out];
+}
+
+const PLACEHOLDER = /<[^<>\n]+>|\{[^{}\n]*\}|%[sdvqfx]/g;
+/** Whether a pinned message is a request literal, or instantiates one whose placeholders (`<X>`, `{n}`, `%s`) stand for values. */
+export function instantiatesRequestLiteral(message: string, literal: string): boolean {
+  const text = message.trim();
+  if (text === literal) return true;
+  if (!new RegExp(PLACEHOLDER.source).test(literal)) return false;
+  const pattern = literal.split(PLACEHOLDER).map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.+?');
+  return new RegExp(`^${pattern}$`, 's').test(text);
+}
+
 export function exactWholeErrorPins(items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[], requestText: string | null): ExactErrorPin[] {
-  const exactStrings = new Set((requestText ? requestExactStrings(requestText) : []).map(row => row.literal.trim()));
+  const exactStrings = requestExactLiterals(requestText);
   const out: ExactErrorPin[] = [];
   for (const item of items) {
     if (item.status === 'withdrawn') continue;
@@ -77,7 +113,7 @@ export function exactWholeErrorPins(items: readonly Pick<ChecklistItem, 'id' | '
         const expectedMasked = maskLiterals(expected);
         if (!EXACT_WORD.test(expectedMasked) || !ERROR_WORD.test(expectedMasked) || !expectedMasked.includes(MASKED_LITERAL)) return;
         const message = literals(expected).find(text => /[A-Za-z]/.test(text));
-        if (!message || exactStrings.has(message)) return;
+        if (!message || exactStrings.some(literal => instantiatesRequestLiteral(message, literal))) return;
         out.push({ itemId: item.id, ref: `${item.id}:${lane}:${index}`, desc, message });
       });
     }

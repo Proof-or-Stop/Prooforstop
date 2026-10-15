@@ -22,6 +22,7 @@ import { STORY_FOCUSED_CLASSIFICATION } from './verification-intent-classificati
 import { exactWholeErrorPins } from './exact-error-pin-lint.js';
 import { requestPinFindings } from './request-pin-audit.js';
 import { counterpartNextPayload, planCounterpartCoverage } from './counterpart-coverage.js';
+import { describePinBaseForm, pinBaseFormRowPatch, planPinBaseForm } from './pin-base-form.js';
 import { readStoryRequest } from './story-request.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
@@ -107,7 +108,8 @@ export function mergeChecklistUpdateCalls(calls: ReadonlyArray<Call>): Call[] {
  * The PLAN lints due on the Story's checklist now, at once, for the owner while it still authors INIT (story_create)
  * or PLAN (checklist_update): the pre-scope authoring blockers (missing lanes, unpinned rows, missing userSees,
  * missing derivations, unstated request literals, coverage rows), exact whole-error pins, rows contradicting a
- * request example and, with plan.counterpartCoverage=on, uncovered counterpart cases. One text block, its ONE
+ * request example, pinned printed forms the base printer renders differently (lab run89) and, with
+ * plan.counterpartCoverage=on, uncovered counterpart cases. One text block, its ONE
  * Next the merged row patches (one checklist_update per item); null when nothing is due.
  */
 export function planLintPreview(args: { store: StoryStore; root: string; storyId: string }): string | null {
@@ -151,6 +153,14 @@ export function planLintPreview(args: { store: StoryStore; root: string; storyId
     findings.push(`${row.ref} pins \`${row.pinned.slice(0, 60)}\` but the request says: "${row.sentence.slice(0, 200)}" [request_pin]`);
     calls.push({ command: 'checklist_update', payload: { storyId, itemId: row.itemId, intentRows: [{ ref: row.ref, desc: `<${row.ref} pinned as the request sentence decides: "${row.sentence.slice(0, 160)}">`,
       derivation: { requestQuote: '<that request sentence, verbatim>', computation: '<the steps from it to the pinned value>' } }], reason: '<why: the request sentence that decides the case>' } });
+  }
+  // Lab run89 (fix 1): pinned printed forms the Story base printer renders differently (request silent), with the concrete row patch.
+  for (const conflict of planPinBaseForm(store, root, storyId, root)?.conflicts ?? []) {
+    findings.push(`${describePinBaseForm(conflict)} [pin_base_form]`);
+    const [itemId, lane, index] = conflict.ref.split(':');
+    const row = (items.find(item => item.id === itemId)?.verificationIntent?.[lane as 'happy' | 'edge' | 'adversarial'] ?? [])[Number(index)];
+    calls.push({ command: 'checklist_update', payload: { storyId, itemId: conflict.itemId, intentRows: [pinBaseFormRowPatch(conflict, row as never)],
+      reason: `pin re-derived from the Story base printer (the request is silent on it): ${conflict.ref}` } });
   }
   const counterpart = (() => { try { return planCounterpartCoverage(store, root, storyId, root); } catch { return null; } })();
   for (const refusal of counterpart?.refusals ?? []) {

@@ -104,6 +104,7 @@ import { singleHostAssuranceReady } from './quorum-submit.js';
 import type { ChecklistItem, Finding, ReviewRun } from '../core/types.js';
 import { VERIFICATION_INTENT_TYPES } from '../core/types.js';
 import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-preexisting.js';
+import { describePinBaseForm, pinBaseFormOfferDue, pinBaseFormRowPatch, pinDoubtVerdict, planPinBaseForm, recordPinBaseFormOffer, type PinBaseFormConflict } from '../core/pin-base-form.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
 import { ownerDriver, probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
@@ -131,7 +132,6 @@ import { storyReviewRoundStale } from '../core/story-review-staleness.js';
 import { orderLanesForLaunch } from '../core/review-lane-launch-order.js';
 import { intentBasisDigest } from '../core/intent-basis.js';
 import { describeRemovedGuard, openRemovedGuardGap, removedGuardRelaunchPending, type RemovedGuard } from '../core/removed-guard-scan.js';
-import { repairRunBoundMatrixProblem } from '../core/bound-matrix.js';
 import { frameworkDuplicateCoverage, type FrameworkDuplicateCoverage } from '../core/duplicate-auto-coverage.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
@@ -559,8 +559,9 @@ export interface FindingRepairRunView { runId: string; agentType: string; termin
 export type FindingRepairState =
   | { repaired: true; runId: string; commit: string }
   | { repaired: false; detail: string; /** a managed finding-repair run is bound to this finding (any state) */ bound: boolean;
-    /** Old-PoS run 30: bound runs that completed without a repair commit for this finding, oldest first. */
-    noCommitRuns?: Array<{ runId: string; createdAt: string }> };
+    /** Old-PoS run 30: bound runs that completed without an accepted repair commit for this finding, oldest first.
+     * Lab run89: `why` says which (no material commit, or a commit not accepted and why), never "no commit" for a commit. */
+    noCommitRuns?: Array<{ runId: string; createdAt: string; why?: string }> };
 
 /**
  * Whether ONE verified finding is repaired and ready for finding_resolve, from
@@ -584,6 +585,8 @@ export function managedFindingRepairState(args: {
   const rejectedRuns: string[] = [];
   // Old-PoS run 55: a repair that deleted or weakened a test it wrote (or one running the finding's repro) is not a repair.
   const testProblems: string[] = [];
+  // Lab run89 (fix 2c): why each completed run is not an accepted repair, for the relaunch / replan text.
+  const whyNot = new Map<string, string>();
   // remediation.grouping=single (adopted default; off under the per-finding
   // rollback): a grouped run also binds the other members of its
   // groupFindingIds (core/ab-dispatch-grouping.ts). Every member, the bound one
@@ -607,10 +610,11 @@ export function managedFindingRepairState(args: {
     const group = groupOf.get(run.runId);
     if (group) {
       const grouped = groupedRepairCommit(root, gitCwd, storyId, finding.id, group.primary, run);
-      if (grouped && rejected.has(grouped)) { rejectedRuns.push(`${run.runId} (commit ${grouped.slice(0, 12)})`); continue; }
+      if (grouped && rejected.has(grouped)) { rejectedRuns.push(`${run.runId} (commit ${grouped.slice(0, 12)})`); whyNot.set(run.runId, `commit ${grouped.slice(0, 12)} rejected: it broke a resolved finding`); continue; }
       const groupedProblem = grouped ? repairRunTestProblem(root, gitCwd, storyId, finding.id, run) : null;
-      if (groupedProblem) { testProblems.push(`${run.runId}: ${groupedProblem}`); continue; }
+      if (groupedProblem) { testProblems.push(`${run.runId}: ${groupedProblem}`); whyNot.set(run.runId, `commit ${grouped!.slice(0, 12)} not accepted: ${groupedProblem}`); continue; }
       if (grouped) return { repaired: true, runId: run.runId, commit: grouped };
+      whyNot.set(run.runId, `grouped run: no material commit naming ${finding.id}`);
       continue;
     }
     if (!verifyManagedDispatchDelivery({ root, runId: run.runId, storyId, agentType: FINDING_REPAIR_AGENT, findingId: finding.id }).valid) continue;
@@ -627,17 +631,17 @@ export function managedFindingRepairState(args: {
     for (const block of log.split('\0').filter(Boolean)) {
       const [commit, ...paths] = block.split('\n').map(row => row.trim()).filter(Boolean);
       if (commit && paths.some(path => !isMaterialExcludedPath(path, root))) {
-        if (rejected.has(commit)) { rejectedRuns.push(`${run.runId} (commit ${commit.slice(0, 12)})`); break; }
+        if (rejected.has(commit)) { rejectedRuns.push(`${run.runId} (commit ${commit.slice(0, 12)})`); whyNot.set(run.runId, `commit ${commit.slice(0, 12)} rejected: it broke a resolved finding`); break; }
         const runCommits = log.split('\0').filter(Boolean).map(block => block.split('\n')[0]!.trim()).filter(Boolean).reverse();
         const problem = repairRunTestProblem(root, gitCwd, storyId, finding.id, run, runCommits);
-        if (problem) { testProblems.push(`${run.runId}: ${problem}`); break; }
+        if (problem) { testProblems.push(`${run.runId}: ${problem}`); whyNot.set(run.runId, `commit ${commit.slice(0, 12)} not accepted: ${problem}`); break; }
         return { repaired: true, runId: run.runId, commit };
       }
     }
   }
   const last = bound.at(-1)!;
   // A rejected run counts like a run without a repair commit (relaunched once, then the Story replans).
-  return { repaired: false, bound: true, noCommitRuns: [...completed].reverse().map(run => ({ runId: run.runId, createdAt: run.createdAt })), detail: testProblems.length
+  return { repaired: false, bound: true, noCommitRuns: [...completed].reverse().map(run => ({ runId: run.runId, createdAt: run.createdAt, why: whyNot.get(run.runId) ?? 'no material commit on the Story branch' })), detail: testProblems.length
     ? `the repair of ${finding.id} by run ${testProblems[0]}; it is not accepted: fix the product code so the test passes, or report the conflict ([intent-conflict])`
     : rejectedRuns.length
     ? `the repair of ${finding.id} by run ${rejectedRuns[0]} was rejected: it broke a resolved finding (its covering verification failed after the repair; a regression finding is open)`
@@ -654,9 +658,9 @@ function repairRunTestProblem(root: string, gitCwd: string, storyId: string, fin
   if (repairTestProblemCache.has(key)) return repairTestProblemCache.get(key)!;
   let desc = '';
   try { desc = new StoryStore(root).readFindings(storyId).findings.find(row => row.id === findingId)?.desc ?? ''; } catch { desc = ''; }
-  // Lab round-cut N2 (core/bound-matrix.ts): a repair of a finding whose prompt carried a bound matrix must report every operand.
-  const problem = repairTestIntegrityProblem({ gitCwd, commits, desc })
-    ?? repairRunBoundMatrixProblem(root, storyId, findingId, run, () => managedRunFinalMessage(root, run.runId));
+  // Lab run89 (fix 2c): the bound matrix's `[branch-test]` lines are a report requirement, asked for by the managed worker in the
+  // same session before the run seals (core/repair-report-lines.ts); a missing line no longer rejects a commit-bearing repair.
+  const problem = repairTestIntegrityProblem({ gitCwd, commits, desc });
   repairTestProblemCache.set(key, problem);
   return problem;
 }
@@ -692,7 +696,9 @@ import { managedRunFinalMessage } from '../core/managed-run-final-message.js';
 export { managedRunFinalMessage };
 
 /** One declared (or prose-only) intent conflict of a terminal implementer / finding-repair run that is not amended yet. */
-export interface OpenIntentConflict { runId: string; agentType: string; createdAt: string; itemId: string; conflict: IntentConflict }
+export interface OpenIntentConflict { runId: string; agentType: string; createdAt: string; itemId: string; conflict: IntentConflict;
+  /** Lab run89 (fix 1): a `[pin-doubt]` the base-printer check confirms: the framework's row patch to the base form. */
+  patch?: ReturnType<typeof pinBaseFormRowPatch> | null }
 
 /**
  * The intent material an `[intent-conflict]` can name: the item's
@@ -783,8 +789,22 @@ export function openIntentConflicts(args: { root: string; gitCwd: string; store:
   const items = args.store.readChecklist(args.storyId).items;
   const checklistPath = args.store.storyFilePath(args.storyId, 'checklist.json');
   const open: OpenIntentConflict[] = [];
+  // Lab run89 (fix 1): a `[pin-doubt]` is judged by the framework (the row exists, the request does not state the pinned
+  // value; the base-printer check, when it confirms the doubt, supplies the row patch).
+  let pinEvidence: ReturnType<typeof planPinBaseForm> | undefined;
+  let requestText: string | null | undefined;
   for (const { run, report } of reports) {
-    for (const conflict of report.conflicts) {
+    for (const declared of report.conflicts) {
+      let conflict = declared;
+      let patch: OpenIntentConflict['patch'] = null;
+      if (declared.pinDoubt) {
+        if (requestText === undefined) { const request = readStoryRequest(args.store, args.storyId); requestText = request.status === 'ok' ? request.text : null; }
+        pinEvidence ??= planPinBaseForm(args.store, args.root, args.storyId, args.gitCwd);
+        const verdict = pinDoubtVerdict({ items: items as never, ref: declared.intentRef, requestText, conflicts: pinEvidence?.conflicts ?? [] });
+        if (!verdict.accepted) continue;
+        conflict = { ...declared, itemId: verdict.itemId, intentPins: verdict.pinned ? `\`${verdict.pinned}\`` : null };
+        patch = verdict.patch;
+      }
       const item = items.find(row => row.id === conflict.itemId);
       if (!item) continue;
       const current = intentMaterialHash(item);
@@ -792,7 +812,7 @@ export function openIntentConflicts(args: { root: string; gitCwd: string; store:
       const amended = conflictValueAdopted(item, conflict) || (atDispatch !== undefined
         ? atDispatch !== current
         : writers.some(other => other.agentType === IMPLEMENTER_AGENT && other.createdAt > run.createdAt && boundItem(other.runId) === item.id));
-      if (!amended) open.push({ runId: run.runId, agentType: run.agentType, createdAt: run.createdAt, itemId: item.id, conflict });
+      if (!amended) open.push({ runId: run.runId, agentType: run.agentType, createdAt: run.createdAt, itemId: item.id, conflict, ...(patch ? { patch } : {}) });
     }
   }
   return open;
@@ -804,6 +824,9 @@ function describeIntentConflict(row: OpenIntentConflict): string {
     return `framework probe rows of ${row.itemId} still contradict their request sentence after implementer run ${row.runId} saw them: ${conflict.raw}`;
   }
   const who = `${row.agentType === IMPLEMENTER_AGENT ? 'implementer' : 'finding-repair'} run ${row.runId}`;
+  if (conflict.pinDoubt) {
+    return `${who}: [pin-doubt] ${conflict.intentRef}: the row pins ${conflict.intentPins ?? '(its value)'}, the Story base prints ${conflict.requestImplies ?? '(not stated)'}, and no request sentence states the pinned value${row.patch ? ' (confirmed by the base printer tests)' : ''}`;
+  }
   if (conflict.undeclared) {
     return `${who} stated a deliberate deviation for ${row.itemId} only in prose, without an [intent-conflict] entry: "${conflict.raw}"`;
   }
@@ -859,8 +882,29 @@ function conflictSiblingRows(items: readonly ChecklistItem[], conflicts: readonl
  */
 export function intentConflictStep(base: { storyId: string; phase: string }, conflicts: readonly OpenIntentConflict[], items?: readonly ChecklistItem[]): NextStep {
   const listed = conflicts.map(describeIntentConflict).join('; ');
+  // Lab run89 (fix 1): pin doubts the base printer confirms are re-derived by the framework (DEV->PLAN hop, then the row
+  // patch to the base form, item back to pending): nothing for the owner to decide (oracle order: the request is silent,
+  // the base decides). An unconfirmed doubt is the owner's row re-derivation.
+  const confirmed = (rows: readonly OpenIntentConflict[]) => rows.length > 0 && rows.every(row => row.conflict.pinDoubt && row.patch);
   if (base.phase === 'PLAN') {
     const itemId = conflicts[0]!.itemId;
+    const mine = conflicts.filter(row => row.itemId === itemId);
+    if (confirmed(mine)) {
+      const patches = [...new Map(mine.map(row => [row.patch!.ref, row.patch!] as const)).values()];
+      return step(base, 'framework', 'pin_doubt_amend', { command: 'checklist_update', payload: { storyId: base.storyId, itemId, intentRows: patches,
+        reason: `Pin doubt confirmed by the Story base printer (the request is silent): ${patches.map(row => `${row.ref} re-derived to ${JSON.stringify(row.desc)}`).join('; ')}`, status: 'pending' } },
+      `Pin doubt (${listed}). The request does not state the pinned value and the Story base renders it differently (its own printer tests), so the base form decides: the framework applies the row patch (base form, the row's request quote, the base sample in the computation) and returns ${itemId} to pending, so DEV implements it against the base form instead of a mechanism for the pin.`,
+      'openIntentConflicts ([pin-doubt], pinDoubtVerdict + planPinBaseForm, core/pin-base-form.ts)');
+    }
+    if (mine.every(row => row.conflict.pinDoubt)) {
+      const payload = { storyId: base.storyId, itemId,
+        intentRows: mine.map(row => ({ ref: row.conflict.intentRef, desc: `<${row.conflict.intentRef} re-derived: the Story base output the implementer reported (${row.conflict.requestImplies ?? 'see its report'}), or the pinned value with the request sentence that states it>`,
+          derivation: { requestQuote: '<the request sentence the value follows from, verbatim>', computation: '<the steps from it (or from the base output where the request is silent) to the pinned value>' } })),
+        reason: '<why: the request sentence, or the base output where the request is silent>', status: 'pending' };
+      return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload },
+      `Pin doubt (${listed}). A pinned value the request does not state and the Story base contradicts is re-derived before DEV builds anything for it: re-pin each listed row to the base output (oracle order: a request sentence decides; else the same receiver's base behaviour), or keep it with the request sentence that states it; status pending makes DEV implement the item again. Then continue PLAN with next.`,
+      'openIntentConflicts ([pin-doubt], pinDoubtVerdict, core/pin-base-form.ts)', { placeholders: placeholderPaths(payload) });
+    }
     // Old-PoS run 31: a conflict naming userSees is amended in userSees; a lane row
     // (or an unlocated one) in the verificationIntent.
     const refs = conflicts.filter(row => row.itemId === itemId).map(row => row.conflict.intentRef);
@@ -888,6 +932,11 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
       ...(pinned ? sweepCalls(base, sweep, 'intent_conflict_amend', pinned) : []), ...siblingCalls];
     return batchStep(base, 'intent_conflict_amend', calls, `${why}${pinned && sweep.length ? ` ${sweepWhy(pinned, sweep)}` : ''}${siblingWhy}`,
       `${source} + literalOccurrences (sweep) + conflictSiblingRows`);
+  }
+  if (confirmed(conflicts)) {
+    return step(base, 'framework', 'pin_doubt_plan', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
+      `Pin doubt (${listed}). The pinned value is not stated by the request and the Story base renders it differently, so the row is re-derived to the base form before anything is built for it. Intents are frozen in DEV: DEV->PLAN now (framework step); in PLAN the framework applies the row patch and DEV implements the item again.`,
+      'openIntentConflicts ([pin-doubt], pinDoubtVerdict + planPinBaseForm, core/pin-base-form.ts)');
   }
   const siblings = items ? conflictSiblingRows(items, conflicts) : [];
   return step(base, 'agent', 'intent_conflict', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
@@ -1427,6 +1476,11 @@ export function frameworkResolveStep(args: { root: string; gitCwd: string; store
  * repair commit, counted since the Story last entered PLAN (a replan resets
  * the count). Shared by the live and the reference driver.
  */
+/** Lab run89: why each listed run is not an accepted repair (managedFindingRepairState), for findingRepairReplanStep. */
+export function unacceptedRepairWhys(repair: FindingRepairState): Map<string, string> {
+  return new Map(repair.repaired ? [] : (repair.noCommitRuns ?? []).filter(run => run.why).map(run => [run.runId, run.why!] as const));
+}
+
 export function noCommitRepairRunsSincePlan(store: HandlerContext['store'], storyId: string, repair: FindingRepairState): string[] {
   if (repair.repaired || !repair.noCommitRuns?.length) return [];
   let lastPlan = '';
@@ -1521,9 +1575,13 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
     'findingConflictOf (core/resolved-finding-guard.ts) + committed checklist intent since the conflict + rowsCitingCase');
 }
 
-export function findingRepairReplanStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>, runIds: readonly string[]): NextStep {
+export function findingRepairReplanStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>, runIds: readonly string[],
+  whys: ReadonlyMap<string, string> = new Map()): NextStep {
+  // Lab run89 (fix 2c): each run is named with WHY it is not an accepted repair (run 89 called two commit-bearing runs
+  // "without a repair commit"); a missing report line never gets here (the worker asks for it before the run seals).
+  const runs = runIds.map(runId => whys.get(runId) ? `${runId}: ${whys.get(runId)}` : runId);
   return step(base, 'agent', 'finding_repair_replan', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
-    `Verified ${finding.severity} finding ${finding.id} is still open after ${runIds.length} managed finding-repair runs ended without a repair commit (${runIds.join(', ')}); the same repair is not proposed again. Read their reports (host_run_status --runId=<id> --full), return to PLAN and amend what the repair needs (scope_contract_set, or the item intent with its reason); DEV then repairs it again.`,
+    `Verified ${finding.severity} finding ${finding.id} is still open after ${runIds.length} managed finding-repair runs ended without an accepted repair (${runs.join('; ')}); the same repair is not proposed again. Read their reports (host_run_status --runId=<id> --full), return to PLAN and amend what the repair needs (scope_contract_set, or the item intent with its reason); DEV then repairs it again.`,
     'managedFindingRepairState (no-commit runs since PLAN) + findingRepairRoute (core/finding-preexisting.ts)');
 }
 
@@ -1941,6 +1999,38 @@ export function requestPinStep(base: { storyId: string; phase: string }, store: 
 }
 
 /**
+ * Lab run89 (fix 1; core/pin-base-form.ts): ONE skippable PLAN step, before the scope-plan reviewer, for rows whose pinned
+ * printed form renders an operator differently from the Story base printer while the request does not state that form
+ * (run 89: an invented compact infix form -> a compaction mechanism -> 6 of 11 findings). Each row patch is concrete (the
+ * base form, the row's request quote, the base sample in the computation). Offered once per set of rows (at most twice
+ * per Story); nothing blocks on it. Null when nothing is listed or the offer was made.
+ */
+export function pinBaseFormStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: () => string): NextStep | null {
+  try {
+    const conflicts: PinBaseFormConflict[] = planPinBaseForm(store, root, base.storyId, gitCwd)?.conflicts ?? [];
+    if (!pinBaseFormOfferDue(root, base.storyId, conflicts)) return null;
+    recordPinBaseFormOffer(root, base.storyId, conflicts);
+    const items = store.readChecklist(base.storyId).items;
+    const rowOf = (ref: string) => {
+      const [itemId, lane, index] = ref.split(':');
+      return (items.find(item => item.id === itemId)?.verificationIntent?.[lane as 'happy' | 'edge' | 'adversarial'] ?? [])[Number(index)];
+    };
+    const byItem = new Map<string, PinBaseFormConflict[]>();
+    for (const row of conflicts) byItem.set(row.itemId, [...(byItem.get(row.itemId) ?? []), row]);
+    const calls = [...byItem].map(([itemId, rows]) => nextStepCall('pin_base_form_check', { command: 'checklist_update', payload: { storyId: base.storyId, itemId,
+      intentRows: rows.map(row => pinBaseFormRowPatch(row, rowOf(row.ref) as never)),
+      reason: `pin re-derived from the Story base printer (the request is silent on it): ${rows.map(row => row.ref).join(', ')}` } }));
+    const listed = conflicts.slice(0, 6).map(describePinBaseForm).join('; ') + (conflicts.length > 6 ? ` +${conflicts.length - 6} more` : '');
+    return batchStep(base, 'pin_base_form_check', calls,
+      `Pinned form vs base printer [pin_base_form]: ${conflicts.length} row(s) pin a printed form the Story base renders differently, and the request does not state it: ${listed}. `
+        + 'Oracle order: a request sentence decides; where the request is silent, the base\'s own rendering of the same token (an implementer otherwise builds a mechanism only to satisfy the pin). '
+        + `Each row patch is complete (the base form, the row's request quote, the base sample): run it, then \`proof-or-stop next --storyId=${base.storyId} --run\`. `
+        + `If the request does state the pinned form, skip it: run \`proof-or-stop next --storyId=${base.storyId} --run\` without it. Nothing blocks on it, and it is offered once for this set of rows.`,
+      'planPinBaseForm (core/pin-base-form.ts)');
+  } catch { return null; }
+}
+
+/**
  * The first INIT step when no Story exists yet: ONE complete story_create
  * command (scope and execution boundary inline, so no separate boundary
  * commands follow), every authored value a placeholder with a one-line hint.
@@ -1981,6 +2071,9 @@ export function storyCreateTemplateStep(root: string, baseValidation: string | n
       + 'one checklist item per deliverable (copy the item object), each executable intent pinned, the scope and execution boundary inline. '
       + `Each intent row's \`type\` is one of ${VERIFICATION_INTENT_TYPES.join('|')} (nothing else: an error, edge or compatibility example of code behaviour is still \`logic\`). `
       + 'Each intent whose expected output request.md does not quote verbatim keeps its derivation (the request sentence + the computation that reaches that output; story_create refuses it without one, [intent_derivation_required]); drop the derivation on a quoted one. '
+      // Lab run89 (fix 5): run 89's owner spent 2.5 min reading the installed framework's source (32 calls) to learn how to
+      // pass a long payload and which lint rules story_create applies; both are the framework's to say.
+      + 'A long payload can go in a file: `proof-or-stop story_create @<file.json>`. You do not need the installed framework source (it is not this project): story_create checks the payload itself and prints every refusal and the PLAN pre-check with ONE Next each (a staged payload to edit, or row patches to run). '
       + (planReviewMergeActive(root)
         ? 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check and advances to PLAN, where ONE merged plan review judges the complete plan (A/B plan.reviewMerge=on: no INIT reviewer).'
         : 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check, launches both managed INIT reviewers, waits for them and advances to PLAN.')
@@ -2439,6 +2532,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // Old-PoS run 73 (D): one skippable row-vs-request audit (contradicting pins, unquoted deciding sentences).
       const requestPins = requestPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
       if (requestPins) due.push(requestPins);
+      // Lab run89 (fix 1): one skippable lint of pinned printed forms the base printer renders differently (request silent).
+      const pinBaseForm = pinBaseFormStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+      if (pinBaseForm) due.push(pinBaseForm);
       return due;
     };
     // Lab sibling-gate (A/B plan.counterpartCoverage=on): an added operation's counterpart cases, same order as the DEV gate.
@@ -2802,7 +2898,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         // (the prompt carries the earlier report); then the Story replans.
         const noCommit = noCommitRepairRunsSincePlan(ctx.store, storyId, repair);
         const route = findingRepairRoute({ preexistingOutOfScope: false, noCommitRunsSincePlan: noCommit.length });
-        if (route.kind === 'replan') return findingRepairReplanStep(base, finding, noCommit);
+        if (route.kind === 'replan') return findingRepairReplanStep(base, finding, noCommit, unacceptedRepairWhys(repair));
         // Run 17 (Q1): a critic duplicate of a repaired+resolved finding is
         // closed with that repair through a coverage run, not repaired again.
         const allFindings = ctx.store.readFindings(storyId).findings ?? [];
@@ -2830,10 +2926,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         const group = groupedFindingRepairIds({ root: ctx.root, store: ctx.store, gitCwd: gitCwdOf(storyId), storyId, primary: finding,
           primaryBound: repair.bound, findings: findings.map(row => row.finding), runs: hostRuns });
         if (group.length > 1) return groupedFindingRepairStep(ctx.root, base, group, selection, bound, hostRuns);
+        // Lab run89 (fix 2d): the one relaunch the route allows is the framework's (its prompt carries the earlier report;
+        // nothing is for the owner to decide), like the first launch; run 89's owner lost 70 s / 98 s per relaunch reading source.
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
-          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
-        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).${route.kind === 'repair' && route.relaunch ? ' The relaunched run\'s prompt carries the earlier run\'s report; another run without a commit returns the Story to PLAN.' : ''}`,
-        'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
+          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && (targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })) || (route.kind === 'repair' && route.relaunch)),
+        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).${route.kind === 'repair' && route.relaunch ? ' The relaunched run\'s prompt carries the earlier run\'s report; another run without an accepted repair returns the Story to PLAN.' : ''}`,
+        'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState', route.kind === 'repair' && route.relaunch ? 'relaunch after a run without an accepted repair' : undefined);
       }
       const chain = chainOf();
       if (chain.blocking && chain.nextAction) {

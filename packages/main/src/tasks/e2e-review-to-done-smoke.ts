@@ -2540,7 +2540,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           break;
         }
         if (mode.roundCut === 'matrix' && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NRM_FINDING.desc) {
-          // Lab round-cut (NRM): the first repair reports only the finding's own branch; the second every operand.
+          // Lab round-cut (NRM): the first repair reports only the finding's own branch (lab run89: accepted; the miss is journaled).
           const attempt = (repairRunsByFinding.get(String(payload.findingId)) ?? []).length + 1;
           // The earlier run is terminal: retire its script key now, not after this run reads its script.
           retireTerminalScripts();
@@ -7907,7 +7907,7 @@ const NRM_FINDING = {
 };
 const NRM_TEST_START = '\nfunc TestWindowNegativeStart(t *testing.T) {\n\tif Window("abc", -1, 3) != "abc" {\n\t\tt.Fatal("start")\n\t}\n}\n';
 const NRM_TEST_END = '\nfunc TestWindowEndBeyond(t *testing.T) {\n\tif Window("abc", 0, 9) != "abc" {\n\t\tt.Fatal("end")\n\t}\n}\n';
-/** NRM: attempt 1 tests and reports only the finding's own branch; attempt 2 every operand of the helper. */
+/** NRM: attempt 1 tests and reports only the finding's own branch; attempt 2 (only reached before lab run89) every operand. */
 function nrmRepairScript(storyId: string, attempt: number): ProviderScript {
   const test = attempt === 1 ? NRM_TEST_START : NRM_TEST_END;
   const lines = attempt === 1 ? ['[branch-test] Window start=-1: TestWindowNegativeStart -> abc']
@@ -7918,14 +7918,15 @@ function nrmRepairScript(storyId: string, attempt: number): ProviderScript {
 
 /**
  * NRM (lab round-cut N2, run 75 F-001 -> F-003): a finding sits in a helper that branches on two
- * operands. RED on the base: the repair tested only the finding's branch and was accepted; the
- * sibling branch waited for the next round. Now the repair prompt carries a bound matrix (every
- * branch of the helper) and a repair whose report lacks a `[branch-test]` line for an operand is not
- * accepted: one relaunch, whose report covers both, closes the finding.
+ * operands. The repair prompt carries a bound matrix (every branch of the helper) with the exact
+ * `[branch-test]` line per operand. Lab run89 (fix 2c, run 89 REM3): a report that misses a line is a
+ * report problem, not a repair problem: the worker asks the same session for the missing line (NFR);
+ * here the provider session cannot be resumed, so the miss is journaled and the commit-bearing repair is
+ * accepted: no relaunch, no replan (before run89: relaunched, a second miss sent the Story to PLAN).
  */
 function scenarioNRM(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NRM';
-  const name = 'NRM lab round-cut N2: a repair of a finding in a two-operand helper must test every branch ([branch-test] per operand); the partial repair is relaunched, not accepted';
+  const name = 'NRM lab round-cut N2 + lab run89: the repair prompt carries the bound matrix with the exact [branch-test] line per operand; a partial report (session not resumable) is journaled and the commit-bearing repair is accepted (no relaunch, no replan)';
   const o = new Owner(tag, 'B-7c03', machineEnv, steps, false, { trackedGateFailureCounts: true });
   const lines: string[] = [];
   const seen: Array<{ phase: string; reason: string; kind: string; why: string }> = [];
@@ -7939,12 +7940,12 @@ function scenarioNRM(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     });
     const repairs = managedPrompts(o, FINDING_REPAIR);
     lines.push(`repair runs: ${repairs.length}; steps: ${seen.filter(row => /finding_/.test(row.reason)).map(row => row.reason).join(' > ')}`);
-    assert.equal(repairs.length, 2, `${tag}: the partial repair is relaunched once (got ${repairs.length})`);
+    assert.equal(repairs.length, 1, `${tag}: the commit-bearing repair is accepted, not relaunched (got ${repairs.length})`);
     assert.match(repairs[0]!.prompt, /Bound matrix/, `${tag}: the repair prompt carries the bound matrix`);
-    assert.match(repairs[0]!.prompt, /Window[\s\S]*\[branch-test\]/, `${tag}: naming the helper and the report line`);
-    const relaunch = seen.filter(row => row.reason === 'finding_repair')[1];
-    assert.ok(relaunch && /branch-test/.test(relaunch.why), `${tag}: the relaunch why names the missing [branch-test] lines: ${relaunch?.why.slice(0, 400)}`);
-    assert.match(repairs[1]!.prompt, /not accepted[\s\S]*end|end[\s\S]*not accepted/, `${tag}: the relaunch prompt names the untested operand`);
+    assert.match(repairs[0]!.prompt, /\[branch-test\] Window end=<case>: <test name> -> <result>/, `${tag}: with the exact line per operand`);
+    assert.ok(!seen.some(row => row.reason === 'finding_repair_replan'), `${tag}: no replan`);
+    const events = readFileSync(join(o.root, '.proof-or-stop', 'runtime', 'host-runs', repairs[0]!.runId, 'events.jsonl'), 'utf8');
+    assert.match(events, /managed_repair_report_follow_up_unavailable/, `${tag}: the missing line is journaled (session not resumable)`);
     const finding = new StoryStore(o.root).readFindings(o.storyId).findings.find(f => f.desc === NRM_FINDING.desc);
     assert.equal(finding?.status, 'resolved', `${tag}: resolved`);
     assert.equal(new StoryStore(o.root).readStory(o.storyId).phase, 'DONE', `${tag}: DONE`);
@@ -8003,7 +8004,7 @@ function scenarioNRD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 
 /** The base printer tests: an infix operator renders spaced inside parentheses (the base already prints it). */
 const PIPE_PRINTER_TEST = ['package strs', '', 'import "testing"', '', 'var printCases = []struct {', '\tinput    string', '\texpected string', '}{',
-  '\t{"a + b", "(a + b)"},', '\t{"a * b - c", "((a * b) - c)"},', '}', '', 'func TestPrintCases(t *testing.T) {', '\tif len(printCases) == 0 {', '\t\tt.Fatal("no cases")', '\t}', '}', ''].join('\n');
+  '\t{"a + b", "(a + b)"},', '\t{"a * b + c", "((a * b) + c)"},', '\t{"a * b - c", "((a * b) - c)"},', '}', '', 'func TestPrintCases(t *testing.T) {', '\tif len(printCases) == 0 {', '\t\tt.Fatal("no cases")', '\t}', '}', ''].join('\n');
 const PIPE_REQUEST = ['Add a pipe operator `x |> f` that passes `x` to `f`.', '', '- Accept `value |> fn` as an expression.',
   '- AST stringification must parenthesize pipes, for example:', '  - `x |> f` -> `(x |> f)`', '  - `x |> f |> g` -> `((x |> f) |> g)`', ''].join('\n');
 const PIPE_QUOTE = 'Accept `value |> fn` as an expression.';
@@ -8066,11 +8067,13 @@ function scenarioNPB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const ask = askNextOf(o, tag, lines);
   try {
     const store = new StoryStore(o.worktree);
-    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
-    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+    // INIT authoring (the PLAN pre-check prints on an INIT checklist_update), then PLAN.
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'INIT' });
     const added = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:adversarial:+', ...pipeRow(PIPE_INVENTED) }],
       reason: 'adversarial printer row for infix operands' }, { label: 'checklist_update CHK-001 (invented printer pin)' });
-    assert.match(added.out, /CHK-001:adversarial:0[^\n]*\[pin_base_form\]/, `[${tag}] the checklist_update pre-check lists the row: ${added.out.slice(-1500)}`);
+    assert.match(added.out, /CHK-001:adversarial:0[^\n]*\[pin_base_form\]/, `[${tag}] the INIT checklist_update pre-check lists the row: ${added.out.slice(-1500)}`);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
     const step = ask('next (PLAN, invented pin)');
     assert.match(step.why, /\[pin_base_form\]/, `[${tag}] PLAN's lint step names the pin: ${step.reason}: ${step.why.slice(0, 600)}`);
     assert.match(step.why, /strs\/print_test\.go:\d+/, `[${tag}] with the base printer sample`);
@@ -8174,7 +8177,7 @@ function scenarioNTS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const prompt = managedPrompts(o, FINDING_REPAIR)[0]!.prompt;
     assert.doesNotMatch(prompt, /\[branch-test\] Kind v=/, `[${tag}] no per-operand [branch-test] requirement for a type switch`);
     const after = ask('next (repaired)');
-    assert.match(after.reason, /^finding_resolve/, `[${tag}] the commit-bearing repair is accepted: ${after.reason}: ${after.why.slice(0, 400)}`);
+    assert.match(after.reason, /^(?:evidence_chain|finding_resolve)/, `[${tag}] the commit-bearing repair is accepted (receipts, then its resolution): ${after.reason}: ${after.why.slice(0, 400)}`);
     assert.equal(managedPrompts(o, FINDING_REPAIR).length, 1, `[${tag}] one repair run`);
     o.cleanup();
     return { name, status: 'PASS', lines };
@@ -8216,7 +8219,7 @@ function scenarioNFR(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.doesNotMatch(asked, /Window start=<case>/, `[${tag}] only the missing line`);
     assert.ok(runEvents(o, run.runId).some(row => row.type === 'managed_repair_report_follow_up'), `[${tag}] the follow-up is journaled`);
     const after = ask('next (repaired)');
-    assert.match(after.reason, /^finding_resolve/, `[${tag}] accepted: ${after.reason}: ${after.why.slice(0, 400)}`);
+    assert.match(after.reason, /^(?:evidence_chain|finding_resolve)/, `[${tag}] accepted (receipts, then its resolution): ${after.reason}: ${after.why.slice(0, 400)}`);
     assert.equal(managedPrompts(o, FINDING_REPAIR).length, 1, `[${tag}] one repair run (no relaunch)`);
     o.cleanup();
     return { name, status: 'PASS', lines };
@@ -8268,7 +8271,7 @@ function scenarioNRX(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.ok(existsSync(resumePrompt), `[${tag}] the missing [mechanism] line is asked in the same session: ${JSON.stringify(runEvents(o, run.runId).map(row => row.type))}`);
     assert.match(readFileSync(resumePrompt, 'utf8'), /\[mechanism\]/, `[${tag}] the follow-up asks for the [mechanism] line`);
     const after = ask('next (repaired)');
-    assert.match(after.reason, /^finding_resolve/, `[${tag}] accepted: ${after.reason}: ${after.why.slice(0, 400)}`);
+    assert.match(after.reason, /^(?:evidence_chain|finding_resolve)/, `[${tag}] accepted (receipts, then its resolution): ${after.reason}: ${after.why.slice(0, 400)}`);
     o.cleanup();
     return { name, status: 'PASS', lines };
   } catch (error) {
