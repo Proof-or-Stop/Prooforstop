@@ -22,6 +22,12 @@ import { VERIFICATION_LANES } from './verification.js';
 import { excludesEntryCheck } from './scope-exclusion-rationale.js';
 
 const MAX_DIFF_LINES = 40;
+/**
+ * Lab run95 (run93-96-analysis.md §5.2 / §6: run 95's last scope-plan reviewer read and ran the installed framework for about
+ * 6 min; run 96's owner read it 30 times): the rule every reviewer prompt and the story_create template carry.
+ */
+export const FRAMEWORK_SOURCE_RULE = 'The installed Proof-or-Stop framework (its package directory, e.g. /opt/pos, and its dist/ modules) is not this project: do not read or grep its source or run its modules with node; use only the proof-or-stop commands you are given. '
+  + 'Every framework check that applies is stated in this prompt or in the output of the command you run, with its rule and its ready command.';
 /** Old-PoS run 73 (D): the rows added in answer to the previous verdict are judged against the request sentence that decides each case. */
 export const ROW_VS_REQUEST_AUDIT = 'Row-vs-request audit (the rows marked + above answer your previous verdict): for each added row quote the request sentence that mentions the same operand class and say whether the pin contradicts it; '
   + 'a request sentence decides the case, and a derivation from the base counterpart holds only when no request sentence speaks to it. A pin that contradicts a request sentence is a blocking pin-audit gap.';
@@ -141,7 +147,9 @@ function ownerExcludesLines(root: string, flagged: readonly string[], before: Ch
 }
 
 /** The rerun-context lines for the scope-plan prompt; empty when there is no previous verdict. */
-export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: string; gitCwd: string; root?: string; confirmation?: boolean }): string[] {
+export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: string; gitCwd: string; root?: string; confirmation?: boolean;
+  /** Lab run95 (core/pin-dispute.ts): rows raised in consecutive verdicts and the framework remedy the owner was given. */
+  dispute?: ReadonlyArray<{ ref: string; kind: string }> }): string[] {
   let scope: ScopeCheckData | null = null;
   try { scope = args.store.readScopeCheck(args.storyId); } catch { scope = null; }
   if (!scope) return [];
@@ -150,6 +158,10 @@ export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: 
     + `${scope.summary?.covered ?? 0} covered, ${scope.summary?.excluded ?? 0} excluded, ${scope.summary?.gaps ?? 0} gap(s). This is a rerun: the owner changed the checklist to answer it.`];
   for (const feature of flagged.slice(0, 12)) lines.push(`- ${feature.status}: ${clip(feature.feature, 300)}`);
   if (flagged.length > 12) lines.push(`- +${flagged.length - 12} more`);
+  if (args.dispute?.length) {
+    lines.push(`Disputed rows (raised in consecutive verdicts; the framework gave the owner one remedy instead of another guess): ${args.dispute.map(row => `${row.ref} (${row.kind === 'relax' ? 'relaxed to the error only: the request states no text for it' : row.kind === 'exclude' ? 'removed, case excluded, userSees edited to match' : 're-pinned to the request / base value'})`).join(', ')}. `
+      + 'Judge each remedied row as it is written now (orientation only: the full request trace and pin audit below still apply).');
+  }
   let current: ChecklistData | null = null;
   try { current = args.store.readChecklist(args.storyId); } catch { current = null; }
   const before = current ? checklistAtVerdict(args.gitCwd, args.store.storyDirPath(args.storyId), scope) : null;

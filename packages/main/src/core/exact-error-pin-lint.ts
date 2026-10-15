@@ -46,12 +46,12 @@ const ERROR_WORD = /\b(?:error|errors|message)\b/i;
 const LITERAL = /`([^`\n]*)`|"((?:[^"\\\n]|\\.)*)"|(?<![A-Za-z0-9])'((?:[^'\\\n]|\\.)*)'(?![A-Za-z0-9])/g;
 
 /** The literal spans of a text, in order, without their quotes. */
-function literals(text: string): string[] {
+export function literals(text: string): string[] {
   return [...text.matchAll(LITERAL)].map(match => (match[1] ?? match[2] ?? match[3] ?? '').trim());
 }
 
 /** The expected side of a row: the text after its last arrow outside any literal, else the whole desc. */
-function expectedSide(desc: string): string {
+export function expectedSide(desc: string): string {
   let cut = 0;
   let last = 0;
   const scan = (from: number, to: number): void => {
@@ -91,7 +91,7 @@ export function requestExactLiterals(requestText: string | null): string[] {
   return [...out];
 }
 
-const PLACEHOLDER = /<[^<>\n]+>|\{[^{}\n]*\}|%[sdvqfx]/g;
+export const PLACEHOLDER = /<[^<>\n]+>|\{[^{}\n]*\}|%[sdvqfx]/g;
 /** Whether a pinned message is a request literal, or instantiates one whose placeholders (`<X>`, `{n}`, `%s`) stand for values. */
 export function instantiatesRequestLiteral(message: string, literal: string): boolean {
   const text = message.trim();

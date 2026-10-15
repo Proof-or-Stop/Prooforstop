@@ -12,7 +12,7 @@ import { inspectIntentCheckpointRecovery } from '../core/verification-intent-che
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { pinExamples, pinOracleMismatches, pinOracleRefusal, storyPinOracle } from '../core/pin-oracle.js';
 import { probeDoneCheck, probeExtractionEnabled, probeRowSaveNote, storyProbeRunner } from '../core/request-probes.js';
-import { applyIntentRowPatches } from '../core/intent-row-patch.js';
+import { applyIntentRowPatches, intentRowPatchNote } from '../core/intent-row-patch.js';
 import { loadConfig } from '../core/config.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { resolveManagedDispatchInvocation, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
@@ -39,6 +39,8 @@ import { verificationIntentClassificationFailure } from '../core/verification-in
 import { intentDerivationFailure, type DerivationCommand, type DerivationRefusalNext } from '../core/intent-derivation.js';
 import { stageChecklistUpdatePayload } from '../core/story-create-intake.js';
 import { planLintPreview } from '../core/plan-lint-preview.js';
+import { exclusionRationaleCheckActive, exclusionUserSeesRemedy } from '../core/scope-exclusion-rationale.js';
+import { shellQuote } from '../core/shell-quote.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_COMPLETE_OUTPUT_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
@@ -2520,6 +2522,31 @@ function planAcceptanceNoopMessage(storyId: string, itemIds: readonly string[]):
 
 export function createChecklistHandlers(ctx: HandlerContext & { verificationCommandRunner?: SingleCommandRunner }) {
   const { store, root } = ctx;
+  /**
+   * Lab run95: the PLAN-phase note for an item whose excludes entry its own userSees (or title / files) still names, with
+   * the ONE checklist_update that keeps the exclusion consistent (userSees without those clauses), or why no exclusion holds.
+   */
+  const excludesUserSeesNote = (storyId: string, itemId: string): string | null => {
+    const story = store.readStory(storyId);
+    if (!['INIT', 'INIT_CHECK', 'PLAN'].includes(String(story.phase)) || !exclusionRationaleCheckActive(root)) return null;
+    const item = store.readChecklist(storyId).items.find(row => row.id === itemId);
+    if (!item || !item.excludes?.length) return null;
+    const lines: string[] = [];
+    let userSees = typeof item.userSees === 'string' ? item.userSees : '';
+    for (const entry of item.excludes) {
+      const remedy = exclusionUserSeesRemedy(entry, { ...item, userSees });
+      if (remedy.contradictedBy === 'userSees' && remedy.userSees !== undefined) {
+        lines.push(`- "${entry.slice(0, 160)}": ${itemId}'s userSees still names this case (${remedy.dropped.map(clause => `"${clause.slice(0, 160)}"`).join(', ')}; shared terms: ${remedy.shared.join(', ')})`);
+        userSees = remedy.userSees;
+      } else if (remedy.contradictedBy === 'title_or_files') {
+        lines.push(`- "${entry.slice(0, 160)}": ${itemId}'s title / files add this behaviour (shared terms: ${remedy.shared.join(', ')}), so no excludes entry can close it: pin the case in a row of ${itemId} instead`);
+      }
+    }
+    if (!lines.length) return null;
+    const fixed = userSees !== (typeof item.userSees === 'string' ? item.userSees : '');
+    return [`Exclusion vs userSees [scope_exclusion_contradicted ahead]: the scope-plan reviewer refuses an excludes entry its own item still names (the exclusion check, plan.exclusionRationaleCheck):`, ...lines,
+      ...(fixed ? [`Next (one command, both fields): proof-or-stop checklist_update ${shellQuote(JSON.stringify({ storyId, itemId, excludes: item.excludes, userSees, reason: 'exclusion consistent with userSees' }))}`] : [])].join('\n');
+  };
   const createPinnedCommandRunner = (
     commandName: Parameters<typeof assertVerificationEvidenceWriteActive>[0],
     controls: VerificationEvidenceWatchdogControls,
@@ -3479,7 +3506,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           withWholeIntent: args.verificationIntent !== undefined, withProposalApproval: args.intentProposalApproval !== undefined });
         const { intentRows: _patches, ...rest } = args;
         args = { ...rest, verificationIntent: expanded.verificationIntent };
-        rowPatchNote = ` (rows ${expanded.refs.join(', ')})`;
+        // Lab run95: a removed row and the index moves it made are named (run 95's no-op `drop` printed only "updated").
+        rowPatchNote = intentRowPatchNote(expanded);
         derivationRoute = { patches: submittedPayload.intentRows as Array<Record<string, unknown>>, patchRefs: expanded.patchRefs };
       }
 
@@ -4156,7 +4184,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const planPreCheck = (args.verificationIntent !== undefined || args.userSees !== undefined) && !args.metadataCorrection
         ? (() => { try { return store.readStory(args.storyId).phase === 'INIT' ? planLintPreview({ store, root, storyId: args.storyId }) : null; } catch { return null; } })()
         : null;
-      return `${probeNote ? `${updated}${probeNote}` : updated}${commitNote}${rowsNote ? `\n\n${rowsNote}` : ''}${planPreCheck ? `\n\n${planPreCheck}` : ''}`;
+      // Lab run95 (core/scope-exclusion-rationale.ts exclusionUserSeesRemedy): an excludes entry the item's own userSees still
+      // names is refused by the scope-plan exclusion check one rerun later (run 95); say so now, with ONE command that sets both.
+      const exclusionNote = (args.excludes !== undefined || args.userSees !== undefined) && !args.metadataCorrection
+        ? (() => { try { return excludesUserSeesNote(args.storyId, args.itemId); } catch { return null; } })()
+        : null;
+      return `${probeNote ? `${updated}${probeNote}` : updated}${commitNote}${rowsNote ? `\n\n${rowsNote}` : ''}${planPreCheck ? `\n\n${planPreCheck}` : ''}${exclusionNote ? `\n\n${exclusionNote}` : ''}`;
     },
 
     light_review(args: {

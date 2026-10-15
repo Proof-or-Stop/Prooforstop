@@ -240,3 +240,51 @@ export function excludesEntryCheck(root: string, entry: string, flaggedFeatures:
   });
   return [...new Set(results)].join('; ');
 }
+
+// ---------------------------------------------------------------------------
+// Lab run95 (bench-staging/oldpos/run93-96-analysis.md §5.2, fix 1d): run 95's owner excluded a case with an excludes
+// entry while the same item's userSees still named it; the reviewer's exclusion check refused the entry
+// [scope_exclusion_contradicted] one rerun later, and nothing had told the owner to edit userSees in the same call
+// (one more 3-4 min scope-plan round). The check below is the same predicate (itemsChangingBehaviour) on the item that
+// carries the entry, so the owner gets ONE checklist_update that sets both fields before the reviewer reruns.
+
+/** The case an excludes entry names: its text before the first ": " (the reason follows it), else the whole entry. */
+export function excludesEntryCase(entry: string): string {
+  const at = entry.search(/:\s/);
+  return (at > 0 ? entry.slice(0, at) : entry).trim();
+}
+
+const userSeesClauses = (text: string): string[] => text.split(/(?<=[.;])\s+/).map(clause => clause.trim()).filter(Boolean);
+
+export interface ExclusionUserSeesRemedy {
+  /** none: the item does not name the case; userSees: only its userSees does (drop `dropped`); title_or_files: its title / files do (no excludes route). */
+  contradictedBy: 'none' | 'userSees' | 'title_or_files';
+  shared: string[];
+  /** The item's userSees without the clauses that name the case (contradictedBy = userSees). */
+  userSees?: string;
+  dropped: string[];
+}
+
+/**
+ * Whether an excludes entry on `item` is contradicted by the item itself (the reviewer's exclusion check), and, when only
+ * its userSees names the case, the userSees without the clauses that do (the fewest clauses, most shared terms first).
+ */
+export function exclusionUserSeesRemedy(entry: string, item: ItemLike): ExclusionUserSeesRemedy {
+  const feature = excludesEntryCase(entry);
+  const hit = itemsChangingBehaviour(feature, [item])[0];
+  if (!hit) return { contradictedBy: 'none', shared: [], dropped: [] };
+  if (itemsChangingBehaviour(feature, [{ ...item, userSees: '' }]).length) return { contradictedBy: 'title_or_files', shared: hit.shared, dropped: [] };
+  const terms = behaviourTerms(feature);
+  const clauses = userSeesClauses(typeof item.userSees === 'string' ? item.userSees : '');
+  const ranked = clauses.map((clause, index) => ({ index, shared: [...behaviourTerms(clause)].filter(term => terms.has(term)).length }))
+    .filter(row => row.shared > 0).sort((a, b) => b.shared - a.shared || a.index - b.index);
+  const dropped = new Set<number>();
+  for (const row of ranked) {
+    dropped.add(row.index);
+    const kept = clauses.filter((_clause, index) => !dropped.has(index)).join(' ');
+    if (!itemsChangingBehaviour(feature, [{ ...item, userSees: kept }]).length) {
+      return { contradictedBy: 'userSees', shared: hit.shared, userSees: kept, dropped: clauses.filter((_clause, index) => dropped.has(index)) };
+    }
+  }
+  return { contradictedBy: 'title_or_files', shared: hit.shared, dropped: [] };
+}

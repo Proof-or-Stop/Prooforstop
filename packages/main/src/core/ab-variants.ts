@@ -124,6 +124,12 @@
  *                              config, and tells the reviewer not to re-read them (core/scope-plan-preload.ts); the
  *                              review rules, the request block and the pin audit are unchanged
  *
+ * Lab run95 (bench-staging/oldpos/run93-96-analysis.md §7 fix 1c): after the framework's pin-dispute remedy (the same row
+ * raised in two consecutive scope-plan verdicts, core/pin-dispute.ts), the reviewer reruns in full by default. The
+ * confirmation re-review judges only the changed items, so it can miss a new gap in an unchanged row:
+ *   plan.disputeConfirm        'off' (default) | 'on'  the scope-plan rerun after a pin-dispute remedy is a confirmation
+ *                              re-review (ADR-043: the previous verdict stands for the items the diff does not touch)
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -156,6 +162,7 @@ export const AB_VARIANT_FLAGS = {
   'plan.counterpartCoverage': ['off', 'on'],
   'dev.removedGuardScan': ['advisory', 'off', 'on'],
   'plan.reviewerPreload': ['off', 'on'],
+  'plan.disputeConfirm': ['off', 'on'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -165,7 +172,7 @@ export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string };
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
-  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string };
   dev?: { probeEnforcement?: string; removedGuardScan?: string };
 }
 
@@ -195,6 +202,7 @@ export interface AbVariants {
   counterpartCoverage: AbVariantValue<'plan.counterpartCoverage'>;
   removedGuardScan: AbVariantValue<'dev.removedGuardScan'>;
   reviewerPreload: AbVariantValue<'plan.reviewerPreload'>;
+  disputeConfirm: AbVariantValue<'plan.disputeConfirm'>;
 }
 
 export interface AbVariantEvidence {
@@ -246,6 +254,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     counterpartCoverage: pick('plan.counterpartCoverage', section(config, 'plan').counterpartCoverage),
     removedGuardScan: pick('dev.removedGuardScan', section(config, 'dev').removedGuardScan),
     reviewerPreload: pick('plan.reviewerPreload', section(config, 'plan').reviewerPreload),
+    disputeConfirm: pick('plan.disputeConfirm', section(config, 'plan').disputeConfirm),
   };
 }
 
@@ -277,6 +286,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.counterpartCoverage !== 'off') flags['plan.counterpartCoverage'] = variants.counterpartCoverage;
   if (variants.removedGuardScan !== 'advisory') flags['dev.removedGuardScan'] = variants.removedGuardScan;
   if (variants.reviewerPreload !== 'off') flags['plan.reviewerPreload'] = variants.reviewerPreload;
+  if (variants.disputeConfirm !== 'off') flags['plan.disputeConfirm'] = variants.disputeConfirm;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -290,7 +300,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -349,3 +359,6 @@ export function ownerDriver(config: unknown): OwnerDriver {
   const value = section(config, 'owner').driver;
   return value === 'framework' ? 'framework' : 'llm';
 }
+
+/** EXPERIMENTAL plan.disputeConfirm=on (lab run95): the scope-plan rerun after a pin-dispute remedy is a confirmation re-review (core/pin-dispute.ts); malformed = off. */
+export const disputeConfirmOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.disputeConfirm') === 'on';

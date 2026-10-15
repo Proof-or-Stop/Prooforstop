@@ -9,6 +9,11 @@
  * A deliberate behavior change to `next` must update this copy in the same
  * commit and say why.
  *
+ * Deliberate change (lab run95, bench-staging/oldpos/run93-96-analysis.md fix 2): the shared
+ * preexistingDispositionStep is a framework step (its payload is complete and finding_resolve rechecks
+ * the base evidence), and a duplicate the owner would close waits while another open finding still
+ * needs its managed repair launch (no agent step in front of a repair launch).
+ *
  * Deliberate change (supervisor-readiness, detection A/B pilot): a review
  * lane whose earlier run(s) of the round failed only because the managed
  * recovery supervisor never became ready (replacement-safe, nothing ran) is
@@ -507,8 +512,22 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
           repaired: row => managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row, runs: hostRuns }).repaired });
         if (conflictStep) return conflictStep;
       }
-      const { finding } = nextBlockingFinding(ctx.store, storyId, findings);
-      const repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
+      let { finding } = nextBlockingFinding(ctx.store, storyId, findings);
+      let repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
+      // Lab run95 (fix 2, shared rule with the live driver): an owner-closed duplicate waits while another open finding needs its repair launch.
+      if (!repair.repaired && !repair.bound && !hostRuns.some(run => run.agentType === FINDING_REPAIR_AGENT && !run.terminal)) {
+        const all = ctx.store.readFindings(storyId).findings ?? [];
+        if (duplicateResolveCandidate(ctx.store, storyId, finding, all)) {
+          const alternative = findings.find(row => row.finding.id !== finding.id
+            && !managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns }).repaired
+            && !evaluatePreexistingFinding({ store: ctx.store, root: ctx.root, storyId, finding: row.finding }).eligible
+            && !duplicateResolveCandidate(ctx.store, storyId, row.finding, all));
+          if (alternative) {
+            finding = alternative.finding;
+            repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
+          }
+        }
+      }
       if (!repair.repaired) {
         const repairRun = hostRuns.filter(run => run.agentType === FINDING_REPAIR_AGENT && !run.terminal).at(-1);
         if (repairRun) return waitStep(base, repairRun, 'Finding repair run');
