@@ -63,6 +63,8 @@ import type { ChecklistItem, DuplicateCoverageReceipt, Finding } from './types.j
 import { loadConfig } from './config.js';
 // Old-PoS run 68: leaf module (core/repair-value-change.ts uses them without this module's imports).
 import { isTestPath, normalizeProbe } from './probe-text.js';
+import { isFileStateSettled } from './file-state-conflict.js';
+import { commitsDiffText } from './commits-diff-text.js';
 export { isTestPath, normalizeProbe };
 import { parseAllowlistedCommand, resolveEvidenceCommandTimeoutMs, tokenizeCommandString } from './validation-executor.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
@@ -169,6 +171,8 @@ function tryGit(gitCwd: string, args: string[]): string | null {
 export function repairCommitFromResolution(gitCwd: string, finding: Pick<Finding, 'resolvedReason'> & { resolutionType?: Finding['resolutionType'] }): string | null {
   // A disposition without a repair (it names the Story base and the reviewed head as evidence) has no repair commit.
   if (finding.resolutionType === 'preexisting_out_of_scope' || finding.resolutionType === 'accepted_risk') return null;
+  // Lab run110: a file-state settlement repaired nothing either.
+  if (isFileStateSettled({ status: 'resolved', resolutionType: finding.resolutionType, resolvedReason: finding.resolvedReason })) return null;
   for (const match of String(finding.resolvedReason ?? '').matchAll(/\b[0-9a-f]{7,40}\b/g)) {
     const sha = tryGit(gitCwd, ['rev-parse', '--verify', '--quiet', `${match[0]}^{commit}`])?.trim();
     if (sha && commitFiles(gitCwd, sha).length) return sha;
@@ -698,7 +702,7 @@ export function retiredGuards(findings: readonly Finding[], storyId: string): Se
 
 /** Resolved findings a guard applies to (fixed or duplicate; never a pre-existing disposition, never dismissed). */
 export function guardableResolved(findings: readonly Finding[]): Finding[] {
-  return findings.filter(row => row.status === 'resolved' && row.resolutionType !== 'preexisting_out_of_scope');
+  return findings.filter(row => row.status === 'resolved' && row.resolutionType !== 'preexisting_out_of_scope' && !isFileStateSettled(row));
 }
 
 export interface GuardFailure { guarded: Finding; guard: FindingGuard; result: GuardResult; blamed: Array<{ findingId: string; commit: string }> }
@@ -983,7 +987,7 @@ export function repairTestIntegrityProblem(args: { gitCwd: string; commits: read
   const addedNames = new Map<string, string>();
   if (!args.commits.length) return null;
   // One git call for the whole run (old to new): each commit's diff after a NUL + hash line.
-  const all = tryGit(args.gitCwd, ['show', '-U0', '--no-renames', '--format=%x00%H', ...args.commits]) ?? '';
+  const all = commitsDiffText(args.gitCwd, args.commits);
   const diffs = new Map(all.split('\0').filter(Boolean).map(block => [block.slice(0, block.indexOf('\n')).trim(), block.slice(block.indexOf('\n') + 1)] as const));
   for (const commit of args.commits) {
     const short = commit.slice(0, 12);

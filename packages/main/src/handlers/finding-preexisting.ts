@@ -19,8 +19,38 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readStoryRequest } from '../core/story-request.js';
 import {
   assessFindingBasePresence, findingScopeCoverage, findingSites, PREEXISTING_OUT_OF_SCOPE, recurringPreexistingSites,
-  type FindingBasePresence, type FindingScopeCoverage, type RecurringPreexistingMatch,
+  type BaseBehaviourVerdict, type FindingBasePresence, type FindingScopeCoverage, type RecurringPreexistingMatch,
 } from '../core/finding-preexisting.js';
+import { pathMatchesScopePattern } from '../core/scope-path-classifier.js';
+import { evaluateInTree, normalizeProbeValue, prepareHeadTree, probeProgram, storyProbeRunner } from '../core/request-probes.js';
+import { findingRepros, isReproCommand } from '../core/resolved-finding-guard.js';
+import { driftBaseSymbolOn } from '../core/ab-variants.js';
+import { loadConfig } from '../core/config.js';
+
+/**
+ * Lab run110 (run110-analysis.md §6 fix 2): the base behaviour of a drift's contrasted code. The finding's own repro
+ * (its `Repro:` spans, else its probe-like code spans) runs on the Story base and on HEAD with the project's declared
+ * probe runner (core/request-probes.ts storyProbeRunner: the base commit's proof-or-stop.config.json probeRunner).
+ * Every repro answering the same at both: `same` (the behaviour the doc contradicts predates the Story); any repro
+ * answering differently: `changed`; no runner, no repro, or a repro either side cannot run: `unknown`.
+ */
+export function driftBaseBehaviour(args: { store: StoryStore; root: string; storyId: string; gitCwd: string; desc: string }): BaseBehaviourVerdict {
+  const repros = findingRepros(args.desc).repros.filter(repro => !isReproCommand(repro));
+  if (!repros.length) return { verdict: 'unknown', detail: 'the finding states no repro' };
+  const runner = storyProbeRunner(args.store, args.root, args.storyId, args.gitCwd);
+  if (!runner) return { verdict: 'unknown', detail: 'no project probe runner is declared' };
+  const head = prepareHeadTree(runner);
+  if (!head) return { verdict: 'unknown', detail: 'the HEAD tree could not be prepared' };
+  const programs = repros.map(repro => probeProgram(runner.config, [], repro));
+  const atBase = evaluateInTree(runner, runner.baseTree, programs);
+  const atHead = evaluateInTree(runner, head.tree, programs);
+  const rows = repros.map((repro, index) => ({ repro, base: atBase.get(programs[index]!), head: atHead.get(programs[index]!) }));
+  const unrunnable = rows.find(row => !row.base || !row.head || row.base.status === 'unrunnable' || row.head.status === 'unrunnable');
+  if (unrunnable) return { verdict: 'unknown', detail: `\`${unrunnable.repro}\` cannot run on both trees` };
+  const differs = rows.find(row => row.base!.status !== row.head!.status || normalizeProbeValue(row.base!.text) !== normalizeProbeValue(row.head!.text));
+  if (differs) return { verdict: 'changed', detail: `\`${differs.repro}\`: base ${differs.base!.text.slice(0, 80)} vs HEAD ${differs.head!.text.slice(0, 80)}` };
+  return { verdict: 'same', detail: rows.map(row => `\`${row.repro}\` -> ${row.head!.text.slice(0, 60)}`).join(', ') + ` at base ${runner.base.slice(0, 12)} and HEAD ${head.head.slice(0, 12)}` };
+}
 
 export interface PreexistingFindingVerdict {
   /** Pre-existing at the Story base and outside the Story's request/scope: closable by the audited disposition. */
@@ -67,7 +97,19 @@ export function evaluatePreexistingFinding(args: { store: StoryStore; root: stri
   const reviewed = finding.managedEvidenceBinding?.headHash;
   const head = (reviewed && isAncestor(gitCwd, reviewed) ? reviewed : null) ?? revParse(gitCwd, 'HEAD');
   if (!head) return { eligible: false, coverage, presence: null, reason: 'HEAD could not be resolved' };
-  const presence = assessFindingBasePresence({ gitCwd, base, head, finding });
+  // Lab run110: an excluded doc's edit is a refused scope violation; the contrasted code is judged by base behaviour.
+  const contract = store.readScopeContract(storyId);
+  const excludes = [...(contract?.explicitExcludes ?? []), ...(contract?.protectedFiles ?? [])];
+  let symbolFallback = false;
+  try { symbolFallback = driftBaseSymbolOn(loadConfig(root)); } catch { symbolFallback = false; }
+  let behaviour: BaseBehaviourVerdict | undefined;
+  const presence = assessFindingBasePresence({ gitCwd, base, head, finding, symbolFallback,
+    excluded: path => excludes.some(pattern => pathMatchesScopePattern(path, pattern)),
+    baseBehaviour: () => (behaviour ??= (() => {
+      try { return driftBaseBehaviour({ store, root, storyId, gitCwd, desc: finding.desc ?? '' }); } catch (error) {
+        return { verdict: 'unknown' as const, detail: `base probe failed: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}` };
+      }
+    })()) });
   return { eligible: presence.preExisting, coverage, presence,
     reason: presence.preExisting ? `pre-existing at the Story base and outside the Story: ${presence.reason}; ${coverage.reason}` : `not pre-existing: ${presence.reason}` };
 }

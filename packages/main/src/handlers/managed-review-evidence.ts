@@ -43,6 +43,7 @@ import {
 } from '../core/evidence-chain-finding.js';
 import { evidenceChainNextActionForStory } from './evidence-chain.js';
 import { closeRecurringPreexistingFindings } from './finding-recurrence.js';
+import { closeFileStateSettledFindings } from './file-state-conflict.js';
 import { extractMetadataCorrections, METADATA_FINDING_RECLASSIFIED_EVENT } from '../core/metadata-correction.js';
 
 function assertOnlyKeys(command: string, value: Record<string, unknown>, allowed: readonly string[]): void {
@@ -853,6 +854,19 @@ export function createManagedReviewEvidenceHandlers(
         ? closeRecurringPreexistingFindings(ctx, proposal.storyId, importedIds, { command: 'managed_review_evidence_import', agent: proposal.lane,
           reviewRound: story.currentReviewRound ?? null })
         : [];
+      // Lab run110: a lane finding that is the losing side of a file-state conflict (its only remedy changes a doc the
+      // scope boundary excludes; core/file-state-conflict.ts) is closed here too, by the same rule next applies.
+      const settled = conclusion === 'findings' && proposal.inventoryCritic === undefined
+        ? closeFileStateSettledFindings(ctx, proposal.storyId, importedIds.filter(id => !recurrences.some(row => row.findingId === id)),
+          { command: 'managed_review_evidence_import', agent: proposal.lane, reviewRound: story.currentReviewRound ?? null })
+        : [];
+      const settledHint = settled.length
+        ? `\nClosed ${settled.length} finding(s) at import as the losing side of a file-state conflict (resolutionType superseded, [file_state_conflict]; no owner step): `
+          + settled.map(row => `${row.findingId} = ${row.files.join(', ')}`).join('; ')
+          + commitReviewResultMetadata({ root: ctx.root, store: ctx.store, storyId: proposal.storyId, reviewRunId: proposal.reviewRunId, reason: 'finding_resolve', options: {
+            exactStoryArtifactNames: ['findings.json', 'finding-ledger.json', 'process-metrics.json'],
+          } })
+        : '';
       const recurrenceHint = recurrences.length
         ? `\nClosed ${recurrences.length} recurring pre-existing finding(s) at import (resolutionType preexisting_out_of_scope; no owner step): `
           + recurrences.map(row => `${row.findingId} = ${row.sites.join(', ')} (dispositioned by ${row.of.join(', ')})`).join('; ')
@@ -895,6 +909,6 @@ export function createManagedReviewEvidenceHandlers(
       const metadataHint = split.metadata.length > 0
         ? `\nReclassified ${split.metadata.length} Story-metadata finding(s) from ${proposal.lane} as owner checklist corrections (not findings; logged as ${METADATA_FINDING_RECLASSIFIED_EVENT}); next names the one checklist_update.`
         : '';
-      return `${summary}${reclassifiedHint}${metadataHint}${deltaGapHint}${laneMergeHint}${recurrenceHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
+      return `${summary}${reclassifiedHint}${metadataHint}${deltaGapHint}${laneMergeHint}${recurrenceHint}${settledHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
   }
 }

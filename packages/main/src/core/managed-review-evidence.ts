@@ -44,6 +44,8 @@ import { verifyReviewRun } from './review-run.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previousCandidateLaneRun } from './review-round-order.js';
 import { findingSites } from './finding-preexisting.js';
+import { contractExcludesDocumentation } from './boundary-path-excludes.js';
+import { fileStateSettlements } from './file-state-conflict.js';
 import { resolveReviewLanePack, type ReviewLanePack } from './review-lane-pack.js';
 import { renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delta-round.js';
 import { renderLaneMergeBlock, type LaneMergePlan } from './review-lane-merge.js';
@@ -980,6 +982,32 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
 }
 
 /**
+ * Lab run110 (bench-staging/oldpos/run110-analysis.md §4): when the scope boundary excluded documentation (the scope
+ * contract's explicitExcludes carry the documentation pattern, core/boundary-path-excludes.ts), a code review lane is
+ * told so, with the file states the framework already settled (core/file-state-conflict.ts). Run 110's lanes demanded
+ * both "fix the docs" and "the docs must stay unchanged" for six rounds.
+ */
+export function renderScopeExcludedDocumentation(root: string, run: ReviewRun): string[] {
+  if (!isCodeReviewLaneRun(run)) return [];
+  let pattern: string | null = null;
+  let entries: string[] = [];
+  try {
+    const store = new StoryStore(root);
+    pattern = contractExcludesDocumentation(store.readScopeContract(run.storyId));
+    entries = (store.readScopeBoundary(run.storyId)?.excluded ?? []);
+  } catch { return []; }
+  if (!pattern) return [];
+  const settled = fileStateSettlements(root, run.storyId).filter(row => row.dir === 'unchanged');
+  return [
+    '--- BEGIN SCOPE-BOUNDARY EXCLUDED FILES ---',
+    `The Story's scope boundary excludes documentation files (scope contract explicitExcludes ${pattern}${entries.length ? `; boundary: "${entries.join('", "')}"` : ''}). No change of this Story may touch them and the scope gate refuses every edit of them. `
+      + 'A mismatch between such a doc and the code is not this Story\'s to repair: the framework closes a finding whose only remedy is a documentation change (precedence: request text > scope boundary > reviewer opinion), so report a doc mismatch only when the Story\'s change itself is wrong. Never ask for a test that pins the bytes, hash or git state of these files; the scope gate checks scope.',
+    ...settled.slice(0, 8).map(row => `- settled: ${row.file} stays unchanged (${row.findings.map(id => id.replace(/^[^:]+:/, '')).join(', ')})`),
+    '--- END SCOPE-BOUNDARY EXCLUDED FILES ---',
+  ];
+}
+
+/**
  * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §4; run 48 cycle C):
  * one pre-existing documentation defect was re-filed by four lanes in four
  * rounds because a later lane saw it only as "status=resolved" and, asked to
@@ -1052,7 +1080,7 @@ export function buildManagedReviewerPrompt(
   }));
   const lanePack = managedReviewLanePack(root, run);
   const rereview = renderManagedReviewerRereview(root, run, lanePack, deltaRound ?? null);
-  const dispositioned = renderDispositionedPreexistingSites(root, run);
+  const dispositioned = [...renderDispositionedPreexistingSites(root, run), ...renderScopeExcludedDocumentation(root, run)];
   const merged = laneMerge?.role === 'merged' && isCodeReviewLaneRun(run)
     ? renderLaneMergeBlock(laneMerge.plan, laneMergeDimensionSections(root, (() => {
       try { const request = readStoryRequest(new StoryStore(root), run.storyId); return request.status === 'ok' ? request.text : ''; } catch { return ''; }

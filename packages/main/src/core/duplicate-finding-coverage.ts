@@ -34,6 +34,7 @@ import { findingClaimRestates, findingClaimSimilarity } from './managed-inventor
 import { agentRoleIdsEqual } from './agent-role-identity.js';
 import { commitMessageNamesFinding } from './ab-dispatch-grouping.js';
 import { regressionTargets } from './resolved-finding-guard.js';
+import { isFileStateSettled } from './file-state-conflict.js';
 
 export { DUPLICATE_FINDING_COVERAGE_FILE, DUPLICATE_FINDING_COVERAGE_SCHEMA } from './types.js';
 export type { DuplicateCoverageReceipt, DuplicateFindingCoverageData } from './types.js';
@@ -229,8 +230,9 @@ export function duplicateJoinsRepairGroup(store: StoryStore, storyId: string, fi
  * run-46 liveness check then read the Story base commit named in the disposition as a "repair commit" and
  * refused the step next had proposed.
  */
-export function closedWithoutFix(finding: Pick<Finding, 'status' | 'resolutionType'>): boolean {
-  return finding.status === 'resolved' && (finding.resolutionType === 'preexisting_out_of_scope' || finding.resolutionType === 'accepted_risk');
+export function closedWithoutFix(finding: Pick<Finding, 'status' | 'resolutionType'> & { resolvedReason?: string }): boolean {
+  return finding.status === 'resolved' && (finding.resolutionType === 'preexisting_out_of_scope' || finding.resolutionType === 'accepted_risk'
+    || isFileStateSettled(finding));
 }
 
 /** True when an open finding is a duplicate (critic or superseded restatement) whose canonical finding is still open (repair the canonical first). */

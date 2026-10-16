@@ -220,6 +220,31 @@ await check('D5 a doc the contract excludes is never in scope because the reques
   assert.match(out.reason, /exclud/i, out.reason);
 });
 
+await check('D6 driftBaseBehaviour runs the finding\'s repro with the project probe runner on the Story base and HEAD: same / changed / unknown', async () => {
+  const behaviour = await load('../handlers/finding-preexisting.js', 'driftBaseBehaviour');
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'run110-probe-')));
+  try {
+    git(root, ['init', '-q', '-b', 'main']);
+    const evaluator = (body: string) => `const fs = require('fs');\nfunction range(s, e) {\n${body}\n}\nconsole.log(JSON.stringify(eval(fs.readFileSync(process.argv[2], 'utf8'))));\n`;
+    write(root, 'eval.js', evaluator('  const out = [];\n  for (let i = s; i < e; i++) out.push(i);\n  return out;'));
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ probeRunner: { command: process.execPath, args: ['{tree}/eval.js', '{file}'], program: '{input}', extension: '.txt' } }));
+    commit(root, 'base');
+    git(root, ['checkout', '-q', '-b', 'story/B-1100']);
+    // A rewrite that keeps the exclusive end (run 110's shape).
+    write(root, 'eval.js', evaluator('  return Array.from({ length: Math.max(0, e - s) }, (_, k) => s + k);'));
+    commit(root, 'story: rewrite range');
+    const store = { readStory: () => ({}) };
+    const desc = 'doc-code-drift: docs/types/array.md:3 says range(0, 2) is [0, 1, 2], but eval.js:3 is end-exclusive. Repro: `range(0, 2)`';
+    const same = behaviour({ store, root, storyId: 'B-1100', gitCwd: root, desc });
+    assert.equal(same.verdict, 'same', JSON.stringify(same));
+    write(root, 'eval.js', evaluator('  const out = [];\n  for (let i = s; i <= e; i++) out.push(i);\n  return out;'));
+    commit(root, 'story: inclusive end');
+    const changed = behaviour({ store, root, storyId: 'B-1100', gitCwd: root, desc });
+    assert.equal(changed.verdict, 'changed', JSON.stringify(changed));
+    assert.equal(behaviour({ store, root, storyId: 'B-1100', gitCwd: root, desc: 'doc-code-drift: docs/a.md:3 is wrong.' }).verdict, 'unknown', 'no repro');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 // ---------------------------------------------------------------------------
 // P. Repair-added tests pinning out-of-scope files
 
@@ -332,6 +357,18 @@ await check('F4 settlements are journaled once per file and direction; a settled
     assert.equal(isSettled(closed), true);
     assert.deepEqual(guardable([closed]), [], 'no repair commit to guard');
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+await check('F5 next\'s step for a settled file state is a framework finding_resolve with disposition file_state_conflict (no owner turn, no repair launch)', async () => {
+  const stepOf = await load('../handlers/next-driver.js', 'fileStateSettleStep');
+  const conflictOf = await load('../core/file-state-conflict.js', 'fileStateConflictOf');
+  const pattern = (await load('../core/boundary-path-excludes.js', 'DOCUMENTATION_EXCLUDE_PATTERN') as unknown as string);
+  const verdict = conflictOf({ finding: DRIFT(KEPT_LOOP_LINE), findings: [], contract: contractOf({ explicitExcludes: [pattern] }), requestText: 'Add stepped slices.', boundaryExcluded: ['changes to docs'] });
+  const step = stepOf({ storyId: 'B-1100', phase: 'DEV' }, { id: 'B-1100:F-011', severity: 'medium' }, verdict);
+  assert.equal(step.kind, 'framework');
+  assert.equal(step.reason, 'finding_file_state_settled');
+  assert.equal(step.cli.command, 'finding_resolve');
+  assert.deepEqual({ ...step.cli.payload, resolution: undefined }, { storyId: 'B-1100', findingId: 'B-1100:F-011', disposition: 'file_state_conflict', resolution: undefined });
 });
 
 // ---------------------------------------------------------------------------

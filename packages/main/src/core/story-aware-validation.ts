@@ -150,8 +150,12 @@ function uniqueSorted(values: Iterable<string>): string[] {
   return [...new Set([...values].map(normalPath).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 }
 function globToRegExp(glob: string): RegExp {
-  const escaped = glob.replace(/[.+^$()|[\]\\{}]/g, '\\$&')
-    .replace(/\*\*/g, '§§').replace(/\*/g, '[^/]*').replace(/§§/g, '.*').replace(/\?/g, '[^/]');
+  // Lab run110: `{a,b}` alternatives (the scope boundary's documentation pattern `**/*.{md,mdx,rst,adoc}`), as the scope gate reads them.
+  const braces: string[] = [];
+  const marked = glob.replace(/\{([^{}]+,[^{}]+)\}/g, (_match, body: string) => { braces.push(body); return `\u0000${braces.length - 1}\u0000`; });
+  const escaped = marked.replace(/[.+^$()|[\]\\{}]/g, '\\$&')
+    .replace(/\*\*/g, '§§').replace(/\*/g, '[^/]*').replace(/§§/g, '.*').replace(/\?/g, '[^/]')
+    .replace(/\u0000(\d+)\u0000/g, (_match, index: string) => `(?:${braces[Number(index)]!.split(',').map(part => part.replace(/[.+^$()|[\]\\]/g, '\\$&')).join('|')})`);
   return new RegExp('^' + escaped + '$');
 }
 function matchesPath(path: string, patterns: string[]): boolean {

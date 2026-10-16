@@ -46,6 +46,24 @@
  *     line left the next sentence contradicting it) is the Story's own.
  * Any other finding keeps every anchor as a defect site.
  *
+ * Lab run110 (bench-staging/oldpos/run110-analysis.md §4 gap 2): three eligibility gaps kept a pre-existing,
+ * out-of-scope drift in repair for six rounds:
+ *   - a leading `[regression-of F-x]` (or any `[...]`) tag hid the `doc-code-drift:` prefix, so the code anchor
+ *     became a defect site (the file is in the contract: "in scope"): leading tags are stripped first;
+ *   - a code anchor inside a Story hunk (the Story rewrote the range loop but kept its exclusive end) failed the
+ *     line-identity proxy. The evidence is now judged by BASE BEHAVIOUR: `baseBehaviour` (the store-aware caller runs
+ *     the finding's own repro on the Story base and on HEAD with the project's declared probe runner) answering
+ *     `same` makes it base evidence, `changed` makes the drift the Story's own; with no verdict the line rule stays.
+ *     EXPERIMENTAL `review.driftBaseSymbol` (`symbolFallback`): every cited line found (trimmed) in the base source of
+ *     the same enclosing symbol also counts (default off: it can close a drift the Story caused elsewhere in the
+ *     symbol);
+ *   - the Story's own edit of a cited doc made every later drift "the Story's own", so run 110's repair edit (itself a
+ *     scope violation, later reverted) poisoned the path. An edit of a doc the scope contract EXCLUDES (`excluded`) no
+ *     longer counts: the gate refuses it, it is not the Story's delivered documentation. An admitted doc edit still
+ *     does (run 37 F-003).
+ *   - findingScopeCoverage: a path the contract excludes (explicitExcludes / protectedFiles) is never "in scope"
+ *     because the request or the boundary mentions it.
+ *
  * Reviewer severity is never changed; the disposition is a signed, named
  * resolve transition whose reason carries this evidence.
  */
@@ -91,9 +109,14 @@ export function findingDefectAnchors(finding: { desc?: string; files?: readonly 
   return anchors;
 }
 
-/** A `doc-code-drift:` finding (the docs lane's prefix, or the legacy category of that name). */
+/** Leading `[...]` tags (`[regression-of F-005]`, `[dimension:docs]`, ...) a lane or the framework puts before a description. */
+export function stripLeadingTags(desc: string): string {
+  return desc.replace(/^\s*(?:\[[^\]\n]*\]\s*)+/, '');
+}
+
+/** A `doc-code-drift:` finding (the docs lane's prefix after any leading `[...]` tags, or the legacy category of that name). */
 export function isDocCodeDriftFinding(finding: { desc?: string; category?: string }): boolean {
-  return /^\s*doc-code-drift\b/i.test(finding.desc ?? '') || finding.category === 'doc-code-drift';
+  return /^\s*doc-code-drift\b/i.test(stripLeadingTags(finding.desc ?? '')) || finding.category === 'doc-code-drift';
 }
 
 export interface FindingSites {
@@ -158,8 +181,16 @@ function diffHunks(cwd: string, base: string, head: string, path: string): Hunk[
  * reviewed head when it is an ancestor of HEAD, else HEAD); the cited files
  * must also be unchanged from it to HEAD.
  */
+export interface BaseBehaviourVerdict { verdict: 'same' | 'changed' | 'unknown'; detail: string }
+
 export function assessFindingBasePresence(args: { gitCwd: string; base: string; head: string;
-  finding: { desc?: string; files?: readonly string[]; category?: string } }): FindingBasePresence {
+  finding: { desc?: string; files?: readonly string[]; category?: string };
+  /** Lab run110: the scope contract excludes this path (an edit of it is a refused scope violation, not the Story's doc). */
+  excluded?: (path: string) => boolean;
+  /** Lab run110: the finding's repro on the Story base vs HEAD (store-aware caller, project probe runner); consulted lazily. */
+  baseBehaviour?: () => BaseBehaviourVerdict;
+  /** Lab run110 EXPERIMENTAL review.driftBaseSymbol: cited code lines found in the base source of the same symbol count. */
+  symbolFallback?: boolean }): FindingBasePresence {
   const { gitCwd, base, head } = args;
   const { defects: anchors, evidence } = findingSites(args.finding);
   const result = (preExisting: boolean, reason: string, rows: AnchorPresence[], evidenceRows: AnchorPresence[] = [], referencedChangedFiles: string[] = []): FindingBasePresence =>
@@ -211,18 +242,62 @@ export function assessFindingBasePresence(args: { gitCwd: string; base: string; 
   // Old-PoS runs 36/37: a doc-code-drift is pre-existing only when its code evidence
   // contradicted the doc at the base too, and the Story edits none of the cited docs.
   const changedEvidence = evidenceRows.find(row => !row.unchanged);
+  let behaviourNote = '';
   if (changedEvidence) {
-    return result(false, `the contrasted code is not unchanged at the base (${changedEvidence.detail}), so the drift may come from this Story's change`, rows, evidenceRows, referencedChangedFiles);
+    // Lab run110: line identity is only a proxy for "the code behaved this way at the base". Base behaviour decides.
+    const behaviour = args.baseBehaviour?.() ?? { verdict: 'unknown' as const, detail: 'no base probe' };
+    if (behaviour.verdict === 'changed') {
+      return result(false, `the contrasted code's behaviour differs between the Story base and HEAD (${behaviour.detail}), so the drift comes from this Story's change`, rows, evidenceRows, referencedChangedFiles);
+    }
+    const symbols = behaviour.verdict === 'same' || !args.symbolFallback ? null
+      : evidenceRows.filter(row => !row.unchanged).map(row => baseSymbolCarries(gitCwd, base, head, row));
+    if (behaviour.verdict === 'same') {
+      behaviourNote = `; the contrasted code (${evidenceRows.filter(row => !row.unchanged).map(row => `${row.path}:${row.line}`).join(', ')}) lies in a Story hunk, but a base probe shows the same behaviour at the base and HEAD (${behaviour.detail})`;
+    } else if (symbols && symbols.every(row => row.carried)) {
+      behaviourNote = `; the contrasted code lies in a Story hunk, but every cited line is in the base source of the same symbol (${symbols.map(row => row.detail).join('; ')}) [review.driftBaseSymbol]`;
+    } else {
+      return result(false, `the contrasted code is not unchanged at the base (${changedEvidence.detail}${symbols ? `; ${symbols.find(row => !row.carried)?.detail}` : ''}), so the drift may come from this Story's change`, rows, evidenceRows, referencedChangedFiles);
+    }
   }
   if (evidence.length > 0 || isDocCodeDriftFinding(args.finding)) {
-    const docs = [...new Set([...anchors.map(anchor => anchor.path), ...unanchored.filter(isDocumentation)])].filter(isDocumentation);
+    const docs = [...new Set([...anchors.map(anchor => anchor.path), ...unanchored.filter(isDocumentation)])].filter(isDocumentation)
+      // Lab run110: an edit of a doc the contract excludes is a refused scope violation, not the Story's documentation.
+      .filter(path => !args.excluded?.(path));
     let editedDoc: string | undefined;
     try { editedDoc = docs.find(path => !gitOk(gitCwd, ['diff', '--quiet', '--no-ext-diff', base, 'HEAD', '--', path])); } catch { editedDoc = docs[0]; }
     if (editedDoc) return result(false, `the Story changed ${editedDoc} (base..HEAD); a drift in a documentation file this Story edits is the Story's own`, rows, evidenceRows, referencedChangedFiles);
   }
   const cited = (list: AnchorPresence[]) => list.map(row => `${row.path}:${row.line}${row.endLine > row.line ? `-${row.endLine}` : ''}`).join(', ');
   return result(true, `every cited defect line (${cited(rows)}) is unchanged ${base.slice(0, 12)}..${head.slice(0, 12)} and byte-identical at the Story base`
-    + (evidenceRows.length ? `; the contrasted code (${cited(evidenceRows)}) is unchanged and byte-identical at the base too, so the drift predates the Story` : ''), rows, evidenceRows, referencedChangedFiles);
+    + (behaviourNote || (evidenceRows.length ? `; the contrasted code (${cited(evidenceRows)}) is unchanged and byte-identical at the base too, so the drift predates the Story` : '')), rows, evidenceRows, referencedChangedFiles);
+}
+
+const SYMBOL_DECL = /^\s*(?:func\s*(?:\([^)]*\)\s*)?([A-Za-z_]\w*)\s*[[(]|def\s+([A-Za-z_]\w*)\s*\(|(?:export\s+)?(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)\s*\(|(?:pub(?:\([^)]*\))?\s+)?fn\s+([A-Za-z_]\w*)|class\s+([A-Za-z_]\w*))/;
+const symbolName = (line: string): string | null => { const match = SYMBOL_DECL.exec(line); return match ? (match.slice(1).find(Boolean) ?? null) : null; };
+
+/**
+ * EXPERIMENTAL lab run110 review.driftBaseSymbol: whether every cited head line of `anchor` (trimmed, blank and
+ * brace-only lines aside) appears in the base source of the same enclosing symbol (found by name).
+ */
+function baseSymbolCarries(gitCwd: string, base: string, head: string, anchor: FindingAnchor): { carried: boolean; detail: string } {
+  let headLines: string[]; let baseLines: string[];
+  try {
+    headLines = gitText(gitCwd, ['show', `${head}:${anchor.path}`]).split('\n');
+    baseLines = gitText(gitCwd, ['show', `${base}:${anchor.path}`]).split('\n');
+  } catch { return { carried: false, detail: `${anchor.path} is not readable at the base and the reviewed head` }; }
+  let name: string | null = null;
+  for (let index = Math.min(anchor.line, headLines.length) - 1; index >= 0 && !name; index -= 1) name = symbolName(headLines[index]!);
+  if (!name) return { carried: false, detail: `${anchor.path}:${anchor.line} has no enclosing symbol` };
+  const start = baseLines.findIndex(line => symbolName(line) === name);
+  if (start < 0) return { carried: false, detail: `${name} does not exist at the base` };
+  let end = baseLines.length;
+  for (let index = start + 1; index < baseLines.length; index += 1) if (symbolName(baseLines[index]!) && !/^\s/.test(baseLines[index]!)) { end = index; break; }
+  const body = new Set(baseLines.slice(start, end).map(line => line.trim()));
+  const cited = headLines.slice(anchor.line - 1, anchor.endLine).map(line => line.trim()).filter(line => line && !/^[{}()[\];,]+$/.test(line));
+  const missing = cited.find(line => !body.has(line));
+  return missing === undefined && cited.length
+    ? { carried: true, detail: `${anchor.path}:${anchor.line}${anchor.endLine > anchor.line ? `-${anchor.endLine}` : ''} in ${name} at the base` }
+    : { carried: false, detail: `${anchor.path}:${anchor.line}: \`${(missing ?? '').slice(0, 80)}\` is not in the base source of ${name}` };
 }
 
 /**
@@ -311,7 +386,7 @@ export interface FindingScopeCoverage { inScope: boolean; reason: string }
 
 const DOCUMENTATION_EXTENSIONS = ['.md', '.mdx', '.rst', '.adoc'];
 /** An imperative asking for documentation work ("update the docs", "document X in the guide"); "as documented in docs/x.md" is not one. */
-const DOCS_WORK = /\b(?:update|document|write|add|extend|revise|correct|fix|rewrite)s?\b[^.\n]{0,80}\b(?:docs?|documentation|readme|guide)\b(?![/\w]|\.\w)/i;
+export const DOCS_WORK = /\b(?:update|document|write|add|extend|revise|correct|fix|rewrite)s?\b[^.\n]{0,80}\b(?:docs?|documentation|readme|guide)\b(?![/\w]|\.\w)/i;
 
 const isDocumentation = (path: string): boolean => DOCUMENTATION_EXTENSIONS.some(extension => path.toLowerCase().endsWith(extension));
 const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -326,9 +401,15 @@ const mentions = (text: string, path: string): boolean => {
  * files (then the finding is the Story's to repair, as before).
  */
 export function findingScopeCoverage(args: { paths: readonly string[];
-  contract: { allowedModify?: readonly string[]; allowedCreate?: readonly string[]; allowedTest?: readonly string[] } | null;
+  contract: { allowedModify?: readonly string[]; allowedCreate?: readonly string[]; allowedTest?: readonly string[]; explicitExcludes?: readonly string[]; protectedFiles?: readonly string[] } | null;
   itemFiles: readonly string[]; requestText: string | null; scopeAllowed: readonly string[] }): FindingScopeCoverage {
+  const excludedBy = (path: string): string | undefined => [...(args.contract?.explicitExcludes ?? []), ...(args.contract?.protectedFiles ?? [])]
+    .find(pattern => pathMatchesScopePattern(path, pattern));
+  const excluded: string[] = [];
   for (const path of args.paths) {
+    // Lab run110: a path the contract excludes is never in scope by a mention (its edit is refused by the gate).
+    const excludePattern = excludedBy(path);
+    if (excludePattern) { excluded.push(`${path} (${excludePattern})`); continue; }
     const pattern = [...(args.contract?.allowedModify ?? []), ...(args.contract?.allowedCreate ?? []), ...(args.contract?.allowedTest ?? [])]
       .find(row => pathMatchesScopePattern(path, row));
     if (pattern) return { inScope: true, reason: `the scope contract lists ${path} (${pattern})` };
@@ -341,7 +422,8 @@ export function findingScopeCoverage(args: { paths: readonly string[];
       if (sentence) return { inScope: true, reason: `the request asks for documentation work ("${sentence.trim()}")` };
     }
   }
-  return { inScope: false, reason: `no scope-contract path, checklist file, scope-boundary entry or request sentence covers ${args.paths.join(', ')}` };
+  if (excluded.length === args.paths.length) return { inScope: false, reason: `the scope contract excludes ${excluded.join(', ')}` };
+  return { inScope: false, reason: `no scope-contract path, checklist file, scope-boundary entry or request sentence covers ${args.paths.join(', ')}${excluded.length ? ` (the scope contract excludes ${excluded.join(', ')})` : ''}` };
 }
 
 /** The audited disposition text recorded in the signed resolve transition. */

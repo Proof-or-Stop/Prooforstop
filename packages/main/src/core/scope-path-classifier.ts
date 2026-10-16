@@ -340,7 +340,7 @@ const AGENT_CONTROL_DOCUMENTS = new Set(['agents.md', 'claude.md']);
  * dot-directory (.proof-or-stop, .codex, .github, ...) are control surface,
  * not product documentation, and stay under ordinary scope enforcement.
  */
-function isDocumentationPath(normalizedPath: string): boolean {
+export function isDocumentationPath(normalizedPath: string): boolean {
   const segments = normalizedPath.split('/');
   if (segments.some((segment) => segment.startsWith('.'))) return false;
   const base = segments[segments.length - 1]!.toLowerCase();

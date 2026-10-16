@@ -106,6 +106,9 @@ import { VERIFICATION_INTENT_TYPES } from '../core/types.js';
 import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-preexisting.js';
 import { describePinBaseForm, pinBaseFormOfferDue, pinBaseFormRowPatch, pinDoubtVerdict, planPinBaseForm, recordPinBaseFormOffer, type PinBaseFormConflict } from '../core/pin-base-form.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
+import { evaluateFileStateConflict } from './file-state-conflict.js';
+import { FILE_STATE_CONFLICT, FILE_STATE_PRECEDENCE, type FileStateVerdict } from '../core/file-state-conflict.js';
+import { outOfScopePinTestProblem } from '../core/scope-pin-test.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
 import { ownerDriver, probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
 import { driveUntilAgent, driveWatchdogConfig, NEXT_DRIVE_SCHEMA, runWatchedCall } from './next-drive.js';
@@ -663,7 +666,11 @@ function repairRunTestProblem(root: string, gitCwd: string, storyId: string, fin
   try { desc = new StoryStore(root).readFindings(storyId).findings.find(row => row.id === findingId)?.desc ?? ''; } catch { desc = ''; }
   // Lab run89 (fix 2c): the bound matrix's `[branch-test]` lines are a report requirement, asked for by the managed worker in the
   // same session before the run seals (core/repair-report-lines.ts); a missing line no longer rejects a commit-bearing repair.
-  const problem = repairTestIntegrityProblem({ gitCwd, commits, desc });
+  let problem = repairTestIntegrityProblem({ gitCwd, commits, desc });
+  // Lab run110: a repair-added test that hashes / git-pins an out-of-scope file is no accepted repair (core/scope-pin-test.ts).
+  if (!problem) {
+    try { problem = outOfScopePinTestProblem({ gitCwd, commits, contract: new StoryStore(root).readScopeContract(storyId) }); } catch { problem = null; }
+  }
   repairTestProblemCache.set(key, problem);
   return problem;
 }
@@ -1515,6 +1522,22 @@ export function preexistingDispositionStep(base: { storyId: string; phase: strin
     disposition: PREEXISTING_OUT_OF_SCOPE, resolution: `repair in a separate Story: ${summary}` } },
   `Verified ${finding.severity} finding ${finding.id} is ${verdict.reason}. It is not routed to repair: the framework closes it with ONE audited disposition (${PREEXISTING_OUT_OF_SCOPE}); finding_resolve rechecks the base evidence and records it with the follow-up, severity unchanged. \`proof-or-stop next --storyId=${base.storyId} --run\` records it and launches the managed repair of the other open findings; do not repair them yourself.`,
   'evaluatePreexistingFinding (core/finding-preexisting.ts) + unclosedBlockingFindings');
+}
+
+/**
+ * Lab run110 (bench-staging/oldpos/run110-analysis.md §6 fix 4): a verified finding that is the losing side of a
+ * file-state conflict (core/file-state-conflict.ts: its only remedy changes documentation the scope boundary excludes,
+ * or it keeps unchanged a file the request asks to change) is never routed to repair: run 110's repairs alternated
+ * between editing and reverting the excluded docs for six rounds. A FRAMEWORK step closes it once by precedence
+ * (request text > scope boundary > reviewer opinion); finding_resolve recomputes the same verdict and records it
+ * (resolutionType superseded, `[file_state_conflict]` reason, severity unchanged). Shared by the live and the
+ * reference driver.
+ */
+export function fileStateSettleStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>, verdict: FileStateVerdict): NextStep {
+  return step(base, 'framework', 'finding_file_state_settled', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
+    disposition: FILE_STATE_CONFLICT, resolution: verdict.dir === 'unchanged' ? `change ${verdict.files.join(', ')} in a separate Story whose scope admits ${verdict.files.length > 1 ? 'them' : 'it'}` : 'none: the request asks for the change' } },
+  `Verified ${finding.severity} finding ${finding.id} is the losing side of a file-state conflict: ${verdict.reason} It is not routed to repair: the framework closes it once (${FILE_STATE_CONFLICT}, precedence ${FILE_STATE_PRECEDENCE}); finding_resolve recomputes the verdict and records it, severity unchanged. \`proof-or-stop next --storyId=${base.storyId} --run\` records it and goes on; do not edit those files.`,
+  'evaluateFileStateConflict (core/file-state-conflict.ts) + unclosedBlockingFindings');
 }
 
 /**
@@ -3028,6 +3051,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const state = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns });
       return !state.repaired
         && !evaluatePreexistingFinding({ store: ctx.store, root: ctx.root, storyId, finding: row.finding }).eligible
+        && !evaluateFileStateConflict({ store: ctx.store, root: ctx.root, storyId, finding: row.finding })?.settle
         && !duplicateResolveCandidate(ctx.store, storyId, row.finding, ctx.store.readFindings(storyId).findings ?? []);
     };
     if (metadataOnly && !inFlight(FINDING_REPAIR_AGENT) && !findings.some(launchable)) return metadataFindingResolveStep(base, metadataOnly.finding);
@@ -3044,6 +3068,14 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
           const verdict = evaluatePreexistingFinding({ store: ctx.store, root: ctx.root, storyId, finding: row.finding });
           if (verdict.eligible && !managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns }).repaired) {
             return preexistingDispositionStep(base, row.finding, verdict);
+          }
+        }
+        // Lab run110: the losing side of a file-state conflict is closed once by precedence, never repaired.
+        const all = ctx.store.readFindings(storyId).findings ?? [];
+        for (const row of findings) {
+          const verdict = evaluateFileStateConflict({ store: ctx.store, root: ctx.root, storyId, finding: row.finding, findings: all });
+          if (verdict?.settle && !managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns }).repaired) {
+            return fileStateSettleStep(base, row.finding, verdict);
           }
         }
       }
