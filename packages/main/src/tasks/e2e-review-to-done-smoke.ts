@@ -342,6 +342,11 @@
  *      alternation); NCE an error row for a case the counterpart resolves is no
  *      coverage, ONE ready re-pin (run 101); NCS a pin-audit gap on a
  *      counterpart-backed row is settled, the prompt lists the row (run 101's flip).
+ *   NFS / NFS-S lab run110 (run110-analysis.md): NFS the scope boundary's "changes to
+ *      docs" becomes explicitExcludes, the repair prompt says docs are not admitted,
+ *      and a tagged doc-code drift with an in-hunk code anchor is settled once by the
+ *      framework (scope boundary > reviewer opinion), never repaired (run 110's
+ *      6-round docs oscillation); NFS-S the request asks for the doc fix: repaired.
  *
  *   NRG old-PoS runs 46/47 (resolved-finding regression guard + finding conflict):
  *      round 1's finding F-001 is repaired with a test and resolved; round 2's
@@ -399,6 +404,7 @@ import { recurringPreexistingOf } from '../core/finding-preexisting.js';
 import { managedInventoryCriticCoverage } from '../core/managed-review-evidence.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
 import { writeStoryRequest } from '../core/story-request.js';
+import { buildScopeBoundary } from '../core/scope-anti-expansion.js';
 import { FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure-hint.js';
 import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
 import { createFixtureMachineEnvironment } from './helpers/fixture-machine-environment.js';
@@ -486,7 +492,9 @@ export class Owner {
       /** NPO (old-PoS run 31): extra project files committed in the task baseline (e.g. the project's own evaluator a pin oracle runs). */
       baseFiles?: Record<string, string>;
       /** NLM4* / NLM-S* (lab lane-split): understanding.touchpoints name docs/types/string.md, so the docs lane is active (4 lanes). */
-      docsTouchpoint?: boolean } = {}) {
+      docsTouchpoint?: boolean;
+      /** NFS* (old-PoS run 110): the user-confirmed scope boundary story_create records (scope-boundary.json). */
+      scopeBoundary?: { allowed: string[]; excluded: string[] } } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.store = new StoryStore(this.root);
     this.providerBin = `${this.root}-provider`;
@@ -594,6 +602,10 @@ export class Owner {
         files, verificationIntent: intent(`${id}:happy:0`, 'TestReverse passes') })) : []),
     ] });
     if (this.fixtureOpts.request) writeStoryRequest(this.store, { storyId, phase: 'INIT', request: this.fixtureOpts.request, source: 'harness' });
+    if (this.fixtureOpts.scopeBoundary) {
+      this.store.writeScopeBoundary(storyId, buildScopeBoundary({ storyId, mode: 'custom', allowed: this.fixtureOpts.scopeBoundary.allowed,
+        excluded: this.fixtureOpts.scopeBoundary.excluded, confirmedBy: 'story_create' }));
+    }
     if (this.fixtureOpts.docsTouchpoint) {
       this.store.writeUnderstanding(storyId, { task: 'Implement strs.Upper and strs.Reverse as documented.', outcome: 'Upper upper-cases and Reverse reverses by rune.',
         facts: [], constraints: [], unknowns: [], touchpoints: ['strs/strs.go', 'docs/types/string.md'], timestamp: now });
@@ -1406,6 +1418,11 @@ const PX_DOC_FIXED = '# Array type\n\n`[0, 1, 2, 3][0:2]` returns `[0, 1]`.\n`[0
 const PX_FINDING_DOC_ONLY = 'doc-code-drift: docs/types/array.md:3 and :4 show [0, 1, 2, 3][0:2] and [0, 1, 2, 3][:2] returning [0, 1, 2], but range ends are exclusive; the documented array range results are wrong.';
 /** NPXC (old-PoS runs 36/37): the same drift, also citing a code line (unchanged at the base) of a file in the scope contract. */
 const PX_FINDING_CODE_ANCHOR = 'doc-code-drift: docs/types/array.md:3 and :4 show [0, 1, 2, 3][0:2] and [0, 1, 2, 3][:2] returning [0, 1, 2], but strs/strs.go:1 is the package the range helpers live in and range ends are exclusive; the documented array range results are wrong.';
+/**
+ * NFS (old-PoS run 110): the drift as run 110's lanes filed it: a leading lane tag, and a code anchor inside the
+ * Story's own hunk (strs/strs.go:6, the rewritten Upper) as the contrast.
+ */
+const PX_FINDING_RUN110 = '[docs-lane] doc-code-drift: docs/types/array.md:3 and :4 show [0, 1, 2, 3][0:2] and [0, 1, 2, 3][:2] returning [0, 1, 2], but strs/strs.go:6 (rewritten by this Story) keeps range ends exclusive; the documented array range results are wrong.';
 const PX_FINDING = {
   desc: PX_FINDING_DOC_ONLY,
   severity: 'medium', category: 'missing', files: [PX_DOC_PATH, 'strs/strs.go'], evidenceState: 'verified',
@@ -6611,6 +6628,78 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
 }
 
 /**
+ * Old-PoS run 110 (bench-staging/oldpos/run110-analysis.md §4, §6; lab run110): the Story's scope boundary excludes
+ * "changes to docs"; the docs lane reports pre-existing doc/code drift in docs/types/array.md whose code anchor
+ * (strs/strs.go:6) lies inside the Story's own hunk and whose description starts with a lane tag. Run 110 repaired it
+ * (the repair edited the excluded docs), the other lanes reported the edit as a scope violation, its revert re-created
+ * the drift: 6 rounds, timeout.
+ *   NFS   the boundary exclusion reaches the scope contract (explicitExcludes = the documentation pattern), the repair
+ *         prompt of the other finding does not say docs are admitted, and the drift finding is closed once by the
+ *         framework (file-state conflict: scope boundary > reviewer opinion, resolutionType superseded, reason
+ *         `[file_state_conflict]`), never routed to repair; the doc is untouched; DONE.
+ *   NFS-S the request asks to correct that doc (request text > scope boundary): docs stay admitted (no derived
+ *         exclusion) and the finding is repaired as before (NPXS); DONE.
+ */
+function scenarioNFS(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NFS' | 'NFS-S'): Outcome {
+  const inScope = tag === 'NFS-S';
+  PX_FINDING.desc = PX_FINDING_RUN110;
+  const name = inScope
+    ? 'NFS-S lab run110: the request asks for the doc fix, so the boundary\'s "changes to docs" does not exclude it (request > boundary); the drift is repaired; DONE'
+    : 'NFS lab run110: "changes to docs" in the scope boundary becomes explicitExcludes; a tagged doc-code drift with an in-hunk code anchor is settled once (scope boundary > reviewer), never repaired; DONE';
+  const o = new Owner(tag, inScope ? 'B-f110' : 'B-f111', machineEnv, steps, false, { trackedGateFailureCounts: true, preexistingDoc: true,
+    request: inScope ? PX_REQUEST_IN : PX_REQUEST_OUT, scopeBoundary: { allowed: ['strs: Upper and Reverse helpers'], excluded: ['changes to docs'] } });
+  const lines: string[] = [];
+  try {
+    devSetup(o);
+    const pxOf = () => new StoryStore(existsSync(o.worktree) ? o.worktree : o.root).readFindings(o.storyId).findings.find(f => f.desc === PX_FINDING.desc);
+    const reasons: string[] = [];
+    driveWithNext(o, { findingRound1: true, run: false, preexisting: inScope ? 'in' : 'out' }, lines, next => {
+      const px = pxOf();
+      if (px && JSON.stringify(next.cli?.payload ?? {}).includes(px.id)) reasons.push(next.reason);
+    });
+    const px = pxOf()!;
+    const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+    const pxRuns = repairRunsOnDisk(runsRoot).get(px.id) ?? [];
+    const final = new StoryStore(o.root).readFindings(o.storyId).findings.find(f => f.id === px.id)!;
+    assert.equal(final.status, 'resolved', `[${tag}] ${px.id} is closed before DONE (never dropped): ${JSON.stringify(final)}`);
+    const contract = new StoryStore(o.root).readScopeContract(o.storyId)!;
+    const doc = readFileSync(join(o.root, PX_DOC_PATH), 'utf8');
+    const docExcluded = contract.explicitExcludes.some(pattern => /\.\{?md/.test(pattern));
+    lines.push(`explicitExcludes: [${contract.explicitExcludes.join(', ')}]; steps about ${px.id}: ${reasons.join(' > ') || '(none)'}`);
+    if (!inScope) {
+      assert.ok(docExcluded, `[${tag}] the boundary's "changes to docs" is in explicitExcludes: ${JSON.stringify(contract.explicitExcludes)}`);
+      assert.deepEqual(pxRuns, [], `[${tag}] the drift on an excluded doc is never routed to repair (runs: ${pxRuns.join(', ')})`);
+      assert.equal(String(final.resolutionType), 'superseded', `[${tag}] closed by the file-state settlement: ${JSON.stringify(final)}`);
+      const reason = String(final.resolvedReason);
+      assert.match(reason, /^\[file_state_conflict\]/, `[${tag}] the recorded reason: ${reason}`);
+      assert.match(reason, /request text > scope boundary > reviewer/, `[${tag}] the precedence is recorded: ${reason}`);
+      assert.match(reason, /changes to docs/, `[${tag}] the boundary entry is named: ${reason}`);
+      assert.equal(doc, PX_DOC, `[${tag}] the excluded doc on main is untouched`);
+      const prompts = managedPrompts(o, FINDING_REPAIR);
+      assert.ok(prompts.length > 0, `[${tag}] the other finding was repaired by a managed run`);
+      for (const row of prompts) {
+        assert.doesNotMatch(row.prompt, /admitted by the gate too/i, `[${tag}] no repair prompt says docs are admitted:\n${row.prompt.slice(-2500)}`);
+      }
+      assert.match(prompts[0]!.prompt, /documentation[^\n]*not admitted/i, `[${tag}] the repair prompt says docs are excluded`);
+      lines.push(`${px.id} closed: ${reason.slice(0, 300)}`);
+    } else {
+      assert.ok(!docExcluded, `[${tag}] request text > scope boundary: docs stay admitted: ${JSON.stringify(contract.explicitExcludes)}`);
+      assert.notEqual(String(final.resolutionType), 'superseded', `[${tag}] a requested doc fix is repaired, not settled`);
+      assert.equal(doc, PX_DOC_FIXED, `[${tag}] the doc fix reached main`);
+      lines.push(`${px.id} repaired after ${pxRuns.length} runs`);
+    }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  } finally {
+    PX_FINDING.desc = PX_FINDING_DOC_ONLY;
+  }
+}
+
+/**
  * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §4; run 48 cycle C): 12
  * of 17 findings were ONE pre-existing docs defect in the frozen docs tree,
  * re-filed by four lanes in rounds 1, 3, 4 and 5. Each copy was a new open
@@ -8822,7 +8911,7 @@ function listScopeRuns(o: Owner): number {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I)?|LN)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I)?|LN)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -8942,6 +9031,8 @@ async function main(): Promise<void> {
     if (only.includes('NCD')) outcomes.push(scenarioNCD(machine.env, steps));
     if (only.includes('NCE')) outcomes.push(scenarioNCE(machine.env, steps));
     if (only.includes('NCS')) outcomes.push(scenarioNCS(machine.env, steps));
+    // Lab run110: scope-boundary docs exclusion + file-state settlement (NFS), its request-wins control (NFS-S).
+    for (const token of ['NFS', 'NFS-S'] as const) if (only.includes(token)) outcomes.push(scenarioNFS(machine.env, steps, token));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
@@ -8963,7 +9054,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

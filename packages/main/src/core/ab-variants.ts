@@ -153,6 +153,21 @@
  *                              rides on its canonical's repair (core/regression-family-brief.ts; run106-analysis.md §5).
  *                              Prompt only (nothing skipped, every finding closed by its own repair); `off` = rollback.
  *
+ * Lab run110 (bench-staging/oldpos/run110-analysis.md §4, §6: a 6-round docs oscillation between a docs-lane drift finding
+ * and the scope boundary that excluded "changes to docs"). Two rollback switches whose production value is on, and one
+ * experimental switch that can close a finding on weaker evidence:
+ *   scope.boundaryExcludes     'on' (default) | 'off'  scope_contract_set / scope_contract_init_from_plan map the scope
+ *                              boundary's excluded entries that are purely about documentation ("changes to docs") or
+ *                              name an existing path to explicitExcludes (core/boundary-path-excludes.ts), unless the
+ *                              request asks for that work, an allowed path is a doc or an allowed entry is about docs
+ *   remediation.fileStateSettle 'on' (default) | 'off'  a finding whose only remedy changes files the contract excludes
+ *                              (or a scope finding against a file the request asks to change) is closed ONCE by the
+ *                              framework by precedence request text > scope boundary > reviewer opinion, resolutionType
+ *                              superseded with a `[file_state_conflict]` reason (core/file-state-conflict.ts)
+ *   review.driftBaseSymbol     'off' (default) | 'on'  a doc-code-drift code anchor inside a Story hunk also counts as
+ *                              base evidence when every cited line is found in the base source of the same symbol
+ *                              (without it only a base probe of the finding's repro decides)
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -188,14 +203,18 @@ export const AB_VARIANT_FLAGS = {
   'plan.disputeConfirm': ['off', 'on'],
   'pipeline.lean': ['off', 'on'],
   'remediation.familyEvidence': ['on', 'off'],
+  'scope.boundaryExcludes': ['on', 'off'],
+  'remediation.fileStateSettle': ['on', 'off'],
+  'review.driftBaseSymbol': ['off', 'on'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
 export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[F][number];
 
 export interface AbVariantConfigSlice {
-  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string };
-  remediation?: { grouping?: string; thread?: string; familyEvidence?: string };
+  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string; driftBaseSymbol?: string };
+  remediation?: { grouping?: string; thread?: string; familyEvidence?: string; fileStateSettle?: string };
+  scope?: { boundaryExcludes?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
   plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string };
   dev?: { probeEnforcement?: string; removedGuardScan?: string };
@@ -231,6 +250,9 @@ export interface AbVariants {
   disputeConfirm: AbVariantValue<'plan.disputeConfirm'>;
   pipelineLean: AbVariantValue<'pipeline.lean'>;
   familyEvidence: AbVariantValue<'remediation.familyEvidence'>;
+  boundaryExcludes: AbVariantValue<'scope.boundaryExcludes'>;
+  fileStateSettle: AbVariantValue<'remediation.fileStateSettle'>;
+  driftBaseSymbol: AbVariantValue<'review.driftBaseSymbol'>;
 }
 
 export interface AbVariantEvidence {
@@ -316,6 +338,9 @@ export function resolveAbVariants(config: unknown): AbVariants {
     disputeConfirm: pick('plan.disputeConfirm', section(config, 'plan').disputeConfirm),
     pipelineLean: pick('pipeline.lean', leanRaw(config)),
     familyEvidence: pick('remediation.familyEvidence', section(config, 'remediation').familyEvidence),
+    boundaryExcludes: pick('scope.boundaryExcludes', section(config, 'scope').boundaryExcludes),
+    fileStateSettle: pick('remediation.fileStateSettle', section(config, 'remediation').fileStateSettle),
+    driftBaseSymbol: pick('review.driftBaseSymbol', review.driftBaseSymbol),
   };
 }
 
@@ -350,6 +375,9 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.disputeConfirm !== 'off') flags['plan.disputeConfirm'] = variants.disputeConfirm;
   if (variants.pipelineLean !== 'off') flags['pipeline.lean'] = variants.pipelineLean;
   if (variants.familyEvidence !== 'on') flags['remediation.familyEvidence'] = variants.familyEvidence;
+  if (variants.boundaryExcludes !== 'on') flags['scope.boundaryExcludes'] = variants.boundaryExcludes;
+  if (variants.fileStateSettle !== 'on') flags['remediation.fileStateSettle'] = variants.fileStateSettle;
+  if (variants.driftBaseSymbol !== 'off') flags['review.driftBaseSymbol'] = variants.driftBaseSymbol;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -363,7 +391,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -404,6 +432,12 @@ export const counterpartCoverageOn = (config: unknown): boolean => catchEarlierP
 export const removedGuardScanMode = (config: unknown): AbVariantValue<'dev.removedGuardScan'> => catchEarlierPick(config, 'dev.removedGuardScan');
 /** EXPERIMENTAL plan.reviewerPreload=on: the scope-plan reviewer prompt carries background.md, the checklist rows, plan.md / decision.json / understanding.json and the validate config (core/scope-plan-preload.ts); malformed = off. */
 export const reviewerPreloadOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.reviewerPreload') === 'on';
+/** Lab run110 scope.boundaryExcludes (default on; `off` = rollback): boundary exclusions map to explicitExcludes (core/boundary-path-excludes.ts); malformed = on. */
+export const boundaryExcludesOn = (config: unknown): boolean => catchEarlierPick(config, 'scope.boundaryExcludes') === 'on';
+/** Lab run110 remediation.fileStateSettle (default on; `off` = rollback): file-state conflicts settled by precedence (core/file-state-conflict.ts); malformed = on. */
+export const fileStateSettleOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.fileStateSettle') === 'on';
+/** EXPERIMENTAL lab run110 review.driftBaseSymbol=on: a drift's in-hunk code anchor found in the base source of the same symbol is base evidence; malformed = off. */
+export const driftBaseSymbolOn = (config: unknown): boolean => catchEarlierPick(config, 'review.driftBaseSymbol') === 'on';
 /** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }

@@ -223,7 +223,8 @@ import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } fr
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
 import { findingRepairRoute } from '../../core/finding-preexisting.js';
 import { evaluatePreexistingFinding } from '../../handlers/finding-preexisting.js';
-import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairReplanStep, findingConflictStep, unacceptedRepairWhys } from '../../handlers/next-driver.js';
+import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairReplanStep, findingConflictStep, unacceptedRepairWhys, fileStateSettleStep } from '../../handlers/next-driver.js';
+import { evaluateFileStateConflict } from '../../handlers/file-state-conflict.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
   groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, frameworkResolveStep, managedRunsWaitStep, adoptedAmendmentRun, intentAmendmentVerifyStep, guardRefusalSummary, storyReviewBlockersStep, openIntentConflicts, intentConflictStep, nextStepCall, DONE_TERMINAL_STATEMENT, type NextStep } from '../../handlers/next-driver.js';
@@ -503,6 +504,14 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
           const verdict = evaluatePreexistingFinding({ store: ctx.store, root: ctx.root, storyId, finding: row.finding });
           if (verdict.eligible && !managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns }).repaired) {
             return preexistingDispositionStep(base, row.finding, verdict);
+          }
+        }
+        // Lab run110 (shared with the live driver): the losing side of a file-state conflict is closed once, never repaired.
+        const all = ctx.store.readFindings(storyId).findings ?? [];
+        for (const row of findings) {
+          const verdict = evaluateFileStateConflict({ store: ctx.store, root: ctx.root, storyId, finding: row.finding, findings: all });
+          if (verdict?.settle && !managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns }).repaired) {
+            return fileStateSettleStep(base, row.finding, verdict);
           }
         }
       }

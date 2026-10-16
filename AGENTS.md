@@ -995,6 +995,27 @@ default (`off` = rollback). When `next` prints an `agent` or `framework` step, r
 when it repeats; only a `human` step or no runnable step is a stop. See docs/CLI.md "Old-PoS
 runs 100-103".
 
+Old-PoS run 110 (lab `codex/lab-run110`): the scope boundary's "changes to docs" (and
+existing path tokens) become `explicitExcludes` of the scope contract at
+`scope_contract_set` / `scope_contract_init_from_plan` (switch `scope.boundaryExcludes`,
+default on; request text asking for docs work keeps docs admitted), so the repair prompt
+no longer says docs are admitted, the write-time guard and the REVIEW gate refuse a doc
+edit, and every code-review lane prompt names the excluded files (run 110: six rounds of
+"fix the docs" vs "the docs must stay unchanged", timeout). The pre-existing disposition
+strips leading `[...]` tags before the `doc-code-drift:` test, judges an in-hunk code anchor
+by a base probe of the finding's repro (EXPERIMENTAL `review.driftBaseSymbol`: the cited
+lines in the base source of the same symbol), and ignores the Story's own edit of an
+excluded doc. A repair-added test that hashes or git-pins an out-of-scope file is refused
+(`out_of_scope_pin_test`: same-session turn, then not an accepted repair). A file-state
+conflict (a finding requires changing a file, the boundary or another finding requires it
+unchanged) is settled once by precedence request text > scope boundary > reviewer opinion
+(switch `remediation.fileStateSettle`, default on): the losing finding is closed with
+`resolutionType: superseded` and a `[file_state_conflict]` reason (at import, or the
+framework step `finding_file_state_settled` = `finding_resolve
+--disposition=file_state_conflict`); a finding with an in-scope code defect site is never
+settled. Do not edit, revert or pin a doc the boundary excludes. See docs/CLI.md
+"Old-PoS run 110".
+
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
 (`<common git dir>/info/proof-or-stop-cache/`, each answer keyed by the exact
@@ -1192,9 +1213,14 @@ routed to repair: `next` returns one `finding_resolve` with
 never repair them yourself), which recomputes that evidence and
 records it with a follow-up (severity unchanged; `finding_applicability_assess
 --verdict=pre_existing_unaffected --proposalRef=<finding id>` is the same
-disposition). For a `doc-code-drift:` finding only its documentation anchors are
-defect sites; its code anchors are evidence and must be unchanged at the base
-too, and a cited doc the Story edited keeps it a repair (old-PoS runs 36/37).
+disposition). For a `doc-code-drift:` finding (the prefix also after leading
+`[...]` tags, lab run110) only its documentation anchors are defect sites; its
+code anchors are evidence and must be unchanged at the base too, or, inside a
+Story hunk, answer the same at the base and HEAD in a base probe of the
+finding's repro (lab run110), and a cited doc the Story edited keeps it a repair
+unless the scope contract excludes that doc (old-PoS runs 36/37, lab run110).
+A finding whose only remedy changes documentation the scope boundary excludes is
+closed once by the framework (`file_state_conflict`, lab run110), never repaired.
 A later lane finding that re-files only sites such a disposition already covers
 (still unchanged at the base, outside every Story hunk) is closed by the
 framework at import as a recurrence of it: no owner step, no repair, and a round

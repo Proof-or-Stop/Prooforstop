@@ -42,6 +42,13 @@
  *                                    reopens its item before REVIEW (once per set); off: no scan
  *   Lab run95 (EXPERIMENTAL, default `off`; behaviour in tasks/run95-fixes-smoke.ts S1, end to end in NPR / NPR-C):
  *   plan.disputeConfirm              the scope-plan rerun after a pin-dispute remedy is a confirmation re-review
+ *   Lab run110 (behaviour in tasks/run110-fixes-smoke.ts, end to end in NFS / NFS-S):
+ *   scope.boundaryExcludes           default ON (`off` = rollback): the scope boundary's documentation / path exclusions
+ *                                    become explicitExcludes of the scope contract
+ *   remediation.fileStateSettle      default ON (`off` = rollback): a finding whose only remedy changes excluded docs is
+ *                                    closed once by precedence (request text > scope boundary > reviewer opinion)
+ *   review.driftBaseSymbol           EXPERIMENTAL, default OFF: a drift's in-hunk code anchor found in the base source of
+ *                                    the same symbol counts as base evidence
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -104,7 +111,10 @@ await check('config: absent switches resolve to production values; malformed fai
     // Lab run95: the pin-dispute rerun is a full rerun by default; `on` = confirmation re-review (detection-affecting arm).
     disputeConfirm: 'off',
     // Lab lean: the umbrella is off by default; defect families are linked by evidence by default (`off` = rollback).
-    pipelineLean: 'off', familyEvidence: 'on' });
+    pipelineLean: 'off', familyEvidence: 'on',
+    // Lab run110: boundary exclusions -> explicitExcludes and file-state settlement are on (`off` = rollback); the
+    // symbol-based drift evidence is EXPERIMENTAL and off.
+    boundaryExcludes: 'on', fileStateSettle: 'on', driftBaseSymbol: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -130,6 +140,14 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { disputeConfirm: 'on' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.disputeConfirm': 'on' } }, 'lab run95: the on arm is recorded');
   assert.throws(() => resolveAbVariants({ plan: { disputeConfirm: 'maybe' } }), /invalid_ab_variant_config: plan\.disputeConfirm/);
+  // Lab run110: scope.boundaryExcludes / remediation.fileStateSettle (on; off = recorded rollback), review.driftBaseSymbol (off; on = recorded arm).
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ scope: { boundaryExcludes: 'off' }, remediation: { fileStateSettle: 'off' }, review: { driftBaseSymbol: 'on' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'scope.boundaryExcludes': 'off', 'remediation.fileStateSettle': 'off', 'review.driftBaseSymbol': 'on' } }, 'lab run110: each non-default arm is recorded');
+  assert.throws(() => resolveAbVariants({ scope: { boundaryExcludes: 'maybe' } }), /invalid_ab_variant_config: scope\.boundaryExcludes/);
+  const { boundaryExcludesOn, fileStateSettleOn, driftBaseSymbolOn } = await load('core/ab-variants.js');
+  assert.equal(boundaryExcludesOn({ scope: { boundaryExcludes: 'maybe' } }), true, 'lab run110: malformed = on where consumed');
+  assert.equal(fileStateSettleOn({ remediation: { fileStateSettle: 'maybe' } }), true, 'lab run110: malformed = on where consumed');
+  assert.equal(driftBaseSymbolOn({ review: { driftBaseSymbol: 'maybe' } }), false, 'lab run110: malformed = off where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

@@ -40,6 +40,10 @@ import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.
 import { resolveStorySignedWorkspace } from '../core/story-signed-workspace-resolution.js';
 import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { loadConfig } from '../core/config.js';
+import { execFileSync } from 'node:child_process';
+import { boundaryPathExcludes, type BoundaryPathExcludes } from '../core/boundary-path-excludes.js';
+import { boundaryExcludesOn } from '../core/ab-variants.js';
+import { readStoryRequest } from '../core/story-request.js';
 
 type StructuredScopeAcknowledgement = ScopeContractAcknowledgement & {
   assuranceLabel?: 'acknowledged-expansion';
@@ -124,6 +128,34 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
     return canonicalPaths(paths, fieldName).values;
   }
 
+  /**
+   * Lab run110 (core/boundary-path-excludes.ts): the scope boundary's excluded path classes ("changes to docs") as
+   * explicitExcludes patterns, so the writer prompt, the write-time guard and the REVIEW gate agree with the boundary.
+   * Empty with scope.boundaryExcludes=off, without a boundary, or when nothing in it states a path class.
+   */
+  function boundaryDerivedExcludes(storyId: string, allowedPaths: readonly string[]): BoundaryPathExcludes {
+    const none: BoundaryPathExcludes = { patterns: [], sources: [], kept: [] };
+    if (!boundaryExcludesOn(config)) return none;
+    let boundary;
+    try { boundary = store.readScopeBoundary(storyId); } catch { return none; }
+    if (!boundary?.excluded?.length) return none;
+    const request = readStoryRequest(store, storyId);
+    let gitCwd: string;
+    try { gitCwd = resolveScopeGitCwd(storyId); } catch { gitCwd = root; }
+    const pathExists = (path: string): boolean => {
+      try { return execFileSync('git', ['ls-files', '--', path], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim().length > 0; } catch { return false; }
+    };
+    return boundaryPathExcludes({ excluded: boundary.excluded, allowed: boundary.allowed, allowedPaths,
+      requestText: request.status === 'ok' ? request.text : null, pathExists });
+  }
+
+  function renderBoundaryExcludes(derived: BoundaryPathExcludes): string[] {
+    return [
+      ...derived.sources.map(row => `explicitExcludes from the scope boundary: ${row.pattern} <- "${row.entry}"`),
+      ...derived.kept.map(row => `scope boundary "${row.entry}" kept admitted: ${row.reason}`),
+    ];
+  }
+
   return {
     scope_contract_set(args: {
       storyId: string;
@@ -178,9 +210,14 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       } catch {
         existing = undefined; // corrupt existing contract: allow overwrite to recover
       }
+      // Lab run110: the scope boundary's excluded path classes join explicitExcludes (never dropped by a later set).
+      const derived = boundaryDerivedExcludes(args.storyId, [...(allowedModify ?? existing?.allowedModify ?? []),
+        ...(allowedCreate ?? existing?.allowedCreate ?? []), ...(allowedTest ?? existing?.allowedTest ?? [])]);
+      const mergedExcludes = derived.patterns.length
+        ? uniquePaths([...(explicitExcludes ?? existing?.explicitExcludes ?? []), ...derived.patterns]) : explicitExcludes;
       const contract = buildScopeContract(
         args.storyId,
-        { mode, allowedModify, allowedCreate, allowedTest, protectedFiles, explicitExcludes, scopeChangeReason: args.scopeChangeReason, fileRules, protectedAnchors },
+        { mode, allowedModify, allowedCreate, allowedTest, protectedFiles, explicitExcludes: mergedExcludes, scopeChangeReason: args.scopeChangeReason, fileRules, protectedAnchors },
         existing,
       );
       if (pathMode !== 'off') {
@@ -212,6 +249,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `fileRules: ${JSON.stringify(contract.fileRules ?? [])}`,
         `protectedAnchors: [${(contract.protectedAnchors ?? []).join(', ')}]`,
         `pathCanonicalizerVersion: ${contract.pathCanonicalizerVersion ?? 'legacy'}`,
+        ...renderBoundaryExcludes(derived),
         ...diagnostics,
       ].join('\n');
       });
@@ -324,7 +362,9 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       const canonicalProtected = canonicalPaths(args.protectedFiles, 'protectedFiles');
       const canonicalExcludes = canonicalPaths(args.explicitExcludes, 'explicitExcludes');
       const protectedFiles = canonicalProtected.values;
-      const explicitExcludes = canonicalExcludes.values;
+      // Lab run110: the scope boundary's excluded path classes join explicitExcludes.
+      const derived = boundaryDerivedExcludes(args.storyId, [...(canonicalModify.values ?? []), ...(canonicalCreate.values ?? []), ...(canonicalTest.values ?? [])]);
+      const explicitExcludes = derived.patterns.length ? uniquePaths([...(canonicalExcludes.values ?? []), ...derived.patterns]) : canonicalExcludes.values;
       // B-6bfd CHK-006: tolerate a corrupt existing contract here too — init from
       // PLAN is a (re)initialization path and must be able to recover by writing a
       // fresh contract over an unreadable one (readScopeContract now throws on
@@ -367,7 +407,9 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `allowedModify: [${contract.allowedModify.join(', ')}]`,
         `allowedCreate: [${contract.allowedCreate.join(', ')}]`,
         `allowedTest: [${contract.allowedTest.join(', ')}]`,
+        ...(contract.explicitExcludes.length ? [`explicitExcludes: [${contract.explicitExcludes.join(', ')}]`] : []),
         `pathCanonicalizerVersion: ${contract.pathCanonicalizerVersion ?? 'legacy'}`,
+        ...renderBoundaryExcludes(derived),
         ...[canonicalModify, canonicalCreate, canonicalTest, canonicalProtected, canonicalExcludes]
           .flatMap((entry) => entry.diagnostics),
       ].join('\n');
