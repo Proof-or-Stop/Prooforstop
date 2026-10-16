@@ -8463,6 +8463,174 @@ function scenarioNPR(machineEnv: NodeJS.ProcessEnv, steps: Step[], confirm: bool
   }
 }
 
+// ---------------------------------------------------------------------------
+// Lab run102 (bench-staging/oldpos/run100-103-analysis.md §1, §2, §5): NCD, NCE, NCS. A made-up interpreter whose text read
+// counts a negative index from the end (a wrap) and whose list write rejects it; rows on a new text single-index write.
+// Synthetic values only; the run-101 / run-102 shapes, not their values.
+
+const R102_EVAL = [
+  'package eval', '',
+  'func evalStringIndexExpression(str, index Object) Object {',
+  '\ts := str.(*String).Value',
+  '\tidx := index.(*Number).Int()',
+  '\tmax := len(s) - 1',
+  '\tif idx > max {', '\t\treturn &String{Value: ""}', '\t}',
+  '\tif idx < 0 {', '\t\tlength := max + 1',
+  '\t\tif -idx > length {', '\t\t\treturn &String{Value: ""}', '\t\t}',
+  '\t\tidx = length + idx', '\t}',
+  '\treturn &String{Value: string(s[idx])}', '}', '',
+  'func evalIndexAssignment(target, index, value Object) Object {',
+  '\tswitch left := target.(type) {',
+  '\tcase *Array:',
+  '\t\tidx := index.(*Number).Int()',
+  '\t\tif idx < 0 {', '\t\t\treturn newError("index out of range: %d", idx)', '\t\t}',
+  '\t\tleft.Elements[idx] = value',
+  '\t\treturn value',
+  '\t}',
+  '\treturn newError("index assignment not supported: %s", target.Type())', '}', '',
+].join('\n');
+const R102_EVAL_TEST = ['package eval', '', 'var stringIndexTests = []struct{ input, want string }{', '\t{`"pqr"[0]`, "p"},', '\t{`"pqr"[-1]`, "r"},', '\t{`"pqr"[7]`, ""},', '}', ''].join('\n');
+const R102_QUOTE = 'A text variable accepts `t[i] = "c"`, which replaces the character at index i.';
+const R102_REQUEST = `${R95_REQUEST}- ${R102_QUOTE}\n`;
+const R102_VALUE_NEG = 't = "pqr"; t[-1] = "z"; t -> "pqz"';
+const R102_ERROR_NEG = 't = "pqr"; t[-1] = "z" -> index out of range: -1';
+const R102_OOR = 't = "pqr"; t[5] = "z" -> index out of range: 5';
+const r102Row = (desc: string, test: string) => r95Row(desc, test, { derivation: { requestQuote: R102_QUOTE, computation: `the write replaces the character the index selects: ${desc.split('->').at(-1)!.trim()}` } });
+/** The r95 PLAN plus a text single-index write on CHK-001 (edge:1 = the negative row, edge:2 = the out-of-range row). */
+function r102Intents(negative: string) {
+  const intents = r95Intents([]);
+  return { ...intents, 'CHK-001': { ...intents['CHK-001'], happy: [...intents['CHK-001'].happy, r102Row('t = "pqr"; t[1] = "z"; t -> "pzr"', 'TestTextAssign')],
+    edge: [...intents['CHK-001'].edge, r102Row(negative, 'TestTextAssignNegative'), r102Row(R102_OOR, 'TestTextAssignPastEnd')] } };
+}
+const r102Owner = (tag: string, storyId: string, machineEnv: NodeJS.ProcessEnv, steps: Step[]) => new Owner(tag, storyId, machineEnv, steps, false,
+  { trackedGateFailureCounts: true, unimplemented: true, request: R102_REQUEST, config: { plan: { counterpartCoverage: 'on' } }, baseFiles: { 'eval/eval.go': R102_EVAL, 'eval/eval_test.go': R102_EVAL_TEST } });
+const stepCalls = (step: NextStepJson) => (step.batch?.length ? step.batch.map(call => call.cli) : step.cli ? [step.cli] : []).filter(Boolean) as Array<{ command: string; payload: Record<string, unknown> }>;
+const rowPatches = (step: NextStepJson, itemId: string) => stepCalls(step).flatMap(call => call.command === 'checklist_update' && call.payload.itemId === itemId ? (call.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? [] : []);
+const edgeRow = (o: Owner, index: number): string => String((new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-001')!.verificationIntent!.edge[index] as { desc?: string } | undefined)?.desc ?? '');
+
+/**
+ * NCE (run 101): CHK-001:edge:1 pins an error for `t[-1] = "z"` while the same receiver's read counts a negative index from the
+ * end. RED on the base: the counterpart gate counted the error row as coverage (value-agnostic), so nothing stopped it and every
+ * later lane trusted the row. Now: `next` names the row [counterpart_coverage_missing] with ONE ready re-pin to the counterpart
+ * value; the DEV gate refuses the same; applied, the gate passes.
+ */
+function scenarioNCE(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NCE';
+  const name = 'NCE lab run102 fix 2: a row pinning an error for a case the same receiver\'s counterpart resolves is no counterpart coverage: ONE ready re-pin to the counterpart value, DEV refused until applied';
+  const o = r102Owner(tag, 'B-102e', machineEnv, steps);
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    r95Plan(o, r102Intents(R102_ERROR_NEG));
+    const step = ask('next (error row on a negative index)');
+    assert.equal(step.reason, 'counterpart_coverage_missing', `[${tag}] the error row is no coverage: ${step.reason}: ${step.why.slice(0, 600)}`);
+    assert.match(step.why, /CHK-001:edge:1 pins an error[^]*evalStringIndexExpression/, `[${tag}] the row and the counterpart are named: ${step.why.slice(0, 900)}`);
+    const patch = rowPatches(step, 'CHK-001').find(row => row.ref === 'CHK-001:edge:1');
+    assert.equal(patch?.desc, R102_VALUE_NEG, `[${tag}] a ready re-pin to the counterpart value: ${JSON.stringify(rowPatches(step, 'CHK-001'))}`);
+    assert.ok(!rowPatches(step, 'CHK-001').some(row => row.ref === 'CHK-001:edge:+' && /negative/.test(String(row.desc))), `[${tag}] no appended placeholder for the class`);
+    const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused: error row on a resolved case)' });
+    assert.notEqual(dev.status, 0, `[${tag}] DEV is refused`);
+    assert.match(dev.out, /\[counterpart_coverage_missing\][^\n]*CHK-001:edge:1/, `[${tag}] the gate names the row:\n${dev.out.slice(-1200)}`);
+    for (const call of stepCalls(step)) o.mustCli(call.command, call.payload, { label: `${call.command} (from the step)` });
+    assert.equal(edgeRow(o, 1), R102_VALUE_NEG, `[${tag}] the row now follows the counterpart`);
+    const after = ask('next (re-pinned)');
+    assert.notEqual(after.reason, 'counterpart_coverage_missing', `[${tag}] covered now: ${after.why.slice(0, 400)}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NCS (run 101 scope-plan #1): the scope-plan pin audit raised the counterpart-consistent row CHK-001:edge:1 ("request gives
+ * no settled value", quoting another receiver's precedent). RED on the base: story_review blocked on it and `next` handed the
+ * owner the reviewer's value (pin_audit_correction / plan_review_blockers): the run-101 flip. Now: the scope-plan prompt lists
+ * the row as counterpart-backed with the precedence, story_review records the gap as settled (advisory), and `next` offers no
+ * value change for it.
+ */
+function scenarioNCS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NCS';
+  const name = 'NCS lab run102 fix 2: a pin-audit gap on a counterpart-backed row is settled by the framework (request > base counterpart > reviewer); the prompt lists the row; no flip is offered';
+  const o = r102Owner(tag, 'B-102s', machineEnv, steps);
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    r95Plan(o, r102Intents(R102_VALUE_NEG));
+    const gap = 'pin-audit CHK-001:edge:1: pins "pqz"; request gives index out of range: -1 (no settled value: keep the existing single-index assignment behaviour; the list write rejects a negative index)';
+    r95Verdict(o, [gap]);
+    const run = r95ScopeRun(o, tag, ask, 'verdict 1');
+    assert.match(run.prompt, /Counterpart-backed rows[^]*CHK-001:edge:1[^]*evalStringIndexExpression/, `[${tag}] the prompt lists the row:\n${run.prompt.slice(0, 300)}`);
+    const review = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (verdict 1)' });
+    assert.match(review.out, /scope_gap_counterpart_settled/, `[${tag}] the gap is recorded as settled:\n${review.out.slice(-1500)}`);
+    const next = ask('next (verdict 1)');
+    assert.ok(!['pin_audit_correction', 'plan_review_blockers', 'plan_pin_dispute'].includes(next.reason), `[${tag}] no value change is offered: ${next.reason}: ${next.why.slice(0, 600)}`);
+    assert.equal(edgeRow(o, 1), R102_VALUE_NEG, `[${tag}] the counterpart-backed row stands`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NCD (run 102): the scope-plan reviewer raised the counterpart row CHK-001:edge:1 and the out-of-range error row
+ * CHK-001:edge:2 in two consecutive verdicts. RED on the base: plan_pin_dispute removed both rows and excluded their cases,
+ * then counterpart_coverage_missing asked for them again, forever (10 offers, owner stopped). Now: the counterpart-backed row
+ * is settled (not disputed), the out-of-range error row is relaxed with its case kept, the counterpart gate stays satisfied
+ * after the remedy, a third identical verdict gives no exclusion either, and the remedies are journaled.
+ */
+function scenarioNCD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NCD';
+  const name = 'NCD lab run102 fix 1: the pin-dispute remedy never removes / excludes a case the counterpart gate requires; no dispute <-> counterpart alternation';
+  const o = r102Owner(tag, 'B-102d', machineEnv, steps);
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    r95Plan(o, r102Intents(R102_VALUE_NEG));
+    const gaps = ['pin-audit CHK-001:edge:1: pins "pqz"; request gives no settled value (the list write rejects a negative index)',
+      'pin-audit CHK-001:edge:2: pins index out of range: 5; request gives no error text for a text assignment'];
+    r95Verdict(o, gaps);
+    r95ScopeRun(o, tag, ask, 'verdict 1');
+    o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (verdict 1)' });
+    const first = ask('next (verdict 1)');
+    assert.notEqual(first.reason, 'plan_pin_dispute', `[${tag}] one verdict is no dispute`);
+    // The owner answers the out-of-range gap with another guess (run 102: every precedent tried).
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:edge:2', desc: 't = "pqr"; t[5] = "z" -> index out of range: 5 (text)', derivation: { requestQuote: R102_QUOTE, computation: 'past the end: index out of range: 5 (text)' } }], reason: 'guess' }, { label: 'checklist_update CHK-001 (guess)' });
+    r95Verdict(o, gaps);
+    r95ScopeRun(o, tag, ask, 'verdict 2');
+    o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (verdict 2)' });
+    const dispute = ask('next (verdict 2, same rows)');
+    assert.equal(dispute.reason, 'plan_pin_dispute', `[${tag}] the repeated gap on the error row is escalated: ${dispute.reason}: ${dispute.why.slice(0, 600)}`);
+    const patches = rowPatches(dispute, 'CHK-001');
+    assert.ok(!patches.some(row => row.ref === 'CHK-001:edge:1'), `[${tag}] the counterpart-backed row is not disputed: ${JSON.stringify(patches)}`);
+    assert.ok(!patches.some(row => row.remove || row.drop), `[${tag}] nothing removed: ${JSON.stringify(patches)}`);
+    assert.ok(!stepCalls(dispute).some(call => Array.isArray(call.payload.excludes) && (call.payload.excludes as string[]).some(entry => /t\[-1\]|t\[5\]/.test(entry))), `[${tag}] no case excluded`);
+    assert.equal(patches.find(row => row.ref === 'CHK-001:edge:2')?.desc, 't = "pqr"; t[5] = "z" -> error', `[${tag}] the out-of-range error row is relaxed, its case kept`);
+    for (const call of stepCalls(dispute)) o.mustCli(call.command, call.payload, { label: `${call.command} (dispute remedy)` });
+    const after = ask('next (after the remedy)');
+    assert.notEqual(after.reason, 'counterpart_coverage_missing', `[${tag}] the remedy keeps the counterpart gate satisfied (no alternation): ${after.why.slice(0, 500)}`);
+    // A third identical verdict: still no exclusion and no counterpart refusal (the cycle cannot start).
+    r95Verdict(o, gaps);
+    const rerun = r95ScopeRun(o, tag, ask, 'verdict 3');
+    assert.match(rerun.prompt, /Disputed rows[^\n]*CHK-001:edge:2[^\n]*counterpart/, `[${tag}] the rerun context says the framework requires the case:\n${rerun.prompt.slice(0, 200)}`);
+    o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (verdict 3)' });
+    const third = ask('next (verdict 3)');
+    assert.notEqual(third.reason, 'counterpart_coverage_missing', `[${tag}] verdict 3: ${third.reason}`);
+    assert.ok(!stepCalls(third).some(call => Array.isArray(call.payload.intentRows) && (call.payload.intentRows as Array<Record<string, unknown>>).some(row => row.remove || row.drop)), `[${tag}] verdict 3: nothing removed`);
+    const journal = [o.root, o.worktree].map(dir => join(dir, '.proof-or-stop', 'runtime', 'plan-remedy', `${o.storyId}.jsonl`)).find(path => existsSync(path));
+    assert.ok(journal, `[${tag}] the PLAN remedies are journaled for the cycle breaker`);
+    lines.push(`plan-remedy journal: ${readFileSync(journal!, 'utf8').trim().split('\n').length} entr(ies)`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function listScopeRuns(o: Owner): number {
   const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
   if (!existsSync(runsRoot)) return 0;
@@ -8472,7 +8640,7 @@ function listScopeRuns(o: Owner): number {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -8588,6 +8756,10 @@ async function main(): Promise<void> {
     if (only.includes('NPR')) outcomes.push(scenarioNPR(machine.env, steps, false));
     if (only.includes('NPR-C')) outcomes.push(scenarioNPR(machine.env, steps, true));
     if (only.includes('NPXF')) outcomes.push(scenarioNPX(machine.env, steps, 'NPXF'));
+    // Lab run102: the pin-dispute remedy vs the counterpart gate (NCD), value-aware coverage (NCE), counterpart-backed gaps (NCS).
+    if (only.includes('NCD')) outcomes.push(scenarioNCD(machine.env, steps));
+    if (only.includes('NCE')) outcomes.push(scenarioNCE(machine.env, steps));
+    if (only.includes('NCS')) outcomes.push(scenarioNCS(machine.env, steps));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
