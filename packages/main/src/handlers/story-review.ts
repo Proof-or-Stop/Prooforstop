@@ -53,7 +53,8 @@ import { describeCoverageGap, MISSING_COVERAGE_ROW, planCoverageGapsFor } from '
 import { readStoryRequest } from '../core/story-request.js';
 import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
 import { ROW_BUDGET_ADVISORY, recordRowBudgetEvidence } from '../core/plan-row-budget.js';
-import { COUNTERPART_COVERAGE_ADVISORY, edgeLabel, planCounterpartCoverage } from '../core/counterpart-coverage.js';
+import { COUNTERPART_COVERAGE_ADVISORY, counterpartSettledGaps, edgeLabel, planCounterpartCoverage, SCOPE_GAP_COUNTERPART_SETTLED } from '../core/counterpart-coverage.js';
+import { remedySettledRefsOf } from '../core/plan-remedy-cycle.js';
 import { planScopeCheckRequirement, scopeVerdictChecklistChanged } from '../core/plan-scope-check-requirement.js';
 import { requiresFullVerificationIntent } from '../core/plan-pre-scope-blockers.js';
 import {
@@ -561,13 +562,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             message: `${extra.ref} repeats the operand class of ${extra.sameAs} (${extra.signature}); one row per distinct behaviour suffices (A/B plan.rowBudget=on, advisory). Drop it unless it tests a behaviour that signature misses.` });
         }
       }
-      // Lab sibling-gate (A/B plan.counterpartCoverage=on): counterpart classes discovered with weak evidence are an advisory
+      // Lab sibling-gate (plan.counterpartCoverage, default on since lab run102): counterpart classes discovered with weak evidence are an advisory
       // note (never a blocker); clear ones refuse DEV entry through the gate itself (core/counterpart-coverage.ts).
       if (story.phase === 'PLAN') {
         const counterpart = planCounterpartCoverage(store, ctx.root, args.storyId, () => resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root }));
         for (const note of counterpart?.advisories ?? []) {
           issues.push({ type: COUNTERPART_COVERAGE_ADVISORY, severity: 'advisory', itemId: note.itemId,
-            message: `${note.itemId} ${note.operation}: its counterpart ${note.counterpart} may special-case ${note.edges.map(edgeLabel).join(', ')}, which no row states (${note.reason}; A/B plan.counterpartCoverage=on, advisory). `
+            message: `${note.itemId} ${note.operation}: its counterpart ${note.counterpart} may special-case ${note.edges.map(edgeLabel).join(', ')}, which no row states (${note.reason}; plan.counterpartCoverage, advisory). `
               + 'Probe the counterpart on the Story base; add a row per class whose result the Story must keep unless the request says otherwise.' });
         }
       }
@@ -786,8 +787,25 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           const checklistChangedSinceVerdict = scopeVerdictChecklistChanged(scopeData, cl);
           // Old-PoS run 43 (core/scope-exclusion-rationale.ts, A/B plan.exclusionRationaleCheck, default on).
           const exclusionCheck = exclusionRationaleCheckActive(ctx.root);
+          // Lab run102 (run 101 scope-plan #1, run 102): a gap that cites only counterpart-backed rows (their value is the one
+          // the same receiver's base counterpart gives for a case the request is silent on), or rows the PLAN remedy cycle
+          // breaker settled, is settled by the framework's precedence (request > base counterpart > reviewer): advisory.
+          const settledGaps = (() => {
+            try {
+              const gitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+              const counterpart = planCounterpartCoverage(store, ctx.root, args.storyId, gitCwd);
+              return counterpartSettledGaps(counterpart, gaps, remedySettledRefsOf(ctx.root, args.storyId, counterpart, cl.items));
+            } catch { return new Map<string, string>(); }
+          })();
           for (const gap of gaps) {
             const source = gap.source ? ` (source: ${gap.source})` : '';
+            const settledWhy = settledGaps.get(gap.feature ?? '');
+            if (settledWhy) {
+              issues.push({ type: SCOPE_GAP_COUNTERPART_SETTLED, severity: 'advisory',
+                message: `scope gap settled by the framework [${SCOPE_GAP_COUNTERPART_SETTLED}]${source}: "${gap.feature}": ${settledWhy}. The row stands; no checklist change and no reviewer rerun for it. `
+                  + 'A request sentence that states a different result for this operation and case outranks it: quote it in the row\'s derivation and change the row.' });
+              continue;
+            }
             // Pin audit / same-semantics (old-PoS run 23, core/intent-derivation.ts):
             // the fix is the pinned intent itself, not coverage or an exclusion.
             const pinAudit = new RegExp(`^\\s*(?:${PIN_AUDIT_GAP_PREFIX}|${ASYMMETRIC_EXAMPLE_GAP_PREFIX})\\b`, 'i').test(gap.feature ?? '');

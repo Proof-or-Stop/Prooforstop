@@ -14,6 +14,9 @@
  *           exclusion check does not refuse it (core/scope-exclusion-rationale.ts exclusionUserSeesRemedy);
  *   re-pin  when the item itself adds the case (an exclusion cannot hold), the row is re-pinned to the value the request
  *           or a base probe of the same receiver gives (the one field left for the owner).
+ * Lab run102 (run 102: ten offers alternating with the counterpart gate, owner stopped, reward 0): a row the counterpart gate
+ * requires (core/counterpart-coverage.ts) is never removed nor its case excluded; see pinDisputeRemedy. Every remedy's case
+ * also goes to the PLAN remedy cycle breaker (core/plan-remedy-cycle.ts).
  * The offer is journaled (`runtime/pin-dispute/<storyId>.jsonl`) and the reviewer's rerun context names the disputed rows
  * and the remedy applied (orientation, neutral). Only under EXPERIMENTAL A/B `plan.disputeConfirm=on` is that rerun a
  * confirmation re-review (ADR-043: the previous verdict stands for the untouched items), which can miss a new gap in an
@@ -28,6 +31,7 @@ import { VERIFICATION_LANES } from './verification.js';
 import { caseSide, pinnedText, unstatedPinRowPatch } from './unstated-pin.js';
 import { expectedSide, literals } from './exact-error-pin-lint.js';
 import { exclusionUserSeesRemedy } from './scope-exclusion-rationale.js';
+import { counterpartRowRoles, edgeLabel, rowPinsError, COUNTERPART_PRECEDENCE, type CounterpartCoverageResult } from './counterpart-coverage.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
 
@@ -87,20 +91,66 @@ export function disputedRows(history: readonly Verdict[]): DisputedRow[] {
   return out;
 }
 
-export interface PinDisputeRemedy { ref: string; kind: 'relax' | 'exclude' | 'repin'; payload: Record<string, unknown>; why: string }
+/**
+ * Lab run102: `counterpart` = re-pinned to the base counterpart's value (the counterpart gate requires the case); `settle` = no
+ * command left (the required row already pins only the error): the framework records that the row stands and the gap is
+ * settled. `note` is what the scope-plan rerun is told about the row; `key` / `dir` feed the PLAN remedy cycle breaker.
+ */
+export interface PinDisputeRemedy { ref: string; kind: 'relax' | 'exclude' | 'repin' | 'counterpart' | 'settle'; payload: Record<string, unknown> | null; why: string;
+  note?: string; key?: string; dir?: 'drop' | 'require' }
 
 type ItemLike = Pick<ChecklistItem, 'id' | 'title' | 'userSees' | 'status' | 'excludes'> & { verificationIntent?: ChecklistItem['verificationIntent']; files?: { modify?: readonly string[]; create?: readonly string[] } };
 
-/** The one remedy command of a disputed row (see the module header). */
-export function pinDisputeRemedy(args: { storyId: string; item: ItemLike; dispute: DisputedRow; requestText: string | null }): PinDisputeRemedy | null {
+/**
+ * The one remedy command of a disputed row (see the module header).
+ * Lab run102 (run 102 deadlock): with the counterpart gate's result (`counterpart`), a row the gate requires for a case
+ * (clear pair, added operation, strong evidence, request silent) is never removed nor its case excluded: a
+ * counterpart-backed row gets no remedy (its gap is settled), an error pinned where the counterpart resolves the case and a
+ * value that differs from the counterpart's are re-pinned to the counterpart value, any other error row is relaxed with its
+ * case kept, and a row already pinning only the error is settled (it stands).
+ */
+export function pinDisputeRemedy(args: { storyId: string; item: ItemLike; dispute: DisputedRow; requestText: string | null;
+  counterpart?: Pick<CounterpartCoverageResult, 'checks'> | null }): PinDisputeRemedy | null {
   const { storyId, item, dispute } = args;
   const row = (item.verificationIntent?.[dispute.lane as (typeof VERIFICATION_LANES)[number]] ?? [])[dispute.index] as { desc?: string; derivation?: { requestQuote?: string } } | undefined;
   if (!row?.desc) return null;
   const desc = String(row.desc);
   const side = expectedSide(desc);
-  const text = pinnedText(desc) ?? literals(side).find(value => /[A-Za-z]/.test(value)) ?? null;
-  const error = ERROR_TEXT.test(side.replace(text ?? '', '')) || (text !== null && ERROR_TEXT.test(text));
+  const minimal = /^\s*error\s*$/i.test(side) && side.length !== desc.length;
+  const error = rowPinsError(desc) || ERROR_TEXT.test(side);
+  const text = pinnedText(desc) ?? literals(side).find(value => /[A-Za-z]/.test(value)) ?? (error && !minimal && side.length !== desc.length ? side.trim() : null);
   const streak = `the scope-plan reviewer raised ${dispute.ref} in ${dispute.verdicts} consecutive verdicts`;
+  const required = (counterpartRowRoles(args.counterpart).get(dispute.ref) ?? []).filter(role => role.required);
+  if (required.length) {
+    const role = required.find(entry => entry.role === 'contradicted') ?? required.find(entry => entry.role === 'backed') ?? required[0]!;
+    const counterpartName = role.counterpart.replace(/ \(.*\)$/, '');
+    const requirement = `${dispute.ref} is the row the framework's counterpart gate requires for the ${edgeLabel(role.edge)} case of ${role.operation} (the same receiver's counterpart ${role.counterpart} special-cases it`
+      + `${role.resolves ? ` and resolves it: \`${role.resolves}\`` : ''}); removing it or excluding the case would re-open [counterpart_coverage_missing]`;
+    const tail = { key: role.key };
+    if (role.role === 'backed') return null;
+    if (role.role === 'contradicted' || role.repin || (!error && !minimal)) {
+      const ready = role.repin;
+      const intentRow = ready
+        ? { ref: dispute.ref, desc: ready.desc, derivation: { requestQuote: String(row.derivation?.requestQuote ?? ''), computation: ready.computation } }
+        : { ref: dispute.ref, desc: `${caseSide(desc)} -> <the result ${counterpartName} gives for this case on the Story base (probe it), unless the request says otherwise>`,
+          derivation: { requestQuote: String(row.derivation?.requestQuote ?? ''), computation: `<the ${counterpartName} base probe of this case and its result, then the pinned value>` } };
+      return { ref: dispute.ref, kind: 'counterpart', payload: { storyId, itemId: item.id, intentRows: [intentRow], reason: `${streak}; re-pinned to the base counterpart's value (${COUNTERPART_PRECEDENCE})` },
+        why: `${requirement}: re-pin it to the value ${counterpartName} gives${ready ? ` (ready: \`${ready.desc}\`)` : ''} instead of another guess (precedence: ${COUNTERPART_PRECEDENCE})`,
+        note: `re-pinned to the base counterpart's value: the framework requires a row for this ${edgeLabel(role.edge)} case of ${role.operation} (the same receiver's counterpart ${role.counterpart} special-cases it) and the request is silent on it; judge the derivation from the counterpart, not the request's silence`,
+        ...tail, dir: 'require' };
+    }
+    if (error && !minimal) {
+      const patch = unstatedPinRowPatch({ itemId: item.id, ref: dispute.ref, desc, value: text ?? side.trim(), kind: 'unstated', error: true }, row, args.requestText);
+      return { ref: dispute.ref, kind: 'relax', payload: { storyId, itemId: item.id, intentRows: [patch], reason: `${streak}; the row pins only the error, its case kept (the counterpart gate requires it)` },
+        why: `${requirement}: keep the case and relax the row to \`${String(patch.desc).slice(0, 160)}\` (the request states no text for this error)`,
+        note: `relaxed to the error only, the case kept: the framework requires a row for this ${edgeLabel(role.edge)} case of ${role.operation} (the same receiver's counterpart ${role.counterpart} special-cases it)`,
+        ...tail };
+    }
+    return { ref: dispute.ref, kind: 'settle', payload: null,
+      why: `${requirement}; it already pins only that an error is raised, so no remedy is left that keeps the case: the row stands and the framework settles the gap (precedence: ${COUNTERPART_PRECEDENCE})`,
+      note: `kept as is (it pins only the error): the framework requires a row for this ${edgeLabel(role.edge)} case of ${role.operation} (the same receiver's counterpart ${role.counterpart} special-cases it)`,
+      ...tail, dir: 'require' };
+  }
   if (error && text) {
     const patch = unstatedPinRowPatch({ itemId: item.id, ref: dispute.ref, desc, value: text, kind: 'unstated', error: true }, row, args.requestText);
     return { ref: dispute.ref, kind: 'relax', payload: { storyId, itemId: item.id, intentRows: [patch], reason: `${streak}; the request states no text for this error, so the row pins only the error` },
@@ -111,7 +161,7 @@ export function pinDisputeRemedy(args: { storyId: string; item: ItemLike; disput
   if (excluded.contradictedBy !== 'title_or_files') {
     const payload: Record<string, unknown> = { storyId, itemId: item.id, intentRows: [{ ref: dispute.ref, remove: true }], excludes: [...(item.excludes ?? []), entry],
       ...(excluded.contradictedBy === 'userSees' ? { userSees: excluded.userSees } : {}), reason: `${streak}; the case is excluded and its row removed` };
-    return { ref: dispute.ref, kind: 'exclude', payload,
+    return { ref: dispute.ref, kind: 'exclude', payload, dir: 'drop',
       why: `${dispute.ref}'s case is not settled by the request: remove the row and exclude the case${excluded.contradictedBy === 'userSees' ? `, and drop from ${item.id}'s userSees the clause(s) naming it (${excluded.dropped.map(clause => `"${clause.slice(0, 120)}"`).join(', ')}) so the exclusion is not refused [scope_exclusion_contradicted]` : ''}` };
   }
   return { ref: dispute.ref, kind: 'repin', payload: { storyId, itemId: item.id, intentRows: [{ ref: dispute.ref, desc: `${caseSide(desc)} -> <the value the request states, else the value a Story-base probe of the same receiver gives>`,
@@ -128,16 +178,16 @@ export function recordPinDispute(root: string, storyId: string, verdictAt: strin
   try {
     mkdirSync(dirname(journal(root, storyId)), { recursive: true });
     writeFileSync(journal(root, storyId), `${JSON.stringify({ schema: PIN_DISPUTE_SCHEMA, storyId, at: 'next_offer', checkedAt: new Date().toISOString(), verdictAt,
-      rows: remedies.map(row => ({ ref: row.ref, kind: row.kind })) })}\n`, { flag: 'a' });
+      rows: remedies.map(row => ({ ref: row.ref, kind: row.kind, ...(row.note ? { note: row.note } : {}) })) })}\n`, { flag: 'a' });
   } catch { /* evidence only */ }
 }
 
 /** The dispute offered on the verdict `verdictAt`, if any (the rerun after it is a dispute rerun). */
-export function pinDisputeOffered(root: string, storyId: string, verdictAt: string | undefined): Array<{ ref: string; kind: string }> | null {
+export function pinDisputeOffered(root: string, storyId: string, verdictAt: string | undefined): Array<{ ref: string; kind: string; note?: string }> | null {
   if (!verdictAt) return null;
   try {
     const rows = readFileSync(journal(root, storyId), 'utf8').split('\n').flatMap(line => {
-      try { return [JSON.parse(line) as { verdictAt?: string; rows?: Array<{ ref: string; kind: string }> }]; } catch { return []; }
+      try { return [JSON.parse(line) as { verdictAt?: string; rows?: Array<{ ref: string; kind: string; note?: string }> }]; } catch { return []; }
     }).filter(row => row.verdictAt === verdictAt);
     return rows.length ? rows.at(-1)!.rows ?? [] : null;
   } catch { return null; }

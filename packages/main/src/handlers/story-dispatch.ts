@@ -50,7 +50,7 @@ import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAc
 import { loadConfig } from '../core/config.js';
 import { disputeConfirmOn, probeMatrixOn } from '../core/ab-variants.js';
 import { pinDisputeOffered } from '../core/pin-dispute.js';
-import { counterpartImplementerLines, planCounterpartCoverage } from '../core/counterpart-coverage.js';
+import { counterpartImplementerLines, planCounterpartCoverage, renderCounterpartBackedRows } from '../core/counterpart-coverage.js';
 import { renderSiblingParity } from '../core/sibling-parity.js';
 import { recordChainMechanismRequirement, regressionFamilyBrief } from '../core/regression-family-brief.js';
 import { baseDisagreementActive, SCOPE_PLAN_BASE_DISAGREEMENT_CHECK } from '../core/base-disagreement.js';
@@ -277,6 +277,8 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
     : 'Mechanical pre-check: every backticked request literal appears in some checklist title/userSees/verificationIntent; still trace every normative sentence.');
   // D4 pin audit + D5 same-semantics rule (old-PoS run 23, core/intent-derivation.ts).
   lines.push(...renderPinAudit(items, request.text));
+  // Lab run102 (run 101 scope-plan #1): rows whose value the framework derives from the same receiver's base counterpart.
+  lines.push(...(() => { try { return renderCounterpartBackedRows(planCounterpartCoverage(store, store.projectRoot, storyId, () => resolveGitCwd({ store, storyId, metadataRoot: store.projectRoot, projectRoot: store.projectRoot }))); } catch { return []; } })());
   // Old-PoS run 31 (core/pin-oracle.ts): the project-declared oracle for the examples the framework could not evaluate.
   lines.push(...renderPinOracleAudit(oracle));
   // Old-PoS run 31 (core/request-probes.ts): request-defined rows paired with the sentence that defines them.
@@ -1348,7 +1350,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // Lab round-cut N3b / N1: the request's exact-text literals at launch; the removed base guards of a reopened item.
       lines.push(...renderRequestExactLiterals(probeRequestText));
       lines.push(...renderRemovedGuardRelaunch(root, args.storyId, args.itemId));
-      // Lab sibling-gate (A/B plan.counterpartCoverage=on): probe the same receiver's counterpart before writing an added operation.
+      // Lab sibling-gate (plan.counterpartCoverage, default on since lab run102): probe the same receiver's counterpart before writing an added operation.
       const counterpart = planCounterpartCoverage(store, root, args.storyId, () => resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }));
       if (counterpart) lines.push(...counterpartImplementerLines(counterpart, args.itemId));
       const routed = store.readCandidateSpecSet(args.storyId);

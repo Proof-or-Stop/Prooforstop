@@ -149,7 +149,7 @@ function ownerExcludesLines(root: string, flagged: readonly string[], before: Ch
 /** The rerun-context lines for the scope-plan prompt; empty when there is no previous verdict. */
 export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: string; gitCwd: string; root?: string; confirmation?: boolean;
   /** Lab run95 (core/pin-dispute.ts): rows raised in consecutive verdicts and the framework remedy the owner was given. */
-  dispute?: ReadonlyArray<{ ref: string; kind: string }> }): string[] {
+  dispute?: ReadonlyArray<{ ref: string; kind: string; note?: string }> }): string[] {
   let scope: ScopeCheckData | null = null;
   try { scope = args.store.readScopeCheck(args.storyId); } catch { scope = null; }
   if (!scope) return [];
@@ -159,7 +159,7 @@ export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: 
   for (const feature of flagged.slice(0, 12)) lines.push(`- ${feature.status}: ${clip(feature.feature, 300)}`);
   if (flagged.length > 12) lines.push(`- +${flagged.length - 12} more`);
   if (args.dispute?.length) {
-    lines.push(`Disputed rows (raised in consecutive verdicts; the framework gave the owner one remedy instead of another guess): ${args.dispute.map(row => `${row.ref} (${row.kind === 'relax' ? 'relaxed to the error only: the request states no text for it' : row.kind === 'exclude' ? 'removed, case excluded, userSees edited to match' : 're-pinned to the request / base value'})`).join(', ')}. `
+    lines.push(`Disputed rows (raised in consecutive verdicts; the framework gave the owner one remedy instead of another guess): ${args.dispute.map(row => `${row.ref} (${row.note ?? (row.kind === 'relax' ? 'relaxed to the error only: the request states no text for it' : row.kind === 'exclude' ? 'removed, case excluded, userSees edited to match' : 're-pinned to the request / base value')})`).join(', ')}. `
       + 'Judge each remedied row as it is written now (orientation only: the full request trace and pin audit below still apply).');
   }
   let current: ChecklistData | null = null;

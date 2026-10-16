@@ -321,13 +321,18 @@
  *      unanswered question blocks, then DEV; NRB plan.rowBudget=on, the template
  *      guidance and story_create's advisory list rows repeating an operand class
  *      with one trim command (rows before -> after printed). `PL` = all four.
- *   NCC lab sibling-gate (EXPERIMENTAL plan.counterpartCoverage, default off; its
- *      switch-absent control NCC-off runs first): an item adding Shelf.Put with
+ *   NCC lab sibling-gate (plan.counterpartCoverage, default on since lab run102; its
+ *      switch-off control NCC-off runs first): an item adding Shelf.Put with
  *      in-range rows only, next to the base's Shelf.Get (counts a negative index
  *      from the end, base test) and Bin.Put (rejects it), refuses DEV entry
  *      ([counterpart_coverage_missing], counterpart first, sibling second, one
  *      Next with a placeholder row per class); the implementer prompt carries the
  *      `[counterpart]` probe contract (bytes printed); rows added = pass.
+ *   NCD / NCE / NCS lab run102 (run100-103-analysis.md): NCD the pin-dispute remedy never
+ *      removes / excludes a case the counterpart gate requires (run 102's ten-offer
+ *      alternation); NCE an error row for a case the counterpart resolves is no
+ *      coverage, ONE ready re-pin (run 101); NCS a pin-audit gap on a
+ *      counterpart-backed row is settled, the prompt lists the row (run 101's flip).
  *
  *   NRG old-PoS runs 46/47 (resolved-finding regression guard + finding conflict):
  *      round 1's finding F-001 is repaired with a test and resolved; round 2's
@@ -5625,14 +5630,14 @@ const NCC_SHELF_TEST = [
 const NCC_REQUEST = `${NIQ_REQUEST}\n- Add \`Shelf.Put(i, v)\` to the store package; it replaces the label at position i.`;
 
 /**
- * NCC: plan.counterpartCoverage=on. CHK-001 adds Shelf.Put with in-range rows only; the framework finds the
+ * NCC: plan.counterpartCoverage (default on since lab run102). CHK-001 adds Shelf.Put with in-range rows only; the framework finds the
  * same receiver's counterpart Shelf.Get in the Story base, which special-cases a negative and an out-of-range
  * index (branch + base test), and refuses DEV entry with ONE Next (a placeholder row per class); the rows added,
- * DEV entry is no longer refused for it. Control NCC-off: the switch absent, nothing is discovered or refused.
+ * DEV entry is no longer refused for it. Control NCC-off: the switch off, nothing is discovered or refused.
  */
 function scenarioNCC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NCC';
-  const name = 'NCC lab sibling-gate plan.counterpartCoverage=on: an added operation (Shelf.Put) whose same-receiver counterpart (Shelf.Get) special-cases negative / out-of-range indexes no row covers refuses DEV entry (counterpart first, Bin.Put second, one Next); rows added = pass; the implementer prompt asks for [counterpart] probes; switch off = unchanged';
+  const name = 'NCC lab sibling-gate plan.counterpartCoverage (default on since lab run102): an added operation (Shelf.Put) whose same-receiver counterpart (Shelf.Get) special-cases negative / out-of-range indexes no row covers refuses DEV entry (counterpart first, Bin.Put second, one Next); rows added = pass; the implementer prompt asks for [counterpart] probes; switch off = unchanged';
   const row = (desc: string, test: string) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
     requirementSource: 'story', verification: { command: `go test -v ./store -run ^${test}$`, selector: `--- PASS: ${test}` } });
   const quote = 'Add `Shelf.Put(i, v)` to the store package; it replaces the label at position i.';
@@ -5674,14 +5679,15 @@ function scenarioNCC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
       store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
     }
   };
-  const control = new Owner('NCC-off', 'B-e2c1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NCC_REQUEST, baseFiles });
-  const o = new Owner(tag, 'B-e2c0', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NCC_REQUEST,
-    config: { plan: { counterpartCoverage: 'on' } }, baseFiles });
+  // Lab run102: the switch is on by default; the control sets the recorded rollback `off`.
+  const control = new Owner('NCC-off', 'B-e2c1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NCC_REQUEST,
+    config: { plan: { counterpartCoverage: 'off' } }, baseFiles });
+  const o = new Owner(tag, 'B-e2c0', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NCC_REQUEST, baseFiles });
   try {
-    // Control: switch absent, nothing is discovered, refused or added to the implementer prompt.
+    // Control: switch off, nothing is discovered, refused or added to the implementer prompt.
     setup(control);
     const off = ask(control, 'next (switch off)');
-    assert.notEqual(off.reason, 'counterpart_coverage_missing', `[NCC] with plan.counterpartCoverage absent nothing is checked: ${off.why}`);
+    assert.notEqual(off.reason, 'counterpart_coverage_missing', `[NCC] with plan.counterpartCoverage=off nothing is checked: ${off.why}`);
     const offDev = control.cli('story_advance', { storyId: control.storyId, phase: 'DEV' }, { label: 'story_advance DEV (switch off)' });
     assert.doesNotMatch(offDev.out, /counterpart_coverage_missing/, '[NCC] the DEV gate is unchanged with the switch off');
     const offPrompt = implementerPrompt(control, 'dispatch implementer (switch off)');
@@ -5709,7 +5715,7 @@ function scenarioNCC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const evidencePath = [o.root, o.worktree].map(dir => join(dir, '.proof-or-stop', 'runtime', 'counterpart-coverage', `${o.storyId}.json`)).find(path => existsSync(path));
     assert.ok(evidencePath, '[NCC] the discovery is recorded with its A/B evidence');
     const evidence = JSON.parse(readFileSync(evidencePath!, 'utf8')) as { abVariant?: { flags?: Record<string, string> }; refusals?: unknown[]; scanned?: number };
-    assert.deepEqual(evidence.abVariant?.flags, { 'plan.counterpartCoverage': 'on' }, '[NCC] abVariantEvidence recorded');
+    assert.equal(evidence.abVariant, undefined, '[NCC] the default arm (on) records no A/B evidence');
     lines.push(`discovery: ${evidence.scanned} base source file(s) scanned, ${evidence.refusals?.length} refusal(s)`);
     const onPrompt = implementerPrompt(o, 'dispatch implementer (switch on)');
     assert.match(onPrompt, /\[counterpart\] <op> :: <case> -> <base result>/, '[NCC] the implementer prompt carries the counterpart probe contract');

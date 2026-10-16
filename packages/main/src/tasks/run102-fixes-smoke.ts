@@ -211,7 +211,7 @@ await check('G1 a pin-audit gap citing only counterpart-backed rows is settled (
   ];
   const settled = settledOf(result, gaps) as Map<string, string>;
   assert.deepEqual([...settled.keys()], [gaps[0]!.feature]);
-  assert.match(settled.get(gaps[0]!.feature)!, /evalStringIndexExpression[^]*request text > the same receiver's base counterpart > reviewer/, settled.get(gaps[0]!.feature));
+  assert.match(settled.get(gaps[0]!.feature)!, /evalStringIndexExpression[^]*request text > the same receiver's base counterpart > another receiver's precedent or a reviewer/, settled.get(gaps[0]!.feature));
 });
 
 await check('G2 the scope-plan prompt lists the counterpart-backed rows with the precedence', async () => {

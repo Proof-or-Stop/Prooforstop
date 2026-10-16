@@ -133,7 +133,7 @@ export function mergeChecklistUpdateCalls(calls: ReadonlyArray<Call>): Call[] {
  * missing derivations, unstated request literals, coverage rows), exact whole-error pins, rows contradicting a
  * request example, pinned printed forms the base printer renders differently (lab run89), pinned texts neither the request
  * nor the Story base supports (lab run95, core/unstated-pin.ts) and, with
- * plan.counterpartCoverage=on, uncovered counterpart cases. One text block, its ONE
+ * plan.counterpartCoverage (default on), uncovered counterpart cases. One text block, its ONE
  * Next the merged row patches (one checklist_update per item); null when nothing is due.
  */
 export function planLintPreview(args: { store: StoryStore; root: string; storyId: string }): string | null {

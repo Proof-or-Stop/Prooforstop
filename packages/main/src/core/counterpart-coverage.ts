@@ -1,7 +1,8 @@
 /**
- * EXPERIMENTAL A/B switch `plan.counterpartCoverage` (default off; lab
- * sibling-gate, old-PoS runs 43 / 46 / 55 / 57 / 71,
- * bench-staging/oldpos/run69-72-analysis.md §1).
+ * Switch `plan.counterpartCoverage` (lab sibling-gate, old-PoS runs 43 / 46 / 55 /
+ * 57 / 71, bench-staging/oldpos/run69-72-analysis.md §1; EXPERIMENTAL default off
+ * until lab run102, default ON since: run100-103-analysis.md §6, `off` = the
+ * recorded rollback).
  *
  * The miss: a Story adds a NEW operation on a receiver type (a write path for a
  * type that only had reads, e.g. single-index assignment on strings). The
@@ -61,6 +62,19 @@
  *       special case: a naive implementation fails there);
  *   (c) no current row (any item) exercises the new operation on that class,
  *       and no request sentence names the operation together with that class.
+ *       Lab run102 (run 101, the 8th recurrence of the miss): coverage is
+ *       value-aware. A row pinning an error / rejection for a case the
+ *       counterpart RESOLVES (a wrap of a negative operand in its body,
+ *       `idx = length + idx` / `i += len(s)`, or a base probe answering a
+ *       non-empty value; index form: the index within the literal's length,
+ *       method form: within the constructor's argument count) does not count:
+ *       the refusal names the row and its Next re-pins it in place to the
+ *       counterpart's value (computed for a single-character string write, else
+ *       a placeholder naming the counterpart). A row whose value equals the
+ *       computed counterpart value is counterpart-backed: a scope-plan gap
+ *       citing only such rows is settled by the precedence request text > the
+ *       base counterpart > another receiver's precedent / reviewer opinion
+ *       (counterpartSettledGaps, renderCounterpartBackedRows).
  * Any other discovered class (one signal, an ambiguous pair, a changed
  * operation) is an ADVISORY note: recorded in the evidence, listed by
  * story_review as an advisory issue and in the implementer prompt, never a
@@ -103,12 +117,13 @@ import { pinOracleStoryBase } from './pin-oracle.js';
 import { baseEvaluator } from './plan-pin-probe.js';
 import { evaluateInTree, probeProgram, type ProbeObservation } from './request-probes.js';
 import { STORY_FOCUSED_CLASSIFICATION } from './verification-intent-classification.js';
+import { expectedSide, literals } from './exact-error-pin-lint.js';
 
 export const COUNTERPART_COVERAGE_MISSING = 'counterpart_coverage_missing';
 export const COUNTERPART_COVERAGE_ADVISORY = 'counterpart_coverage_advisory';
 export const COUNTERPART_COVERAGE_SCHEMA = 'proof-or-stop.counterpart-coverage.v1' as const;
 /** Bumped whenever discovery changes, so a cached result of an older rule set is recomputed. */
-const DISCOVERY_VERSION = 1;
+const DISCOVERY_VERSION = 2; // 2: lab run102 value-aware coverage (resolves / contradicted / backed)
 
 export type EdgeClass = 'negative' | 'out_of_range' | 'empty' | 'null' | 'type';
 export const EDGE_CLASSES: readonly EdgeClass[] = ['negative', 'out_of_range', 'empty', 'null', 'type'];
@@ -129,7 +144,22 @@ export interface EdgeEvidence {
   coveredBy: string | null;
   /** A request sentence names the operation together with this class. */
   stated: boolean;
+  /**
+   * Lab run102: the counterpart RESOLVES an operand of this class to an element (a wrap assignment of the operand in its
+   * body, `idx = length + idx` / `i += len(s)`, or a base probe answering a non-empty value). A row pinning an error for
+   * such a case is no coverage (`contradicted`).
+   */
+  resolves?: { text: string; path?: string; line?: number };
+  /** Lab run102: every row exercising the new operation on this class, whatever it pins. */
+  rows?: string[];
+  /** Lab run102: rows pinning an error / rejection for a case the counterpart resolves (not coverage), with the counterpart re-pin. */
+  contradicted?: ContradictedRow[];
+  /** Lab run102: rows whose pinned value equals the value the framework computes from the counterpart (counterpart-backed). */
+  backed?: string[];
+  /** Lab run102: value rows whose pinned value differs from the value the framework computes from the counterpart (with that re-pin). */
+  mismatched?: ContradictedRow[];
 }
+export interface ContradictedRow { ref: string; desc: string; requestQuote: string; repin: { desc: string; computation: string } | null }
 export interface CounterpartCheck {
   itemId: string;
   /** `Shelf.Put`, or `string[i] = v` (index form). */
@@ -143,7 +173,9 @@ export interface CounterpartCheck {
   siblings: Located[];
   edges: EdgeEvidence[];
 }
-export interface CounterpartRefusal { itemId: string; operation: string; counterpart: string; siblings: string[]; edges: EdgeClass[]; evidence: string[] }
+export interface CounterpartRefusal { itemId: string; operation: string; counterpart: string; siblings: string[]; edges: EdgeClass[]; evidence: string[];
+  /** Lab run102: refused classes whose only rows pin an error the counterpart contradicts (re-pinned in place by the Next). */
+  contradicted?: Array<ContradictedRow & { edge: EdgeClass; resolves: string }> }
 export interface CounterpartAdvisory { itemId: string; operation: string; counterpart: string; edges: EdgeClass[]; reason: string }
 export interface CounterpartCoverageResult {
   checks: CounterpartCheck[];
@@ -431,6 +463,37 @@ export function branchEvidence(fn: FnDef): Partial<Record<EdgeClass, Signal>> {
   return out;
 }
 
+/**
+ * Lab run102 (run100-103-analysis.md §2, §5 item 3): the counterpart RESOLVES a negative operand when its body re-assigns
+ * the operand from a length and itself (`idx = length + idx`, `i += len(s)`, `i = (i + n) % n`): the wrap that makes a
+ * negative index count from the end. A clamp (`idx = 0`) or a length-free assignment is no wrap.
+ */
+export function wrapEvidence(fn: FnDef): Signal | null {
+  const { operands, lengths } = derivedNames(fn);
+  if (!operands.size) return null;
+  const op = [...operands].map(escapeRegExp).join('|');
+  const lengthNames = [...lengths].map(escapeRegExp).join('|');
+  const lengthy = new RegExp(`${LENGTHISH.source}${lengthNames ? `|(?<![\\w$])(?:${lengthNames})(?![\\w$])` : ''}`);
+  const assignment = new RegExp(`^\\s*(?:(?:let|var|const|auto)\\s+)?(${op})\\s*(\\+=|%=|:=|=)(?!=)\\s*(.+)$`);
+  const maskedLines = fn.masked.split('\n');
+  const bodyLines = fn.body.split('\n');
+  for (const [index, line] of maskedLines.entries()) {
+    const match = line.match(assignment);
+    if (!match || !lengthy.test(match[3]!)) continue;
+    const self = words(match[3]!, [match[1]!]).test(match[3]!);
+    if ((match[2] === '=' || match[2] === ':=') && !(self && /[+%]/.test(match[3]!))) continue;
+    return { path: fn.path, line: fn.bodyLine + index, text: bodyLines[index]!.trim().slice(0, 120) };
+  }
+  return null;
+}
+
+/** Lab run102: an expected side that pins an error / rejection (`index out of range: 5`, `-> error`, `ErrOutOfRange`, `raises IndexError`). */
+const ERROR_PIN = /\b(?:error|errors|raise[sd]?|raising|throws?|thrown|exception|panics?|reject(?:s|ed)?|invalid|not (?:supported|allowed)|unsupported|cannot|fails?|failed|refused)\b|out[\s_-]?of[\s_-]?(?:range|bounds)|\bErr[A-Z]\w*|\b\w+(?:Error|Exception)\b|OutOfRange|OutOfBounds/;
+export function rowPinsError(desc: string): boolean {
+  const side = expectedSide(desc);
+  return ERROR_PIN.test(side.trim() ? side : desc);
+}
+
 // ---------------------------------------------------------------------------
 // Literal parsing for the index form (rows, test sources)
 
@@ -492,7 +555,7 @@ const PROSE: Record<EdgeClass, RegExp> = {
 // ---------------------------------------------------------------------------
 // Discovery
 
-interface Rows { ref: string; itemId: string; desc: string }
+interface Rows { ref: string; itemId: string; desc: string; requestQuote: string }
 function rowsOf(items: readonly ItemLike[]): Rows[] {
   const out: Rows[] = [];
   for (const item of items) {
@@ -501,7 +564,7 @@ function rowsOf(items: readonly ItemLike[]): Rows[] {
       for (const [index, row] of (item.verificationIntent?.[lane] ?? []).entries()) {
         const desc = typeof row?.desc === 'string' ? row.desc.trim() : '';
         if (!desc || /^<[^]*>$/.test(desc)) continue; // an unauthored placeholder covers nothing
-        out.push({ ref: `${item.id}:${lane}:${index}`, itemId: item.id, desc });
+        out.push({ ref: `${item.id}:${lane}:${index}`, itemId: item.id, desc, requestQuote: String((row as { derivation?: { requestQuote?: unknown } }).derivation?.requestQuote ?? '') });
       }
     }
   }
@@ -595,7 +658,9 @@ function testsWriteKind(ctx: Context, kind: Kind): boolean {
 }
 
 interface Pending { check: CounterpartCheck; tests: Partial<Record<EdgeClass, Signal>>; branches: Partial<Record<EdgeClass, Signal>>;
-  probes: Partial<Record<EdgeClass, { status: ProbeObservation['status']; text: string; code: string }>>; mentions: RegExp; kind?: Kind; method?: string; owner?: string }
+  probes: Partial<Record<EdgeClass, { status: ProbeObservation['status']; text: string; code: string }>>; mentions: RegExp; kind?: Kind; method?: string; owner?: string;
+  /** Lab run102: the counterpart's wrap of a negative operand (see wrapEvidence). */
+  wrap: Signal | null }
 
 function methodChecks(ctx: Context, item: ItemLike, rows: Rows[]): Pending[] {
   const own = rows.filter(row => row.itemId === item.id);
@@ -625,7 +690,7 @@ function methodChecks(ctx: Context, item: ItemLike, rows: Rows[]): Pending[] {
       const pair = !candidate.has && added.length === 1 && candidate.counterpart.length === 1 ? 'clear' : 'weak';
       out.push({ check: { itemId: item.id, operation: `${candidate.owner}.${token}`, form: 'method', status: candidate.has ? 'changed' : 'added', pair,
         counterpart: located(fn), siblings, edges: [] },
-      branches: branchEvidence(fn), tests: methodTestEvidence(ctx, candidate.owner, fn.name), probes: {},
+      branches: branchEvidence(fn), tests: methodTestEvidence(ctx, candidate.owner, fn.name), probes: {}, wrap: wrapEvidence(fn),
       mentions: new RegExp(`(?<![\\w$])${escapeRegExp(token)}(?![\\w$])`), method: token, owner: candidate.owner });
     }
   }
@@ -678,22 +743,90 @@ function indexChecks(ctx: Context, item: ItemLike, rows: Rows[], probe: ((cases:
     const kindProse = new RegExp(`\\b(?:${KIND_WORDS[kind].join('|')})s?\\b`, 'i');
     out.push({ check: { itemId: item.id, operation: `${KIND_LABEL[kind]}[i] = v`, form: 'index', status, pair: status === 'added' && best.length === 1 && pairKnown ? 'clear' : 'weak',
       counterpart: located(fn), siblings: writers.filter(writer => writer.owner === null || !kindWord(writer.owner)).map(writer => located(writer)), edges: [] },
-    branches: branchEvidence(fn), tests: indexTestEvidence(ctx, kind), probes, kind,
+    branches: branchEvidence(fn), tests: indexTestEvidence(ctx, kind), probes, kind, wrap: wrapEvidence(fn),
     mentions: new RegExp(`(?=[^]*${assign.source})(?=[^]*${kindProse.source})`, 'i') });
   }
   return out;
 }
 
-function coverageOf(pending: Pending, edge: EdgeClass, rows: Rows[]): string | null {
+interface Coverage { coveredBy: string | null; rows: string[]; contradicted: ContradictedRow[]; backed: string[]; mismatched: ContradictedRow[] }
+
+/** `-<n>` as n, else null (a symbolic negative operand). */
+const negativeMagnitude = (operand: string): number | null => {
+  const match = operand.trim().match(/^-\s*(\d+)$/);
+  return match ? Number(match[1]) : null;
+};
+const unescapeLiteral = (text: string): string => text.replace(/\\(.)/g, '$1');
+
+/**
+ * Lab run102: the value a single-character string write on a negative index gives when it follows the counterpart's wrap
+ * (`t = "pqr"; t[-1] = "z"` -> `"pqz"`), or null when not computable (another kind, a symbolic operand, a value that is not
+ * one character, an index the wrap does not reach, a result that would need escaping).
+ */
+function counterpartWriteValue(write: IndexWrite): { result: string; literal: string } | null {
+  if (write.binding.kind !== 'string') return null;
+  const n = negativeMagnitude(write.operand);
+  const quote = write.binding.literal[0]!;
+  const chars = [...unescapeLiteral(write.binding.literal.slice(1, -1))];
+  if (n === null || n < 1 || n > chars.length) return null;
+  const value = write.statement.match(/=\s*(["'])((?:[^"'\\]|\\.)*)\1\s*$/);
+  const replacement = value ? [...unescapeLiteral(value[2]!)] : [];
+  if (replacement.length !== 1) return null;
+  chars[chars.length - n] = replacement[0]!;
+  const result = chars.join('');
+  if (result.includes(quote) || result.includes('\\') || /\n/.test(result)) return null;
+  return { result, literal: `${quote}${result}${quote}` };
+}
+
+/** The literals of a row's expected side (its value), or the bare side. */
+const expectedValues = (desc: string): string[] => {
+  const side = expectedSide(desc);
+  if (side.length === desc.length) return [];
+  const found = literals(side);
+  return found.length ? found : [side.trim()];
+};
+
+/** Constructor argument count of `New<Owner>(a, b, c)` / `Owner(a, b)` in a row (the receiver size), or null. */
+function constructedSize(desc: string, owner: string): number | null {
+  const match = desc.match(new RegExp(`(?<![\\w$])(?:New|new|make|Make|create|Create)?${escapeRegExp(owner)}\\s*\\(([^()]*)\\)`));
+  return match ? splitTop(match[1] ?? '').length : null;
+}
+
+/**
+ * Which rows exercise the new operation on `edge`, the first that covers it, and (lab run102, value-aware) the rows that do
+ * NOT count because they pin an error for a case the counterpart resolves (`resolves`: a wrap / probe value for a negative
+ * operand; index form: the index within the receiver's length; method form: within the constructor's argument count).
+ */
+function coverageOf(pending: Pending, edge: EdgeClass, rows: Rows[], resolves: boolean): Coverage {
+  const out: Coverage = { coveredBy: null, rows: [], contradicted: [], backed: [], mismatched: [] };
+  const exercised = (ref: string): void => { if (!out.rows.includes(ref)) out.rows.push(ref); };
+  const covers = (ref: string): void => { exercised(ref); out.coveredBy ??= ref; };
+  const counterpartName = pending.check.counterpart?.name ?? 'the counterpart';
+  const contradict = (row: Rows, repin: ContradictedRow['repin']): void => {
+    exercised(row.ref);
+    if (!out.contradicted.some(entry => entry.ref === row.ref)) out.contradicted.push({ ref: row.ref, desc: row.desc, requestQuote: row.requestQuote, repin });
+  };
   for (const row of rows) {
     if (pending.check.form === 'index') {
       for (const write of rowIndexWrites(row.desc).filter(candidate => candidate.binding.kind === pending.kind)) {
         const length = literalLength(write.binding.literal);
         const cls = edge === 'empty' ? (length === 0 ? 'empty' : null) : operandClass(write.operand, length, pending.kind !== 'map');
-        if (cls === edge) return row.ref;
-        if (edge === 'out_of_range' && PROSE.out_of_range.test(row.desc)) return row.ref;
+        if (cls === edge) {
+          const n = negativeMagnitude(write.operand);
+          const wraps = resolves && edge === 'negative' && n !== null && (length === null || n <= length);
+          const value = wraps ? counterpartWriteValue(write) : null;
+          const repin = value ? { desc: `${write.binding.statement}; ${write.statement}; ${write.receiver} -> ${value.literal}`,
+            computation: `The request states nothing for a ${edgeLabel(edge)} index here; the same receiver's counterpart ${counterpartName} counts it from the end, `
+              + `so ${write.receiver}[${write.operand}] on ${write.binding.literal} (length ${length}) is position ${(length ?? 0) - n!}; the write replaces that character: ${value.literal}` } : null;
+          if (wraps && rowPinsError(row.desc)) { contradict(row, repin); continue; }
+          if (value && expectedValues(row.desc).includes(value.result)) { if (!out.backed.includes(row.ref)) out.backed.push(row.ref); }
+          else if (repin && !out.mismatched.some(entry => entry.ref === row.ref)) out.mismatched.push({ ref: row.ref, desc: row.desc, requestQuote: row.requestQuote, repin });
+          covers(row.ref);
+          continue;
+        }
+        if (edge === 'out_of_range' && PROSE.out_of_range.test(row.desc)) covers(row.ref);
       }
-      if (!rowIndexWrites(row.desc).length && pending.mentions.test(row.desc) && PROSE[edge].test(row.desc)) return row.ref;
+      if (!rowIndexWrites(row.desc).length && pending.mentions.test(row.desc) && PROSE[edge].test(row.desc)) covers(row.ref);
       continue;
     }
     const method = escapeRegExp(pending.method!);
@@ -702,14 +835,30 @@ function coverageOf(pending: Pending, edge: EdgeClass, rows: Rows[]): string | n
     const calls = [...row.desc.matchAll(new RegExp(`(?:(?<![\\w$])([A-Za-z_]\\w*)\\.)?(?<![\\w$])${method}\\s*\\(([^)]*)\\)`, 'g'))]
       .filter(match => !match[1] || !bound.has(match[1]) || bound.get(match[1]) === pending.owner);
     if (!calls.length) continue;
+    let matched = false;
     for (const call of calls) {
       const first = splitTop(call[2] ?? '')[0] ?? '';
-      if (operandClass(first, null, edge === 'type') === edge) return row.ref;
+      if (operandClass(first, null, edge === 'type') !== edge) continue;
+      const n = negativeMagnitude(first);
+      const size = constructedSize(row.desc, pending.owner!);
+      if (resolves && edge === 'negative' && n !== null && size !== null && n <= size && rowPinsError(row.desc)) { contradict(row, null); matched = true; break; }
+      covers(row.ref); matched = true; break;
     }
-    if (edge === 'empty' && new RegExp(`(?:New|new|make|Make)?${escapeRegExp(pending.owner!)}\\s*(?:\\(\\s*\\)|\\{\\s*\\})`).test(row.desc)) return row.ref;
-    if (PROSE[edge].test(edge === 'out_of_range' ? row.desc.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2') : row.desc)) return row.ref;
+    if (matched) continue;
+    if (edge === 'empty' && new RegExp(`(?:New|new|make|Make)?${escapeRegExp(pending.owner!)}\\s*(?:\\(\\s*\\)|\\{\\s*\\})`).test(row.desc)) { covers(row.ref); continue; }
+    if (PROSE[edge].test(edge === 'out_of_range' ? row.desc.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2') : row.desc)) covers(row.ref);
   }
-  return null;
+  // A row both covering (another write of it) and contradicted counts as coverage.
+  out.contradicted = out.contradicted.filter(entry => entry.ref !== out.coveredBy);
+  return out;
+}
+
+/** Lab run102: whether the counterpart resolves a negative operand (its wrap, or a base probe answering a non-empty value). */
+function resolvesNegative(pending: Pending): EdgeEvidence['resolves'] | undefined {
+  if (pending.wrap) return { text: pending.wrap.text, path: pending.wrap.path, line: pending.wrap.line };
+  const probe = pending.probes.negative;
+  if (probe?.status === 'value' && !/^(?:""|''|null|nil|None|undefined|NULL|)$/.test(probe.text.trim())) return { text: `base probe \`${probe.code}\` -> ${probe.text}` };
+  return undefined;
 }
 
 function statedIn(pending: Pending, edge: EdgeClass, requestText: string | null): boolean {
@@ -739,8 +888,13 @@ export function counterpartCoverage(input: { files: readonly SourceFile[]; items
         if (!branch && !test && !answered) continue;
         const signals = [branch, test, answered ? probe : undefined].filter(Boolean).length;
         const strong = signals >= 2 || (probe?.status === 'value' && (edge === 'negative' || edge === 'out_of_range'));
+        // Lab run102: value-aware coverage (an error pinned where the counterpart resolves the case is no coverage).
+        const resolves = edge === 'negative' ? resolvesNegative(pending) : undefined;
+        const coverage = coverageOf(pending, edge, rows, Boolean(resolves));
         check.edges.push({ edge, ...(branch ? { branch } : {}), ...(test ? { test } : {}), ...(probe ? { probe } : {}), strong,
-          coveredBy: coverageOf(pending, edge, rows), stated: statedIn(pending, edge, input.requestText) });
+          coveredBy: coverage.coveredBy, stated: statedIn(pending, edge, input.requestText), ...(resolves ? { resolves } : {}),
+          ...(coverage.rows.length ? { rows: coverage.rows } : {}), ...(coverage.contradicted.length ? { contradicted: coverage.contradicted } : {}),
+          ...(coverage.backed.length ? { backed: coverage.backed } : {}), ...(coverage.mismatched.length ? { mismatched: coverage.mismatched } : {}) });
       }
       if (!check.edges.length) continue;
       checks.push(check);
@@ -748,8 +902,9 @@ export function counterpartCoverage(input: { files: readonly SourceFile[]; items
       const counterpart = check.counterpart ? `${check.counterpart.name} (${check.counterpart.path}:${check.counterpart.line})` : '(none)';
       const refused = check.pair === 'clear' ? open.filter(edge => edge.strong) : [];
       if (refused.length) {
+        const contradicted = refused.flatMap(edge => (edge.contradicted ?? []).map(row => ({ ...row, edge: edge.edge, resolves: edge.resolves?.text ?? '' })));
         refusals.push({ itemId: check.itemId, operation: check.operation, counterpart, siblings: check.siblings.map(row => `${row.name} (${row.path}:${row.line})`),
-          edges: refused.map(edge => edge.edge), evidence: refused.map(describeEvidence) });
+          edges: refused.map(edge => edge.edge), evidence: refused.map(describeEvidence), ...(contradicted.length ? { contradicted } : {}) });
       }
       const weak = open.filter(edge => !refused.includes(edge));
       if (weak.length) {
@@ -767,6 +922,7 @@ const describeEvidence = (edge: EdgeEvidence): string => {
     edge.branch ? `branch \`${edge.branch.text}\` (${edge.branch.path}:${edge.branch.line})` : '',
     edge.test ? `base test \`${edge.test.text}\` (${edge.test.path}:${edge.test.line})` : '',
     edge.probe ? `base probe \`${edge.probe.code}\` -> ${edge.probe.status === 'error' ? 'error ' : ''}${edge.probe.text}` : '',
+    edge.resolves ? `resolves it: \`${edge.resolves.text}\`${edge.resolves.path ? ` (${edge.resolves.path}:${edge.resolves.line})` : ''}` : '',
   ].filter(Boolean);
   return `${edgeLabel(edge.edge)}: ${parts.join('; ')}`;
 };
@@ -789,18 +945,31 @@ export function counterpartPlaceholderRows(refusal: CounterpartRefusal): Array<R
   }));
 }
 
-/** The ONE next action: the item's whole verificationIntent with the placeholder rows appended to edge. */
 /**
  * Lab initplan (initplan-breakdown.md rank 6): a row patch that APPENDS one placeholder edge row per uncovered
  * class (`<item>:edge:+`), not the item's whole verificationIntent; the existing rows are untouched.
+ * Lab run102: a class whose only rows pin an error the counterpart contradicts is answered by re-pinning THOSE rows in place
+ * (`<row ref>`): the counterpart value when the framework computes it (a single-character string write), else a placeholder
+ * naming the counterpart; no row is appended for it.
  */
 export function counterpartNextPayload(storyId: string, _item: ItemLike | undefined, refusal: CounterpartRefusal): Record<string, unknown> {
-  return { storyId, itemId: refusal.itemId, intentRows: counterpartPlaceholderRows(refusal).map(row => ({ ref: `${refusal.itemId}:edge:+`, ...(row as Record<string, unknown>) })) };
+  const counterpart = refusal.counterpart.replace(/ \(.*\)$/, '');
+  const contradicted = refusal.contradicted ?? [];
+  const repins = contradicted.map(row => ({ ref: row.ref, ...(row.repin
+    ? { desc: row.repin.desc, derivation: { requestQuote: row.requestQuote, computation: row.repin.computation } }
+    : { desc: `<${row.desc.split(/\s*(?:->|=>|→)\s*/)[0]} -> the result ${counterpart} gives for this case (it resolves it: ${row.resolves}; probe it on the Story base), unless the request says otherwise>`,
+      derivation: { requestQuote: row.requestQuote, computation: `<the ${counterpart} base probe of this case and its result, then the pinned value>` } }) }));
+  const repinned = new Set(contradicted.map(row => row.edge));
+  const placeholders = counterpartPlaceholderRows({ ...refusal, edges: refusal.edges.filter(edge => !repinned.has(edge)) })
+    .map(row => ({ ref: `${refusal.itemId}:edge:+`, ...(row as Record<string, unknown>) }));
+  return { storyId, itemId: refusal.itemId, intentRows: [...repins, ...placeholders] };
 }
 
 export function describeCounterpartRefusal(refusal: CounterpartRefusal): string {
+  const contradicted = (refusal.contradicted ?? []).map(row => `${row.ref} pins an error for this ${edgeLabel(row.edge)} case, but ${refusal.counterpart.replace(/ \(.*\)$/, '')} resolves it (\`${row.resolves}\`), `
+    + `so the row is no coverage: re-pin it to the counterpart's result${row.repin ? ` (ready: \`${row.repin.desc}\`)` : ''}, unless a request sentence states the error for ${refusal.operation} on this case`);
   return `${refusal.itemId} adds ${refusal.operation}; the same receiver's counterpart ${refusal.counterpart} special-cases ${refusal.edges.map(edgeLabel).join(', ')}, `
-    + `which no row states for ${refusal.operation} (${refusal.evidence.join('; ')})`;
+    + `which no row states for ${refusal.operation} (${refusal.evidence.join('; ')})${contradicted.length ? `; ${contradicted.join('; ')}` : ''}`;
 }
 
 export function counterpartRule(refusal: CounterpartRefusal): string {
@@ -809,17 +978,102 @@ export function counterpartRule(refusal: CounterpartRefusal): string {
     + `(oracle order: the same receiver's counterpart first${siblings}). The framework never writes the value.`;
 }
 
+// ---------------------------------------------------------------------------
+// Lab run102: rows the counterpart gate requires, counterpart-backed rows, settled gaps
+
+export const COUNTERPART_PRECEDENCE = 'request text > the same receiver\'s base counterpart > another receiver\'s precedent or a reviewer\'s judgment';
+export const SCOPE_GAP_COUNTERPART_SETTLED = 'scope_gap_counterpart_settled';
+const ROW_REF = /\b(CHK-\d+):(happy|edge|adversarial):(\d+)\b/g;
+
+export interface CounterpartRowRole {
+  ref: string; itemId: string; operation: string; edge: EdgeClass; counterpart: string;
+  /** The class refuses DEV without a row (clear pair, added operation, strong evidence, request silent). */
+  required: boolean;
+  /** backed: the pinned value equals the framework's counterpart value; contradicted: an error where the counterpart resolves; covers: any other covering row. */
+  role: 'backed' | 'covers' | 'contradicted';
+  resolves: string | null;
+  repin: ContradictedRow['repin'];
+  requestQuote: string;
+  /** Cycle-breaker key of the case: `<item>|<operation>|<class>`. */
+  key: string;
+}
+
+export const counterpartCaseKey = (itemId: string, operation: string, edge: EdgeClass): string => `${itemId}|${operation}|${edge}`;
+
+/** Every row a counterpart check reads, by ref, with its role (lab run102). */
+export function counterpartRowRoles(result: Pick<CounterpartCoverageResult, 'checks'> | null | undefined): Map<string, CounterpartRowRole[]> {
+  const out = new Map<string, CounterpartRowRole[]>();
+  for (const check of result?.checks ?? []) {
+    const counterpart = check.counterpart ? `${check.counterpart.name} (${check.counterpart.path}:${check.counterpart.line})` : '(none)';
+    for (const edge of check.edges) {
+      const required = check.pair === 'clear' && check.status === 'added' && edge.strong && !edge.stated;
+      const base = { itemId: check.itemId, operation: check.operation, edge: edge.edge, counterpart, required, resolves: edge.resolves?.text ?? null, key: counterpartCaseKey(check.itemId, check.operation, edge.edge) };
+      const add = (role: CounterpartRowRole): void => { out.set(role.ref, [...(out.get(role.ref) ?? []), role]); };
+      for (const row of edge.contradicted ?? []) add({ ...base, ref: row.ref, role: 'contradicted', repin: row.repin, requestQuote: row.requestQuote });
+      for (const ref of edge.rows ?? []) {
+        if ((edge.contradicted ?? []).some(row => row.ref === ref)) continue;
+        const mismatch = (edge.mismatched ?? []).find(row => row.ref === ref);
+        add({ ...base, ref, role: (edge.backed ?? []).includes(ref) ? 'backed' : 'covers', repin: mismatch?.repin ?? null, requestQuote: mismatch?.requestQuote ?? '' });
+      }
+    }
+  }
+  return out;
+}
+
+/** Refs of rows the framework counts as counterpart-backed for a required class (the value follows the base counterpart). */
+export function counterpartBackedRefs(result: Pick<CounterpartCoverageResult, 'checks'> | null | undefined): Map<string, CounterpartRowRole> {
+  const out = new Map<string, CounterpartRowRole>();
+  for (const [ref, roles] of counterpartRowRoles(result)) {
+    const backed = roles.find(role => role.required && role.role === 'backed');
+    if (backed && !roles.some(role => role.role === 'contradicted')) out.set(ref, backed);
+  }
+  return out;
+}
+
+/**
+ * Scope-plan gaps the framework settles (lab run102, run 101 scope-plan #1): a gap that cites rows, every one of them
+ * counterpart-backed (its value is the one the framework computes from the same receiver's counterpart for a case the request
+ * is silent on). The precedence decides it: request text > the base counterpart > another receiver's precedent / reviewer.
+ * `extraSettled` adds refs settled by the PLAN remedy cycle breaker (core/plan-remedy-cycle.ts). Returns feature -> reason.
+ */
+export function counterpartSettledGaps(result: Pick<CounterpartCoverageResult, 'checks'> | null | undefined,
+  features: ReadonlyArray<{ feature: string; status: string }>, extraSettled: ReadonlyMap<string, string> = new Map()): Map<string, string> {
+  const backed = counterpartBackedRefs(result);
+  const out = new Map<string, string>();
+  for (const feature of features) {
+    if (feature.status !== 'gap') continue;
+    const refs = [...new Set([...feature.feature.matchAll(ROW_REF)].map(match => match[0]))];
+    if (!refs.length || !refs.every(ref => backed.has(ref) || extraSettled.has(ref))) continue;
+    out.set(feature.feature, refs.map(ref => {
+      const role = backed.get(ref);
+      return role
+        ? `${ref} pins the value the same receiver's counterpart ${role.counterpart} gives for this ${edgeLabel(role.edge)} case of ${role.operation} (${role.resolves ? `it resolves it: \`${role.resolves}\`` : 'base evidence'}), and the request states nothing for that case`
+        : `${ref}: ${extraSettled.get(ref)}`;
+    }).join('; ') + `; precedence: ${COUNTERPART_PRECEDENCE}`);
+  }
+  return out;
+}
+
+/** The scope-plan prompt block: rows whose value the framework derives from the base counterpart (empty when none). */
+export function renderCounterpartBackedRows(result: Pick<CounterpartCoverageResult, 'checks'> | null | undefined): string[] {
+  const backed = [...counterpartBackedRefs(result)];
+  if (!backed.length) return [];
+  return [`Counterpart-backed rows (framework, plan.counterpartCoverage): the request is silent on these cases, and each row pins the value the same receiver's existing counterpart gives (the framework computed it from the Story base). Precedence: ${COUNTERPART_PRECEDENCE}. `
+    + 'Do not raise a pin-audit or precedent-conflict gap on these rows for request silence or for another receiver\'s behaviour; raise one only when a request sentence states a different result for this operation and case (quote it). The framework records a gap without that quote as settled.',
+  ...backed.slice(0, 12).map(([ref, role]) => `- ${ref}: ${role.operation}, ${edgeLabel(role.edge)} case; counterpart ${role.counterpart}${role.resolves ? ` resolves it (\`${role.resolves}\`)` : ''}`)];
+}
+
 /** The PLAN→DEV refusal text (`Cannot enter DEV: ... [counterpart_coverage_missing] ...` + ONE Next), or null. */
 export function counterpartRefusalText(storyId: string, result: Pick<CounterpartCoverageResult, 'refusals'> | null, items: readonly ItemLike[]): string | null {
   if (!result || !result.refusals.length) return null;
   const first = result.refusals[0]!;
   const payload = counterpartNextPayload(storyId, items.find(item => item.id === first.itemId), first);
-  return `Cannot enter DEV: ${result.refusals.length} added operation(s) leave counterpart cases uncovered [${COUNTERPART_COVERAGE_MISSING}] (A/B switch plan.counterpartCoverage=on): `
+  return `Cannot enter DEV: ${result.refusals.length} added operation(s) leave counterpart cases uncovered [${COUNTERPART_COVERAGE_MISSING}] (plan.counterpartCoverage, default on): `
     + `${result.refusals.slice(0, 4).map(describeCounterpartRefusal).join(' | ')}${result.refusals.length > 4 ? ` +${result.refusals.length - 4} more` : ''}. ${counterpartRule(first)}\n`
     + `Next: proof-or-stop checklist_update ${shellQuote(JSON.stringify(payload))}`;
 }
 
-export const IMPLEMENTER_COUNTERPART_PROBE = 'Counterpart probe (A/B plan.counterpartCoverage=on): before writing an operation the Story adds on a receiver type, '
+export const IMPLEMENTER_COUNTERPART_PROBE = 'Counterpart probe (plan.counterpartCoverage): before writing an operation the Story adds on a receiver type, '
   + 'run the SAME receiver\'s existing counterpart (its read for a new write, its write for a new read) on the Story base on each edge class '
   + '(negative, out of range, empty, null or omitted, wrong type) and make the new operation give the same result unless a checklist row or the request says otherwise; '
   + 'another receiver\'s same operation is only the second oracle. Report one line per case run: `[counterpart] <op> :: <case> -> <base result>`.';

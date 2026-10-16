@@ -743,7 +743,7 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     // Lab plan-light (A/B plan.pinProbe=on): example pins the Story base or the request contradicts
     // (checked before the plan review is required, as next orders it: ADR-105).
     if (pinProbeDevEntryFailure(context.store, context.projectRoot, context.storyId, () => pinProbeGitCwd(context.store, context.projectRoot, context.storyId))) return false;
-    // Lab sibling-gate (A/B plan.counterpartCoverage=on): an added operation's same-receiver counterpart cases need rows.
+    // Lab sibling-gate (plan.counterpartCoverage, default on since lab run102): an added operation's same-receiver counterpart cases need rows.
     if (counterpartCoverageDevEntryFailure(context.store, context.projectRoot, context.storyId, () => pinProbeGitCwd(context.store, context.projectRoot, context.storyId))) return false;
     // Run 16: the scope-plan reviewer verdict is required whenever the policy or
     // the Story says so (core/plan-scope-check-requirement.ts), independent of a
@@ -1500,7 +1500,7 @@ export function getGuardFailureReason(
       // Lab plan-light (A/B plan.pinProbe=on): same predicate as canStartDevGuard, before the plan review.
       const pinProbeFailure = pinProbeDevEntryFailure(store, projectRoot ?? process.cwd(), storyId, () => gitCwd ?? pinProbeGitCwd(store, projectRoot ?? process.cwd(), storyId));
       if (pinProbeFailure) return pinProbeFailure;
-      // Lab sibling-gate (A/B plan.counterpartCoverage=on): same predicate as canStartDevGuard.
+      // Lab sibling-gate (plan.counterpartCoverage, default on since lab run102): same predicate as canStartDevGuard.
       const counterpartFailure = counterpartCoverageDevEntryFailure(store, projectRoot ?? process.cwd(), storyId, () => gitCwd ?? pinProbeGitCwd(store, projectRoot ?? process.cwd(), storyId));
       if (counterpartFailure) return counterpartFailure;
       // Run 16: same predicate as canStartDevGuard; its last line is the one Next: action.
