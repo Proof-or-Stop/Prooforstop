@@ -33,6 +33,10 @@ import { loadConfig } from '../core/config.js';
  * probe runner (core/request-probes.ts storyProbeRunner: the base commit's proof-or-stop.config.json probeRunner).
  * Every repro answering the same at both: `same` (the behaviour the doc contradicts predates the Story); any repro
  * answering differently: `changed`; no runner, no repro, or a repro either side cannot run: `unknown`.
+ * Hardening is the existing base-probe path, nothing new: runner command forms (`go test ...`, `sh -c ...`) are dropped
+ * (isReproCommand); each repro is program TEXT written to a file inside the archived temp tree and passed as one argv
+ * element to the project's declared runner (spawnSync, no shell), with the runner's timeout, evaluation cap and
+ * result cache (core/request-probes.ts evaluateInTree, as plan.pinProbe and the probe tables use it).
  */
 export function driftBaseBehaviour(args: { store: StoryStore; root: string; storyId: string; gitCwd: string; desc: string }): BaseBehaviourVerdict {
   const repros = findingRepros(args.desc).repros.filter(repro => !isReproCommand(repro));

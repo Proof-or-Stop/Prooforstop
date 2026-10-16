@@ -23,7 +23,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
@@ -242,6 +242,16 @@ await check('D6 driftBaseBehaviour runs the finding\'s repro with the project pr
     const changed = behaviour({ store, root, storyId: 'B-1100', gitCwd: root, desc });
     assert.equal(changed.verdict, 'changed', JSON.stringify(changed));
     assert.equal(behaviour({ store, root, storyId: 'B-1100', gitCwd: root, desc: 'doc-code-drift: docs/a.md:3 is wrong.' }).verdict, 'unknown', 'no repro');
+    // Security: a repro is program TEXT for the project's declared runner (written to a file in the archived temp tree,
+    // passed as an argv element, the same storyProbeRunner / evaluateInTree path as every other base probe), never a
+    // shell command: shell metacharacters are not interpreted and a command-form repro is not run at all.
+    const marker = join(root, 'PWNED');
+    const hostile = behaviour({ store, root, storyId: 'B-1100', gitCwd: root,
+      desc: `doc-code-drift: docs/a.md:3 is wrong. Repro: \`$(touch ${marker})\`, \`range(0, 2); \$(touch ${marker}) && touch ${marker}\`` });
+    assert.notEqual(hostile.verdict, 'same', JSON.stringify(hostile));
+    const command = behaviour({ store, root, storyId: 'B-1100', gitCwd: root, desc: `doc-code-drift: docs/a.md:3 is wrong. Repro: \`sh -c 'touch ${marker}'\`` });
+    assert.equal(command.verdict, 'unknown', `a command-form repro is not run: ${JSON.stringify(command)}`);
+    assert.equal(existsSync(marker), false, 'no shell ran: the marker file does not exist');
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
