@@ -117,10 +117,11 @@ import { isMetadataTargetFinding, literalOccurrences, openMetadataCorrections, s
 import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
 import { baseErrorDecorationOf, describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
-import { COUNTERPART_COVERAGE_MISSING, counterpartNextPayload, counterpartRule, describeCounterpartRefusal, planCounterpartCoverage } from '../core/counterpart-coverage.js';
+import { COUNTERPART_COVERAGE_MISSING, counterpartBackedRefs, counterpartCaseKey, counterpartNextPayload, counterpartRule, counterpartSettledGaps, describeCounterpartRefusal, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { exactErrorPinOfferDue, exactWholeErrorPins, recordExactErrorPinOffer } from '../core/exact-error-pin-lint.js';
 import { describeUnstatedPin, planUnstatedPins, recordUnstatedPinOffer, unstatedPinOfferDue, unstatedPinRowPatch } from '../core/unstated-pin.js';
 import { disputedRows, pinDisputeRemedy, recordPinDispute, scopeVerdictHistory, type PinDisputeRemedy } from '../core/pin-dispute.js';
+import { planRemedyConflict, recordPlanRemedy, recordRemedySettlement, remedySettledRefsOf } from '../core/plan-remedy-cycle.js';
 import { initReviewDeferredToPlan, planReviewMergeActive } from '../core/plan-review-merge.js';
 import { intentRowCount, recordRowBudgetOffer, ROW_BUDGET_GUIDANCE, rowBudgetExtras, rowBudgetOfferDue, rowBudgetTrimPayloads } from '../core/plan-row-budget.js';
 import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
@@ -1039,11 +1040,13 @@ export function metadataCorrectionStep(base: { storyId: string; phase: string },
  * the request's value, every other occurrence of the pinned literal). After
  * exactly these corrections the verdict needs no rerun (openScopeGaps).
  */
-export function pinAuditCorrectionStep(base: { storyId: string; phase: string }, store: Pick<HandlerContext['store'], 'readScopeCheck' | 'readChecklist'>): NextStep | null {
+export function pinAuditCorrectionStep(base: { storyId: string; phase: string }, store: Pick<HandlerContext['store'], 'readScopeCheck' | 'readChecklist'>,
+  settled: ReadonlySet<string> = new Set()): NextStep | null {
   const scope = store.readScopeCheck(base.storyId);
   if (!scope) return null;
   const items = store.readChecklist(base.storyId).items;
-  const gaps = openPinAuditGaps(scope, { items });
+  // Lab run102: a gap the framework settled (a counterpart-backed row) is never turned into the reviewer's value (run 101's flip).
+  const gaps = openPinAuditGaps(scope, { items }).filter(gap => !settled.has(gap.feature));
   if (!gaps.length) return null;
   const first = gaps[0]!;
   const item = items.find(row => row.id === first.itemId);
@@ -1756,7 +1759,7 @@ export function pinProbeStep(base: { storyId: string; phase: string }, store: Ha
 }
 
 /**
- * Lab sibling-gate (A/B plan.counterpartCoverage=on, core/counterpart-coverage.ts): an
+ * Lab sibling-gate (plan.counterpartCoverage, default on since lab run102; core/counterpart-coverage.ts): an
  * item ADDS an operation on a receiver type whose same-receiver counterpart in the Story
  * base special-cases operand classes (clear evidence) that no row covers on the new
  * operation: ONE checklist_update of the first such item (its whole verificationIntent
@@ -1769,11 +1772,18 @@ export function counterpartCoverageStep(base: { storyId: string; phase: string }
   if (!result?.refusals.length) return null;
   const first = result.refusals[0]!;
   const payload = counterpartNextPayload(base.storyId, store.readChecklist(base.storyId).items.find(item => item.id === first.itemId), first);
+  // Lab run102: the PLAN remedy cycle breaker (core/plan-remedy-cycle.ts). The gate's cases are journaled; when they reverse
+  // another step's remedy (run 102: the dispute had removed the row and excluded the case), the conflict is resolved once by
+  // the framework's precedence and recorded, so the losing remedy is not offered again.
+  const keys = result.refusals.flatMap(refusal => refusal.edges.map(edge => ({ key: counterpartCaseKey(refusal.itemId, refusal.operation, edge), dir: 'require' as const })));
+  const conflict = planRemedyConflict(root, base.storyId, { kind: COUNTERPART_COVERAGE_MISSING, keys });
+  recordPlanRemedy(root, base.storyId, { kind: COUNTERPART_COVERAGE_MISSING, keys }, conflict);
   return step(base, 'agent', COUNTERPART_COVERAGE_MISSING, { command: 'checklist_update', payload },
-    `${result.refusals.length} added operation(s) leave counterpart cases uncovered [${COUNTERPART_COVERAGE_MISSING}] (A/B plan.counterpartCoverage=on): `
+    `${result.refusals.length} added operation(s) leave counterpart cases uncovered [${COUNTERPART_COVERAGE_MISSING}] (plan.counterpartCoverage): `
       + `${result.refusals.slice(0, 4).map(describeCounterpartRefusal).join(' | ')}${result.refusals.length > 4 ? ` +${result.refusals.length - 4} more` : ''}. `
-      + `${counterpartRule(first)} Author the <...> rows of ${first.itemId} now (keep the existing rows); next names any other item.`,
-    'planCounterpartCoverage (plan.counterpartCoverage=on: the same receiver\'s counterpart in the Story base, its branches, base tests and a declared evaluator)', { placeholders: placeholderPaths(payload) });
+      + `${counterpartRule(first)} ${/"<[^"]*>"/.test(JSON.stringify(payload)) ? `Author the <...> rows of ${first.itemId} now (keep the existing rows)` : `Run it as printed (the counterpart value is computed; keep the other rows)`}; next names any other item.`
+      + (conflict ? ` ${conflict.why}${conflict.candidateWins ? '' : ' (the request outranks the counterpart for this case: quote the deciding request sentence in the row\'s derivation)'}.` : ''),
+    'planCounterpartCoverage (plan.counterpartCoverage: the same receiver\'s counterpart in the Story base, its branches, base tests and a declared evaluator)', { placeholders: placeholderPaths(payload) });
 }
 
 /**
@@ -2091,30 +2101,78 @@ export function pinDisputeStep(base: { storyId: string; phase: string }, store: 
   blockers: ReadonlyArray<{ type: string; message: string }>): NextStep | null {
   try {
     const history = scopeVerdictHistory({ store: store as never, storyId: base.storyId, gitCwd });
-    const disputes = disputedRows(history);
+    // Lab run102: the counterpart gate's result (null when plan.counterpartCoverage is off). A counterpart-backed row, or a row
+    // the PLAN remedy cycle breaker settled, is not disputed: its gap is settled (story_review records it as advisory).
+    const counterpart = planCounterpartCoverage(store, root, base.storyId, gitCwd);
+    const items = store.readChecklist(base.storyId).items;
+    const settled = new Set([...counterpartBackedRefs(counterpart).keys(), ...remedySettledRefsOf(root, base.storyId, counterpart, items).keys()]);
+    const disputes = disputedRows(history).filter(dispute => !settled.has(dispute.ref));
     if (!disputes.length) return null;
     const request = readStoryRequest(store, base.storyId);
-    const items = store.readChecklist(base.storyId).items;
-    const remedies = disputes.flatMap(dispute => {
+    let remedies = disputes.flatMap(dispute => {
       const item = items.find(row => row.id === dispute.itemId);
-      const remedy = item ? pinDisputeRemedy({ storyId: base.storyId, item: item as never, dispute, requestText: request.status === 'ok' ? request.text : null }) : null;
+      const remedy = item ? pinDisputeRemedy({ storyId: base.storyId, item: item as never, dispute, requestText: request.status === 'ok' ? request.text : null, counterpart }) : null;
       return remedy ? [remedy] : [];
     });
     if (!remedies.length) return null;
+    // Lab run102: the PLAN remedy cycle breaker. A remedy reversing another step's remedy on the same case is resolved once by
+    // the framework's precedence (request > base counterpart > reviewer); a losing dispute remedy is not offered: the case is
+    // settled instead (the row stands and its gap no longer blocks).
+    const notes: string[] = [];
+    const settle = (remedy: PinDisputeRemedy, why: string): void => {
+      const item = items.find(row => row.id === remedy.ref.split(':')[0]);
+      const [, lane, index] = remedy.ref.split(':');
+      const desc = String((item?.verificationIntent?.[lane as 'edge'] ?? [])[Number(index)]?.desc ?? '');
+      recordRemedySettlement(root, base.storyId, { key: remedy.key ?? `${remedy.ref.split(':')[0]}|row|${remedy.ref}`, dir: 'require', winner: COUNTERPART_COVERAGE_MISSING, loser: 'plan_pin_dispute', why, refs: [remedy.ref], desc });
+      notes.push(why);
+    };
+    remedies = remedies.filter(remedy => {
+      if (remedy.kind === 'settle') { settle(remedy, remedy.why); return false; }
+      if (!remedy.key || !remedy.dir) return true;
+      const conflict = planRemedyConflict(root, base.storyId, { kind: 'plan_pin_dispute', keys: [{ key: remedy.key, dir: remedy.dir, ref: remedy.ref }] });
+      if (conflict && !conflict.candidateWins) {
+        recordPlanRemedy(root, base.storyId, { kind: 'plan_pin_dispute', keys: [] }, conflict);
+        // The winner keeps the case: the disputed row stands and its gap is settled; a winning drop just suppresses the remedy.
+        if (conflict.winnerDir === 'require') settle(remedy, conflict.why); else notes.push(conflict.why);
+        return false;
+      }
+      recordPlanRemedy(root, base.storyId, { kind: 'plan_pin_dispute', keys: [{ key: remedy.key, dir: remedy.dir, ref: remedy.ref }] }, conflict);
+      if (conflict) notes.push(conflict.why);
+      return true;
+    });
+    const settledRefs = new Set([...settled, ...disputes.map(row => row.ref).filter(ref => !remedies.some(remedy => remedy.ref === ref))]);
+    const others = blockers.filter(row => ![...disputes.map(dispute => dispute.ref)].some(ref => row.message.includes(ref)));
+    if (!remedies.length) {
+      // Every disputed row stands (settled): the framework reruns story_review, which records their gaps as settled.
+      if (!notes.length) return null;
+      return step(base, 'framework', 'plan_remedy_settled', { command: 'story_review', payload: { storyId: base.storyId } },
+        `The scope-plan reviewer raised ${[...settledRefs].join(', ')} again, but no remedy is left that keeps the case(s) the framework requires: ${notes.join(' | ')}. `
+          + 'The row(s) stand; the framework records the gap(s) as settled and reruns story_review (no checklist change, no reviewer rerun for them).',
+        'scopeVerdictHistory + disputedRows (core/pin-dispute.ts) + counterpart gate + PLAN remedy cycle breaker (core/plan-remedy-cycle.ts)');
+    }
     recordPinDispute(root, base.storyId, history[0]!.checkedAt, remedies);
-    const disputed = new Set(remedies.map(row => row.ref));
-    const others = blockers.filter(row => ![...disputed].some(ref => row.message.includes(ref)));
-    const calls = mergeChecklistUpdateCalls([...remedies.map(row => ({ command: 'checklist_update', payload: row.payload })), ...others.flatMap(row => blockerRowPatchCalls(row.message))])
+    const calls = mergeChecklistUpdateCalls([...remedies.flatMap(row => row.payload ? [{ command: 'checklist_update', payload: row.payload }] : []), ...others.flatMap(row => blockerRowPatchCalls(row.message))])
       .map(call => nextStepCall('plan_pin_dispute', call));
-    const streaks = disputes.filter(row => disputed.has(row.ref)).map(row => `${row.ref} (${row.verdicts} verdicts in a row)`).join(', ');
+    const streaks = disputes.filter(row => remedies.some(remedy => remedy.ref === row.ref)).map(row => `${row.ref} (${row.verdicts} verdicts in a row)`).join(', ');
     const why = `The scope-plan reviewer raised the same row again: ${streaks}. Another guess at the value would be judged the same way, so the framework gives the remedy: `
       + remedies.map((row: PinDisputeRemedy) => row.why).join('; ') + '. '
+      + (notes.length ? `${notes.join(' | ')}. ` : '')
       + (others.length ? `The round's other blocker(s) keep their row patches: ${others.slice(0, 4).map(row => `${row.type}: ${row.message.slice(0, 240)}`).join(' | ')}. ` : '')
       + `Run ${calls.length > 1 ? `these ${calls.length} checklist_update commands` : 'this checklist_update'} (author a <...> field only where one is left), then \`proof-or-stop next --storyId=${base.storyId} --run\`: it reruns story_review and relaunches the scope-plan reviewer once, with the disputed rows and the remedy in its prompt.`;
     return calls.length === 1 && !/"<[^"]*>"/.test(JSON.stringify(calls[0]!.cli.payload))
       ? step(base, 'agent', 'plan_pin_dispute', calls[0]!.cli, why, 'scopeVerdictHistory + disputedRows (core/pin-dispute.ts)')
       : batchStep(base, 'plan_pin_dispute', calls, why, 'scopeVerdictHistory + disputedRows (core/pin-dispute.ts)');
   } catch { return null; }
+}
+
+/** Lab run102: the current scope-plan verdict's gap features the framework settles (counterpart-backed / cycle-settled rows). */
+export function settledScopeGapFeatures(store: HandlerContext['store'], root: string, storyId: string, gitCwd: string): Set<string> {
+  try {
+    const scope = store.readScopeCheck(storyId);
+    if (!scope) return new Set();
+    const counterpart = planCounterpartCoverage(store, root, storyId, gitCwd);
+    return new Set(counterpartSettledGaps(counterpart, scope.features ?? [], remedySettledRefsOf(root, storyId, counterpart, store.readChecklist(storyId).items)).keys());
+  } catch { return new Set(); }
 }
 
 /**
@@ -2635,7 +2693,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (unstated) due.push(unstated);
       return due;
     };
-    // Lab sibling-gate (A/B plan.counterpartCoverage=on): an added operation's counterpart cases, same order as the DEV gate.
+    // Lab sibling-gate (plan.counterpartCoverage, default on since lab run102): an added operation's counterpart cases, same order as the DEV gate.
     // Lab initplan: when the scope-plan reviewer is still to be launched, the other due PLAN lints join this step.
     const counterpart = counterpartCoverageStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
     if (counterpart) {
@@ -2657,7 +2715,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // Lab run95 (fix 1c): a row the reviewer raised in consecutive verdicts gets the framework's remedy, not another value swap.
       const dispute = pinDisputeStep(base, ctx.store, ctx.root, gitCwdOf(storyId), currentStoryReviewBlockers(storyId));
       if (dispute) return dispute;
-      const pinAudit = pinAuditCorrectionStep(base, ctx.store);
+      const pinAudit = pinAuditCorrectionStep(base, ctx.store, settledScopeGapFeatures(ctx.store, ctx.root, storyId, gitCwdOf(storyId)));
       if (pinAudit) return pinAudit;
     }
     // Old-PoS run 32 (3c): a row the base cannot parse outside the new syntax is

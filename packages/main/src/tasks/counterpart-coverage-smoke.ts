@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Lab sibling-gate (EXPERIMENTAL A/B switch plan.counterpartCoverage, default
+ * Lab sibling-gate (switch plan.counterpartCoverage, default on since lab run102; was EXPERIMENTAL, default
  * off; core/counterpart-coverage.ts). Old-PoS runs 43 / 46 / 55 / 57 / 71
  * (bench-staging/oldpos/run69-72-analysis.md §1): a Story added a NEW write
  * path for a receiver type, the request was silent on a negative operand, and
@@ -9,7 +9,7 @@
  * reviewer that happened to flag the precedent conflict saved the case.
  *
  * Unit level on made-up stores (no task values):
- *   S.  The switch: absent = off (no evidence), on = recorded, malformed = off.
+ *   S.  The switch: absent = on since lab run102 (no evidence), off = recorded, malformed = the default.
  *   D1. Method form (Go): Shelf.Get counts a negative index from the end
  *       (branch + base test), Bin.Put rejects it; an item adding Shelf.Put with
  *       only in-range rows is refused for negative and out of range, the
@@ -136,17 +136,17 @@ const STRING_ASSIGN = item('CHK-002', 'String single-index assignment', {
 
 const edgesOf = (refusal: { edges: string[] } | undefined): string[] => [...(refusal?.edges ?? [])].sort();
 
-await check('S1 plan.counterpartCoverage: absent = off with no evidence, on = recorded, malformed = off where consumed', async () => {
+await check('S1 plan.counterpartCoverage: absent = on (the default since lab run102) with no evidence, off = recorded, malformed = the default where consumed', async () => {
   const resolve = await api('ab-variants', 'resolveAbVariants');
   const evidence = await api('ab-variants', 'abVariantEvidence');
   const on = await api('ab-variants', 'counterpartCoverageOn');
-  assert.equal(resolve({}).counterpartCoverage, 'off');
+  assert.equal(resolve({}).counterpartCoverage, 'on');
   assert.equal(evidence(resolve({})), undefined);
-  assert.deepEqual(evidence(resolve({ plan: { counterpartCoverage: 'on' } }))?.flags, { 'plan.counterpartCoverage': 'on' });
+  assert.deepEqual(evidence(resolve({ plan: { counterpartCoverage: 'off' } }))?.flags, { 'plan.counterpartCoverage': 'off' });
   assert.throws(() => resolve({ plan: { counterpartCoverage: 'yes' } }), /invalid_ab_variant_config/);
-  assert.equal(on({}), false);
-  assert.equal(on({ plan: { counterpartCoverage: 'on' } }), true);
-  assert.equal(on({ plan: { counterpartCoverage: 'loud' } }), false, 'malformed = off');
+  assert.equal(on({}), true);
+  assert.equal(on({ plan: { counterpartCoverage: 'off' } }), false);
+  assert.equal(on({ plan: { counterpartCoverage: 'loud' } }), true, 'malformed = the default');
 });
 
 await check('D1 method form: Shelf.Put added next to Shelf.Get (wraps negatives) and Bin.Put (rejects them) is refused for negative and out of range', async () => {
@@ -251,7 +251,7 @@ await check('T1 refusal text: rule, item, operation, counterpart first, sibling 
   const text = String(render('B-0001', result, [SHELF_PUT]));
   assert.match(text, /^Cannot enter DEV: /);
   assert.match(text, /\[counterpart_coverage_missing\]/);
-  assert.match(text, /A\/B switch plan\.counterpartCoverage=on/);
+  assert.match(text, /\(plan\.counterpartCoverage, default on\)/);
   assert.match(text, /CHK-001 adds Shelf\.Put/);
   assert.match(text, /Shelf\.Get \(store\/shelf\.go:\d+\)/);
   assert.match(text, /negative, out of range/);

@@ -99,9 +99,11 @@
  *                              per distinct behaviour (operand class), not many literal examples of one class; request
  *                              literals and exact-text rows are never counted as extra (core/plan-row-budget.ts)
  *
- * Lab sibling-gate (old-PoS runs 43/46/55/57/71, bench-staging/oldpos/run69-72-analysis.md §1): one EXPERIMENTAL
- * detection switch, default OFF:
- *   plan.counterpartCoverage   'off' (default) | 'on'  before PLAN→DEV the framework finds, for each operation an item
+ * Lab sibling-gate (old-PoS runs 43/46/55/57/71, bench-staging/oldpos/run69-72-analysis.md §1): one detection switch, default
+ * ON since lab run102 (run100-103-analysis.md §6: 16 graded trials with it on, 14 reward 1; the zeros are run 101, a
+ * value-agnostic coverage hole lab run102 closes, and run 102, the pin-dispute deadlock lab run102 fixes; runs without it
+ * missed the same hidden test in runs 43/46/55/57/71/80; `off` is the recorded rollback):
+ *   plan.counterpartCoverage   'on' (default) | 'off'  before PLAN→DEV the framework finds, for each operation an item
  *                              ADDS on a receiver type, the same receiver's counterpart in the Story base (its read for a
  *                              new write, its write for a new read) and the operand classes it special-cases (negative,
  *                              out of range, empty, null / omitted, type); a class with clear evidence and no row on the
@@ -159,7 +161,7 @@ export const AB_VARIANT_FLAGS = {
   'plan.pinProbe': ['off', 'on'],
   'plan.reviewMerge': ['off', 'on'],
   'plan.rowBudget': ['off', 'on'],
-  'plan.counterpartCoverage': ['off', 'on'],
+  'plan.counterpartCoverage': ['on', 'off'],
   'dev.removedGuardScan': ['advisory', 'off', 'on'],
   'plan.reviewerPreload': ['off', 'on'],
   'plan.disputeConfirm': ['off', 'on'],
@@ -283,7 +285,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.pinProbe !== 'off') flags['plan.pinProbe'] = variants.pinProbe;
   if (variants.reviewMerge !== 'off') flags['plan.reviewMerge'] = variants.reviewMerge;
   if (variants.rowBudget !== 'off') flags['plan.rowBudget'] = variants.rowBudget;
-  if (variants.counterpartCoverage !== 'off') flags['plan.counterpartCoverage'] = variants.counterpartCoverage;
+  if (variants.counterpartCoverage !== 'on') flags['plan.counterpartCoverage'] = variants.counterpartCoverage;
   if (variants.removedGuardScan !== 'advisory') flags['dev.removedGuardScan'] = variants.removedGuardScan;
   if (variants.reviewerPreload !== 'off') flags['plan.reviewerPreload'] = variants.reviewerPreload;
   if (variants.disputeConfirm !== 'off') flags['plan.disputeConfirm'] = variants.disputeConfirm;
@@ -333,7 +335,7 @@ export const pinProbeOn = (config: unknown): boolean => catchEarlierPick(config,
 export const reviewMergeOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.reviewMerge') === 'on';
 /** EXPERIMENTAL plan.rowBudget=on: one intent row per operand class, guidance + soft check (core/plan-row-budget.ts); malformed = off. */
 export const rowBudgetOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.rowBudget') === 'on';
-/** EXPERIMENTAL plan.counterpartCoverage=on: an added operation's same-receiver counterpart cases must have rows before DEV (core/counterpart-coverage.ts); malformed = off. */
+/** plan.counterpartCoverage (default on since lab run102; `off` = recorded rollback): an added operation's same-receiver counterpart cases must have rows before DEV (core/counterpart-coverage.ts); malformed = the default. */
 export const counterpartCoverageOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.counterpartCoverage') === 'on';
 /** Lab round-cut dev.removedGuardScan: 'advisory' (default) | 'off' | 'on' (core/removed-guard-scan.ts); malformed = advisory. */
 export const removedGuardScanMode = (config: unknown): AbVariantValue<'dev.removedGuardScan'> => catchEarlierPick(config, 'dev.removedGuardScan');

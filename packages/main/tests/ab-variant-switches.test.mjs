@@ -34,7 +34,7 @@
  *   plan.pinProbe                    example pins probed on the Story base + request-literal examples before PLAN→DEV
  *   plan.reviewMerge                 no INIT reviewers; ONE merged plan review in PLAN; a rerun confirms the changed rows
  *   plan.rowBudget                   one intent row per operand class: guidance + an advisory (never blocking) check
- *   Lab sibling-gate (EXPERIMENTAL, default off; behaviour in tasks/counterpart-coverage-smoke.ts, end to end in NCC):
+ *   Lab sibling-gate (default on since lab run102, `off` = rollback; behaviour in tasks/counterpart-coverage-smoke.ts, end to end in NCC):
  *   plan.counterpartCoverage         PLAN→DEV refuses an added operation whose same-receiver counterpart special-cases an
  *                                    operand class no row covers (clear evidence only; weak evidence is an advisory note)
  *   Lab round-cut (production `advisory`; behaviour in tasks/round-cut-smoke.ts G, end to end in NRC / NRC-ADV):
@@ -92,19 +92,21 @@ await check('config: absent switches resolve to production values; malformed fai
     // EXPERIMENTAL lab plan-light switches: off by default.
     pinProbe: 'off', reviewMerge: 'off', rowBudget: 'off',
     // EXPERIMENTAL lab sibling-gate switch: off by default.
-    counterpartCoverage: 'off',
+    counterpartCoverage: 'on',
     // Lab round-cut: the removed-guard scan is advisory by default (lane prompts only).
     removedGuardScan: 'advisory', reviewerPreload: 'off',
     // Lab run95: the pin-dispute rerun is a full rerun by default; `on` = confirmation re-review (detection-affecting arm).
     disputeConfirm: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
-  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'on' } })),
-    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.counterpartCoverage': 'on' } }, 'lab sibling-gate: the arm is recorded');
+  // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.counterpartCoverage': 'off' } }, 'lab sibling-gate: the rollback arm is recorded');
   assert.throws(() => resolveAbVariants({ plan: { counterpartCoverage: 'maybe' } }), /invalid_ab_variant_config: plan\.counterpartCoverage/);
   const { counterpartCoverageOn } = await load('core/ab-variants.js');
   assert.equal(typeof counterpartCoverageOn, 'function', 'lab sibling-gate: counterpartCoverageOn is exported');
-  assert.equal(counterpartCoverageOn({ plan: { counterpartCoverage: 'maybe' } }), false, 'malformed = off where it is consumed');
-  assert.equal(counterpartCoverageOn({ plan: { counterpartCoverage: 'on' } }), true);
+  assert.equal(counterpartCoverageOn({ plan: { counterpartCoverage: 'maybe' } }), true, 'malformed = the production default (on) where it is consumed');
+  assert.equal(counterpartCoverageOn({}), true, 'lab run102: on by default');
+  assert.equal(counterpartCoverageOn({ plan: { counterpartCoverage: 'off' } }), false);
   // Lab round-cut (dev.removedGuardScan): advisory is production (not recorded); off and on are recorded arms.
   assert.equal(abVariantEvidence(resolveAbVariants({ dev: { removedGuardScan: 'advisory' } })), undefined, 'lab round-cut: advisory is production');
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ dev: { removedGuardScan: 'on' } })),
