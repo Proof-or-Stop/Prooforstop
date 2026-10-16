@@ -48,11 +48,12 @@ import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
-import { disputeConfirmOn, probeMatrixOn } from '../core/ab-variants.js';
+import { disputeConfirmOn, familyEvidenceOn, probeMatrixOn } from '../core/ab-variants.js';
 import { pinDisputeOffered } from '../core/pin-dispute.js';
 import { counterpartImplementerLines, planCounterpartCoverage, renderCounterpartBackedRows } from '../core/counterpart-coverage.js';
 import { renderSiblingParity } from '../core/sibling-parity.js';
-import { recordChainMechanismRequirement, regressionFamilyBrief } from '../core/regression-family-brief.js';
+import { recordChainMechanismRequirement, regressionFamilyBrief, reviewHeadResolver, sameRoundDuplicateLines } from '../core/regression-family-brief.js';
+import { duplicateRootOf, findingDuplicateOf } from '../core/duplicate-finding-coverage.js';
 import { baseDisagreementActive, SCOPE_PLAN_BASE_DISAGREEMENT_CHECK } from '../core/base-disagreement.js';
 import { rejectedRepairCommits, renderRepairResolvedContext, renderResolvedReprobe } from '../core/resolved-finding-guard.js';
 import { exclusionRationaleCheckActive, SCOPE_PLAN_EXCLUSION_CHECK } from '../core/scope-exclusion-rationale.js';
@@ -1085,13 +1086,21 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         rejected: rejectedAll.get(finding.id) ?? [], rejectedAll });
       if (resolvedContext.length) lines.push(...resolvedContext);
       // Old-PoS run 73 (B): a regression of a resolved finding gets the earlier repair's diff and repro and a family-complete test requirement.
-      const familyBrief = regressionFamilyBrief({ findings: data.findings, storyId: args.storyId, finding,
-        gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }) });
+      // Lab lean (remediation.familyEvidence, default on): the family is also linked by evidence, not only by a [regression-of] tag.
+      const familyGitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
+      const familyEvidence = (() => { try { return familyEvidenceOn(loadConfig(root)); } catch { return true; } })();
+      const reviewHead = (() => { try { return reviewHeadResolver(store.readReviewRuns(args.storyId).runs); } catch { return undefined; } })();
+      const familyBrief = regressionFamilyBrief({ findings: data.findings, storyId: args.storyId, finding, gitCwd: familyGitCwd, reviewHead, familyEvidence });
       if (familyBrief.length) lines.push(...familyBrief);
       // Lab run89 (fix 3): the third report of one mechanism owes a `[mechanism]` line; the worker asks for it before the run seals.
       if (agentType === 'proof-or-stop-finding-repair' && familyBrief.length) {
         const requestText = (() => { try { const request = readStoryRequest(store, args.storyId); return request.status === 'ok' ? request.text : null; } catch { return null; } })();
-        recordChainMechanismRequirement({ root, storyId: args.storyId, findings: data.findings, finding, requestText });
+        recordChainMechanismRequirement({ root, storyId: args.storyId, findings: data.findings, finding, requestText, gitCwd: familyGitCwd, reviewHead, familyEvidence });
+      }
+      // Lab lean (run 106 F-016/F-017): a same-round duplicate's repro rides on this repair's regression test.
+      if (familyEvidence) {
+        lines.push(...sameRoundDuplicateLines({ storyId: args.storyId, finding, findings: data.findings,
+          duplicateOf: id => { try { return duplicateRootOf(store, args.storyId, id) ?? findingDuplicateOf(store, args.storyId, id)?.canonicalFindingId ?? null; } catch { return null; } } }));
       }
       // Lab round-cut N2 (core/bound-matrix.ts): a finding in a helper with several operand branches is repaired branch-complete.
       const findingGitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });

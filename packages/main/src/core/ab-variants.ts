@@ -23,7 +23,8 @@
  *   remediation.thread         'fresh' (default, adopted) | 'resume' (rollback)  finding-repair runs start a new Codex
  *                              thread with the framework repair pack (old-PoS run 25: fresh repair 0.86M input vs
  *                              resumed 2.8-3.9M); `resume` restores the resumed Story code-writer thread for repairs
- *   implementation.grouping    'per-item' (default) | 'files'
+ *   implementation.grouping    'per-item' (default) | 'files' | 'story'  ('story', lab lean: ONE implementer run binds every
+ *                              open item, the framework marks each other item done after a commit naming it; core/lean-story-run.ts)
  *   implementation.thread      'resume' (default) | 'fresh'  (core/implementer-item-pack.ts)
  *   review.lanePack            'off' (default) | 'shared'  one framework-built lane pack per review round in every
  *                              code-review lane and inventory critic prompt (core/review-lane-pack.ts; v41 plan A3)
@@ -33,7 +34,11 @@
  *                              repair: the lanes that raised findings re-review in full, every other lane is replaced
  *                              by ONE confirmation lane over the repair scope, resolved findings are re-run, the critic
  *                              runs only when the round reports a finding, a large repair falls back to a full round
- *                              (core/review-delta-round.ts; structural-cost-analysis.md §7 item 2)
+ *                              (core/review-delta-round.ts; structural-cost-analysis.md §7 item 2). 'confirm' (lab lean, run 53-56
+ *                              raiser rule): NO lane re-reviews the whole Story; ONE confirmation session carries every
+ *                              active lane's concern over the repair delta; a finding it reports outside the delta escalates:
+ *                              the next round is a full round (PREVIOUS_ESCALATION); combines with review.laneMerge (full
+ *                              rounds merged, delta rounds one confirmation session)
  *   review.laneMerge           'off' (default) | 'on' | 'split'  'on': every REVIEW round runs ONE managed review session
  *                              for the dimensions of every active lane (the first dimension's lane carries it; one explicit
  *                              section, checkpoints and role prompt per dimension; per-checkpoint coverage lines with
@@ -41,7 +46,9 @@
  *                              relaunched as its own lane, never passed; findings keep a `[dimension:<name>]` tag).
  *                              'split' (lab lane-split, old-PoS run 64): TWO such sessions per round, launched in
  *                              parallel like lanes: concept + quality and test-coverage + docs (+ behavior), same
- *                              contract per session. review.deltaRounds is not applied while either is set
+ *                              contract per session. review.deltaRounds=on is not applied while either is set;
+ *                              review.deltaRounds=confirm (lab lean) composes with it (merged full rounds, one
+ *                              confirmation session in a delta round)
  *                              (core/review-lane-merge.ts; new PoS ADR-064; structural-cost-analysis.md §7 item 3)
  *
  * Old-PoS run 33 (bench-staging/oldpos/run33-analysis.md §4): the "catch defects
@@ -132,6 +139,20 @@
  *   plan.disputeConfirm        'off' (default) | 'on'  the scope-plan rerun after a pin-dispute remedy is a confirmation
  *                              re-review (ADR-043: the previous verdict stands for the items the diff does not touch)
  *
+ * Lab lean (bench-staging/oldpos/lean-pipeline.md): ONE umbrella switch for the structural speed-up of items 1-4 and one
+ * detection-neutral default-on switch for item 5:
+ *   pipeline.lean              'off' (default) | 'on'  on = LEAN_PIPELINE_IMPLIES for every key the config leaves absent
+ *                              (implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
+ *                              review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on); an explicit
+ *                              key always wins (also a production value: an opt-out of one item); malformed = off where
+ *                              consumed (implies nothing). The evidence records the umbrella and every implied value.
+ *   remediation.familyEvidence 'on' (default) | 'off'  a finding-repair prompt links a finding to earlier-round findings of
+ *                              its defect family by evidence (a cited line the earlier repair commit last changed, the same
+ *                              enclosing function, overlapping cited spans), not only by a reviewer `[regression-of]` tag;
+ *                              the mechanism-level brief fires at the family's second round; a same-round duplicate's repro
+ *                              rides on its canonical's repair (core/regression-family-brief.ts; run106-analysis.md §5).
+ *                              Prompt only (nothing skipped, every finding closed by its own repair); `off` = rollback.
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -144,11 +165,11 @@ export const AB_VARIANT_FLAGS = {
   'review.round2Lanes': ['fresh', 'resume'],
   'remediation.grouping': ['single', 'per-finding'],
   'remediation.thread': ['fresh', 'resume'],
-  'implementation.grouping': ['per-item', 'files'],
+  'implementation.grouping': ['per-item', 'files', 'story'],
   'implementation.thread': ['resume', 'fresh'],
   'review.lanePack': ['off', 'shared'],
   'review.roundDelta': ['off', 'pack'],
-  'review.deltaRounds': ['off', 'on'],
+  'review.deltaRounds': ['off', 'on', 'confirm'],
   'review.laneMerge': ['off', 'on', 'split'],
   'plan.coverageMatrix': ['off', 'on'],
   'plan.scopeDeferral': ['off', 'on'],
@@ -165,6 +186,8 @@ export const AB_VARIANT_FLAGS = {
   'dev.removedGuardScan': ['advisory', 'off', 'on'],
   'plan.reviewerPreload': ['off', 'on'],
   'plan.disputeConfirm': ['off', 'on'],
+  'pipeline.lean': ['off', 'on'],
+  'remediation.familyEvidence': ['on', 'off'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -172,10 +195,11 @@ export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[
 
 export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string };
-  remediation?: { grouping?: string; thread?: string };
+  remediation?: { grouping?: string; thread?: string; familyEvidence?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
   plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string };
   dev?: { probeEnforcement?: string; removedGuardScan?: string };
+  pipeline?: { lean?: string };
 }
 
 export interface AbVariants {
@@ -205,6 +229,8 @@ export interface AbVariants {
   removedGuardScan: AbVariantValue<'dev.removedGuardScan'>;
   reviewerPreload: AbVariantValue<'plan.reviewerPreload'>;
   disputeConfirm: AbVariantValue<'plan.disputeConfirm'>;
+  pipelineLean: AbVariantValue<'pipeline.lean'>;
+  familyEvidence: AbVariantValue<'remediation.familyEvidence'>;
 }
 
 export interface AbVariantEvidence {
@@ -222,9 +248,40 @@ function pick<F extends AbVariantFlag>(flag: F, raw: unknown): AbVariantValue<F>
   return raw as AbVariantValue<F>;
 }
 
-function section(config: unknown, key: string): Record<string, unknown> {
+function rawSection(config: unknown, key: string): Record<string, unknown> {
   const value = config && typeof config === 'object' ? (config as Record<string, unknown>)[key] : undefined;
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+/**
+ * Lab lean: what `pipeline.lean=on` implies for every key the config leaves absent (items 1-4 of
+ * bench-staging/oldpos/lean-pipeline.md). Each is also its own switch; an explicit key always wins.
+ */
+export const LEAN_PIPELINE_IMPLIES = Object.freeze({
+  'implementation.grouping': 'story',
+  'review.laneMerge': 'on',
+  'review.deltaRounds': 'confirm',
+  'review.criticOnCleanRound': 'skip',
+  'plan.reviewMerge': 'on',
+  'plan.disputeConfirm': 'on',
+} as const satisfies Partial<Record<AbVariantFlag, string>>);
+
+/** The umbrella exactly as written: 'on' only for the well-formed value (malformed = off where consumed). */
+function leanRaw(config: unknown): unknown { return rawSection(config, 'pipeline').lean; }
+
+/**
+ * A config section as every A/B reader sees it: the written keys, plus (only while `pipeline.lean` is exactly 'on')
+ * the umbrella's implied values for the keys the section leaves absent.
+ */
+function section(config: unknown, key: string): Record<string, unknown> {
+  const written = rawSection(config, key);
+  if (leanRaw(config) !== 'on') return written;
+  const implied: Record<string, unknown> = {};
+  for (const [flag, value] of Object.entries(LEAN_PIPELINE_IMPLIES)) {
+    const [group, name] = flag.split('.') as [string, string];
+    if (group === key && !(name in written)) implied[name] = value;
+  }
+  return Object.keys(implied).length ? { ...written, ...implied } : written;
 }
 
 /** Resolve all switches; throws `invalid_ab_variant_config` on a malformed value. */
@@ -257,6 +314,8 @@ export function resolveAbVariants(config: unknown): AbVariants {
     removedGuardScan: pick('dev.removedGuardScan', section(config, 'dev').removedGuardScan),
     reviewerPreload: pick('plan.reviewerPreload', section(config, 'plan').reviewerPreload),
     disputeConfirm: pick('plan.disputeConfirm', section(config, 'plan').disputeConfirm),
+    pipelineLean: pick('pipeline.lean', leanRaw(config)),
+    familyEvidence: pick('remediation.familyEvidence', section(config, 'remediation').familyEvidence),
   };
 }
 
@@ -289,6 +348,8 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.removedGuardScan !== 'advisory') flags['dev.removedGuardScan'] = variants.removedGuardScan;
   if (variants.reviewerPreload !== 'off') flags['plan.reviewerPreload'] = variants.reviewerPreload;
   if (variants.disputeConfirm !== 'off') flags['plan.disputeConfirm'] = variants.disputeConfirm;
+  if (variants.pipelineLean !== 'off') flags['pipeline.lean'] = variants.pipelineLean;
+  if (variants.familyEvidence !== 'on') flags['remediation.familyEvidence'] = variants.familyEvidence;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -302,7 +363,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -323,8 +384,10 @@ export const siblingParityOn = (config: unknown): boolean => catchEarlierPick(co
 export const exclusionRationaleCheckOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.exclusionRationaleCheck') === 'on';
 /** Old-PoS run 46: plan.baseDisagreement (default on) adds the base-disagreement check to the scope-plan reviewer dispatch. */
 export const baseDisagreementOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.baseDisagreement') === 'on';
-/** EXPERIMENTAL review.deltaRounds=on: delta review rounds (core/review-delta-round.ts); malformed = off. */
-export const deltaRoundsOn = (config: unknown): boolean => catchEarlierPick(config, 'review.deltaRounds') === 'on';
+/** EXPERIMENTAL review.deltaRounds: 'on' (raisers in full + one confirmation lane) or 'confirm' (lab lean: one confirmation session, escalation) = delta review rounds (core/review-delta-round.ts); malformed = off. */
+export const deltaRoundsMode = (config: unknown): AbVariantValue<'review.deltaRounds'> => catchEarlierPick(config, 'review.deltaRounds');
+/** EXPERIMENTAL review.deltaRounds is 'on' or 'confirm' (delta review rounds); malformed = off. */
+export const deltaRoundsOn = (config: unknown): boolean => deltaRoundsMode(config) !== 'off';
 /** EXPERIMENTAL review.laneMerge: 'on' = ONE merged review session per REVIEW round, 'split' = TWO in parallel (core/review-lane-merge.ts); malformed = off. */
 export const laneMergeMode = (config: unknown): AbVariantValue<'review.laneMerge'> => catchEarlierPick(config, 'review.laneMerge');
 /** EXPERIMENTAL review.laneMerge is 'on' or 'split' (merged review sessions); malformed = off. */
@@ -364,3 +427,8 @@ export function ownerDriver(config: unknown): OwnerDriver {
 
 /** EXPERIMENTAL plan.disputeConfirm=on (lab run95): the scope-plan rerun after a pin-dispute remedy is a confirmation re-review (core/pin-dispute.ts); malformed = off. */
 export const disputeConfirmOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.disputeConfirm') === 'on';
+
+/** EXPERIMENTAL pipeline.lean=on (lab lean): the umbrella of items 1-4 (LEAN_PIPELINE_IMPLIES); malformed = off. */
+export const pipelineLeanOn = (config: unknown): boolean => catchEarlierPick(config, 'pipeline.lean') === 'on';
+/** remediation.familyEvidence (lab lean item 5, default on; `off` = recorded rollback): defect families linked by evidence; malformed = the default. */
+export const familyEvidenceOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.familyEvidence') === 'on';

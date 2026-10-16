@@ -17,7 +17,7 @@
  * reported any finding, so the round raised no new finding) finalizes without
  * the critic, with its own reason and the arm's evidence; a delta round with
  * any finding runs the critic. Replay accepts it only while the switch is on
- * and the epoch is still a delta-round epoch.
+ * (or `confirm`, lab lean) and the epoch is still a delta-round epoch.
  */
 import { createHash } from 'node:crypto';
 import { abVariantEvidence, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
@@ -97,7 +97,8 @@ export function criticSkipReplayError(projectRoot: string, epoch: ReviewInventor
   if (skip.reason === DELTA_ROUND_CRITIC_SKIP_REASON) {
     // EXPERIMENTAL review.deltaRounds=on: honoured only while the switch is on and the epoch is a delta round's.
     if (!deltaRoundsVariant(projectRoot)) return 'critic was skipped under review.deltaRounds=on, which is no longer set';
-    if (skip.abVariant?.flags?.['review.deltaRounds'] !== 'on') return 'critic skip record is malformed';
+    // Lab lean: the confirm arm (review.deltaRounds=confirm, also implied by pipeline.lean=on) records 'confirm'.
+    if (!['on', 'confirm'].includes(String(skip.abVariant?.flags?.['review.deltaRounds']))) return 'critic skip record is malformed';
     if (!isDeltaRoundRosterBasis(epoch.rosterBasis)) return 'critic was skipped for a delta round but the epoch is not a delta-round epoch';
   } else {
     if (!criticOnCleanRoundSkipEvidence(projectRoot)) return 'critic was skipped under review.criticOnCleanRound=skip, which is no longer set';

@@ -80,8 +80,10 @@
  * (attention dilution in one session, not context bloat in four), so it is
  * guarded by the per-dimension coverage contract with fail-closed relaunch,
  * and it must pass the seeded-defect / calibration replay (ab/README.md
- * "Lane merge") before any default change. review.deltaRounds is not applied
- * while lane merge is on (vary one switch at a time).
+ * "Lane merge") before any default change. review.deltaRounds=on is not applied
+ * while lane merge is on (vary one switch at a time); review.deltaRounds=confirm (lab lean,
+ * pipeline.lean) composes with it: an eligible delta round runs its ONE confirmation session,
+ * every other round is merged (handlers/reviewer-list.ts leanRoundSelection).
  */
 import { createHash } from 'node:crypto';
 import { abVariantEvidence, laneMergeMode, laneMergeOn, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';

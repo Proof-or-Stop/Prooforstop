@@ -1004,8 +1004,10 @@ directory to influence a gate; it holds only git's own bytes. Every `next --run`
 decision and step is timed in `.proof-or-stop/runtime/next-run/diagnostics.jsonl`
 (diagnostic only, never read by a gate). See docs/CLI.md "Framework serial time".
 
-Delta review rounds (EXPERIMENTAL A/B `review.deltaRounds`, default off; lab
-`codex/lab-delta-review`, `core/review-delta-round.ts`): with it on, a REVIEW
+Delta review rounds (EXPERIMENTAL A/B `review.deltaRounds` off|on|confirm, default off; lab
+`codex/lab-delta-review`, `core/review-delta-round.ts`; `confirm` from lab lean: no lane
+re-reviews the whole Story, a finding outside the delta escalates the next round to a full
+round): with `on`, a REVIEW
 round after a remediation re-reviews only the repair. The lanes that raised
 findings last round re-review the whole Story; every other lane is replaced by
 ONE confirmation lane whose prompt lists their concerns and the repair scope
@@ -1040,6 +1042,26 @@ uncovered, its pass is refused and every dimension of that session runs
 separately. The inventory critic runs as before; no round cap, no severity decay.
 `reviewer_list --json` shows the plan (`finalReview.selection.laneMerge`, sessions
 in `groups`).
+
+Lean pipeline (lab `codex/lab-lean`; EXPERIMENTAL umbrella `pipeline.lean`, default off;
+docs/CLI.md "Lab lean"): `on` implies, for every key not set explicitly,
+`implementation.grouping=story`, `review.laneMerge=on`, `review.deltaRounds=confirm`,
+`review.criticOnCleanRound=skip`, `plan.reviewMerge=on` and `plan.disputeConfirm=on`. DEV: ONE
+implementer run carries every open item; its prompt has a STORY RUN block with one section per
+other item. As that implementer, implement every item, make each item's pinned commands pass,
+commit each item's work under a message naming its id (one commit naming several ids is fine
+when they change the same lines) BEFORE the bound item's completion call, and never call
+`checklist_update` for another item: the framework marks it done (`story_item_done`) once a
+commit of the run names it; an item no commit names gets its own run. REVIEW: round 1 and every
+full round are one merged session; a later round is ONE delta confirmation session for every
+concern (no lane re-reviews the whole Story); as that session, a defect you notice outside the
+delta scope is still reported with its file:line: the framework then makes the next round a
+full review of the whole Story (`delta_round_escalated`). Defect families (default on,
+`remediation.familyEvidence`): a repair whose finding is linked to an earlier-round finding by
+evidence (a cited line the earlier repair wrote, the same function, overlapping spans) gets the
+family-complete brief and, from the family's second round, the mechanism-level block with its
+`[mechanism]` report line; a same-round duplicate's repro is listed for the canonical's repair
+test.
 
 INIT+PLAN lighter (lab `codex/lab-plan-light`; three EXPERIMENTAL A/B switches,
 default off, one per arm; docs/CLI.md "Lab plan-light switches"):

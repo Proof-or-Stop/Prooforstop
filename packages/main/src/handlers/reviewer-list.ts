@@ -49,6 +49,8 @@ import {
 } from '../core/review-incremental-context.js';
 import { computeDeltaRoundPlan, deltaRoundRosterBasis, deltaRoundsVariant } from '../core/review-delta-round.js';
 import { computeLaneMergePlan, laneMergeRosterBasis, laneMergeVariant } from '../core/review-lane-merge.js';
+import { deltaRoundsMode } from '../core/ab-variants.js';
+import { loadConfig } from '../core/config.js';
 import { verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { canonicalAgentRoleId, legacyAgentRoleIds } from '../core/agent-role-identity.js';
@@ -258,9 +260,14 @@ export function computeFinalReviewRoster(
   // EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts): ONE merged session per
   // round; it takes the place of the delta round (one switch at a time) and also leaves a
   // proven dependency-closure selection alone.
+  // Lab lean (review.deltaRounds=confirm, implied by pipeline.lean=on): both switches compose: an eligible
+  // delta round runs its ONE confirmation session; every other round (round 1, a fallback, an escalation) is a
+  // merged full round, which records the delta plan's fallback reason. With deltaRounds=on, lane merge still wins.
   const closure = proven.selection === 'dependency-closure' && verifyPostRemediationReviewSelection(proven);
   const selection = closure ? proven
-    : laneMergeVariant(root) ? laneMergeSelection(store, root, storyId, activeReviewers, proven)
+    : laneMergeVariant(root) ? (deltaRoundsMode(loadConfigOrNull(root)) === 'confirm'
+      ? leanRoundSelection(store, root, storyId, activeReviewers, proven)
+      : laneMergeSelection(store, root, storyId, activeReviewers, proven))
       : deltaRoundSelection(store, root, storyId, activeReviewers, proven);
   const selected = verifyPostRemediationReviewSelection(selection)
     ? new Set(selection.selectedLanes.map(reviewerLaneShortName))
@@ -310,6 +317,31 @@ function deltaRoundSelection(
     sourceHeadHash: plan.fromHead,
     deltaRound: plan,
   });
+}
+
+/** The project config, or null when it cannot be read (every A/B reader then keeps production). */
+function loadConfigOrNull(root: string): unknown {
+  try { return loadConfig(root); } catch { return null; }
+}
+
+/**
+ * Lab lean (review.deltaRounds=confirm with review.laneMerge on): the delta-round selection when the current round
+ * is an eligible delta round (ONE confirmation session), else the lane-merge selection (a merged full round) that
+ * also carries the delta plan, so the roster shows why this round is full (e.g. PREVIOUS_ESCALATION).
+ */
+function leanRoundSelection(
+  store: HandlerContext['store'],
+  root: string,
+  storyId: string,
+  activeReviewers: ActiveReviewer[],
+  base: PostRemediationReviewSelection,
+): PostRemediationReviewSelection {
+  const delta = deltaRoundSelection(store, root, storyId, activeReviewers, base);
+  if (delta.selection === 'delta-round') return delta;
+  const merged = laneMergeSelection(store, root, storyId, activeReviewers, base);
+  if (!delta.deltaRound) return merged;
+  const { _hash: _ignored, ...unsigned } = merged;
+  return signPostRemediationSelection({ ...unsigned, deltaRound: delta.deltaRound });
 }
 
 /**

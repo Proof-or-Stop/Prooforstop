@@ -60,6 +60,18 @@
  * (previous round's receipt and findings, the repair diff, recorded gaps), so
  * the roster does not move while the round runs.
  *
+ * Lab lean (`review.deltaRounds=confirm`, implied by `pipeline.lean=on`; old-PoS runs 53-56: the raiser lane told
+ * to re-review the WHOLE Story kept finding new test gaps for six rounds, run53-56-delta-ab-analysis.md §0 item 3):
+ *   - NO lane re-reviews the whole Story: every active lane (the raiser too) is replaced by the ONE confirmation
+ *     session (only a forced lane stays full); the framework still re-runs each resolved finding's test
+ *     (`[reverified]`), and a clean round still skips the critic.
+ *   - Escalation: a finding the confirmation session reports whose cited locations (file:line in its desc, else
+ *     its files) all lie outside the delta scope (deltaEscalations) is recorded (DELTA_ROUND_ESCALATION_EVENT); the
+ *     next round is then a FULL round (PREVIOUS_ESCALATION; under review.laneMerge a merged full round), because a
+ *     defect outside the repair says the whole Story needs another full look. No round cap.
+ *   - Composition with review.laneMerge (handlers/reviewer-list.ts): an eligible delta round runs the one
+ *     confirmation session; any other round is a (merged) full round.
+ *
  * Relation to `review.roundDelta=pack` (A4, core/review-lane-pack.ts): A4 only
  * adds the delta to a prompt pack and keeps every lane reviewing the whole
  * Story (no lane or critic is saved). Both can be on: the full lanes of a delta
@@ -67,10 +79,11 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { abVariantEvidence, deltaRoundsOn, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
+import { abVariantEvidence, deltaRoundsMode, deltaRoundsOn, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { loadConfig } from './config.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
+import { LANE_MERGE_COVERAGE_EVENT } from './review-lane-merge.js';
 import { isCodeReviewLaneRun, isEarlierReviewRound } from './review-round-order.js';
 import type { StoryStore } from './store.js';
 import type { Finding, ReviewInventoryEpoch, ReviewInventoryReceipt, ReviewRun } from './types.js';
@@ -78,12 +91,16 @@ import type { Finding, ReviewInventoryEpoch, ReviewInventoryReceipt, ReviewRun }
 export const DELTA_ROUND_SCHEMA = 'proof-or-stop.review-delta-round.v1' as const;
 export const DELTA_ROUND_GAP_EVENT = 'delta_round_confirmation_gap' as const;
 export const DELTA_ROUND_REVERIFIED_EVENT = 'delta_round_reverified' as const;
+/** Lab lean (review.deltaRounds=confirm): a confirmation finding outside the delta scope; the next round is a full round. */
+export const DELTA_ROUND_ESCALATION_EVENT = 'delta_round_escalated' as const;
 export const DELTA_ROUND_CRITIC_SKIP_REASON =
   'A/B review.deltaRounds=on: delta round with no finding reported by any required lane; completeness critic not run';
 
 export const DELTA_ROUND_LIMITS = {
   /** A repair changing more than this share of the Story diff's changed lines is a full round. */
   repairShareOfStoryMax: 0.5,
+  /** Lab lean escalation: a cited line within this many lines of a scope region counts as inside the delta. */
+  escalationLineSlack: 3,
   maxScopeFiles: 20,
   maxRegionsPerKind: 12,
   findingTextChars: 240,
@@ -105,6 +122,7 @@ export type DeltaRoundReason =
   | 'REPAIR_DIFF_LARGE'
   | 'CONFIRMATION_GAP'
   | 'PREVIOUS_CONFIRMATION_GAP'
+  | 'PREVIOUS_ESCALATION'
   | 'NO_REPLACEABLE_LANE';
 
 export interface DeltaScopeRegion {
@@ -156,6 +174,8 @@ export interface DeltaRoundPlan {
   /** Digest of the roster-determining facts (stable within the round). */
   planDigest: string;
   abVariant?: AbVariantEvidence;
+  /** The switch value: 'confirm' (lab lean) = no full lane, escalation; absent = 'on'. */
+  mode?: 'on' | 'confirm';
 }
 
 /** Sealed in a managed lane run's spec (reviewBinding.deltaRound). */
@@ -172,6 +192,9 @@ export interface DeltaRoundRunBinding {
   fullLanes: string[];
   checkItems: string[];
   reverifyFindingIds: string[];
+  /** Lab lean (confirm mode only): the arm and the delta scope the import checks a finding's location against. */
+  mode?: 'confirm';
+  scope?: DeltaScopeFile[];
 }
 
 export type DeltaRoundStore = Pick<StoryStore, 'readStory' | 'readReviewRuns' | 'readFindings' | 'readReviewInventoryEpochs' | 'readProcessEvents'>;
@@ -209,11 +232,17 @@ export function deltaRoundsVariant(projectRoot: string): AbVariantEvidence | und
   let config: unknown;
   try { config = loadConfig(projectRoot); } catch { return undefined; }
   if (!deltaRoundsOn(config)) return undefined;
+  const fallback: AbVariantEvidence = { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.deltaRounds': deltaRoundsMode(config) } };
   try {
-    return abVariantEvidence(resolveAbVariants(config)) ?? { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.deltaRounds': 'on' } };
+    return abVariantEvidence(resolveAbVariants(config)) ?? fallback;
   } catch {
-    return { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.deltaRounds': 'on' } };
+    return fallback;
   }
+}
+
+/** The arm of a variant record: 'confirm' only when the evidence says so. */
+function deltaModeOf(abVariant: AbVariantEvidence | undefined): 'on' | 'confirm' {
+  return abVariant?.flags?.['review.deltaRounds'] === 'confirm' ? 'confirm' : 'on';
 }
 
 /** Story base: the frozen integration base when recorded, else the merge-base with main/master. */
@@ -256,9 +285,10 @@ function materialStatuses(gitCwd: string, projectRoot: string, from: string, to:
 const DEFINITION_LINE = /^\s*(?:export\s+)?(?:default\s+)?(?:pub(?:\([^)]*\))?\s+)?(?:async\s+)?(?:static\s+)?(?:func|function|def|fn|class|interface|type|struct|enum|trait|impl)\s+(?:\([^)]*\)\s*)?([A-Za-z_][A-Za-z0-9_]*)/;
 const CALL = /([A-Za-z_][A-Za-z0-9_]*)\s*\(/g;
 
-interface Definition { name: string; startLine: number; endLine: number }
+export interface Definition { name: string; startLine: number; endLine: number }
 
-function definitionsOf(lines: readonly string[]): Definition[] {
+/** Definitions of a file (start line of each recognizable definition to the line before the next one), 1-based. */
+export function definitionsOf(lines: readonly string[]): Definition[] {
   const starts: Array<{ name: string; line: number }> = [];
   lines.forEach((text, index) => {
     const match = text.match(DEFINITION_LINE);
@@ -406,6 +436,7 @@ export function computeDeltaRoundPlan(args: {
   const { store, projectRoot, gitCwd, storyId } = args;
   const activeLanes = args.activeLanes.map(lane => canonicalAgentRoleId(lane));
   const abVariant = deltaRoundsVariant(projectRoot);
+  const mode = abVariant ? deltaModeOf(abVariant) : undefined;
   let story: { currentReviewRound?: string } = {};
   try { story = store.readStory(storyId) as { currentReviewRound?: string }; } catch { story = {}; }
   const reviewRound = story.currentReviewRound ?? null;
@@ -415,6 +446,7 @@ export function computeDeltaRoundPlan(args: {
     activeLanes, fullLanes: [], replacedLanes: [], confirmationLane: null, selectedLanes: [...activeLanes],
     repair: null, scope: [], resolvedFindings: [], openFindings: [], checkItems: [], reverifyFindingIds: [], planDigest: '',
     ...(abVariant ? { abVariant } : {}),
+    ...(mode === 'confirm' ? { mode } : {}),
   };
   const fallback = (reason: DeltaRoundReason, detail: string): DeltaRoundPlan => {
     const out: DeltaRoundPlan = { ...plan, eligible: false, reason, detail, fullLanes: [], replacedLanes: [], confirmationLane: null, selectedLanes: [...activeLanes] };
@@ -470,6 +502,10 @@ export function computeDeltaRoundPlan(args: {
   if (gaps.some(event => event.reviewRound === previousRound && event.conclusion === 'findings')) {
     return fallback('PREVIOUS_CONFIRMATION_GAP', `the confirmation lane of round ${previousRound} reported findings but left part of its delta unchecked; this round is a full round`);
   }
+  // Lab lean (confirm): a finding outside the delta in the previous round's confirmation escalates this round to a full round.
+  if (events.some(event => event.type === DELTA_ROUND_ESCALATION_EVENT && event.reviewRound === previousRound)) {
+    return fallback('PREVIOUS_ESCALATION', `the confirmation session of round ${previousRound} reported a defect outside its repair delta; this round is a full review of the whole Story`);
+  }
   let findings: Finding[] = [];
   try { findings = store.readFindings(storyId).findings ?? []; } catch { findings = []; }
   const raised = new Set(findings
@@ -478,7 +514,16 @@ export function computeDeltaRoundPlan(args: {
       && !closedWithoutRepair(finding))
     .map(finding => canonicalAgentRoleId(finding.agent!)));
   const forced = new Set((args.forcedLanes ?? []).map(lane => canonicalAgentRoleId(lane)));
-  const fullLanes = activeLanes.filter(lane => raised.has(lane) || forced.has(lane));
+  // Lab lean (confirm): a dimension the previous round's merged FINDINGS verdict left uncovered (review.laneMerge) was
+  // never reviewed: it runs in full now, as the lane-merge plan would have run it on its own.
+  if (mode === 'confirm') {
+    for (const event of (events as Array<{ type: string; reviewRound?: unknown; conclusion?: unknown; missingLanes?: unknown }>)
+      .filter(row => row.type === LANE_MERGE_COVERAGE_EVENT && row.reviewRound === previousRound && row.conclusion === 'findings')) {
+      for (const lane of Array.isArray(event.missingLanes) ? event.missingLanes : []) if (typeof lane === 'string') forced.add(canonicalAgentRoleId(lane));
+    }
+  }
+  // Lab lean (confirm): no lane re-reviews the whole Story for having raised a finding (runs 53-56); only a forced lane stays full.
+  const fullLanes = activeLanes.filter(lane => (mode !== 'confirm' && raised.has(lane)) || forced.has(lane));
   const replacedLanes = activeLanes.filter(lane => !fullLanes.includes(lane));
   if (replacedLanes.length === 0) return fallback('NO_REPLACEABLE_LANE', 'every active lane raised findings in the previous round (or is forced)');
   const confirmationLane = replacedLanes[0]!;
@@ -490,7 +535,7 @@ export function computeDeltaRoundPlan(args: {
     ...plan,
     eligible: true,
     reason: 'DELTA_ROUND',
-    detail: `repair ${fromHead.slice(0, 12)}..${head.slice(0, 12)}: ${repairFiles.length} file(s), ${repairLines} of ${storyLines} Story-diff line(s); full: ${fullLanes.map(short).join(', ') || 'none'}; confirmation: ${short(confirmationLane)} for ${replacedLanes.map(short).join(', ')}`,
+    detail: `repair ${fromHead.slice(0, 12)}..${head.slice(0, 12)}: ${repairFiles.length} file(s), ${repairLines} of ${storyLines} Story-diff line(s); full: ${fullLanes.map(short).join(', ') || 'none'}; confirmation: ${short(confirmationLane)} for ${replacedLanes.map(short).join(', ')}${mode === 'confirm' ? ' (review.deltaRounds=confirm)' : ''}`,
     fullLanes,
     replacedLanes,
     confirmationLane,
@@ -515,6 +560,8 @@ function digestPlan(plan: DeltaRoundPlan): string {
     previousRound: plan.previousRound, sourceReceiptId: plan.sourceReceiptId, fromHead: plan.fromHead,
     activeLanes: plan.activeLanes, fullLanes: plan.fullLanes, replacedLanes: plan.replacedLanes, confirmationLane: plan.confirmationLane,
     repairFiles: plan.repair?.files ?? null, repairLines: plan.repair?.changedLines ?? null, storyLines: plan.repair?.storyChangedLines ?? null,
+    // Lab lean: the confirm arm binds its mode (the 'on' digest is unchanged).
+    ...(plan.mode === 'confirm' ? { mode: plan.mode } : {}),
   }));
 }
 
@@ -537,6 +584,7 @@ export function deltaRoundBinding(plan: DeltaRoundPlan, role: 'confirmation' | '
     schema: DELTA_ROUND_SCHEMA, abVariant: plan.abVariant, role, reviewRound: plan.reviewRound, previousRound: plan.previousRound,
     fromHead: plan.fromHead, planDigest: plan.planDigest, confirmationLane: plan.confirmationLane, replacedLanes: plan.replacedLanes,
     fullLanes: plan.fullLanes, checkItems: role === 'confirmation' ? plan.checkItems : [], reverifyFindingIds: role === 'confirmation' ? plan.reverifyFindingIds : [],
+    ...(plan.mode === 'confirm' ? { mode: 'confirm' as const, ...(role === 'confirmation' ? { scope: plan.scope } : {}) } : {}),
   };
 }
 
@@ -564,13 +612,15 @@ function renderRegion(region: DeltaScopeRegion): string {
  */
 export function renderDeltaConfirmationBlock(plan: DeltaRoundPlan, storyId: string, diffLines: readonly string[] = []): string[] {
   const full = plan.fullLanes.map(short);
+  const confirm = plan.mode === 'confirm';
   return [
-    `--- BEGIN DELTA ROUND CONFIRMATION (A/B review.deltaRounds=on, experimental; round ${plan.reviewRound}) ---`,
+    `--- BEGIN DELTA ROUND CONFIRMATION (A/B review.deltaRounds=${confirm ? 'confirm' : 'on'}, experimental; round ${plan.reviewRound}) ---`,
     `This review round is a DELTA round: the previous round (${plan.previousRound}) ended in a remediation, and the candidate changed from ${plan.fromHead} to ${plan.headHash} (${plan.repair?.files.length ?? 0} material file(s), ${plan.repair?.changedLines ?? 0} changed line(s); the Story diff had ${plan.repair?.storyChangedLines ?? 0}).`,
     full.length
       ? `The lane(s) that raised findings last round (${full.join(', ')}) re-review the WHOLE Story in parallel with you.`
       : 'No lane re-reviews the whole Story in this round.',
     `You are the ONE confirmation lane of this round: you replace the lanes ${plan.replacedLanes.map(short).join(', ')} and review ONLY the delta scope below, for ALL of their concerns (your own role prompt above states one of them). Do not review code outside the scope; a defect you notice outside it is still reported as a finding.`,
+    ...(confirm ? ['Escalation (review.deltaRounds=confirm): a defect you notice outside the delta scope is still reported as a finding citing its file:line; the framework then escalates and the next round is a full review of the whole Story. Do not widen this session to look for one.'] : []),
     'Check items (one [checked] line each):',
     ...plan.replacedLanes.map(lane => `- concern:${short(lane)} — ${concernOf(lane)}`),
     ...plan.scope.flatMap(file => [
@@ -678,4 +728,51 @@ export function checkDeltaConfirmationNote(args: {
     reverify.push({ findingId, command, selector });
   }
   return { missing, gaps, problems, reverify };
+}
+
+/** One cited location of a finding: `path:line` (or `path:start-end`) in its desc, or a declared file with no line. */
+export interface FindingCitation { path: string; startLine: number | null; endLine: number | null }
+
+const CITED_LINE = /(?<![\w/.-])((?:[\w.-]+\/)*[\w.-]+\.[A-Za-z0-9]{1,8})(?::(\d+)(?:-(\d+))?|#L(\d+)(?:-L?(\d+))?)/g;
+const samePath = (a: string, b: string): boolean => a === b || a.endsWith(`/${b}`) || b.endsWith(`/${a}`);
+
+/** The locations a finding cites: every `path:line` in its desc, plus each declared file its desc cites no line of. */
+export function findingCitations(finding: { desc?: string | null; files?: readonly string[] | null }): FindingCitation[] {
+  const out: FindingCitation[] = [];
+  for (const match of String(finding.desc ?? '').matchAll(CITED_LINE)) {
+    const path = match[1]!.replace(/^\.\//, '');
+    const start = Number(match[2] ?? match[4]);
+    const end = Number(match[3] ?? match[5] ?? start);
+    if (Number.isFinite(start) && start > 0) out.push({ path, startLine: start, endLine: Number.isFinite(end) && end >= start ? end : start });
+  }
+  for (const path of finding.files ?? []) {
+    const clean = String(path).replace(/^\.\//, '');
+    if (clean && !out.some(row => samePath(row.path, clean))) out.push({ path: clean, startLine: null, endLine: null });
+  }
+  return out;
+}
+
+const citationText = (row: FindingCitation): string => row.startLine === null ? row.path : `${row.path}:${row.startLine}${row.endLine !== null && row.endLine !== row.startLine ? `-${row.endLine}` : ''}`;
+
+/**
+ * Lab lean (review.deltaRounds=confirm): which findings of a confirmation session lie OUTSIDE the delta scope. A
+ * finding is inside when at least one of its cited locations is: a cited line within a scope region of the same
+ * file (+- DELTA_ROUND_LIMITS.escalationLineSlack), or a cited file of the scope with no line. A finding citing no
+ * location cannot be placed and counts as outside (fail closed: a full round next). Deterministic, no git.
+ */
+export function deltaEscalations(scope: readonly DeltaScopeFile[], findings: ReadonlyArray<{ desc?: string | null; files?: readonly string[] | null }>):
+  Array<{ index: number; citations: string[]; reason: string }> {
+  const slack = DELTA_ROUND_LIMITS.escalationLineSlack;
+  const inside = (row: FindingCitation): boolean => scope.some(file => samePath(file.path, row.path) && (row.startLine === null
+    || file.regions.some(region => row.startLine! <= region.endLine + slack && (row.endLine ?? row.startLine!) >= region.startLine - slack)));
+  const out: Array<{ index: number; citations: string[]; reason: string }> = [];
+  findings.forEach((finding, index) => {
+    const cited = findingCitations(finding);
+    if (cited.some(inside)) return;
+    const citations = cited.map(citationText);
+    out.push({ index, citations, reason: citations.length
+      ? `cites ${citations.join(', ')}, outside the delta scope (${scope.map(file => file.path).join(', ') || 'empty'})`
+      : 'cites no file or line, so it cannot be placed inside the delta scope' });
+  });
+  return out;
 }

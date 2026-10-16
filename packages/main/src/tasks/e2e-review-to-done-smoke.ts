@@ -306,6 +306,15 @@
  *      generic dimension is relaunched alone; NLM-SC a split session's carrier
  *      gap sends only that session's dimensions to their own lanes. `LM` = all
  *      twelve.
+ *   LN lab lean, EXPERIMENTAL pipeline.lean=on on the unimplemented ND fixture
+ *      from DEV: NLN one implementer run for the Story (framework done step for
+ *      the other item), one merged review session in round 1, one delta
+ *      confirmation session in round 2, no critic on the clean round (prints the
+ *      managed sessions); NLN-OFF the control (switch absent); NLN-E a round-2
+ *      finding outside the repair delta escalates round 3 to a full round;
+ *      NLN-DF a member no commit names gets its own implementer run; NLN-I the
+ *      umbrella's plan.reviewMerge: INIT to PLAN with zero INIT reviewer
+ *      sessions (NPM-I's flow). `LN` = all five.
  *   NPXR/NPXRE/NPXRN old-PoS run 52: a re-filed pre-existing finding on a
  *      dispositioned, unchanged site closes at import with no owner turn and no
  *      extra round (NPXR); a site the Story edited (NPXRE) or a new site of the
@@ -369,7 +378,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1822,7 +1831,11 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
   /** EXPERIMENTAL A/B review.laneMerge (NLM*): what the merged session of each round reports (LaneMergeMode). */
   laneMerge?: LaneMergeMode;
   /** Lab lane-split (NLM4*, NLM-S): every code-review lane session sleeps this scripted latency. */
-  laneLatency?: LaneLatency }
+  laneLatency?: LaneLatency;
+  /** Lab lean (NLN*): the merged session of round 1 reports D_FINDING; a later round's delta confirmation passes, or (escalate) reports LN_ESC_FINDING outside the delta. */
+  lean?: LeanScriptMode }
+/** Lab lean (NLN*): what the review sessions of a pipeline.lean run report (LN_ESC_FINDING in round 2 when `escalate`). */
+interface LeanScriptMode { escalate?: boolean }
 /**
  * EXPERIMENTAL A/B review.laneMerge (NLM*): per round (index = review round), the merged session's findings and
  * which dimensions' coverage lines its note leaves out ('<dimension>'), marks [gap] ('gap:<dimension>'), answers
@@ -1944,6 +1957,16 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
       : index === 1 && lane === 'proof-or-stop-review-quality' ? (mode.recurring === 'new-site' ? [RX_REFILED, RX_NEW_SITE] : [RX_REFILED]) : [];
     const envelope = findings.length ? { conclusion: 'findings', note: 'Scripted run 52 lane: documentation drift in the guide.', findings } : PASS_ENVELOPE(lane);
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
+  }
+  if (mode.lean) {
+    // Lab lean (NLN*): round 1's merged session reports D_FINDING tagged [dimension:test-coverage]; a later round runs the
+    // delta confirmation (pass, or with `escalate` LN_ESC_FINDING, which cites a line outside the delta) or a full merged
+    // session (pass); a dimension relaunched as its own lane passes.
+    const index = reviewRoundIndex(worktree, storyId, reviewRunId);
+    const findings = index === 0 ? [lmTagged('test-coverage', D_FINDING)] : [];
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...PASS_ENVELOPE(lane), ...readEvidenceFor(worktree, storyId) }),
+      merge: findings.length ? { findings } : {},
+      delta: { mode: 'full', ...DELTA_REVERIFY, ...(mode.lean.escalate && index === 1 ? { findings: [LN_ESC_FINDING] } : {}) } };
   }
   if (mode.laneMerge) {
     // EXPERIMENTAL A/B review.laneMerge (NLM*): the merged session (whichever lane carries the block) reports the round's
@@ -2384,7 +2407,9 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Lab lane-split: see ScriptMode.laneLatency. */
   laneLatency?: LaneLatency;
   /** Old-PoS run 52 (NPXR*): see ScriptMode.recurring. */
-  recurring?: RecurringMode; }, lines: string[],
+  recurring?: RecurringMode;
+  /** Lab lean (NLN*): see ScriptMode.lean. */
+  lean?: LeanScriptMode; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
   onStep?: (next: NextStepJson, quiet: boolean) => void): DriveStats {
   const id = o.storyId;
@@ -3964,6 +3989,155 @@ function scenarioLM(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: LaneM
   }
 }
 
+/** Lab lean (NLN-E): a round-2 confirmation finding citing a line outside the repair delta (the repair touched only the test file). */
+const LN_ESC_FINDING = {
+  desc: 'Upper has no focused test for an empty string (strs/strs.go:6): Upper("") must return "" and nothing asserts it.',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go'], evidenceState: 'verified',
+};
+
+type LeanVariant = 'LN' | 'LN-OFF' | 'LN-E' | 'LN-DF';
+
+/** Lab lean (NLN-DF): the Story run commits under its bound item's id only, so the other item is not counted as implemented. */
+function leanBoundOnlyImplementerScript(storyId: string, itemId: string): ProviderScript {
+  const writeFiles = `const fs=require('fs');fs.writeFileSync('strs/strs.go',${JSON.stringify(IMPL)});fs.writeFileSync('strs/strs_test.go',${JSON.stringify(TESTS)});`;
+  return { commands: [
+    [process.execPath, '-e', writeFiles],
+    ['/bin/sh', '-c', `git add strs && (git -c user.name=${IMPLEMENTER} commit -qm '${storyId} ${itemId}: implement' || true) && git log --format=%h -1`],
+    [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId, itemId, status: 'done' })],
+  ], final: `Implemented ${itemId}; marked done.` };
+}
+
+/**
+ * Lab lean (bench-staging/oldpos/lean-pipeline.md): the EXPERIMENTAL umbrella switch `pipeline.lean=on` on the
+ * unimplemented ND fixture (two items), driven by `next` alone from DEV to DONE:
+ *   NLN     DEV = ONE managed implementer run for both items (groupItemIds = every open item; the other item is
+ *           marked done by a framework step `story_item_done` after the run's commit names it); round 1 = ONE merged
+ *           review session (it reports D_FINDING) + the critic; round 2 = ONE delta confirmation session over the
+ *           repair (no lane re-reviews the whole Story), the framework re-runs the repaired finding's test, no critic
+ *           (clean). Prints the managed sessions per phase.
+ *   NLN-OFF the same fixture and flow with the switch absent (the control): one implementer run per item, three lane
+ *           sessions per round, the critic every round. Prints the same counts.
+ *   NLN-E   round 2's confirmation session reports LN_ESC_FINDING, which cites a line outside the repair delta: the
+ *           escalation is recorded (delta_round_escalated) and round 3 is a FULL (merged) round
+ *           (PREVIOUS_ESCALATION), not another delta round.
+ *   NLN-DF  the Story run's commit names only its bound item: the other item is not counted as implemented by it and
+ *           gets its own implementer run (no framework done step).
+ */
+function scenarioLN(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: LeanVariant): Outcome {
+  const tag = `N${variant}`;
+  const lean = variant !== 'LN-OFF';
+  const name = `${tag} ${lean ? 'A/B {"pipeline":{"lean":"on"}}' : '(pipeline.lean absent: control)'} on the unimplemented ND fixture reaches DONE`;
+  const ids: Record<LeanVariant, string> = { LN: 'B-ln11', 'LN-OFF': 'B-ln12', 'LN-E': 'B-ln13', 'LN-DF': 'B-ln14' };
+  const o = new Owner(tag, ids[variant], machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, ...(lean ? { config: { pipeline: { lean: 'on' } } } : {}) });
+  const lines: string[] = [];
+  const reasons: Array<{ reason: string; kind: string }> = [];
+  const selections: Array<{ round: string; selection: Record<string, unknown> }> = [];
+  let evidenceAdded = false;
+  try {
+    devSetup(o, false);
+    driveWithNext(o, {
+      findingRound1: true, run: false, ...(lean ? { lean: { escalate: variant === 'LN-E' } } : {}),
+      ...(variant === 'LN-DF' ? { implementerScript: (itemId: string) => leanBoundOnlyImplementerScript(o.storyId, itemId) } : {}),
+      // The fixture's intents are not pinned: the owner records the focused evidence once the code exists (as AB V6).
+      interject: next => {
+        if (next.reason !== 'evidence_chain' || evidenceAdded) return false;
+        addItemEvidence(o);
+        evidenceAdded = true;
+        return true;
+      },
+    }, lines, next => {
+      reasons.push({ reason: next.reason, kind: next.kind });
+      if (next.reason !== 'review_lane_launch') return;
+      const round = new StoryStore(o.worktree).readStory(o.storyId).currentReviewRound ?? '';
+      if (selections.some(row => row.round === round)) return;
+      const listed = parseJson(o.mustCli('reviewer_list', { storyId: o.storyId, json: true }, { label: 'reviewer_list (roster)' }).stdout);
+      selections.push({ round, selection: ((listed?.finalReview as Record<string, unknown> | undefined)?.selection ?? {}) as Record<string, unknown> });
+    });
+    const store = new StoryStore(o.root);
+    const allRuns = store.readReviewRuns(o.storyId).runs;
+    const roundIds = [...new Set(allRuns.filter(run => run.reviewPurpose !== 'inventory-completeness').map(run => run.reviewRound))];
+    const short = (lane: string) => lane.replace('proof-or-stop-review-', '');
+    const laneRunsOf = (round: string) => allRuns.filter(run => run.reviewRound === round && run.reviewPurpose !== 'inventory-completeness');
+    const prompts = managedPrompts(o);
+    const lanePrompts = prompts.filter(row => row.agentType.startsWith('proof-or-stop-review-') && row.agentType !== DELIVERY && row.agentType !== MANAGED_INVENTORY_CRITIC_LANE);
+    const promptOf = (reviewRunId: string) => lanePrompts.find(row => row.prompt.includes(reviewRunId)) ?? null;
+    const implementers = prompts.filter(row => row.agentType === IMPLEMENTER);
+    const critics = prompts.filter(row => row.agentType === MANAGED_INVENTORY_CRITIC_LANE);
+    const repairs = prompts.filter(row => row.agentType === FINDING_REPAIR);
+    const deliveries = prompts.filter(row => row.agentType === DELIVERY);
+    const perRound = roundIds.map(round => laneRunsOf(round).map(run => short(run.lane)));
+    const events = store.readProcessEvents(o.storyId);
+    lines.push(`managed sessions: ${prompts.length} = implementer ${implementers.length}, review lanes ${lanePrompts.length} (per round: ${perRound.map(row => `${row.length} [${row.join(', ')}]`).join(' | ')}), critic ${critics.length}, finding-repair ${repairs.length}, delivery ${deliveries.length}`);
+    lines.push(`roster selections: ${selections.map(row => `${String(row.selection.selection ?? '?')}${(row.selection.deltaRound as { reason?: string } | undefined)?.reason ? `/${String((row.selection.deltaRound as { reason?: string }).reason)}` : ''}`).join(', ')}`);
+    lines.push(`owner-visible steps: ${reasons.filter(row => row.kind !== 'framework').map(row => row.reason).join(', ') || '(none)'}`);
+    const findings = store.readFindings(o.storyId).findings;
+    for (const finding of findings) assert.equal(finding.status === 'open' && finding.severity !== 'low', false, `${tag}: ${finding.id} closed before DONE (${finding.status})`);
+    const storyDone = reasons.filter(row => row.reason === 'story_item_done');
+    if (!lean) {
+      assert.equal(implementers.length, 2, `${tag}: control = one implementer run per item (got ${implementers.length})`);
+      assert.ok(perRound.every(row => row.length === 3), `${tag}: control = three lane sessions per round`);
+      assert.equal(critics.length, perRound.length, `${tag}: control = the critic every round`);
+      assert.equal(storyDone.length, 0, `${tag}: no framework member done step in the control`);
+    } else if (variant === 'LN-DF') {
+      assert.equal(implementers.length, 2, `${tag}: the item no commit names gets its own run (got ${implementers.length})`);
+      assert.deepEqual(implementers[0]!.target?.groupItemIds, ['CHK-001', 'CHK-002'], `${tag}: the first run is the Story run`);
+      assert.equal(implementers[1]!.target?.itemId, 'CHK-002', `${tag}: the second run is bound to CHK-002`);
+      assert.equal(implementers[1]!.target?.groupItemIds, undefined, `${tag}: alone`);
+      assert.equal(storyDone.length, 0, `${tag}: no framework done step without a commit naming the item`);
+    } else {
+      // DEV: one Story run.
+      assert.equal(implementers.length, 1, `${tag}: ONE implementer run for the Story (got ${implementers.length})`);
+      assert.deepEqual(implementers[0]!.target?.groupItemIds, ['CHK-001', 'CHK-002'], `${tag}: the run binds every open item`);
+      assert.equal((implementers[0]!.target?.abVariant as { flags?: Record<string, string> } | undefined)?.flags?.['implementation.grouping'], 'story', `${tag}: the arm is sealed on the target`);
+      assert.match(implementers[0]!.prompt, /--- BEGIN STORY RUN/, `${tag}: the Story-run brief`);
+      assert.match(implementers[0]!.prompt, /### CHK-002: /, `${tag}: CHK-002 has its own section`);
+      assert.equal(storyDone.length, 1, `${tag}: CHK-002 is marked done by ONE framework step (got ${JSON.stringify(storyDone)})`);
+      assert.equal(storyDone[0]!.kind, 'framework', `${tag}: a framework step, not an owner turn`);
+      const items = store.readChecklist(o.storyId).items;
+      assert.ok(items.every(item => item.status === 'done'), `${tag}: every item done`);
+      // REVIEW round 1: one merged session.
+      assert.equal(selections[0]?.selection.selection, 'lane-merge', `${tag}: round 1 is a merged round`);
+      assert.deepEqual(perRound[0], ['concept'], `${tag}: round 1 = ONE review session (${perRound[0]!.join(', ')})`);
+      assert.match(promptOf(laneRunsOf(roundIds[0]!)[0]!.reviewRunId)?.prompt ?? '', /BEGIN MERGED REVIEW DIMENSIONS/, `${tag}: round 1 carries the merged block`);
+      // Round 2: one delta confirmation session, nobody in full.
+      assert.ok(roundIds.length >= 2, `${tag}: the finding round is followed by a re-review`);
+      assert.equal(selections[1]?.selection.selection, 'delta-round', `${tag}: round 2 is a delta round`);
+      assert.deepEqual(perRound[1], ['concept'], `${tag}: round 2 = ONE confirmation session (${perRound[1]!.join(', ')})`);
+      const round2Prompt = promptOf(laneRunsOf(roundIds[1]!)[0]!.reviewRunId);
+      assert.match(round2Prompt?.prompt ?? '', /--- BEGIN DELTA ROUND CONFIRMATION/, `${tag}: the confirmation block`);
+      assert.match(round2Prompt?.prompt ?? '', /No lane re-reviews the whole Story/, `${tag}: no full raiser`);
+      assert.equal((round2Prompt?.reviewBinding as { deltaRound?: { mode?: string } } | null)?.deltaRound?.mode, 'confirm', `${tag}: the binding seals confirm mode`);
+      const reverified = events.filter(event => String(event.type) === 'delta_round_reverified');
+      assert.ok(reverified.length >= 1 && reverified.every(event => (event as { passed?: boolean }).passed === true), `${tag}: the framework re-ran the repaired finding's test`);
+      if (variant === 'LN') {
+        assert.equal(roundIds.length, 2, `${tag}: two rounds`);
+        assert.equal(critics.length, 1, `${tag}: the critic ran only in the finding round (got ${critics.length})`);
+      } else {
+        const escalated = events.filter(event => String(event.type) === 'delta_round_escalated');
+        assert.equal(escalated.length, 1, `${tag}: the escalation is recorded once (${JSON.stringify(escalated)})`);
+        assert.equal((escalated[0] as { reviewRound?: string }).reviewRound, roundIds[1], `${tag}: it belongs to round 2`);
+        assert.ok(roundIds.length >= 3, `${tag}: round 2's finding was repaired and re-reviewed (rounds ${roundIds.length})`);
+        assert.equal((selections[2]?.selection.deltaRound as { reason?: string } | undefined)?.reason, 'PREVIOUS_ESCALATION', `${tag}: round 3's delta fallback reason`);
+        assert.equal(selections[2]?.selection.selection, 'lane-merge', `${tag}: round 3 is a full merged round`);
+        const round3Prompt = promptOf(laneRunsOf(roundIds[2]!)[0]!.reviewRunId)?.prompt ?? '';
+        assert.match(round3Prompt, /BEGIN MERGED REVIEW DIMENSIONS/, `${tag}: round 3 is a merged full round`);
+        assert.match(round3Prompt, /review\.deltaRounds=confirm[^\n]*FULL review: re-review the WHOLE Story/, `${tag}: round 3's prompt says to review the whole Story`);
+        assert.doesNotMatch(round3Prompt, /Do not re-review the whole Story/, `${tag}: no narrowing after an escalation`);
+        const esc = findings.find(f => f.desc === LN_ESC_FINDING.desc);
+        assert.equal(esc?.status, 'resolved', `${tag}: the escalated finding was repaired and closed`);
+      }
+    }
+    const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
+    assert.match(tests, /TestReverseEmpty/, 'the round-1 repair merged into main');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /** CLI calls and seconds from REVIEW entry (after the shared DEV setup), per scenario. */
 function fromReviewEntry(steps: Step[], scenario: string): { calls: number; seconds: number; nextCalls: number } | null {
   const rows = steps.filter(s => s.scenario === scenario).slice(DEV_SETUP_CALLS);
@@ -5392,10 +5566,12 @@ function scenarioNPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 /** NPM-I: INIT driven by next --run with plan.reviewMerge=on: no INIT reviewer runs. */
-function scenarioNPMI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
-  const tag = 'NPM-I';
-  const name = 'NPM-I lab plan-light plan.reviewMerge=on: next --run drives INIT to PLAN with zero INIT reviewer sessions (the plan is reviewed once in PLAN)';
-  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true, config: { plan: { reviewMerge: 'on' } } });
+function scenarioNPMI(machineEnv: NodeJS.ProcessEnv, steps: Step[], lean = false): Outcome {
+  // Lab lean (NLN-I): the same INIT flow under the umbrella pipeline.lean=on, which implies plan.reviewMerge=on.
+  const tag = lean ? 'NLN-I' : 'NPM-I';
+  const name = lean ? 'NLN-I lab lean pipeline.lean=on implies plan.reviewMerge=on: next --run drives INIT to PLAN with zero INIT reviewer sessions'
+    : 'NPM-I lab plan-light plan.reviewMerge=on: next --run drives INIT to PLAN with zero INIT reviewer sessions (the plan is reviewed once in PLAN)';
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true, config: lean ? { pipeline: { lean: 'on' } } : { plan: { reviewMerge: 'on' } } });
   const lines: string[] = [];
   try {
     const first = o.cli('next', { json: true }, { label: 'next (no Story)' });
@@ -8646,7 +8822,7 @@ function listScopeRuns(o: Owner): number {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I)?|LN)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -8781,10 +8957,13 @@ async function main(): Promise<void> {
     // EXPERIMENTAL A/B review.laneMerge: explicit tokens (NLM, NLM-OFF, NLM-G, NLM-C, NLM-F, NLM-FG, NLM-D; lab lane-split:
     // NLM4-OFF, NLM4, NLM-S, NLM-SG, NLM-SC) or LM = all twelve.
     for (const variant of ['LM', 'LM-OFF', 'LM-G', 'LM-C', 'LM-F', 'LM-FG', 'LM-D', 'LM4-OFF', 'LM4', 'LM-S', 'LM-SG', 'LM-SC'] as const) if (only.includes(`N${variant}`) || only.includes('LM')) outcomes.push(scenarioLM(machine.env, steps, variant));
+    // Lab lean (pipeline.lean): NLN, NLN-OFF (control), NLN-E (escalation), NLN-DF (DEV member fallback), or LN = all four.
+    for (const variant of ['LN', 'LN-OFF', 'LN-E', 'LN-DF'] as const) if (only.includes(`N${variant}`) || only.includes('LN')) outcomes.push(scenarioLN(machine.env, steps, variant));
+    if (only.includes('NLN-I') || only.includes('LN')) outcomes.push(scenarioNPMI(machine.env, steps, true));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

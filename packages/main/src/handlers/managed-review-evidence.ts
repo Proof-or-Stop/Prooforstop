@@ -1,4 +1,4 @@
-import { DELTA_ROUND_GAP_EVENT, DELTA_ROUND_REVERIFIED_EVENT } from '../core/review-delta-round.js';
+import { DELTA_ROUND_ESCALATION_EVENT, DELTA_ROUND_GAP_EVENT, DELTA_ROUND_REVERIFIED_EVENT, deltaEscalations } from '../core/review-delta-round.js';
 import { evaluateDeltaConfirmation } from '../core/review-delta-confirmation.js';
 import { checkLaneMergeNote, findingDimension, LANE_MERGE_COVERAGE_EVENT } from '../core/review-lane-merge.js';
 import { readFileSync } from 'node:fs';
@@ -484,6 +484,19 @@ export function createManagedReviewEvidenceHandlers(
         }
         if (verdict && !verdict.ok && conclusion === 'findings') {
           deltaGapHint = `\nDelta-round confirmation from ${runId} reported findings but left a gap (${verdict.reason.slice(0, 400)}): its findings are imported; the next review round is a full round (process event ${DELTA_ROUND_GAP_EVENT}).`;
+        }
+        // Lab lean (review.deltaRounds=confirm): a finding outside the repair delta escalates the next round to a full
+        // round. Recorded once per receipt (before evidence persists), from the sealed scope; the findings import as usual.
+        if (deltaBinding.mode === 'confirm' && conclusion === 'findings' && !gapRecorded) {
+          const recorded = ctx.store.readProcessEvents(proposal.storyId).some(event => event.type === DELTA_ROUND_ESCALATION_EVENT
+            && event.managedRunId === runId && event.managedReceiptId === receiptId);
+          const outside = recorded ? [] : deltaEscalations(deltaBinding.scope ?? [], split.product.map(row => row.finding as { desc?: string; files?: string[] }));
+          if (outside.length) {
+            ctx.store.appendProcessEvent(proposal.storyId, { type: DELTA_ROUND_ESCALATION_EVENT, storyId: proposal.storyId, command: 'managed_review_evidence_import',
+              role: 'framework', agent: proposal.lane, result: 'escalated', managedRunId: runId, managedReceiptId: receiptId, reviewRunId: proposal.reviewRunId,
+              reviewRound: story.currentReviewRound ?? null, findings: outside.map(row => ({ proposalFindingIndex: split.product[row.index]?.index ?? row.index, citations: row.citations, reason: row.reason })) });
+            deltaGapHint += `\nDelta-round confirmation from ${runId} reported ${outside.length} finding(s) outside the repair delta (${outside.map(row => row.reason).join('; ').slice(0, 400)}): they are imported; the next review round is a FULL review of the whole Story (A/B review.deltaRounds=confirm escalation, process event ${DELTA_ROUND_ESCALATION_EVENT}).`;
+          }
         }
         if ((verdict && !verdict.ok) || gapRecorded) {
           if (conclusion === 'pass') {

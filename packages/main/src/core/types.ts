@@ -2886,6 +2886,8 @@ export type ProcessEventType =
   // re-ran a resolved finding's named test.
   | 'delta_round_confirmation_gap'
   | 'delta_round_reverified'
+  // Lab lean (review.deltaRounds=confirm): a confirmation finding outside the repair delta; the next round is full.
+  | 'delta_round_escalated'
   // EXPERIMENTAL A/B review.laneMerge (core/review-lane-merge.ts): the dimensions a merged
   // session's note covered at import (an uncovered dimension runs as its own lane).
   | 'review_lane_merge_coverage'

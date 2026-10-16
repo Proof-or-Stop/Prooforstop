@@ -106,7 +106,9 @@ import { VERIFICATION_INTENT_TYPES } from '../core/types.js';
 import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-preexisting.js';
 import { describePinBaseForm, pinBaseFormOfferDue, pinBaseFormRowPatch, pinDoubtVerdict, planPinBaseForm, recordPinBaseFormOffer, type PinBaseFormConflict } from '../core/pin-base-form.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
-import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
+import { commitMessageNamesFinding, commitMessageNamesItem, implementationGroupingFiles, implementationGroupingStory, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup, storyItemGroup } from '../core/ab-dispatch-grouping.js';
+import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
+import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
 import { ownerDriver, probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
 import { driveUntilAgent, driveWatchdogConfig, NEXT_DRIVE_SCHEMA, runWatchedCall } from './next-drive.js';
 import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
@@ -1304,6 +1306,35 @@ export function groupedImplementationRun(args: { root: string; gitCwd: string; s
     if (commit) return { runId: run.runId, commit: commit.commit };
   }
   return null;
+}
+
+/**
+ * Lab lean (implementation.grouping=story): the completed Story run that lists `item` as a member (not its bound
+ * item) and made, inside its window, a material commit whose message names the item id. The framework then marks the
+ * item done (`story_item_done`); without such a commit the item gets its own implementer run. Shared by the live
+ * driver and the harness.
+ */
+export function storyGroupedItemRun(args: { root: string; gitCwd: string; storyId: string; item: Pick<ChecklistItem, 'id'>; runs: readonly FindingRepairRunView[] }):
+  { runId: string; commit: string; subject: string } | null {
+  for (const run of [...args.runs].filter(row => row.agentType === IMPLEMENTER_AGENT && row.terminal && row.state === 'completed').reverse()) {
+    let target: { itemId?: string; groupItemIds?: string[] } | null | undefined;
+    try { target = readManagedHostRunBinding(args.root, run.runId).managedDispatchTarget as typeof target; } catch { continue; }
+    if (!target?.itemId || target.itemId === args.item.id || !Array.isArray(target.groupItemIds) || !target.groupItemIds.includes(args.item.id)) continue;
+    if (!verifyManagedDispatchDelivery({ root: args.root, runId: run.runId, storyId: args.storyId, agentType: IMPLEMENTER_AGENT, itemId: target.itemId }).valid) continue;
+    const commit = managedRunWindowCommits(args.root, args.gitCwd, run).find(row => row.material && commitMessageNamesItem(row.message, args.item.id));
+    if (commit) return { runId: run.runId, commit: commit.commit, subject: commit.message.split('\n')[0] ?? '' };
+  }
+  return null;
+}
+
+/** Lab lean: implementer runs (bound or member) of an item created at or after `since` (its DEV entry). */
+export function implementerRunsOfItemSince(root: string, runs: readonly Pick<HostRunView, 'runId' | 'agentType' | 'createdAt'>[], itemId: string, since: string): string[] {
+  return runs.filter(run => run.agentType === IMPLEMENTER_AGENT && run.createdAt >= since).filter(run => {
+    try {
+      const target = readManagedHostRunBinding(root, run.runId).managedDispatchTarget as { itemId?: string; groupItemIds?: string[] } | null | undefined;
+      return target?.itemId === itemId || (Array.isArray(target?.groupItemIds) && target!.groupItemIds.includes(itemId));
+    } catch { return false; }
+  }).map(run => run.runId);
 }
 
 function isBoundRepairState(state: FindingRepairState): boolean {
@@ -2973,7 +3004,24 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
             'checklist.json + groupedImplementationRun (A/B implementation.grouping=files)');
         }
       }
-      const group = groupByFiles ? sharedFileItemGroup(item, dispatchable) : [item];
+      // Lab lean (implementation.grouping=story, implied by pipeline.lean=on): ONE implementer run for every open item;
+      // a member whose id a commit of that run names is marked done by the framework (no run of its own). Not with a
+      // project probeRunner (its done check runs the item's probes and may refuse once: the item's own run handles that).
+      const storyGrouping = !groupByFiles && implementationGroupingStory(ctx.root) && !storyProbeRunner(ctx.store, ctx.root, storyId, gitCwdOf(storyId));
+      if (storyGrouping && item.status !== 'pending' && !inFlight(IMPLEMENTER_AGENT)) {
+        const member = storyGroupedItemRun({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, item, runs: hostRuns });
+        if (member && !missingAcceptance(item) && !acceptanceAmendmentBlocker(ctx.store, storyId, gitCwdOf(storyId))) {
+          return step(base, 'framework', 'story_item_done', { command: 'checklist_update', payload: { storyId, itemId: item.id, status: 'done',
+            reason: `Story run ${member.runId} (A/B implementation.grouping=story) implemented ${item.id}: commit ${member.commit.slice(0, 12)} "${member.subject.slice(0, 120)}" names it` } },
+          `${item.id} (${item.title}) was implemented by the Story run ${member.runId} (commit ${member.commit.slice(0, 12)} names it; A/B implementation.grouping=story): the framework marks it done (the same done checks; its pinned intents are verified with every other item's by the DEV->REVIEW evidence chain).`,
+          'checklist.json + storyGroupedItemRun (A/B implementation.grouping=story)');
+        }
+      }
+      const devEntry = storyGrouping ? ((ctx.store.readStory(storyId).events ?? []).filter(event => event.phase === 'DEV').at(-1)?.timestamp ?? '') : '';
+      const attempted = (id: string) => storyGrouping && implementerRunsOfItemSince(ctx.root, hostRuns, id, devEntry).length > 0;
+      const group = groupByFiles ? sharedFileItemGroup(item, dispatchable)
+        : storyGrouping && !attempted(item.id) ? storyItemGroup(item, dispatchable.filter(other => !attempted(other.id)))
+          : [item];
       const pendingItem = group.find(member => member.status === 'pending');
       if (pendingItem) {
         return step(base, 'framework', 'checklist_item_start', { command: 'checklist_update', payload: { storyId, itemId: pendingItem.id, status: 'in_progress' } },
@@ -2991,6 +3039,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
           agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound,
         `${item.id}'s intent was amended to the value implementer run ${amendment!.runId} declared, but the framework's verification of its pinned intent did not pass (${verify.refused}): relaunch the implementer for the amended intent.`,
         'adoptedAmendmentRun + verification_run_refused', 'relaunch after the framework verification of the amended intent failed');
+      }
+      if (group.length > 1 && storyGrouping) {
+        return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id, groupItemIds: group.map(member => member.id),
+          agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id })),
+        `${group.map(member => member.id).join(', ')} are open: implement them in ONE managed implementer run bound to ${item.id} (A/B implementation.grouping=story; each item is its own section of the brief and its own commit naming its id); it marks ${item.id} done, the framework marks each other item done once a commit of the run names it.`,
+        'checklist.json + storyItemGroup (A/B implementation.grouping=story)');
       }
       if (group.length > 1) {
         return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id, groupItemIds: group.map(member => member.id),
