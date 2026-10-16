@@ -42,6 +42,12 @@
  *                                    reopens its item before REVIEW (once per set); off: no scan
  *   Lab run95 (EXPERIMENTAL, default `off`; behaviour in tasks/run95-fixes-smoke.ts S1, end to end in NPR / NPR-C):
  *   plan.disputeConfirm              the scope-plan rerun after a pin-dispute remedy is a confirmation re-review
+ *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
+ *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
+ *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
+ *   implementation.grouping=story    ONE implementer run for every open item; the framework marks each other item done
+ *   review.deltaRounds=confirm       a later round = ONE confirmation session over the repair for every concern; escalation
+ *   remediation.familyEvidence       (default on, `off` = rollback) defect families linked by evidence for the repair brief
  *   Lab initplan (EXPERIMENTAL, default `off`; behaviour in tasks/initplan-smoke.ts P1):
  *   plan.reviewerPreload             the scope-plan dispatch prompt carries the Story artifacts it must read (no re-read)
  *   Old-PoS run 43 (`off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
@@ -96,7 +102,9 @@ await check('config: absent switches resolve to production values; malformed fai
     // Lab round-cut: the removed-guard scan is advisory by default (lane prompts only).
     removedGuardScan: 'advisory', reviewerPreload: 'off',
     // Lab run95: the pin-dispute rerun is a full rerun by default; `on` = confirmation re-review (detection-affecting arm).
-    disputeConfirm: 'off' });
+    disputeConfirm: 'off',
+    // Lab lean: the umbrella is off by default; defect families are linked by evidence by default (`off` = rollback).
+    pipelineLean: 'off', familyEvidence: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -577,6 +585,34 @@ await check('V12 review.laneMerge=split: a third value; recorded arm; laneMergeO
   assert.throws(() => resolveAbVariants({ review: { laneMerge: 'Split' } }), /invalid_ab_variant_config: review\.laneMerge/);
   const { laneMergeVariant } = await load('core/review-lane-merge.js');
   assert.equal(laneMergeVariant(projectWith({ review: { laneMerge: 'split' } }))?.flags?.['review.laneMerge'], 'split');
+});
+
+await check('V13 lab lean: pipeline.lean=on implies the item 1-4 sub-switches (explicit keys win); implementation.grouping=story; review.deltaRounds=confirm; remediation.familyEvidence default on', async () => {
+  const { resolveAbVariants, abVariantEvidence, LEAN_PIPELINE_IMPLIES, pipelineLeanOn, deltaRoundsMode, familyEvidenceOn, laneMergeMode, reviewMergeOn, disputeConfirmOn } = await load('core/ab-variants.js');
+  assert.deepEqual({ ...LEAN_PIPELINE_IMPLIES }, { 'implementation.grouping': 'story', 'review.laneMerge': 'on', 'review.deltaRounds': 'confirm',
+    'review.criticOnCleanRound': 'skip', 'plan.reviewMerge': 'on', 'plan.disputeConfirm': 'on' });
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ pipeline: { lean: 'on' } }))?.flags, { 'pipeline.lean': 'on', ...LEAN_PIPELINE_IMPLIES }, 'the umbrella and every implied value are recorded');
+  assert.equal(resolveAbVariants({ pipeline: { lean: 'on' }, review: { laneMerge: 'split' } }).laneMerge, 'split', 'an explicit key wins');
+  assert.throws(() => resolveAbVariants({ pipeline: { lean: 'yes' } }), /invalid_ab_variant_config: pipeline\.lean/);
+  assert.equal(pipelineLeanOn({ pipeline: { lean: 'yes' } }), false, 'malformed = off where consumed');
+  assert.equal(laneMergeMode({ pipeline: { lean: 'yes' } }), 'off', 'a malformed umbrella implies nothing');
+  assert.equal(laneMergeMode({ pipeline: { lean: 'on' } }), 'on');
+  assert.equal(reviewMergeOn({ pipeline: { lean: 'on' } }), true);
+  assert.equal(disputeConfirmOn({ pipeline: { lean: 'on' } }), true);
+  assert.equal(deltaRoundsMode({ pipeline: { lean: 'on' } }), 'confirm');
+  assert.equal(resolveAbVariants({ implementation: { grouping: 'story' } }).implementationGrouping, 'story');
+  assert.throws(() => resolveAbVariants({ implementation: { grouping: 'all' } }), /invalid_ab_variant_config: implementation\.grouping/);
+  assert.equal(familyEvidenceOn({}), true);
+  assert.equal(familyEvidenceOn({ remediation: { familyEvidence: 'off' } }), false);
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { familyEvidence: 'off' } }))?.flags, { 'remediation.familyEvidence': 'off' });
+  // The critic skip and its replay accept the confirm arm's delta round.
+  const { cleanRoundCriticSkip, criticSkipReplayError } = await load('core/review-inventory-critic-skip.js');
+  const confirm = projectWith({ review: { deltaRounds: 'confirm' } });
+  const deltaEpoch = { ...epoch, rosterBasis: JSON.stringify({ policyVersion: 'p', kind: 'delta-round', sourceReceiptId: 'R', activeLanes: ['a', 'b'], selectedLanes: ['a'], planDigest: 'd' }) };
+  const skip = cleanRoundCriticSkip(confirm, deltaEpoch, cleanEvaluation());
+  assert.ok(skip, 'confirm: a clean delta round skips the critic');
+  assert.equal(skip.abVariant.flags['review.deltaRounds'], 'confirm');
+  assert.equal(criticSkipReplayError(confirm, deltaEpoch, skip, cleanEvaluation()), undefined, 'replay accepts the confirm arm');
 });
 
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
