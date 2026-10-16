@@ -1244,7 +1244,8 @@ Decision table (first matching row wins):
 | PLAN, otherwise | `story_advance --phase=DEV` if the DEV guard passes, else the guard's own `→`/`Next:` command (`story_review` when it has no clean round); the `why` carries the guard's first reason, never an empty "Cannot enter DEV:" (old-PoS run 34 F7, `guardRefusalSummary`) | framework / agent | `getGuardFailureReason(DEV)` |
 | PLAN, the DEV guard names `story_review` and its latest round is older than an input it judged (checklist.json, plan.md, scope-check.json, decision.json, background.md, request.md, the boundaries; 2 s slack) or no round exists (old-PoS run 34 F7: after a pin-audit correction and a new scope verdict the owner was sent to run story_review by hand) | `story_review_rerun`: `story_review` (the same PLAN checks, recorded the same way); a current round with blockers is the next row | framework | `getGuardFailureReason(DEV)` + `storyReviewRoundStale` (core/story-review-staleness.ts) |
 | PLAN, the DEV guard names `story_review` and its latest round is current with blockers (old-PoS run 40 N3: the step said `Next: proof-or-stop story_review` right after the framework reran it, and the scope_gap remedy named a host_run of the scope-plan reviewer, so the owner ran story_review twice more and launched the reviewer by hand) | `plan_review_blockers`: no command unless a blocker carries a row patch (since lab initplan the pin-audit and covering-row `scope_gap` remedies are `--intentRows='[...]'` row patches, and the step is then a batch of those patches, one `checklist_update` per item); the `why` lists the round's blockers (type and message, up to 8) and ONE action: fix each in PLAN (`checklist_update`: cover the point, correct the pinned value, or an excludes entry naming it and why; a `scope_exclusion_contradicted` blocker, and a `scope_gap` whose behaviour another item changes, name the item to add a covering row to and offer no excludes entry, old-PoS run 43), then `proof-or-stop next --storyId=<id> --run`, which reruns story_review (the round is then stale) and relaunches the scope-plan reviewer once on the final checklist (the verdict is then stale); never a hand-run `story_review` / `host_run` | agent | `getGuardFailureReason(DEV)` + the latest story_review round's blocker issues (`storyReviewBlockersStep`, shared with the reference driver) |
-| PLAN, a gap of the current scope-plan verdict cites a row (`CHK-NNN:<lane>:<i>`) that a gap of the previous verdict cited too (verdicts = scope-check.json and its Git history; lab run95, run 95: the same `pin-audit` row in five verdicts in a row) | `plan_pin_dispute`: ONE remedy per disputed row, merged with the round's other blockers' row patches: an error row pinning an exact text is relaxed to `<case> -> error` (the request states no text for it); a value row is removed (`{"ref","remove":true}`) and its case excluded with the item's `userSees` edited in the same call so the exclusion check accepts it; when the item itself adds the case, a re-pin to the request / base-probe value (the one field left to author). Before the pin-audit value correction and the generic `plan_review_blockers`; journaled `runtime/pin-dispute/<storyId>.jsonl`; the rerun prompt names the disputed rows (A/B `plan.disputeConfirm=on`: a confirmation re-review) | agent | `scopeVerdictHistory` + `disputedRows` + `pinDisputeRemedy` (core/pin-dispute.ts) |
+| PLAN, a gap of the current scope-plan verdict cites a row (`CHK-NNN:<lane>:<i>`) that a gap of the previous verdict cited too (verdicts = scope-check.json and its Git history; lab run95, run 95: the same `pin-audit` row in five verdicts in a row) | `plan_pin_dispute`: ONE remedy per disputed row, merged with the round's other blockers' row patches: an error row pinning an exact text is relaxed to `<case> -> error` (the request states no text for it); a value row is removed (`{"ref","remove":true}`) and its case excluded with the item's `userSees` edited in the same call so the exclusion check accepts it; when the item itself adds the case, a re-pin to the request / base-probe value (the one field left to author). Before the pin-audit value correction and the generic `plan_review_blockers`; journaled `runtime/pin-dispute/<storyId>.jsonl`; the rerun prompt names the disputed rows (A/B `plan.disputeConfirm=on`: a confirmation re-review). Since lab run102 a row the counterpart gate requires is never removed nor its case excluded: a counterpart-backed row is not disputed (its gap is settled), a contradicted error / a differing value is re-pinned to the counterpart value, another error row is relaxed with its case kept; every remedy's case goes through the PLAN remedy cycle breaker (`plan_remedy_cycle`, "Old-PoS runs 100-103") | agent | `scopeVerdictHistory` + `disputedRows` + `pinDisputeRemedy` (core/pin-dispute.ts), core/plan-remedy-cycle.ts |
+| PLAN, every disputed row is one the counterpart gate requires and no remedy keeps its case (it already pins only the error), or its dispute remedy lost to a higher authority in the cycle breaker (lab run102) | `plan_remedy_settled`: the framework records the settlement (`runtime/plan-remedy/<storyId>.jsonl`) and reruns `story_review`, which records the gap(s) as `scope_gap_counterpart_settled` (advisory); no checklist change, no reviewer rerun for them | framework | `pinDisputeStep` + `recordRemedySettlement` (core/plan-remedy-cycle.ts) |
 | PLAN, before the scope-plan reviewer (merged with the other due PLAN lints), a row pins an exact text (an expected-side literal of three words or more) that neither the request states nor a Story base source contains (string literal, format string it instantiates, message prefix), or a request-template instance added / changed since the last verdict whose derivation quotes no line of the template's request scope (lab run95) | `unstated_pin_check`: one row patch per item, ready: an error row keeps its case and pins only the error (`<case> -> error`), any other row is removed; skippable, offered once per set of rows (at most twice per Story); the same rows appear in the PLAN pre-check `[unstated_pin]`; the exact whole-error lint leaves these rows to it | agent | `planUnstatedPins` (core/unstated-pin.ts) |
 | PLAN, a terminal implementer / finding-repair run declared an `[intent-conflict]` (old-PoS run 31: every other item field stating the pinned literal is added to the same step as a batch call; old-PoS run 37: when the pin is not a code literal, every row of any item stating the same pinned fragment is added too, one row-level `checklist_update {itemId, intentRows}` per sibling item) (or an implementer stated a deliberate deviation only in prose), the item's intent material (verificationIntent semantics + userSees) is unchanged since that run was dispatched, and the item does not yet state the value the conflict says the request implies in place of the pinned literal (old-PoS run 31) | `intent_conflict_amend`: `checklist_update {itemId, verificationIntent and/or userSees (the field the conflict names), reason, status: pending}` | agent | `openIntentConflicts` (run 23, run 31) |
 | PLAN / DEV / REVIEW (REVIEW: after the round's lanes are imported), an open Story-metadata correction (lane findings reclassified at import, or a stored open finding citing checklist text; old-PoS run 31) | `metadata_correction`: ONE `checklist_update` with `metadataCorrection: true` for the cited item (wrong literal, the reviewer's value, the reviewer text in the Why) plus one call per other item stating the same wrong literal; outside PLAN an intent-row correction is `metadata_correction_plan` (`story_advance` toward PLAN; old-PoS run 33: in REVIEW it waits while the round's inventory epoch is OPEN or verified blocking findings are open, so inventory begin / critic launch / import / finalize run first). Since old-PoS run 44 (F-021: the agent step said DEV, the refusal said PLAN; 7 owner commands, 2 refusals) `metadata_correction_plan` is a framework step: REVIEW→DEV (or, when REVIEW→DEV still needs this round's remediation receipt and no epoch of the round is live, `inventory_begin` first), then DEV→PLAN, both inside one `next --run`; the `checklist_update` refusal of an intent-row correction in REVIEW (`[metadata_correction_intent_outside_plan]`) names `next --run` (from DEV: `story_advance --phase=PLAN`) | agent (`metadata_correction`) / framework (`metadata_correction_plan`) | `openMetadataCorrections` (core/metadata-correction.ts) + `literalOccurrences` |
@@ -1806,7 +1807,7 @@ entry, owner turns counted). Generic fixtures only (toy `store` / `strs` code).
 - **PLAN lints at once (rank 4 / 9).** `next` (PLAN) returns the deterministic lints that are due together as ONE agent
   step (`mergedPlanLintStep`; the first lint's reason, e.g. `plan_authoring`): the pre-scope authoring batch, exact
   whole-error pins (`exact_error_pin_check`), the row-vs-request audit (`request_pin_check`) and, with
-  `plan.counterpartCoverage=on`, uncovered counterpart cases, their calls merged per item (`mergeChecklistUpdateCalls`).
+  `plan.counterpartCoverage` on (the default since lab run102), uncovered counterpart cases, their calls merged per item (`mergeChecklistUpdateCalls`).
   Each lint is unchanged: the gates refuse what they refused, the skippable lints stay skippable (drop their rows), each
   records its offer as before; a single due lint is returned unchanged. `story_create` (and a `checklist_update` of
   intent rows or userSees in INIT) prints the same lints as a "PLAN pre-check" with the merged row patches
@@ -1924,7 +1925,8 @@ made-up error template).
   gap of the current scope-plan verdict cites a row a gap of the previous verdict cited too, `next` returns
   `plan_pin_dispute` (before the pin-audit value correction and the generic `plan_review_blockers`) with ONE command per
   disputed row that needs no authoring: relax an exact error pin to `<case> -> error`; remove a value row and exclude its
-  case, with the item's `userSees` edited in the same call; re-pin to the request / base-probe value when the item itself
+  case, with the item's `userSees` edited in the same call (since lab run102 never for a case the counterpart gate requires,
+  see "Old-PoS runs 100-103"); re-pin to the request / base-probe value when the item itself
   adds the case (an exclusion cannot hold). The round's other blockers keep their row patches in the same step. The
   reviewer's rerun prompt names the disputed rows and the remedy (orientation; the full trace and pin audit still apply).
   EXPERIMENTAL A/B `plan.disputeConfirm=on` makes that rerun a confirmation re-review (see the switch below).
@@ -1951,6 +1953,70 @@ rows with a patch the owner may skip, the dispute remedy is the owner's one comm
 the disposition was already the framework-checked outcome. The only detection-affecting part, the confirmation rerun after a
 dispute (ADR-043: it may miss a new gap in an unchanged row), is the EXPERIMENTAL A/B `plan.disputeConfirm`, default `off`.
 Next-driver golden (`next-driver-cost-smoke`) unchanged.
+
+### Old-PoS runs 100-103: the pin dispute never drops a case the counterpart gate requires, a PLAN remedy cycle breaker, value-aware counterpart coverage, counterpart-backed rows settle pin-audit gaps; `plan.counterpartCoverage` default on (lab `codex/lab-run102`)
+
+Source: `bench-staging/oldpos/run100-103-analysis.md` §1, §2, §5, §6 (build 6351df106d, all four runs
+`plan.counterpartCoverage=on`). Run 102 (reward 0): the scope-plan reviewer disputed CHK-003:edge:3/4 (a negative and an
+out-of-range single-index string write); `plan_pin_dispute` removed both rows and excluded their cases; the next `next`
+returned `counterpart_coverage_missing` asking for rows on exactly those cases; ten alternating offers in 35 min, then the
+owner stopped in PLAN (adapter rule "stop and report the exact gate output") and the verifier graded the untouched base.
+Run 101 (reward 0, the eighth recurrence of the negative-index miss): the right row `s[-1]="!" -> "hell!"` was flipped to
+`index out of range: -1` after a scope-plan pin audit ("request gives no settled value", quoting another operation's
+"keep unchanged" sentence); the counterpart gate still counted the error row as coverage, and every lane trusted it.
+Every gate, lane, critic, round and verification is otherwise unchanged; nothing caps a round. Tests: `node
+packages/main/dist/tasks/run102-fixes-smoke.js` (V1-V4, P1-P2, G1-G2, C1, S1) and harness `e2e-review-to-done-smoke.js NCD
+NCE NCS` (RED on the base: NCD's dispute removed both rows; NCE `next` went to the scope-plan launch with the error row
+counted as coverage; NCS `next` offered `pin_audit_correction` to the reviewer's error value). Synthetic fixtures only (a
+made-up interpreter and store).
+
+- **The dispute remedy vs the counterpart gate (fix 1, `core/pin-dispute.ts`; neutral).** `pinDisputeRemedy` gets the
+  counterpart gate's result. A disputed row the gate requires for a case (clear pair, added operation, strong evidence, the
+  request silent) is never removed and its case never excluded: a counterpart-backed row (its value is the one the framework
+  computes from the counterpart) is not disputed at all; an error pinned where the counterpart resolves the case, and a
+  value that differs from the computed one, are re-pinned to the counterpart value (ready for a single-character string
+  write, else a placeholder naming the counterpart; kind `counterpart`); another error row is relaxed to `<case> -> error`
+  with its case kept; a row that already pins only the error stands (kind `settle`). `index out of range: N`,
+  `ErrOutOfRange`, `IndexError` and similar now read as error pins (run 102's edge:4 was offered `exclude`). The rerun prompt
+  tells the scope-plan reviewer that the framework requires the row and why (`Disputed rows ... re-pinned to the base
+  counterpart's value: the framework requires a row for this negative case of <op> ... judge the derivation from the
+  counterpart, not the request's silence`).
+- **PLAN remedy cycle breaker (fix 1, `core/plan-remedy-cycle.ts`; neutral).** Every PLAN remedy that requires a case
+  (`counterpart_coverage_missing`, a dispute re-pin) or drops one (a dispute exclusion) journals the case
+  (`runtime/plan-remedy/<storyId>.jsonl`, key `<item>|<operation>|<class>` or `<item>|row|<ref>`; an unchanged repeat is
+  journaled once). A remedy that REVERSES the latest remedy another step gave on the same case is resolved once by the
+  framework's precedence, request text (`request_pin_check`) > the Story base (`counterpart_coverage_missing`,
+  `pin_probe_mismatch`) > the scope-plan reviewer's opinion (`plan_pin_dispute`, `pin_audit_correction`,
+  `plan_review_blockers`, `unstated_pin_check`); on a tie the remedy that keeps the row wins. The winner's step is offered
+  with `[plan_remedy_cycle] ...` in its why; the resolution is journaled as a settlement, a losing dispute remedy is not
+  offered again and the gaps on the settled rows no longer block (`plan_remedy_settled`, a framework step that reruns
+  story_review). So `next` never alternates two remedies; there is always one runnable step.
+- **Value-aware counterpart coverage (fix 2, `core/counterpart-coverage.ts` `coverageOf`; detection-adding, part of the
+  switch).** A row pinning an error / rejection for a case the counterpart RESOLVES is no coverage (see "Lab sibling-gate
+  switch"); the refusal names the row and the Next re-pins it in place to the counterpart value. A request sentence naming
+  the operation with the class still exempts the class (the explicit justification). A negative index past the literal's
+  length (the counterpart does not resolve it) keeps an error row as coverage. Discovery version 2 (cached evidence is
+  recomputed).
+- **Counterpart-backed rows settle pin-audit gaps (fix 2, `counterpartSettledGaps`, `renderCounterpartBackedRows`;
+  detection-adding).** The scope-plan prompt lists, after the pin audit, every counterpart-backed row with its counterpart
+  and the precedence `request text > the same receiver's base counterpart > another receiver's precedent or a reviewer's
+  judgment`, and asks for a gap on such a row only with a request sentence that states a different result. story_review
+  records a gap that cites only counterpart-backed rows (or rows the cycle breaker settled) as the advisory
+  `scope_gap_counterpart_settled` (not a blocker); `pin_audit_correction` and `plan_pin_dispute` skip it. A gap on any other
+  row, or one citing a counterpart-backed row together with another row, is unchanged.
+- **`plan.counterpartCoverage` default on (evidence: run100-103-analysis.md §6).** 16 graded abs trials with it on, 14
+  reward 1; the zeros are run 101 and run 102, both fixed here; runs without it missed the same hidden test in runs
+  43/46/55/57/71/80. `off` is the recorded rollback (`abVariantEvidence`). Bench: on a run102+ bundle `POS_AB_FLAGS={}` is
+  already on.
+- **Adapter (bench-staging, not this repo).** The owner guidance's "stop and report the exact gate output" applies only to a
+  `human` step or no runnable step; an `agent` / `framework` step is run even when it repeats (the framework resolves a
+  remedy cycle itself). Guidance hash repinned.
+
+Detection: the dispute and cycle-breaker changes only choose which of the framework's own remedies is offered (never fewer
+rows than before for a required case); value-aware coverage and the settled gaps strengthen the gate that catches the
+recurring miss and keep the counterpart-consistent row against a reviewer opinion that cites no request sentence. Both are
+part of `plan.counterpartCoverage` (off = rollback). Next-driver golden (`next-driver-cost-smoke`) unchanged; identity pins
+unchanged (no pinned file's executable code changed).
 
 ### `next --untilAgent`: the framework owner driver (`owner.driver`, owner-driver lab)
 
@@ -2025,7 +2091,7 @@ framework mode, whose `live_smoke` capture is a framework step since run 64, own
 7 vs 3), `NOD-W` (a post-commit hook hangs once in a review-evidence import commit;
 the watchdog kills the call after the step-stall limit and the Story reaches DONE), `NOD-DUP` (run 65 sequence: the scripted owner runs `next --run` after TEST authoring, the Story is DONE, then `next --untilAgent` ends `done`, `story_create` of the delivered request is refused explicitly and staged, still created under `llm` with a note, a different request is not refused; every driven step text is audited). `owner-driver-smoke` N1 checks `frameworkOwnerWhy`.
 
-### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the EXPERIMENTAL lab sibling-gate PLAN switch `plan.counterpartCoverage` and the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), below)
+### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102) and the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), below)
 
 Nine project-config switches were added to measure, in a detection A/B, whether a
 structural review/dispatch change loses findings (bench-staging run-17 cost
@@ -2381,7 +2447,7 @@ checklist_update / `next` refusal, like `bench.pinOracle=on`), `{"plan.reviewMer
 (S1, P1-P4, R1-R2, M1-M2), harness `node packages/main/dist/tasks/e2e-review-to-done-smoke.js PL` (= NPP, NPM-I,
 NPM-P, NRB; each also runs its switch-absent control), `npm run test:ab-variant-switches`.
 
-#### Lab sibling-gate switch `plan.counterpartCoverage` (EXPERIMENTAL, default off)
+#### Lab sibling-gate switch `plan.counterpartCoverage` (default `on` since lab run102; was EXPERIMENTAL, default off)
 
 Source: bench-staging/oldpos/run69-72-analysis.md §1 (runs 43, 46, 55, 57 and 71 missed the same hidden test). A Story
 adds a NEW operation on a receiver type (single-index assignment on strings); the request is silent on a negative
@@ -2390,8 +2456,12 @@ index from the end) and ANOTHER receiver's same operation (the array write rejec
 second; the hidden test follows the first. Only the scope-plan reviewer's prompt-only base-disagreement check
 (`plan.baseDisagreement`) caught it, about one run in two; lane-side parity (`review.siblingParity`) looped and is off.
 `plan.counterpartCoverage=on` makes that PLAN check deterministic and framework-owned (core/counterpart-coverage.ts).
-Off (default, no key): nothing is scanned, no gate, no step, no prompt change (next-driver golden unchanged); on is
-recorded in `abVariantEvidence`; a malformed value is off where it is consumed (`counterpartCoverageOn`).
+Since lab run102 (see "Old-PoS runs 100-103") `on` is the default (no key) and `off` is the rollback, recorded in
+`abVariantEvidence`: nothing is scanned, no gate, no step, no prompt change; a malformed value keeps the default where it
+is consumed (`counterpartCoverageOn`). Next-driver golden unchanged either way (its fixture adds no counterpart operation).
+Evidence for the default (bench-staging/oldpos/run100-103-analysis.md §6): 16 graded abs trials with it on
+(2026-10-14..16), 14 reward 1; the zeros are run 101 (the value-agnostic coverage hole lab run102 closes) and run 102 (the
+pin-dispute deadlock lab run102 fixes); runs without it missed the same hidden test in runs 43/46/55/57/71/80.
 
 Discovery (Story base only: `git ls-tree` + one `git cat-file --batch` of the scanned sources, never the request or a
 task name; Go, Python and brace languages; vendored / build / fixture directories skipped; more than 4,000 files or
@@ -2428,24 +2498,34 @@ operation together with that class (`negative index`, `[-N]`, out of range / pas
 wrong type; `negative step` does not count). Every other discovered class (one signal, an ambiguous pair, a changed
 operation) is an advisory note: in the evidence, as a `counterpart_coverage_advisory` issue of `story_review` in
 PLAN (never a blocker) and in the implementer prompt. An unreadable or oversized base refuses nothing.
+Since lab run102 (c) is value-aware: a row that pins an error / rejection for a case the counterpart RESOLVES does not
+count (the counterpart resolves a negative operand when its body re-assigns the operand from a length and itself,
+`idx = length + idx` / `i += len(s)` / a `%` wrap, or a base probe answers a non-empty value; index form: only for an index
+within the bound literal's length, method form: within the constructor's argument count). Such a class is refused even
+though a row exercises it, unless a request sentence names the operation with the class.
 
 Refusal: the DEV gate (`canStartDevGuard` / `getGuardFailureReason(DEV)`, right after `[pin_probe_mismatch]`, before the
 plan-review requirement) returns `Cannot enter DEV: N added operation(s) leave counterpart cases uncovered
-[counterpart_coverage_missing] (A/B switch plan.counterpartCoverage=on): <item> adds <op>; the same receiver's
+[counterpart_coverage_missing] (plan.counterpartCoverage, default on): <item> adds <op>; the same receiver's
 counterpart <name> (<file>:<line>) special-cases <classes>, which no row states for <op> (<class>: branch ... ; base
 test ... ; base probe ...). Add one row per class on <item> whose expected value follows <counterpart> on that case
 unless the request says otherwise (oracle order: the same receiver's counterpart first; another receiver's same
 operation, <sibling>, only second). The framework never writes the value.` and ONE `Next: proof-or-stop
 checklist_update '{"storyId","itemId","intentRows":[{"ref":"<item>:edge:+", one placeholder row per class with a
-derivation placeholder}]}'` (a row patch that appends the rows, since lab initplan; before: the item's whole verificationIntent). `next` (PLAN) returns the same agent step `counterpart_coverage_missing`
+derivation placeholder}]}'` (a row patch that appends the rows, since lab initplan; before: the item's whole verificationIntent;
+since lab run102 a class whose only rows pin an error the counterpart contradicts is answered by re-pinning THOSE rows in
+place, `{"ref":"<row>","desc":...,"derivation":...}`, to the counterpart's value: computed for a single-character string
+write, e.g. `t = "pqr"; t[-1] = "z"; t -> "pqz"`, else a placeholder naming the counterpart; the refusal text adds
+`<row> pins an error for this negative case, but <counterpart> resolves it (\`<wrap>\`), so the row is no coverage ...`).
+`next` (PLAN) returns the same agent step `counterpart_coverage_missing`
 right after `pin_probe_mismatch`, before the authoring batch and the scope-plan reviewer, so the reviewer judges rows
 that already exist. Evidence: `.proof-or-stop/runtime/counterpart-coverage/<storyId>.json`
 (`proof-or-stop.counterpart-coverage.v1`: base, `inputsDigest` = sha256 of base + checklist + request + discovery
 version, the cache key reused across CLI processes; scanned file count, probe kind, checks with every signal,
 refusals, advisories, `abVariant`).
 
-Implementer prompt (switch on only): after the exact-text relaunch lines, `Counterpart probe (A/B
-plan.counterpartCoverage=on): before writing an operation the Story adds on a receiver type, run the SAME receiver's
+Implementer prompt (switch on only): after the exact-text relaunch lines, `Counterpart probe
+(plan.counterpartCoverage): before writing an operation the Story adds on a receiver type, run the SAME receiver's
 existing counterpart ... on the Story base on each edge class ... and make the new operation give the same result
 unless a checklist row or the request says otherwise; another receiver's same operation is only the second oracle.
 Report one line per case run: [counterpart] <op> :: <case> -> <base result>.` plus one line per discovered operation
@@ -2464,10 +2544,12 @@ negative and out of range (`evalStringIndexExpression` branches + base tests `"1
 0.1 s), an array single-index row (existing operation) is advisory only.
 
 Bench arm (`POS_AB_FLAGS`, adapter `prepare_workflow.py`): `{"plan.counterpartCoverage":"on"}` (no evaluator declared;
-`{"plan.counterpartCoverage":"on","bench.pinOracle":"on"}` adds base probes and the run-31 oracle refusal). Tests:
+`{"plan.counterpartCoverage":"on","bench.pinOracle":"on"}` adds base probes and the run-31 oracle refusal); on a lab run102+
+bundle `{}` is already on and `{"plan.counterpartCoverage":"off"}` is the control. Tests:
 `node packages/main/dist/tasks/counterpart-coverage-smoke.js` (S1, D1-D3, N1-N5, T1, I1), harness
-`node packages/main/dist/tasks/e2e-review-to-done-smoke.js NCC` (with its switch-absent control NCC-off; RED on the
-base: `next` gave `plan_authoring`, no counterpart check), `npm run test:ab-variant-switches`.
+`node packages/main/dist/tasks/e2e-review-to-done-smoke.js NCC` (with its switch-off control NCC-off; RED on the
+base: `next` gave `plan_authoring`, no counterpart check), `npm run test:ab-variant-switches`; value-aware coverage and the
+settled gaps: `run102-fixes-smoke` and harness NCD / NCE / NCS ("Old-PoS runs 100-103").
 
 #### Lab round-cut switch `dev.removedGuardScan` (`advisory` default | `off` | `on`)
 

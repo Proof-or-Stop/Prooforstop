@@ -970,13 +970,30 @@ row (`drop: true` is the same op); a key that is not a row field is refused. Whe
 scope-plan reviewer raises the same row in two consecutive verdicts, `next` returns
 `plan_pin_dispute` with ONE ready remedy (relax the error pin; or remove the row and exclude
 the case with the matching `userSees` edit; or re-pin to the request / base value) instead of
-another guess; the rerun prompt names the disputed row (`plan.disputeConfirm=on`: a
+another guess (since lab run102 never removing or excluding a case the counterpart gate requires); the rerun prompt names the disputed row (`plan.disputeConfirm=on`: a
 confirmation re-review). An excludes entry the item's own `userSees` still names gets one
 `checklist_update` for both fields. The pre-existing finding disposition is a framework step:
 `next --run` records it and launches the repair of the others (no agent step ever comes before
 a managed repair launch). In a consumer project the installed framework (e.g. `/opt/pos` on
 the bench) is not the project: an owner never reads it; every rule a check applies is printed
 with its command. See docs/CLI.md "Old-PoS runs 93-96".
+
+Old-PoS runs 100-103 (lab `codex/lab-run102`): the pin-dispute remedy never removes a row
+or excludes a case the counterpart gate requires (run 102: ten alternating
+`plan_pin_dispute` / `counterpart_coverage_missing` offers, owner stopped, reward 0): a
+counterpart-backed row is not disputed, a contradicted error or a differing value is re-pinned
+to the counterpart value, another error row is relaxed with its case kept. A PLAN remedy cycle
+breaker (`runtime/plan-remedy/<storyId>.jsonl`) resolves any remedy that reverses another
+step's remedy on the same case once, by precedence request text > the Story base (counterpart,
+base probe) > the scope-plan reviewer's opinion (tie: keep the row), and never alternates;
+`plan_remedy_settled` is its framework step. Counterpart coverage is value-aware: a row pinning
+an error for a case the counterpart resolves (a negative index it counts from the end) is no
+coverage; the Next re-pins it to the counterpart value. A pin-audit gap that cites only
+counterpart-backed rows is settled by the framework (`scope_gap_counterpart_settled`,
+advisory) and the scope-plan prompt lists those rows. `plan.counterpartCoverage` is on by
+default (`off` = rollback). When `next` prints an `agent` or `framework` step, run it, even
+when it repeats; only a `human` step or no runnable step is a stop. See docs/CLI.md "Old-PoS
+runs 100-103".
 
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
@@ -1041,14 +1058,15 @@ distinct behaviour (operand class), not several literal examples of one class;
 `story_create` / `story_review` list repeated rows as an advisory with one trim
 command; keep every request-literal example and exact-text row.
 
-Counterpart coverage (lab `codex/lab-sibling-gate`; EXPERIMENTAL A/B
-`plan.counterpartCoverage`, default off; docs/CLI.md "Lab sibling-gate switch"):
+Counterpart coverage (lab `codex/lab-sibling-gate`; switch
+`plan.counterpartCoverage`, default on since lab run102, `off` = rollback; docs/CLI.md "Lab sibling-gate switch"):
 for each operation an item ADDS on a receiver type (a `T.X` the base type lacks,
 or `v = <literal>; v[i] = <value>` on a string / array / map), the framework finds
 the SAME receiver's counterpart in the Story base (its read for a new write) and
 the operand classes it special-cases (negative, out of range, empty, null, type)
 from its branches, base tests and, with a declared evaluator, base probes. A
-class with clear evidence and no row on the new operation refuses DEV entry
+class with clear evidence and no row on the new operation (a row pinning an error for a case the
+counterpart resolves does not count, lab run102) refuses DEV entry
 (`[counterpart_coverage_missing]`, one Next that appends a placeholder row per class, `intentRows` `<item>:edge:+`) and
 `next` names it before the plan review: add the rows, their expected value
 following the counterpart unless the request says otherwise (another receiver's
