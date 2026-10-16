@@ -1,5 +1,5 @@
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from '../core/runtime-fact-registry.js';
-import { abVariantEvidence, resolveAbVariants, type AbVariantEvidence } from '../core/ab-variants.js';
+import { abVariantEvidence, familyEvidenceOn, resolveAbVariants, type AbVariantEvidence } from '../core/ab-variants.js';
 import { loadConfig } from '../core/config.js';
 import { deltaRoundBinding, deltaRoundRole, deltaRoundsVariant } from '../core/review-delta-round.js';
 import { laneMergeBinding, laneMergeRole, laneMergeVariant } from '../core/review-lane-merge.js';
@@ -10,8 +10,11 @@ import type { ManagedDeltaRoundPrompt, ManagedLaneMergePrompt } from '../core/ma
 import type { ReviewRun } from '../core/types.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { buildImplementerItemPack } from '../core/implementer-item-pack.js';
-import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId } from '../core/ab-dispatch-grouping.js';
-import { recordChainMechanismRequirement, regressionFamilyBrief } from '../core/regression-family-brief.js';
+import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId, storyItemGroup } from '../core/ab-dispatch-grouping.js';
+import { renderStoryRunSection } from '../core/lean-story-run.js';
+import { counterpartImplementerLines, planCounterpartCoverage } from '../core/counterpart-coverage.js';
+import { recordChainMechanismRequirement, regressionFamilyBrief, reviewHeadResolver, sameRoundDuplicateLines } from '../core/regression-family-brief.js';
+import { duplicateRootOf, findingDuplicateOf } from '../core/duplicate-finding-coverage.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { boundMatrixFor, recordBoundMatrix, renderBoundMatrix } from '../core/bound-matrix.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -1211,24 +1214,43 @@ export function resolveGroupedManagedDispatch(ctx: HandlerContext, args: {
     // Lab round-cut N2 (core/bound-matrix.ts): each member located in a multi-branch helper also gets its bound matrix.
     // Lab run89 (fix 3): a member that is the third report of one mechanism owes a `[mechanism]` line (the worker checks it).
     const requestText = (() => { try { const request = readStoryRequest(ctx.store, args.storyId); return request.status === 'ok' ? request.text : null; } catch { return null; } })();
-    for (const row of members) recordChainMechanismRequirement({ root: ctx.root, storyId: args.storyId, findings, finding: row, requestText });
+    // Lab lean (remediation.familyEvidence, default on): families linked by evidence; same-round duplicates ride on their canonical.
+    const familyEvidence = (() => { try { return familyEvidenceOn(loadConfig(ctx.root)); } catch { return true; } })();
+    const reviewHead = (() => { try { return reviewHeadResolver(ctx.store.readReviewRuns(args.storyId).runs); } catch { return undefined; } })();
+    const duplicateOf = (id: string) => { try { return duplicateRootOf(ctx.store, args.storyId, id) ?? findingDuplicateOf(ctx.store, args.storyId, id)?.canonicalFindingId ?? null; } catch { return null; } };
+    for (const row of members) recordChainMechanismRequirement({ root: ctx.root, storyId: args.storyId, findings, finding: row, requestText, gitCwd, reviewHead, familyEvidence });
     const briefs = new Map(members.filter(row => row.id !== args.findingId).map(row => {
       const matrix = boundMatrixFor({ gitCwd, finding: row });
       const matrixLines = matrix ? renderBoundMatrix(recordBoundMatrix(ctx.root, args.storyId, row.id, matrix), shortFindingId(args.storyId, row.id)) : [];
-      return [row.id, [...regressionFamilyBrief({ findings, storyId: args.storyId, finding: row, gitCwd }), ...matrixLines]] as const;
+      return [row.id, [...regressionFamilyBrief({ findings, storyId: args.storyId, finding: row, gitCwd, reviewHead, familyEvidence }),
+        ...(familyEvidence ? sameRoundDuplicateLines({ storyId: args.storyId, finding: row, findings, duplicateOf }) : []), ...matrixLines]] as const;
     }));
     return { section: renderGroupedFindingRepairSection(args.storyId, args.findingId, members, briefs),
       target: { groupFindingIds: ids, ...(evidence ? { abVariant: evidence } : {}) } };
   }
   if (args.agentType !== 'proof-or-stop-implementer' || !args.itemId) throw new Error('host_run: --groupItemIds is valid only for a managed proof-or-stop-implementer with itemId');
-  if (variants.implementationGrouping !== 'files' || !evidence) throw new Error('host_run: --groupItemIds requires the experimental A/B switch implementation.grouping="files" in proof-or-stop.config.json');
+  // Lab lean: implementation.grouping=story (also implied by pipeline.lean=on) groups every open item into one run.
+  const story = variants.implementationGrouping === 'story';
+  if ((variants.implementationGrouping !== 'files' && !story) || !evidence) throw new Error('host_run: --groupItemIds requires the experimental A/B switch implementation.grouping="files" or "story" (or pipeline.lean=on) in proof-or-stop.config.json');
   const items = ctx.store.readChecklist(args.storyId).items;
   const primary = items.find(item => item.id === args.itemId);
   if (!primary || itemGroup![0] !== args.itemId || itemGroup!.length < 2) throw new Error('host_run: --groupItemIds must list itemId first and at least one other item');
-  const group = sharedFileItemGroup(primary, items.filter(item => !isTerminalChecklistStatus(item.status)));
+  const open = items.filter(item => !isTerminalChecklistStatus(item.status));
+  const group = story ? storyItemGroup(primary, open) : sharedFileItemGroup(primary, open);
   const allowed = new Set(group.map(item => item.id));
-  if (itemGroup!.some(id => !allowed.has(id))) throw new Error('host_run: every --groupItemIds member must be an open item sharing a declared file with itemId');
-  return { section: renderGroupedItemSection(args.storyId, args.itemId, itemGroup!.map(id => items.find(item => item.id === id)!)),
+  if (itemGroup!.some(id => !allowed.has(id))) throw new Error(story ? 'host_run: every --groupItemIds member must be an open item of this Story' : 'host_run: every --groupItemIds member must be an open item sharing a declared file with itemId');
+  const members = itemGroup!.map(id => items.find(item => item.id === id)!);
+  if (story) {
+    // Each member's section carries what its own dispatch would: pins, exact output, and its counterpart probe lines.
+    const counterpart = (() => {
+      try { return planCounterpartCoverage(ctx.store, ctx.root, args.storyId, () => resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root })); }
+      catch { return null; }
+    })();
+    return { section: renderStoryRunSection({ storyId: args.storyId, primaryId: args.itemId, items: members,
+      extrasFor: id => counterpart ? counterpartImplementerLines(counterpart, id).slice(1) : [] }),
+    target: { groupItemIds: itemGroup!, abVariant: evidence } };
+  }
+  return { section: renderGroupedItemSection(args.storyId, args.itemId, members),
     target: { groupItemIds: itemGroup!, abVariant: evidence } };
 }
 

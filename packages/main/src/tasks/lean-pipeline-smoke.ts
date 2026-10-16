@@ -15,7 +15,8 @@
  *   R. Later review rounds (review.deltaRounds=confirm): ONE confirmation session over the repair delta for every lane's
  *      concern (no lane re-reviews the whole Story, even the one that raised the finding); a finding the session reports
  *      outside the delta (no cited location inside the delta scope) escalates: the next round is a full round
- *      (PREVIOUS_ESCALATION); the prompt states the rule.
+ *      (PREVIOUS_ESCALATION); the prompt states the rule; a dimension the previous merged FINDINGS verdict left
+ *      uncovered runs in full (R4).
  *   F. Defect-family linking by evidence (remediation.familyEvidence, default on): an earlier-round finding is linked when a
  *      cited line was last changed by its repair commit, when both cite the same function, or when the cited spans
  *      overlap; unrelated findings (other function, no overlap) are not; the mechanism-level brief fires at the family's
@@ -275,6 +276,15 @@ await check('R3 a recorded escalation of the previous round makes this round a f
   assert.match(block, /No lane re-reviews the whole Story/);
   assert.match(block, /outside the delta scope[^\n]*next round is a full review/i, 'the escalation rule is stated');
   assert.match(block, /review\.deltaRounds=confirm/);
+});
+
+await check('R4 confirm + lane merge: a dimension the previous merged FINDINGS verdict left uncovered runs in full (it was never reviewed)', async () => {
+  const lanes = await deltaPlan({ review: { deltaRounds: 'confirm' } }, [{ type: 'review_lane_merge_coverage', reviewRound: ROUND1, conclusion: 'findings', missingLanes: ['proof-or-stop-review-quality'] }]);
+  assert.equal(lanes.eligible, true, `${lanes.reason}`);
+  assert.deepEqual(lanes.fullLanes, ['proof-or-stop-review-quality'], 'the uncovered dimension reviews the whole Story');
+  assert.deepEqual(lanes.selectedLanes, ['proof-or-stop-review-concept', 'proof-or-stop-review-quality'], 'plus the one confirmation session');
+  const pass = await deltaPlan({ review: { deltaRounds: 'confirm' } }, [{ type: 'review_lane_merge_coverage', reviewRound: ROUND1, conclusion: 'pass', missingLanes: ['proof-or-stop-review-quality'] }]);
+  assert.deepEqual(pass.fullLanes, [], 'a PASS gap was relaunched in its own round already');
 });
 
 // ---------------------------------------------------------------------------

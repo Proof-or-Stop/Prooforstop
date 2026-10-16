@@ -19,6 +19,15 @@
  *   member is marked done by the owner afterwards, and only after a material
  *   commit inside the run's window touched one of that item's declared files.
  *
+ * Lab lean `implementation.grouping: "story"` (EXPERIMENTAL, implied by `pipeline.lean=on`;
+ *   bench-staging/oldpos/lean-pipeline.md item 1): EVERY open checklist item joins one managed
+ *   implementer run bound to the first open item plus `groupItemIds`, shared files or not
+ *   (storyItemGroup); its brief carries each other item as its own section
+ *   (core/lean-story-run.ts). The worker commits each item's work under a message naming the
+ *   item id and marks only the bound item done; the framework then verifies each other item
+ *   whose id a material commit of the run names (its pinned intents through verification_run)
+ *   and marks it done as a framework step (handlers/next-driver.ts `story_item_done`). An item
+ *   no commit names gets its own implementer run, as without the switch.
  * V4 is honoured unless the config sets the rollback; a malformed config
  * falls back to the per-finding path, because host_run refuses a grouped
  * launch it cannot resolve the switch for. V5 is honoured only while its
@@ -39,6 +48,22 @@ export function remediationGroupingSingle(root: string): boolean {
 
 export function implementationGroupingFiles(root: string): boolean {
   return variantsOrNull(root)?.implementationGrouping === 'files';
+}
+
+/** Lab lean: implementation.grouping=story (also implied by pipeline.lean=on); malformed config = off. */
+export function implementationGroupingStory(root: string): boolean {
+  return variantsOrNull(root)?.implementationGrouping === 'story';
+}
+
+/** Lab lean (implementation.grouping=story): the primary item plus every other candidate, in order (one run for the Story). */
+export function storyItemGroup<T extends Pick<ChecklistItem, 'id'>>(primary: T, candidates: readonly T[]): T[] {
+  return [primary, ...candidates.filter(item => item.id !== primary.id)];
+}
+
+/** Does a commit message name this checklist item (`CHK-002`, not `CHK-0021`)? */
+export function commitMessageNamesItem(message: string, itemId: string): boolean {
+  const id = itemId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(^|[^A-Za-z0-9-])${id}(?![0-9])`).test(message);
 }
 
 export function itemDeclaredFiles(item: Pick<ChecklistItem, 'files'>): string[] {

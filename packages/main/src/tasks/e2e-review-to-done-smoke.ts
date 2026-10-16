@@ -312,7 +312,9 @@
  *      confirmation session in round 2, no critic on the clean round (prints the
  *      managed sessions); NLN-OFF the control (switch absent); NLN-E a round-2
  *      finding outside the repair delta escalates round 3 to a full round;
- *      NLN-DF a member no commit names gets its own implementer run. `LN` = all four.
+ *      NLN-DF a member no commit names gets its own implementer run; NLN-I the
+ *      umbrella's plan.reviewMerge: INIT to PLAN with zero INIT reviewer
+ *      sessions (NPM-I's flow). `LN` = all five.
  *   NPXR/NPXRE/NPXRN old-PoS run 52: a re-filed pre-existing finding on a
  *      dispositioned, unchanged site closes at import with no owner turn and no
  *      extra round (NPXR); a site the Story edited (NPXRE) or a new site of the
@@ -376,7 +378,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -4117,7 +4119,10 @@ function scenarioLN(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: LeanV
         assert.ok(roundIds.length >= 3, `${tag}: round 2's finding was repaired and re-reviewed (rounds ${roundIds.length})`);
         assert.equal((selections[2]?.selection.deltaRound as { reason?: string } | undefined)?.reason, 'PREVIOUS_ESCALATION', `${tag}: round 3's delta fallback reason`);
         assert.equal(selections[2]?.selection.selection, 'lane-merge', `${tag}: round 3 is a full merged round`);
-        assert.match(promptOf(laneRunsOf(roundIds[2]!)[0]!.reviewRunId)?.prompt ?? '', /BEGIN MERGED REVIEW DIMENSIONS/, `${tag}: round 3 reviews the whole Story`);
+        const round3Prompt = promptOf(laneRunsOf(roundIds[2]!)[0]!.reviewRunId)?.prompt ?? '';
+        assert.match(round3Prompt, /BEGIN MERGED REVIEW DIMENSIONS/, `${tag}: round 3 is a merged full round`);
+        assert.match(round3Prompt, /review\.deltaRounds=confirm[^\n]*FULL review: re-review the WHOLE Story/, `${tag}: round 3's prompt says to review the whole Story`);
+        assert.doesNotMatch(round3Prompt, /Do not re-review the whole Story/, `${tag}: no narrowing after an escalation`);
         const esc = findings.find(f => f.desc === LN_ESC_FINDING.desc);
         assert.equal(esc?.status, 'resolved', `${tag}: the escalated finding was repaired and closed`);
       }
@@ -5561,10 +5566,12 @@ function scenarioNPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 /** NPM-I: INIT driven by next --run with plan.reviewMerge=on: no INIT reviewer runs. */
-function scenarioNPMI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
-  const tag = 'NPM-I';
-  const name = 'NPM-I lab plan-light plan.reviewMerge=on: next --run drives INIT to PLAN with zero INIT reviewer sessions (the plan is reviewed once in PLAN)';
-  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true, config: { plan: { reviewMerge: 'on' } } });
+function scenarioNPMI(machineEnv: NodeJS.ProcessEnv, steps: Step[], lean = false): Outcome {
+  // Lab lean (NLN-I): the same INIT flow under the umbrella pipeline.lean=on, which implies plan.reviewMerge=on.
+  const tag = lean ? 'NLN-I' : 'NPM-I';
+  const name = lean ? 'NLN-I lab lean pipeline.lean=on implies plan.reviewMerge=on: next --run drives INIT to PLAN with zero INIT reviewer sessions'
+    : 'NPM-I lab plan-light plan.reviewMerge=on: next --run drives INIT to PLAN with zero INIT reviewer sessions (the plan is reviewed once in PLAN)';
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true, config: lean ? { pipeline: { lean: 'on' } } : { plan: { reviewMerge: 'on' } } });
   const lines: string[] = [];
   try {
     const first = o.cli('next', { json: true }, { label: 'next (no Story)' });
@@ -8815,7 +8822,7 @@ function listScopeRuns(o: Owner): number {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF)?|LN)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I)?|LN)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -8952,6 +8959,7 @@ async function main(): Promise<void> {
     for (const variant of ['LM', 'LM-OFF', 'LM-G', 'LM-C', 'LM-F', 'LM-FG', 'LM-D', 'LM4-OFF', 'LM4', 'LM-S', 'LM-SG', 'LM-SC'] as const) if (only.includes(`N${variant}`) || only.includes('LM')) outcomes.push(scenarioLM(machine.env, steps, variant));
     // Lab lean (pipeline.lean): NLN, NLN-OFF (control), NLN-E (escalation), NLN-DF (DEV member fallback), or LN = all four.
     for (const variant of ['LN', 'LN-OFF', 'LN-E', 'LN-DF'] as const) if (only.includes(`N${variant}`) || only.includes('LN')) outcomes.push(scenarioLN(machine.env, steps, variant));
+    if (only.includes('NLN-I') || only.includes('LN')) outcomes.push(scenarioNPMI(machine.env, steps, true));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }

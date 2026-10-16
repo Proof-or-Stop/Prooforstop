@@ -45,7 +45,7 @@ import { isMaterialExcludedPath } from './material-path-policy.js';
 import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previousCandidateLaneRun } from './review-round-order.js';
 import { findingSites } from './finding-preexisting.js';
 import { resolveReviewLanePack, type ReviewLanePack } from './review-lane-pack.js';
-import { renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delta-round.js';
+import { DELTA_ROUND_ESCALATION_EVENT, renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delta-round.js';
 import { renderLaneMergeBlock, type LaneMergePlan } from './review-lane-merge.js';
 import { laneMergeDimensionSections } from './review-lane-merge-prompt.js';
 import { readStoryRequest } from './story-request.js';
@@ -922,11 +922,21 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
     const gitCwd = run.workspaceBinding?.signedWorkspaceRoot ?? root;
     return renderDeltaConfirmationBlock(plan, run.storyId, plan.fromHead ? renderManagedRereviewDiff(gitCwd, root, plan.fromHead, run.headHash) : []);
   }
-  const deltaFull = deltaRound?.role === 'full';
   const store = new StoryStore(root);
   const runs = store.readReviewRuns(run.storyId).runs;
   const previous = previousCandidateLaneRun(runs, run);
   if (!previous) return [];
+  // Lab lean (review.deltaRounds=confirm): a confirmation session since this lane's previous candidate reported a defect
+  // outside its repair delta, so this full round reviews the WHOLE Story (only events of earlier rounds count: the digest is stable).
+  const escalated = !deltaRound && (() => {
+    try {
+      // An escalation recorded in a round from this lane's previous candidate's round up to (not including) this one.
+      return store.readProcessEvents(run.storyId).some(event => event.type === DELTA_ROUND_ESCALATION_EVENT
+        && typeof event.reviewRound === 'string' && event.reviewRound !== run.reviewRound && isEarlierReviewRound(event.reviewRound, run.reviewRound)
+        && (event.reviewRound === previous.reviewRound || isEarlierReviewRound(previous.reviewRound, event.reviewRound)));
+    } catch { return false; }
+  })();
+  const deltaFull = deltaRound?.role === 'full' || escalated;
   const gitCwd = run.workspaceBinding?.signedWorkspaceRoot ?? root;
   const earlierRunIds = new Set(earlierCandidateRuns(runs, run).map(row => row.reviewRunId));
   const findings = store.readFindings(run.storyId).findings
@@ -940,7 +950,9 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
   // delta; the lane starts there but still reviews the whole Story. Off (no delta in the pack) = unchanged.
   const delta = lanePack?.delta ?? null;
   const scope = variants.round2Scope === 'repaired-files' ? repairedFilesReviewScope(gitCwd, root, previous.headHash, run.headHash) : null;
-  const abLines = deltaFull ? [
+  const abLines = escalated ? [
+    `A/B variant review.deltaRounds=confirm (experimental, lab lean): the confirmation session of round ${previous.reviewRound} found a defect outside its repair delta, so this round is a FULL review: re-review the WHOLE Story${variants.round2Lanes === 'fresh' ? ' in a FRESH session (your earlier review thread is not resumed)' : ''}: confirm each listed finding first, then review the whole Story diff as in a first review.`,
+  ] : deltaFull ? [
     `A/B variant review.deltaRounds=on (experimental): this is a delta round and your lane raised findings on the previous candidate, so you re-review the WHOLE Story again${variants.round2Lanes === 'fresh' ? ' in a FRESH session (your earlier review thread is not resumed)' : ''}: confirm each listed finding first, then review the whole Story diff as in a first review. The other lanes' concerns are covered on the repair by one confirmation lane (${(deltaRound!.plan.replacedLanes).map(lane => lane.replace('proof-or-stop-review-', '')).join(', ')}).`,
   ] : [
     ...(variants.round2Lanes === 'fresh' ? [delta
