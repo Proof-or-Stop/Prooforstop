@@ -2060,7 +2060,7 @@ scope-boundary violation, its revert re-created the drift. The pre-existing disp
 Story's own docs edit made every later drift "the Story's own"), and a repair added a test that sha256-pinned the stale docs,
 so later repairs "broke a resolved finding". `finding_conflict_pin` (behavioural cases) and the PLAN remedy cycle breaker had
 nothing to pin. Nothing caps a round; every genuine product defect is still repaired. Tests: `node
-packages/main/dist/tasks/run110-fixes-smoke.js` (B1-B4, D1-D6, P1-P2, F1-F5, S1) and harness `e2e-review-to-done-smoke.js NFS
+packages/main/dist/tasks/run110-fixes-smoke.js` (B1-B4, D1-D7, P1-P2, F1-F5, S1) and harness `e2e-review-to-done-smoke.js NFS
 NFS-S` (RED on the base: NFS's drift went to repair, the worker could not commit the excluded doc, the Story replanned and
 stalled in PLAN; NFS-S, the request asking for the doc fix, passes on the base and after). Synthetic fixtures only.
 
@@ -2086,8 +2086,8 @@ stalled in PLAN; NFS-S, the request asking for the doc fix, passes on the base a
   the line rule (neutral: a proof, not a proxy). It reuses the existing base-probe path unchanged: command-form repros
   (`go test ...`, `sh -c ...`) are dropped, each repro is program text written to a file in the archived temp tree and
   passed as one argv element to the declared runner (no shell), with the runner's timeout, evaluation cap and cache; a repro
-  with shell metacharacters is never run by a shell (run110-fixes-smoke D6). Like every other base probe it inherits the
-  CLI process environment plus the declared `validate.env` (no extra scrubbing; open item). EXPERIMENTAL `review.driftBaseSymbol` (default off; it can close a drift the
+  with shell metacharacters is never run by a shell (run110-fixes-smoke D6). Like every other base probe it runs in the
+  scrubbed probe-runner environment (below; network access is not restricted: open item). EXPERIMENTAL `review.driftBaseSymbol` (default off; it can close a drift the
   Story caused elsewhere in the symbol) also accepts a code anchor whose cited lines (trimmed) are all in the base source of
   the same enclosing symbol. (c) The Story's own edit of a cited doc the scope contract excludes no longer makes the drift the
   Story's own (an admitted doc edit still does, run 37 F-003). (d) A path the contract excludes is never "in scope" by a
@@ -2130,6 +2130,24 @@ test that asserts file bytes, never behaviour; the settlement closes only docume
 excludes (recorded, severity unchanged, follow-up named) and never a finding with an in-scope code site. The only switch that
 can hide a real defect, `review.driftBaseSymbol`, is off. Next-driver golden (`next-driver-cost-smoke`) unchanged; identity
 pins unchanged.
+
+
+#### Probe runner environment (security hardening, `core/request-probes.ts` `probeProcessEnv`)
+
+Every base probe (finding repros, PLAN row / pin probes, counterpart coverage, request probes) is evaluated by the single
+spawn point `evaluateInTree`, whose program text is model-written. It no longer receives the CLI's `process.env`. The
+child environment is an allow-list: `PATH`, `HOME` (a fresh temp dir per `evaluateInTree` call, removed afterwards; `GOPATH`
+defaults to the real `~/go` when that exists so Go module lookups keep working), `TMPDIR`, `TZ`, `LANG`, `LANGUAGE`, `LC_*`,
+`TERM`, `SYSTEMROOT`, toolchain variables (`GOPATH GOCACHE GOFLAGS GOMODCACHE GOROOT GOTOOLCHAIN GOENV GOOS GOARCH CGO_ENABLED
+NODE_PATH NODE_OPTIONS PYTHONPATH PYTHONHOME PYTHONDONTWRITEBYTECODE VIRTUAL_ENV JAVA_HOME CARGO_HOME RUSTUP_HOME
+RUSTUP_TOOLCHAIN`), plus the project's declared `validate.env` and runner `env`. Any name matching `TOKEN|KEY|SECRET|PASSW|
+CREDENTIAL|PROXY|AUTH|COOKIE|SESSION` or starting with `OPENCODE OPENAI ANTHROPIC GH_ GITHUB_ AWS_ AZURE_ GOOGLE_ GCP_ GCLOUD
+NPM_CONFIG_ SSH_ GPG_`, and any value that is a URL with userinfo (`scheme://user:pw@host`), is dropped even when declared
+(`isProbeEnvSecret`, core/pin-oracle.ts). The project `setup` command (declared in the base commit, not model text) keeps the
+parent environment minus the same credential-looking entries (plain proxy variables stay, since setup may fetch
+dependencies). Test: `run110-fixes-smoke` D7 (a runner that prints its environment must not see seeded secrets). Open: the
+probed program can still use the network (no sandbox; `GOPROXY=off`-style hints are not set because they would break
+probes that resolve modules).
 
 ### `next --untilAgent`: the framework owner driver (`owner.driver`, owner-driver lab)
 
