@@ -255,6 +255,35 @@ await check('D6 driftBaseBehaviour runs the finding\'s repro with the project pr
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+await check('D7 the probe runner gets an allow-listed environment: seeded secrets (and secret-named validate.env keys) never reach the probed program; PATH, declared env and a temp HOME do', async () => {
+  const probeEnv = await load('../core/request-probes.js', 'probeProcessEnv');
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'run110-probe-env-')));
+  const seeded: Record<string, string> = { POS_FAKE_API_KEY: 'sk-fake-1', POS_FAKE_TOKEN: 'tok-fake-2', ANTHROPIC_BASE_URL: 'http://x', OPENAI_API_BASE: 'http://y',
+    GITHUB_USER: 'gh', AWS_REGION: 'r', SSH_AUTH_SOCK: '/tmp/agent', HTTPS_PROXY: 'http://u:p@proxy:1', OPENCODE_FOO: 'oc', MY_PASSWORD_X: 'pw', POS_PLAIN_VAR: 'plain' };
+  const saved: Record<string, string | undefined> = {};
+  for (const [k, v] of Object.entries(seeded)) { saved[k] = process.env[k]; process.env[k] = v; }
+  try {
+    // The runner prints every environment entry; evaluateInTree is the one spawn point of every base probe.
+    const evaluate = await load('../core/request-probes.js', 'evaluateInTree');
+    const tree = join(root, 'run', 'tree');
+    mkdirSync(tree, { recursive: true });
+    write(tree, 'eval.js', "require('fs').readFileSync(process.argv[2], 'utf8'); console.log(JSON.stringify(Object.entries(process.env).filter(([k]) => k !== 'PATH').map(([k, v]) => k + '=' + v)));\n");
+    const config = { command: process.execPath, args: ['{tree}/eval.js', '{file}'], program: '{input}', extension: '.txt' };
+    const declared = { POS_DECLARED_OK: 'declared', DEPLOY_TOKEN: 'tok-declared', POS_DECLARED_API_KEY: 'k-declared', LANG: 'C' };
+    const seen = evaluate({ config, env: declared }, tree, ['printenv']) as Map<string, { text: string }>;
+    const text = seen.get('printenv')!.text;
+    for (const secret of ['sk-fake-1', 'tok-fake-2', 'tok-declared', 'k-declared', 'u:p@proxy', '/tmp/agent', 'POS_PLAIN_VAR', 'OPENCODE', 'ANTHROPIC', 'AWS_', 'GITHUB_', 'MY_PASSWORD']) assert.ok(!text.includes(secret), `leaked ${secret}: ${text}`);
+    assert.ok(text.includes('POS_DECLARED_OK=declared') && text.includes('TMPDIR='), text);
+    assert.ok(!text.includes(`HOME=${process.env.HOME}"`), 'HOME is a temp dir');
+    const env = probeEnv({ POS_DECLARED_OK: 'declared', DEPLOY_TOKEN: 'tok', X_URL: 'https://u:p@h/' }, '/tmp/h', { PATH: '/bin', HOME: '/real', LC_ALL: 'C', OPENAI_API_KEY: 'k', ...seeded });
+    assert.deepEqual(Object.keys(env).sort(), ['HOME', 'LC_ALL', 'PATH', 'POS_DECLARED_OK', 'TMPDIR'], JSON.stringify(env));
+    assert.equal(env.HOME, '/tmp/h');
+  } finally {
+    for (const [k, v] of Object.entries(saved)) { if (v === undefined) delete process.env[k]; else process.env[k] = v; }
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 // ---------------------------------------------------------------------------
 // P. Repair-added tests pinning out-of-scope files
 

@@ -98,14 +98,15 @@
  */
 import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { ChecklistItem, VerificationIntent } from './types.js';
 import { VERIFICATION_LANES } from './verification.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
 import { caseRequirements, requestAnchorContext, type RequestAnchorContext } from './plan-coverage-matrix.js';
-import { parseErrorOutsideNewSyntax, pinOracleStoryBase, prepareArchivedTree, validRunnerConfig, type PinOracleConfig } from './pin-oracle.js';
+import { isProbeEnvSecret, parseErrorOutsideNewSyntax, pinOracleStoryBase, prepareArchivedTree, validRunnerConfig, type PinOracleConfig } from './pin-oracle.js';
 import { currentMaterialHash } from './evidence-freshness.js';
 import { parseIntentConflicts } from './request-authority.js';
 import { probeEnforcementOn, probeMatrixOn } from './ab-variants.js';
@@ -614,6 +615,33 @@ export function probeProgram(config: Pick<ProbeRunnerConfig, 'program'>, stateme
 
 type Cache = Record<string, ProbeObservation>;
 
+/**
+ * Environment of a probe-runner process (security hardening; the program text is model-written): an allow-list, never
+ * the CLI's `process.env`. Allowed: PATH, a temp HOME, TMPDIR, LANG / LC_*, TZ, the toolchain variables the runners need
+ * (Go, Node, Python, Java, Rust) and the project's declared `validate.env` / runner `env`, minus anything that looks like
+ * a credential (key, token, secret, password, proxy, provider prefixes, SSH agent) or a URL carrying userinfo.
+ * Network access is NOT restricted (open item).
+ */
+const PROBE_ENV_ALLOW = new Set(['PATH', 'TMPDIR', 'TZ', 'LANG', 'LANGUAGE', 'TERM', 'SYSTEMROOT', 'GOPATH', 'GOCACHE', 'GOFLAGS', 'GOMODCACHE',
+  'GOROOT', 'GOTOOLCHAIN', 'GOENV', 'GOOS', 'GOARCH', 'CGO_ENABLED', 'NODE_PATH', 'NODE_OPTIONS', 'PYTHONPATH', 'PYTHONHOME', 'PYTHONDONTWRITEBYTECODE',
+  'VIRTUAL_ENV', 'JAVA_HOME', 'CARGO_HOME', 'RUSTUP_HOME', 'RUSTUP_TOOLCHAIN']);
+export { isProbeEnvSecret };
+export function probeProcessEnv(declared: Record<string, string>, home: string, parent: NodeJS.ProcessEnv = process.env): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [name, value] of Object.entries(parent)) {
+    if (value === undefined || !(PROBE_ENV_ALLOW.has(name) || name.startsWith('LC_'))) continue;
+    if (isProbeEnvSecret(name, value)) continue;
+    out[name] = value;
+  }
+  // A temp HOME hides dotfiles and credentials; Go's default module path lives under HOME, so keep it pointing home.
+  const realHome = parent.HOME;
+  if (realHome && !out.GOPATH && existsSync(join(realHome, 'go'))) out.GOPATH = join(realHome, 'go');
+  out.HOME = home;
+  if (!out.TMPDIR) out.TMPDIR = home;
+  for (const [name, value] of Object.entries(declared)) if (!isProbeEnvSecret(name, value) && name !== 'HOME') out[name] = value;
+  return out;
+}
+
 /** Evaluate programs in a prepared tree (cached per tree + program). */
 export function evaluateInTree(ctx: Pick<ProbeRunnerContext, 'config' | 'env'>, tree: string, programs: readonly string[]): Map<string, ProbeObservation> {
   const dir = join(tree, '..');
@@ -626,6 +654,8 @@ export function evaluateInTree(ctx: Pick<ProbeRunnerContext, 'config' | 'env'>, 
   const skip = ctx.config.skipPattern ? (() => { try { return new RegExp(ctx.config.skipPattern!, 'm'); } catch { return null; } })() : null;
   let evaluated = 0;
   let dirty = false;
+  const probeHome = mkdtempSync(join(tmpdir(), 'pos-probe-home-'));
+  try {
   for (const program of new Set(programs)) {
     const key = createHash('sha256').update(program).digest('hex');
     if (cache[key]) { out.set(program, cache[key]!); continue; }
@@ -635,7 +665,7 @@ export function evaluateInTree(ctx: Pick<ProbeRunnerContext, 'config' | 'env'>, 
     writeFileSync(file, `${program}\n`);
     const fill = (text: string) => text.split('{file}').join(file).split('{tree}').join(tree);
     const ran = spawnSync(fill(ctx.config.command), (ctx.config.args ?? ['{file}']).map(fill), {
-      cwd: tree, env: { ...process.env, ...ctx.env }, encoding: 'utf8', timeout: ctx.config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+      cwd: tree, env: probeProcessEnv(ctx.env, probeHome), encoding: 'utf8', timeout: ctx.config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
       stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 1024 * 1024 });
     const text = `${(ran.stdout ?? '').trim()}${ran.status !== 0 && ran.stderr?.trim() ? `\n${ran.stderr.trim()}` : ''}`.trim().slice(0, 600);
     let result: ProbeObservation;
@@ -646,6 +676,7 @@ export function evaluateInTree(ctx: Pick<ProbeRunnerContext, 'config' | 'env'>, 
     if (!ran.error) { cache[key] = result; dirty = true; }
     out.set(program, result);
   }
+  } finally { try { rmSync(probeHome, { recursive: true, force: true }); } catch { /* temp dir */ } }
   if (dirty) {
     try { writeFileSync(cachePath, `${JSON.stringify(cache)}\n`); } catch { /* the cache is an optimisation */ }
   }

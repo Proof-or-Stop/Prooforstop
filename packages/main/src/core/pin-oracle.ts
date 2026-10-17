@@ -250,6 +250,18 @@ export function pinOracleStoryBase(gitCwd: string, frozenBase: string | null | u
  * once (atomic rename; `dir/ready.json` marks it), or null when the archive or
  * the setup fails. Shared with the framework probe runner (core/request-probes.ts).
  */
+/** Credential-looking environment names / URL values (probe runner and setup are never given them). */
+const PROBE_ENV_SECRET = /(TOKEN|KEY|SECRET|PASSW|CREDENTIAL|PROXY|AUTH|COOKIE|SESSION)|^(OPENCODE|OPENAI|ANTHROPIC|GH_|GITHUB_|AWS_|AZURE_|GOOGLE_|GCP_|GCLOUD|NPM_CONFIG_|SSH_|GPG_)/i;
+const URL_USERINFO = /:\/\/[^/\s@]*@/;
+export const isProbeEnvSecret = (name: string, value = ''): boolean => PROBE_ENV_SECRET.test(name) || URL_USERINFO.test(value);
+
+/** Setup (project-declared command from the base commit, may need the network): parent env minus credential-looking entries. */
+const setupEnv = (declared: Record<string, string>): Record<string, string> => {
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries({ ...process.env, ...declared })) if (v !== undefined && !isProbeEnvSecret(k.replace(/proxy/gi, ''), v)) out[k] = v;
+  return out;
+};
+
 export function prepareArchivedTree(dir: string, gitCwd: string, commit: string, setup: PinOracleConfig['setup'], timeoutMs: number | undefined, env: Record<string, string>): string | null {
   const tree = join(dir, 'tree');
   const ready = join(dir, 'ready.json');
@@ -264,7 +276,7 @@ export function prepareArchivedTree(dir: string, gitCwd: string, commit: string,
     if (spawnSync('tar', ['-xf', archive, '-C', extracted], { stdio: 'ignore' }).status !== 0) return null;
     rmSync(archive, { force: true });
     if (setup?.command) {
-      const ran = spawnSync(setup.command, setup.args ?? [], { cwd: extracted, env: { ...process.env, ...env }, encoding: 'utf8',
+      const ran = spawnSync(setup.command, setup.args ?? [], { cwd: extracted, env: setupEnv(env), encoding: 'utf8',
         timeout: Math.max(timeoutMs ?? DEFAULT_TIMEOUT_MS, 120_000), stdio: ['ignore', 'pipe', 'pipe'] });
       if (ran.status !== 0) return null;
     }
