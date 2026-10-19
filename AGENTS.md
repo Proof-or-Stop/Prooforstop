@@ -754,7 +754,9 @@ excludes entry. When the checklist changed after the
 verdict (`scope-check.json` `checklistDigest`, guidance only), the hint names
 only that rerun. With the latest story_review round current and blocking,
 `next` returns `plan_review_blockers`: the blockers and that one `next --run`,
-never a hand-run `story_review`. The brief
+never a hand-run `story_review`; every plain `scope_gap` carries a ready covering row
+(`<item>:edge:+`) on the item it names, so the step is always a batch of row patches
+(lab plan-deadend). The brief
 `story_review` view never truncates an issue's `Next` remedy. A quick-channel Story may
 make adversarial review optional only when the CLI says it is eligible; normal
 scope, intent, ownership, memory, and policy gates still apply.
@@ -1015,6 +1017,22 @@ framework step `finding_file_state_settled` = `finding_resolve
 --disposition=file_state_conflict`); a finding with an in-scope code defect site is never
 settled. Do not edit, revert or pin a doc the boundary excludes. See docs/CLI.md
 "Old-PoS run 110".
+
+Lab plan-deadend (old-PoS run 121): PLAN never prints `Next: none runnable` for an agent
+step. Run 121's last round had three `scope_gap` blockers with no row patch (a pre-existing
+doc/code drift sourced from an unrequested doc, two coverage gaps no template matched), the
+agent step `plan_review_blockers` had no command, the render said "none runnable" and the
+owner stopped (reward 0). Now: a scope-plan gap that is pre-existing doc/code drift in a
+documentation file the request neither names nor asks to change, that no item modifies and
+whose behaviour no item changes,
+is settled by story_review (`scope_gap_doc_drift_settled`, advisory; switch
+`plan.docDriftSettle`, default on); every other plain gap names ONE covering row on the item
+it names (else the item sharing its terms, else the first open item), so a coverage gap
+becomes a row; an open question adds its `scope_question_resolve` call; a pin dispute decided
+right after a new verdict reruns story_review first so its merged row patches are the
+current round's; and an agent step without a command prints "do what Why names, then `next
+--run`". Author the rows (or, for reference-only material, the excludes entry the step also
+names) and run `next --run`. See docs/CLI.md "Lab plan-deadend".
 
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache

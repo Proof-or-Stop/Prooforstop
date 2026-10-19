@@ -168,6 +168,14 @@
  *                              base evidence when every cited line is found in the base source of the same symbol
  *                              (without it only a base probe of the finding's repro decides)
  *
+ * Lab plan-deadend (bench-staging/oldpos/run121-analysis.md: run 121 ended in PLAN on `Next: none runnable` with a
+ * pre-existing doc/code drift and two coverage gaps open). One rollback switch whose production value is on:
+ *   plan.docDriftSettle        'on' (default) | 'off'  a scope-plan gap sourced from a documentation file that the request
+ *                              neither names nor asks to change and no item modifies, reporting a conflict with the
+ *                              existing behaviour, is pre-existing doc/code drift: story_review records it as settled by
+ *                              the framework (advisory scope_gap_doc_drift_settled; precedence request text > scope
+ *                              boundary > reviewer opinion) instead of a blocker no row can answer (core/plan-gap-remedy.ts)
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -206,6 +214,7 @@ export const AB_VARIANT_FLAGS = {
   'scope.boundaryExcludes': ['on', 'off'],
   'remediation.fileStateSettle': ['on', 'off'],
   'review.driftBaseSymbol': ['off', 'on'],
+  'plan.docDriftSettle': ['on', 'off'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -216,7 +225,7 @@ export interface AbVariantConfigSlice {
   remediation?: { grouping?: string; thread?: string; familyEvidence?: string; fileStateSettle?: string };
   scope?: { boundaryExcludes?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
-  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string; docDriftSettle?: string };
   dev?: { probeEnforcement?: string; removedGuardScan?: string };
   pipeline?: { lean?: string };
 }
@@ -253,6 +262,7 @@ export interface AbVariants {
   boundaryExcludes: AbVariantValue<'scope.boundaryExcludes'>;
   fileStateSettle: AbVariantValue<'remediation.fileStateSettle'>;
   driftBaseSymbol: AbVariantValue<'review.driftBaseSymbol'>;
+  docDriftSettle: AbVariantValue<'plan.docDriftSettle'>;
 }
 
 export interface AbVariantEvidence {
@@ -341,6 +351,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     boundaryExcludes: pick('scope.boundaryExcludes', section(config, 'scope').boundaryExcludes),
     fileStateSettle: pick('remediation.fileStateSettle', section(config, 'remediation').fileStateSettle),
     driftBaseSymbol: pick('review.driftBaseSymbol', review.driftBaseSymbol),
+    docDriftSettle: pick('plan.docDriftSettle', section(config, 'plan').docDriftSettle),
   };
 }
 
@@ -378,6 +389,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.boundaryExcludes !== 'on') flags['scope.boundaryExcludes'] = variants.boundaryExcludes;
   if (variants.fileStateSettle !== 'on') flags['remediation.fileStateSettle'] = variants.fileStateSettle;
   if (variants.driftBaseSymbol !== 'off') flags['review.driftBaseSymbol'] = variants.driftBaseSymbol;
+  if (variants.docDriftSettle !== 'on') flags['plan.docDriftSettle'] = variants.docDriftSettle;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -391,7 +403,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -438,6 +450,8 @@ export const boundaryExcludesOn = (config: unknown): boolean => catchEarlierPick
 export const fileStateSettleOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.fileStateSettle') === 'on';
 /** EXPERIMENTAL lab run110 review.driftBaseSymbol=on: a drift's in-hunk code anchor found in the base source of the same symbol is base evidence; malformed = off. */
 export const driftBaseSymbolOn = (config: unknown): boolean => catchEarlierPick(config, 'review.driftBaseSymbol') === 'on';
+/** Lab plan-deadend plan.docDriftSettle (default on; `off` = rollback): a pre-existing doc/code drift gap on an unrequested doc is settled by story_review (core/plan-gap-remedy.ts); malformed = on. */
+export const docDriftSettleOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.docDriftSettle') === 'on';
 /** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }

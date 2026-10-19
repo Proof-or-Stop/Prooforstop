@@ -351,6 +351,17 @@
  *      and a tagged doc-code drift with an in-hunk code anchor is settled once by the
  *      framework (scope boundary > reviewer opinion), never repaired (run 110's
  *      6-round docs oscillation); NFS-S the request asks for the doc fix: repaired.
+ *   NPDE / NPDE-D / NPDE-S lab plan-deadend (old-PoS run 121, run121-analysis.md):
+ *      the scope-plan verdict lists a pre-existing doc/code drift sourced from an
+ *      unrequested documentation file plus two coverage gaps no row template
+ *      matched. RED on the base: next returned plan_review_blockers with no command
+ *      and printed `Next: none runnable (see Why)` (the owner stopped). Now the
+ *      drift is settled by the framework (advisory) and each coverage gap carries a
+ *      ready covering row; applied, the rerun verdict re-raising only the drift
+ *      leaves PLAN complete (NPDE pipeline.lean=on as in run 121, NPDE-D default
+ *      flags). NPDE-S: a pin dispute decided right after a new verdict lists the
+ *      CURRENT verdict's other gaps (story_review reruns first), never the stale
+ *      round's.
  *
  *   NRG old-PoS runs 46/47 (resolved-finding regression guard + finding conflict):
  *      round 1's finding F-001 is repaired with a test and resolved; round 2's
@@ -387,7 +398,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -8849,6 +8860,150 @@ function scenarioNPR(machineEnv: NodeJS.ProcessEnv, steps: Step[], confirm: bool
 }
 
 // ---------------------------------------------------------------------------
+// Lab plan-deadend (old-PoS run 121, bench-staging/oldpos/run121-analysis.md): NPDE, NPDE-D, NPDE-S. The r95 `strs`
+// fixture with main's pre-existing docs/types/array.md drift (the NPX doc, which the request never names); synthetic gaps
+// in run 121's shapes, not its values.
+
+/** Run 121 gap (1): a doc/code conflict the reviewer sources from an unrequested documentation file. */
+const R121_DOC_GAP = `Applicable array documentation conflict: ${PX_DOC_PATH} says [0, 1, 2, 3][0:2] returns [0, 1, 2], while the existing implementation excludes the end and returns [0, 1]; the PLAN promises unchanged existing behaviour without resolving this published promise`;
+/** Run 121 gaps (2) and (3): coverage gaps no row template matched (one names its item, one does not). */
+const R121_RUNE_GAP = 'Reverse is rune-correct for multibyte input: CHK-002 has no multibyte case after removing its former row, although the request requires reversal by rune';
+const R121_UPPER_GAP = 'Upper keeps multibyte letters intact: no planned case gives Upper a multibyte input, so rune handling is not distinguished from byte handling';
+const R121_REVERSE_QUOTE = '`strs.Reverse(s)` returns `s` reversed by rune, for example `Reverse("héllo")` is `"olléh"`.';
+const R121_UPPER_QUOTE = '`strs.Upper(s)` returns the upper-case form of `s`, for example `Upper("ab")` is `"AB"`.';
+/** The rows an owner authors into the framework's covering-row patches (each placeholder filled). */
+const R121_FILLED: Record<string, Record<string, unknown>> = {
+  'CHK-002': { desc: 'Reverse("añb") -> "bña"', verification: { command: 'go test -v ./strs -run ^TestReverseMultibyte$', selector: '--- PASS: TestReverseMultibyte' },
+    derivation: { requestQuote: R121_REVERSE_QUOTE, computation: 'reversing the runes a, ñ, b gives b, ñ, a: "bña"' } },
+  'CHK-001': { desc: 'Upper("ñb") -> "ÑB"', verification: { command: 'go test -v ./strs -run ^TestUpperMultibyte$', selector: '--- PASS: TestUpperMultibyte' },
+    derivation: { requestQuote: R121_UPPER_QUOTE, computation: 'the upper-case form of ñ is Ñ and of b is B: "ÑB"' } },
+};
+
+/** One scripted scope-plan verdict: both promises covered, plus gap rows with their own source. */
+function r121Verdict(o: Owner, gaps: Array<{ feature: string; source: string }>): void {
+  o.script('proof-or-stop-review-scope-plan', { final: 'Scope review saved.', commands: [[process.execPath, CLI, 'scope_check_save', JSON.stringify({ storyId: o.storyId,
+    features: [
+      { feature: 'strs.Upper returns the upper-case form', covered_by: 'CHK-001', status: 'covered', excluded_by: null, source: 'request.md' },
+      { feature: 'strs.Reverse reverses by rune', covered_by: 'CHK-002', status: 'covered', excluded_by: null, source: 'request.md' },
+      ...gaps.map(gap => ({ feature: gap.feature, covered_by: null, status: 'gap', excluded_by: null, source: gap.source })),
+    ],
+    summary: { total: 2 + gaps.length, covered: 2, excluded: 0, gaps: gaps.length },
+    readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, openQuestions: [] })]] });
+}
+
+/** next, running the mechanical story_review reruns it names (as `next --run` does), until a step that is not one. */
+function r121Settle(o: Owner, ask: (label: string) => NextStepJson, label: string): NextStepJson {
+  let next = ask(`next (${label})`);
+  for (let guard = 0; guard < 4 && next.kind === 'framework' && ['story_review_rerun', 'plan_remedy_settled'].includes(next.reason); guard += 1) {
+    o.mustCli(next.cli!.command, next.cli!.payload, { label: `${next.cli!.command} (${next.reason}, ${label})` });
+    next = ask(`next (${label}, after ${next.reason})`);
+  }
+  return next;
+}
+
+/** The step as the owner reads it (text, not --json). */
+function r121Text(o: Owner, label: string): string {
+  return o.cli('next', { storyId: o.storyId }, { label }).stdout;
+}
+
+/**
+ * NPDE / NPDE-D (old-PoS run 121): the verdict's gaps are a pre-existing doc/code drift sourced from docs/types/array.md
+ * (the request never names it; no item modifies it) and two coverage gaps whose text matches no row template. RED on the
+ * base: story_review records three scope_gap blockers, next returns plan_review_blockers with no command and the text
+ * ends `Next: none runnable (see Why)` (run 121's owner stopped there). Now: story_review records the drift as
+ * framework-settled (advisory [scope_gap_doc_drift_settled]); next gives one checklist_update per item, each appending a
+ * covering row to the item the gap names (CHK-002) or shares terms with (CHK-001); applied, the reviewer reruns once and a
+ * verdict that re-raises only the drift leaves PLAN complete (enter_dev). Run 121 ran pipeline.lean=on (NPDE); the step
+ * is not lean's (NPDE-D, default flags).
+ */
+function scenarioNPDE(machineEnv: NodeJS.ProcessEnv, steps: Step[], lean: boolean): Outcome {
+  const tag = lean ? 'NPDE' : 'NPDE-D';
+  const name = `${tag} lab plan-deadend (run 121): plain scope gaps get ready covering rows, a pre-existing drift in an unrequested doc is settled; never "none runnable" in PLAN${lean ? ' (pipeline.lean=on)' : ' (default flags)'}`;
+  const o = new Owner(tag, lean ? 'B-121a' : 'B-121d', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: R95_REQUEST, preexistingDoc: true,
+    ...(lean ? { config: { pipeline: { lean: 'on' } } } : {}) });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    r95Plan(o, r95Intents([]));
+    r121Verdict(o, [{ feature: R121_DOC_GAP, source: PX_DOC_PATH }, { feature: R121_RUNE_GAP, source: 'request.md' }, { feature: R121_UPPER_GAP, source: 'request.md' }]);
+    r95ScopeRun(o, tag, ask, 'verdict 1');
+    const blockers = r121Settle(o, ask, 'verdict 1');
+    const issues = (new StoryStore(o.worktree).readReview(o.storyId).reviews.at(-1)?.issues ?? []) as Array<{ type?: string; severity?: string; message?: string }>;
+    const docIssue = issues.find(issue => String(issue.message ?? '').includes('Applicable array documentation conflict'));
+    const calls = stepCalls(blockers);
+    const text = r121Text(o, 'next (text, verdict 1)');
+    const problems: string[] = [];
+    if (docIssue?.severity !== 'advisory' || docIssue?.type !== 'scope_gap_doc_drift_settled') problems.push(`the pre-existing drift in the unrequested doc is a ${String(docIssue?.severity)} ${String(docIssue?.type)}, not settled`);
+    if (blockers.reason !== 'plan_review_blockers') problems.push(`the coverage gaps do not block: ${blockers.reason}`);
+    if (calls.length === 0) problems.push(`plan_review_blockers carries no command (run 121; the owner stopped): ${blockers.kind} ${blockers.reason}`);
+    if (/none runnable/.test(text)) problems.push(`the text says "none runnable" while blockers remain: ${text.split('\n').filter(line => line.startsWith('Next')).join(' / ')}`);
+    if (!rowPatches(blockers, 'CHK-002').some(row => row.ref === 'CHK-002:edge:+')) problems.push('no covering row on CHK-002 for the gap naming it');
+    if (!rowPatches(blockers, 'CHK-001').some(row => row.ref === 'CHK-001:edge:+')) problems.push('no covering row on CHK-001 for the Upper gap');
+    if (calls.some(call => JSON.stringify(call.payload).includes('array.md'))) problems.push('a command asks to change the doc');
+    lines.push(`verdict 1: ${problems.length} problem(s)`);
+    assert.deepEqual(problems, [], `[${tag}] ${problems.join(' | ')}`);
+    for (const call of calls) {
+      const payload = { ...call.payload, intentRows: (call.payload.intentRows as Array<Record<string, unknown>>).map(row => /:\+$/.test(String(row.ref)) ? { ...row, ...R121_FILLED[String(call.payload.itemId)] } : row) };
+      o.mustCli(call.command, payload, { label: `${call.command} ${String(call.payload.itemId)} (covering row from the step)` });
+    }
+    const after = new StoryStore(o.worktree).readChecklist(o.storyId).items;
+    assert.ok(after.find(item => item.id === 'CHK-002')!.verificationIntent!.edge.some(row => /añb/.test(String(row.desc))), `[${tag}] the rune gap became a row (detection kept)`);
+    assert.ok(after.find(item => item.id === 'CHK-001')!.verificationIntent!.edge.some(row => /ñb/.test(String(row.desc))), `[${tag}] the Upper gap became a row`);
+    // The reviewer reruns on the changed checklist and re-raises only the drift.
+    r121Verdict(o, [{ feature: R121_DOC_GAP, source: PX_DOC_PATH }]);
+    r95ScopeRun(o, tag, ask, 'verdict 2 (drift only)');
+    const done = r121Settle(o, ask, 'verdict 2');
+    assert.equal(done.reason, 'enter_dev', `[${tag}] PLAN is complete with only the settled drift left: ${done.kind} ${done.reason}: ${done.why.slice(0, 600)}`);
+    lines.push(`scope-plan runs: ${listScopeRuns(o)}`);
+    assert.equal(listScopeRuns(o), 2, `[${tag}] two reviewer runs`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NPDE-S (old-PoS run 121, pipeline.lean=on): the reviewer raises the same row twice (a pin dispute) and its second
+ * verdict adds a new plain gap. Run 121's next decided plan_pin_dispute right after the scope-plan wait, from the
+ * story_review round of the PREVIOUS verdict, so the dispute step's "other blockers" were stale and the new verdict's
+ * gaps were never shown with a remedy. RED on the base: the dispute step has no covering row for the new gap. Now:
+ * story_review reruns first (framework step), then the dispute step carries the new gap's covering row.
+ */
+function scenarioNPDES(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPDE-S';
+  const name = 'NPDE-S lab plan-deadend (run 121): a pin dispute right after a new verdict lists the current verdict\'s other gaps with their covering rows (story_review reruns first)';
+  const o = new Owner(tag, 'B-121s', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: R95_REQUEST, config: { pipeline: { lean: 'on' } } });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    const guess = (text: string) => r95Row(`Reverse(5) -> error, the whole error equals "${text}"`, 'TestReverseNumber',
+      { derivation: { requestQuote: R95_HEADER, computation: `TYPE is NUMBER for 5, so the whole error equals "${text}"` } });
+    r95Plan(o, r95Intents([guess('upper expects STRING, got NUMBER')]));
+    const gap = (pinned: string) => `pin-audit CHK-002:edge:1 pins Reverse(5) -> "${pinned}"; request gives no error text for Reverse (its template is scoped to Upper)`;
+    r121Verdict(o, [{ feature: gap('upper expects STRING, got NUMBER'), source: 'request.md' }]);
+    r95ScopeRun(o, tag, ask, 'verdict 1');
+    const first = r121Settle(o, ask, 'verdict 1');
+    assert.notEqual(first.reason, 'plan_pin_dispute', `[${tag}] one verdict is no dispute: ${first.reason}`);
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', intentRows: [{ ref: 'CHK-002:edge:1', ...guess('reverse expects STRING, got NUMBER') }], reason: 'second guess' }, { label: 'checklist_update CHK-002 (second guess)' });
+    r121Verdict(o, [{ feature: gap('reverse expects STRING, got NUMBER'), source: 'request.md' }, { feature: R121_UPPER_GAP, source: 'request.md' }]);
+    r95ScopeRun(o, tag, ask, 'verdict 2');
+    // No hand story_review here: run 121's next decided the dispute right after the scope-plan wait.
+    const dispute = r121Settle(o, ask, 'verdict 2');
+    assert.equal(dispute.reason, 'plan_pin_dispute', `[${tag}] the repeated row is disputed: ${dispute.reason}: ${dispute.why.slice(0, 600)}`);
+    assert.ok(rowPatches(dispute, 'CHK-002').some(row => row.ref === 'CHK-002:edge:1'), `[${tag}] the dispute remedy is there`);
+    assert.ok(rowPatches(dispute, 'CHK-001').some(row => row.ref === 'CHK-001:edge:+'), `[${tag}] the current verdict's new gap comes with its covering row (run 121: stale blockers, none): ${JSON.stringify(stepCalls(dispute)).slice(0, 900)}`);
+    assert.match(dispute.why, /Upper keeps multibyte letters intact/, `[${tag}] the new gap is named among the other blockers`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Lab run102 (bench-staging/oldpos/run100-103-analysis.md §1, §2, §5): NCD, NCE, NCS. A made-up interpreter whose text read
 // counts a negative index from the end (a wrap) and whose list write rejects it; rows on a new text single-index write.
 // Synthetic values only; the run-101 / run-102 shapes, not their values.
@@ -9025,7 +9180,7 @@ function listScopeRuns(o: Owner): number {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -9141,6 +9296,10 @@ async function main(): Promise<void> {
     if (only.includes('NPR')) outcomes.push(scenarioNPR(machine.env, steps, false));
     if (only.includes('NPR-C')) outcomes.push(scenarioNPR(machine.env, steps, true));
     if (only.includes('NPXF')) outcomes.push(scenarioNPX(machine.env, steps, 'NPXF'));
+    // Lab plan-deadend (old-PoS run 121): no `none runnable` in PLAN while blockers remain (NPDE lean, NPDE-D default), dispute with current blockers (NPDE-S).
+    if (only.includes('NPDE')) outcomes.push(scenarioNPDE(machine.env, steps, true));
+    if (only.includes('NPDE-D')) outcomes.push(scenarioNPDE(machine.env, steps, false));
+    if (only.includes('NPDE-S')) outcomes.push(scenarioNPDES(machine.env, steps));
     // Lab run102: the pin-dispute remedy vs the counterpart gate (NCD), value-aware coverage (NCE), counterpart-backed gaps (NCS).
     if (only.includes('NCD')) outcomes.push(scenarioNCD(machine.env, steps));
     if (only.includes('NCE')) outcomes.push(scenarioNCE(machine.env, steps));
@@ -9170,7 +9329,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

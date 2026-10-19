@@ -49,6 +49,9 @@
  *                                    closed once by precedence (request text > scope boundary > reviewer opinion)
  *   review.driftBaseSymbol           EXPERIMENTAL, default OFF: a drift's in-hunk code anchor found in the base source of
  *                                    the same symbol counts as base evidence
+ *   Lab plan-deadend (behaviour in tasks/plan-deadend-smoke.ts D / S1, end to end in NPDE / NPDE-D):
+ *   plan.docDriftSettle              default ON (`off` = rollback): a scope-plan gap that is pre-existing doc/code drift in a
+ *                                    doc the request neither names nor asks to change (no item modifies it) is settled
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -114,7 +117,9 @@ await check('config: absent switches resolve to production values; malformed fai
     pipelineLean: 'off', familyEvidence: 'on',
     // Lab run110: boundary exclusions -> explicitExcludes and file-state settlement are on (`off` = rollback); the
     // symbol-based drift evidence is EXPERIMENTAL and off.
-    boundaryExcludes: 'on', fileStateSettle: 'on', driftBaseSymbol: 'off' });
+    boundaryExcludes: 'on', fileStateSettle: 'on', driftBaseSymbol: 'off',
+    // Lab plan-deadend: a pre-existing doc/code drift gap on unrequested documentation is settled (`off` = rollback).
+    docDriftSettle: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -148,6 +153,12 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.equal(boundaryExcludesOn({ scope: { boundaryExcludes: 'maybe' } }), true, 'lab run110: malformed = on where consumed');
   assert.equal(fileStateSettleOn({ remediation: { fileStateSettle: 'maybe' } }), true, 'lab run110: malformed = on where consumed');
   assert.equal(driftBaseSymbolOn({ review: { driftBaseSymbol: 'maybe' } }), false, 'lab run110: malformed = off where consumed');
+  // Lab plan-deadend (plan.docDriftSettle): on is production (not recorded); off is the recorded rollback; malformed = on where consumed.
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { docDriftSettle: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.docDriftSettle': 'off' } }, 'lab plan-deadend: the rollback arm is recorded');
+  assert.throws(() => resolveAbVariants({ plan: { docDriftSettle: 'maybe' } }), /invalid_ab_variant_config: plan\.docDriftSettle/);
+  const { docDriftSettleOn } = await load('core/ab-variants.js');
+  assert.equal(docDriftSettleOn({ plan: { docDriftSettle: 'maybe' } }), true, 'lab plan-deadend: malformed = on where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');
