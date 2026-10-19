@@ -314,7 +314,11 @@
  *      finding outside the repair delta escalates round 3 to a full round;
  *      NLN-DF a member no commit names gets its own implementer run; NLN-I the
  *      umbrella's plan.reviewMerge: INIT to PLAN with zero INIT reviewer
- *      sessions (NPM-I's flow). `LN` = all five.
+ *      sessions (NPM-I's flow); NLN-X (lab lean-dev, old-PoS runs 117/118) a
+ *      Story-run member the exact-text gate reopens gets its implementer
+ *      relaunched by next (never re-closed from the Story-run commit), and a
+ *      hand host_run of the implementer for a done item is refused pre-spawn.
+ *      `LN` = all six.
  *   NPXR/NPXRE/NPXRN old-PoS run 52: a re-filed pre-existing finding on a
  *      dispositioned, unchanged site closes at import with no owner turn and no
  *      extra round (NPXR); a site the Story edited (NPXRE) or a new site of the
@@ -383,7 +387,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -4147,6 +4151,116 @@ function scenarioLN(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: LeanV
     const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
     assert.match(tests, /TestReverseEmpty/, 'the round-1 repair merged into main');
     lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * Lab lean-dev (old-PoS runs 117 / 118, bench-staging/oldpos/run114-120-analysis.md): pipeline.lean=on, the request
+ * quotes an exact error string (NXT_REQUEST) and the Story run's added test compares it only through a prefix helper.
+ * The Story run commits under a message naming both items and marks its bound CHK-001 done; `next --run` marks the
+ * member CHK-002 done (story_item_done), the exact-text gate then reopens CHK-002. Runs 117 / 118 looped here:
+ * story_item_done re-closed the reopened item from the same Story-run commit, the gate reopened it again, 40 steps per
+ * `next --run`, no implementer launch; the owner hand-launched `host_run itemId=CHK-002` while the item was done and
+ * both runs ended managed_dispatch_output_missing (a done->done completion binds nothing). Here:
+ *   (b) a hand `host_run` of the implementer for the done member is refused before any provider spawn, naming
+ *       managed_dispatch_target_already_done and one Next (`next`);
+ *   (a) `next --run` reopens CHK-002 and then launches its implementer itself (implement_item bound to CHK-002, a
+ *       framework step), never story_item_done again; the relaunch completes with a sealed output (state completed),
+ *       and afterwards next neither reopens nor re-closes the item.
+ */
+function scenarioNLNX(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NLN-X';
+  const name = 'NLN-X lab lean-dev (runs 117/118): a Story-run member the exact-text gate reopens gets its implementer relaunched by next, never re-closed; a hand launch on the done member is refused pre-spawn';
+  const o = new Owner(tag, 'B-ln15', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NXT_REQUEST, config: { pipeline: { lean: 'on' } } });
+  const lines: string[] = [];
+  const problems: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[${tag}] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const runNext = (label: string, maxSteps: number): string[] => {
+    const ran = o.cli('next', { storyId: o.storyId, run: true, json: true, maxSteps }, { label });
+    const executed = ((parseJson(ran.stdout)?.executed ?? []) as Array<{ reason: string; exit: number }>);
+    lines.push(`${label} ran: ${executed.map(row => `${row.reason}:${row.exit}`).join(' > ') || '(nothing)'}`);
+    return executed.map(row => row.reason);
+  };
+  const storyRunCommands: string[][] = [
+    [process.execPath, '-e', `const fs=require('fs');fs.writeFileSync('strs/strs.go',${JSON.stringify(IMPL)});fs.writeFileSync('strs/strs_test.go',${JSON.stringify(TESTS)});fs.writeFileSync('strs/errors_test.go',${JSON.stringify(NXT_PREFIX_TEST)});`],
+    ['/bin/sh', '-c', `git add strs && git -c user.name=${IMPLEMENTER} commit -qm '${o.storyId} CHK-001 CHK-002: implement Upper, Reverse and the error text' && git log --format=%h -1`],
+    [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId: o.storyId, itemId: 'CHK-001', status: 'done' })],
+  ];
+  try {
+    devSetup(o, false);
+    let launch = ask('next (DEV start)');
+    for (let guard = 0; launch.reason === 'checklist_item_start' && guard < 4; guard += 1) {
+      o.mustCli(launch.cli!.command, launch.cli!.payload, { label: `checklist_update start ${String(launch.cli!.payload.itemId)}` });
+      launch = ask('next (item started)');
+    }
+    assert.equal(launch.reason, 'implement_item', `[${tag}] DEV starts with the Story run: ${launch.reason}: ${launch.why}`);
+    assert.deepEqual(launch.cli?.payload.groupItemIds, ['CHK-001', 'CHK-002'], `[${tag}] one Story run for both items`);
+    o.script(IMPLEMENTER, { commands: storyRunCommands, final: 'Implemented CHK-001 and CHK-002; CHK-001 marked done.\n[intent-conflict] none' });
+    const storyRun = String((parseJson(o.mustCli(launch.cli!.command, launch.cli!.payload, { label: 'host_run implementer (Story run)' }).stdout)?.run as Record<string, unknown>).runId);
+    const storyTerminal = waitTerminal(o, 'implementer (Story run)', storyRun);
+    o.unscript(IMPLEMENTER);
+    assert.equal(storyTerminal.state, 'completed', `[${tag}] Story run terminal ${storyTerminal.state} (${storyTerminal.reason})`);
+
+    const memberDone = ask('next (after the Story run)');
+    assert.equal(memberDone.reason, 'story_item_done', `[${tag}] the member is marked done by the framework: ${memberDone.reason}: ${memberDone.why}`);
+    assert.deepEqual(runNext('next --run (member done)', 1), ['story_item_done']);
+    assert.equal(new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-002')?.status, 'done', `[${tag}] CHK-002 done`);
+
+    // (b) Runs 117 / 118: the owner hand-launched the implementer for the done member.
+    o.script(IMPLEMENTER, { commands: [[process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId: o.storyId, itemId: 'CHK-002', status: 'done' })]],
+      final: 'CHK-002 is already done; no change.\n[intent-conflict] none' });
+    const { groupItemIds: _group, ...single } = launch.cli!.payload;
+    const hand = o.cli('host_run', { ...single, itemId: 'CHK-002' }, { label: 'host_run implementer CHK-002 by hand (item done)' });
+    if (hand.status === 0) {
+      const handRun = String((parseJson(hand.stdout)?.run as Record<string, unknown> | undefined)?.runId ?? '');
+      const handTerminal = handRun ? waitTerminal(o, 'implementer (hand, done item)', handRun) : { state: '?', reason: 'no run id' };
+      problems.push(`(b) host_run for the done item CHK-002 was accepted and spawned a provider: ${handTerminal.state}:${handTerminal.reason}`);
+    } else {
+      if (!/managed_dispatch_target_already_done/.test(hand.out)) problems.push(`(b) the refusal does not name managed_dispatch_target_already_done: ${hand.out.slice(-600)}`);
+      if (!new RegExp(`Next: proof-or-stop next --storyId=${o.storyId}`).test(hand.out)) problems.push(`(b) the refusal gives no Next: ${hand.out.slice(-600)}`);
+      if (managedPrompts(o, IMPLEMENTER).length !== 1) problems.push('(b) a refused hand launch created a run');
+    }
+    o.unscript(IMPLEMENTER);
+
+    // (a) The exact-text gate reopens the member; next must relaunch its implementer, not re-close it.
+    o.script(IMPLEMENTER, { commands: [
+      [process.execPath, '-e', `require('fs').writeFileSync('strs/errors_exact_test.go',${JSON.stringify(NXT_EXACT_TEST)});`],
+      ['/bin/sh', '-c', `git add strs && git -c user.name=${IMPLEMENTER} commit -qm '${o.storyId} CHK-002: exact error text test' && git log --format=%h -1`],
+      [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId: o.storyId, itemId: 'CHK-002', status: 'done' })],
+    ], final: 'Asserted the error text exactly.\n[intent-conflict] none' });
+    const launchedBefore = managedPrompts(o, IMPLEMENTER).length;
+    const executed = runNext('next --run (exact-text reopen)', 3);
+    if (executed[0] !== 'exact_text_prefix_assertion') problems.push(`(a) first step ${executed[0]}, expected the exact-text reopen`);
+    if (executed.slice(1).includes('story_item_done')) problems.push(`(a) the reopened member was re-closed by story_item_done (dead end): ${executed.join(' > ')}`);
+    if (executed[1] !== 'implement_item') problems.push(`(a) next did not relaunch the reopened item's implementer: ${executed.join(' > ')}`);
+    const relaunched = managedPrompts(o, IMPLEMENTER);
+    if (relaunched.length === launchedBefore + 1) {
+      const run = relaunched.at(-1)!;
+      if (run.target?.itemId !== 'CHK-002' || run.target?.groupItemIds !== undefined) problems.push(`(a) the relaunch is not bound to CHK-002 alone: ${JSON.stringify(run.target)}`);
+      const terminal = waitTerminal(o, 'implementer (exact relaunch)', run.runId);
+      if (terminal.state !== 'completed') problems.push(`(a) the relaunch did not deliver: ${terminal.state}:${terminal.reason}`);
+      if (!/Reopened before REVIEW: [\s\S]*assertErrPrefix/.test(run.prompt)) problems.push('(a) the relaunch prompt does not name the prefix helper');
+    } else {
+      problems.push(`(a) implementer runs after next --run: ${relaunched.length - launchedBefore} new (expected 1)`);
+    }
+    o.unscript(IMPLEMENTER);
+    if (!problems.some(row => row.startsWith('(a)'))) {
+      const after = ask('next (exact assertion added)');
+      if (['exact_text_prefix_assertion', 'story_item_done'].includes(after.reason) || after.kind === 'human') problems.push(`(a) after the relaunch next still loops or dead-ends: ${after.reason}: ${after.why.slice(0, 300)}`);
+    }
+    lines.push(`implementer runs: ${managedPrompts(o, IMPLEMENTER).length}; problems: ${problems.length}`);
+    assert.deepEqual(problems, [], `[${tag}] ${problems.join(' | ')}`);
     o.cleanup();
     return { name, status: 'PASS', lines };
   } catch (error) {
@@ -8911,7 +9025,7 @@ function listScopeRuns(o: Owner): number {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I)?|LN)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -9051,6 +9165,8 @@ async function main(): Promise<void> {
     // Lab lean (pipeline.lean): NLN, NLN-OFF (control), NLN-E (escalation), NLN-DF (DEV member fallback), or LN = all four.
     for (const variant of ['LN', 'LN-OFF', 'LN-E', 'LN-DF'] as const) if (only.includes(`N${variant}`) || only.includes('LN')) outcomes.push(scenarioLN(machine.env, steps, variant));
     if (only.includes('NLN-I') || only.includes('LN')) outcomes.push(scenarioNPMI(machine.env, steps, true));
+    // Lab lean-dev (runs 117 / 118): NLN-X, also in LN.
+    if (only.includes('NLN-X') || only.includes('LN')) outcomes.push(scenarioNLNX(machine.env, steps));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
