@@ -1073,7 +1073,12 @@ other item. As that implementer, implement every item, make each item's pinned c
 commit each item's work under a message naming its id (one commit naming several ids is fine
 when they change the same lines) BEFORE the bound item's completion call, and never call
 `checklist_update` for another item: the framework marks it done (`story_item_done`) once a
-commit of the run names it; an item no commit names gets its own run. REVIEW: round 1 and every
+commit of the run names it; an item no commit names gets its own run. A member a gate reopens
+after that done mark (exact-text, removed-guard, probe rows) is never re-closed from the same
+commit: `next` launches its own implementer run (lab lean-dev, old-PoS runs 117/118). Never
+hand-launch an implementer: `host_run --managedDispatch` refuses one for an item that stands
+done (`managed_dispatch_target_already_done`, its completion would be done->done and could
+only end `managed_dispatch_output_missing`); run the Next it prints (`next`). REVIEW: round 1 and every
 full round are one merged session; a later round is ONE delta confirmation session for every
 concern (no lane re-reviews the whole Story); as that session, a defect you notice outside the
 delta scope is still reported with its file:line: the framework then makes the next round a

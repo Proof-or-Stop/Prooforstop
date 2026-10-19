@@ -512,7 +512,14 @@ done，且存在绑定到另一个 run 的成功 `subagent_result`，并且该 r
 之前就拒绝，错误信息只给出一个下一步：
 `managed_dispatch_target_already_done: CHK-005 is already done, completed by managed run <runId> (commit <sha>); do not relaunch it. Next: proof-or-stop next --storyId=<storyId>`。
 done→done 的 `checklist_update` 不是完成迁移，不会绑定新的结果，所以重复派发只会失败。
-由 owner 直接写入（没有 `managedDispatchRunId`）的 done 不受这条拒绝影响。若重复的 run 仍然启动了
+lab lean-dev（old-PoS runs 117/118）起，`host_run --managedDispatch` 对任何已为 done 的 item 都在生成 prompt、
+启动 provider 之前拒绝，不论 done 由谁写入（框架步骤 `story_item_done`、owner 或另一个 run）：
+`host_run refused: managed_dispatch_target_already_done: CHK-002 is already done; ... Next: proof-or-stop next --storyId=<storyId>`
+（被 managed run 封存的 item 仍用上面那条点名 run 与 commit 的文案；withdrawn 或不存在的 item 为
+`managed_dispatch_target_invalid`）。runs 117/118 中 owner 在 item 为 done 时手动启动了 implementer，
+两个 run 都提交了修复却以 `managed_dispatch_output_missing` 结束。门禁仍要求的工作由 `next` 负责：
+门禁把 item 重新打开，`next` 自己启动它的 implementer。只生成 prompt 的 `dispatch` 仍只拒绝已封存的 item。
+若重复的 run 仍然启动了
 （例如与第一个 run 竞争），worker 会以 `managed_dispatch_target_already_done` 结束，而不是
 `managed_dispatch_output_missing`。这个结果不是失败：状态摘要显示 `OK: nothing to do`，
 并给出先前的 run 与 commit，下一步是 `proof-or-stop next`，不会进入“relaunch 一次、再失败就停止”的路径。
