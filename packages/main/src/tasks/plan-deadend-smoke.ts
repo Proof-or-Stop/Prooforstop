@@ -66,7 +66,7 @@ await check('D1 a doc-sourced conflict gap on a doc the request neither names no
   assert.ok(settle({ feature: `[docs] ${DRIFT}`, source: null, items: ITEMS, requestText: REQUEST }), 'path named in the text');
 });
 
-await check('D2 no settlement when the request names the doc, asks for docs work, an item modifies it, the gap is not doc-sourced, not a conflict, or the request is unknown', async () => {
+await check('D2 no settlement when the request names the doc, asks for docs work, an item modifies it or changes the behaviour, the gap is not doc-sourced, not a conflict, or the request is unknown', async () => {
   const settle = await load('../core/plan-gap-remedy.js', 'docDriftSettlement');
   assert.equal(settle({ feature: DRIFT, source: DOC, items: ITEMS, requestText: `${REQUEST}- Ranges behave as list.md shows.\n` }), null, 'the request names the doc');
   assert.equal(settle({ feature: DRIFT, source: DOC, items: ITEMS, requestText: `${REQUEST}- Update the documentation for ranges.\n` }), null, 'the request asks for docs work');
@@ -74,6 +74,8 @@ await check('D2 no settlement when the request names the doc, asks for docs work
   assert.equal(settle({ feature: 'Text slicing counts runes: no multibyte case', source: 'request.md', items: ITEMS, requestText: REQUEST }), null, 'request-sourced gap');
   assert.equal(settle({ feature: `${DOC} describes xs.map(f); no item covers it`, source: DOC, items: ITEMS, requestText: REQUEST }), null, 'no conflict with existing behaviour');
   assert.equal(settle({ feature: DRIFT, source: DOC, items: ITEMS, requestText: null }), null, 'no request text: no precedence');
+  const changing = [...ITEMS, item('CHK-004', 'Resolve the applicable list documentation conflict: xs[0:2] returns the end the evaluator excludes', 'the plan keeps the published promise the doc types say: xs[0:2] returns [a, b, c]')];
+  assert.equal(settle({ feature: DRIFT, source: DOC, items: changing, requestText: REQUEST }), null, 'an item changes the behaviour the gap names');
   assert.equal(settle({ feature: DRIFT.replace(DOC, 'AGENTS.md'), source: 'AGENTS.md', items: ITEMS, requestText: REQUEST }), null, 'agent control files are not documentation');
 });
 

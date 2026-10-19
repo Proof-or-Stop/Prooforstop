@@ -27,7 +27,7 @@
  * Detection: the doc settle waives only a reviewer gap on unrequested documentation that no item changes; any gap the
  * request or an item makes the Story's own stays a blocker with its row patch.
  */
-import { behaviourTerms } from './scope-exclusion-rationale.js';
+import { behaviourTerms, itemsChangingBehaviour } from './scope-exclusion-rationale.js';
 import { requestAsksDocsChange } from './boundary-path-excludes.js';
 import { isDocumentationPath, normalizeScopePath, pathMatchesScopePattern } from './scope-path-classifier.js';
 
@@ -63,7 +63,9 @@ export function gapDocPaths(gap: { feature: string; source?: string | null }): s
 /**
  * The framework's settlement of a pre-existing doc/code drift gap (see the module header), or null when the gap stays a
  * blocker: not about product documentation, not a conflict with existing behaviour, a doc the request names or asks to
- * change (documentation work, or the doc's path / file name), a doc an item of the Story modifies, or no request text.
+ * change (documentation work, or the doc's path / file name), a doc an item of the Story modifies, a behaviour an item of
+ * the Story adds or changes (the exclusion check's own predicate: then the doc may describe what the Story must do), or
+ * no request text.
  */
 export function docDriftSettlement(args: { feature: string; source?: string | null; items: readonly ItemLike[]; requestText: string | null | undefined }): { path: string; why: string } | null {
   const request = args.requestText ?? null;
@@ -72,6 +74,7 @@ export function docDriftSettlement(args: { feature: string; source?: string | nu
   if (paths.length === 0) return null;
   if (!CONFLICT_WORDS.test(args.feature) && !SAYS_WHILE_EXISTING.test(args.feature)) return null;
   if (requestAsksDocsChange(request)) return null;
+  if (itemsChangingBehaviour(args.feature, args.items as never).length) return null;
   const lower = request.toLowerCase();
   for (const path of paths) {
     const base = path.split('/').pop()!.toLowerCase();
