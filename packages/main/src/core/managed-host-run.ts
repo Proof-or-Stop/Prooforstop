@@ -2162,6 +2162,31 @@ export function managedImplementerAlreadyDoneAction(storyId: string, itemId: str
     + `${prior.commit ? ` (commit ${prior.commit})` : ''}; do not relaunch it. Next: proof-or-stop next --storyId=${storyId}`;
 }
 
+/**
+ * Lab lean-dev (old-PoS runs 117 / 118): the pre-spawn refusal of a managed implementer launch, or null when the item
+ * is launchable (pending / in_progress). A managed implementer delivers only by moving its bound item to done (the
+ * run-bound `subagent_result` of checklist_update); on an item that already stands done its completion call is
+ * done->done, binds nothing, and the run can only end managed_dispatch_output_missing, whatever it committed (runs 117 /
+ * 118: two such hand launches per run, the first one with the fix committed). Refused before any prompt or provider; a
+ * completion sealed by an earlier managed run keeps the run-15 wording. Work a gate still wants on the item is
+ * `next`'s: the gate reopens it and next launches the implementer itself.
+ */
+export function managedImplementerTargetRefusal(args: {
+  storyId: string;
+  itemId: string;
+  item: { id: string; status?: string } | undefined;
+  prior: SealedManagedImplementerCompletion | null;
+}): string | null {
+  const next = `Next: proof-or-stop next --storyId=${args.storyId}`;
+  if (!args.item) return `managed_dispatch_target_invalid: ${args.itemId} is not a checklist item of ${args.storyId}. ${next}`;
+  if (args.item.status === 'withdrawn') return `managed_dispatch_target_invalid: ${args.itemId} is withdrawn; no implementer runs for it. ${next}`;
+  if (args.item.status !== 'done') return null;
+  if (args.prior) return managedImplementerAlreadyDoneAction(args.storyId, args.itemId, args.prior);
+  return `${MANAGED_DISPATCH_TARGET_ALREADY_DONE}: ${args.itemId} is already done; a managed implementer delivers only by moving its item to done, `
+    + `so on a done item its completion is done->done and the run cannot deliver (it would end managed_dispatch_output_missing). `
+    + `Do not launch it: when a gate still wants work on ${args.itemId}, next reopens it and launches its implementer itself. ${next}`;
+}
+
 function immutableManagedScopeReviewerPayload(scopeCheck: ScopeCheckData): ScopeCheckData {
   return {
     ...scopeCheck,

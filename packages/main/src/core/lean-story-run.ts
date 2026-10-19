@@ -16,6 +16,11 @@
  * verification_run, a signed receipt each) and marked done by a framework step (handlers/next-driver.ts
  * `story_item_done`); an item no commit names, or whose pinned verification fails, gets its own implementer run as
  * without the switch. The DEV->REVIEW evidence chain, exact-text, removed-guard and intent-conflict gates are unchanged.
+ *
+ * Lab lean-dev (old-PoS runs 117 / 118): a Story run's commit marks a member done ONCE (storyRunMemberClaimUsed). A
+ * member a gate reopens after that (exact-text, removed-guard, probe rows) is new work the commit predates: it gets its
+ * own implementer run, as without the switch. Before, the same commit re-closed the reopened member, the gate reopened
+ * it, and `next --run` alternated story_item_done / exact_text_prefix_assertion with no launch (runs 117 / 118).
  */
 import { appendExactRequiredOutput } from './exact-required-output.js';
 import { IMPLEMENTER_COMMIT_AUTHOR } from './item-done-commit.js';
@@ -23,6 +28,28 @@ import type { ChecklistItem } from './types.js';
 
 export const STORY_RUN_BLOCK_BEGIN = '--- BEGIN STORY RUN';
 export const STORY_RUN_BLOCK_END = '--- END STORY RUN ---';
+
+const at = (text: unknown): number => (typeof text === 'string' ? Date.parse(text) : Number.NaN);
+
+/**
+ * Lab lean-dev (old-PoS runs 117 / 118): whether a Story run's claim on member `itemId` is already used, i.e. the item
+ * moved to done (any path: the framework's story_item_done, the owner, a worker) at or after `since` (the run's
+ * creation). Read from the checklist audit log (a status change with a reason) and the process events (a successful
+ * `subagent_result` is appended on every move to done). A done mark before the run, another item, a failed result and a
+ * done->done rewrite do not use it.
+ */
+export function storyRunMemberClaimUsed(args: {
+  itemId: string;
+  since: string;
+  events: ReadonlyArray<{ type?: unknown; checklistId?: unknown; success?: unknown; timestamp?: unknown }>;
+  auditLog?: ReadonlyArray<{ itemId?: unknown; from?: unknown; to?: unknown; timestamp?: unknown }>;
+}): boolean {
+  const since = at(args.since);
+  if (!Number.isFinite(since)) return false;
+  const after = (stamp: unknown): boolean => { const time = at(stamp); return Number.isFinite(time) && time >= since; };
+  return args.events.some(event => event.type === 'subagent_result' && event.checklistId === args.itemId && event.success !== false && after(event.timestamp))
+    || (args.auditLog ?? []).some(row => row.itemId === args.itemId && row.to === 'done' && row.from !== 'done' && after(row.timestamp));
+}
 
 type IntentRows = Partial<Record<string, Array<{ id?: string; desc?: string; verification?: { command?: string; selector?: string } }>>>;
 

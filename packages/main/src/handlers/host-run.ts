@@ -84,6 +84,8 @@ import {
   type ManagedHostRunWorkerLauncher,
   MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS,
   managedHostRunDirectory,
+  findSealedManagedImplementerCompletion,
+  managedImplementerTargetRefusal,
 } from '../core/managed-host-run.js';
 import {
   buildManagedReviewerPrompt,
@@ -650,6 +652,14 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
             throw new Error(`host_run: managed finding repair target ${finding.id} is not open`);
           }
           findingId = finding.id;
+        }
+        if (agentType === 'proof-or-stop-implementer' && itemId) {
+          // Lab lean-dev (old-PoS runs 117 / 118): an implementer on an item that stands done cannot deliver (its
+          // completion is done->done); refuse before any prompt or provider, with next as the one action.
+          const refusal = managedImplementerTargetRefusal({ storyId, itemId,
+            item: ctx.store.readChecklist(storyId).items.find(candidate => candidate.id === itemId),
+            prior: findSealedManagedImplementerCompletion({ root: ctx.root, storyId, itemId }) });
+          if (refusal) throw new Error(`host_run refused: ${refusal}`);
         }
         promptText = createStoryDispatchHandlers(ctx).dispatch({
           storyId,
