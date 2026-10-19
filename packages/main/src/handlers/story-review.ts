@@ -51,10 +51,11 @@ import { missingVerificationPinIssues } from '../core/plan-verification-pins.js'
 import { checklistDerivationGaps, describeDerivationProblem, pinAuditRowPatchCommand, MISSING_INTENT_DERIVATION, PIN_AUDIT_GAP_PREFIX, ASYMMETRIC_EXAMPLE_GAP_PREFIX } from '../core/intent-derivation.js';
 import { describeCoverageGap, MISSING_COVERAGE_ROW, planCoverageGapsFor } from '../core/plan-coverage-matrix.js';
 import { readStoryRequest } from '../core/story-request.js';
-import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
+import { abVariantEvidenceOf, docDriftSettleOn, rowBudgetOn } from '../core/ab-variants.js';
 import { ROW_BUDGET_ADVISORY, recordRowBudgetEvidence } from '../core/plan-row-budget.js';
 import { COUNTERPART_COVERAGE_ADVISORY, counterpartSettledGaps, edgeLabel, planCounterpartCoverage, SCOPE_GAP_COUNTERPART_SETTLED } from '../core/counterpart-coverage.js';
 import { remedySettledRefsOf } from '../core/plan-remedy-cycle.js';
+import { docDriftSettlement, plainScopeGapRemedy, SCOPE_GAP_DOC_DRIFT_SETTLED } from '../core/plan-gap-remedy.js';
 import { planScopeCheckRequirement, scopeVerdictChecklistChanged } from '../core/plan-scope-check-requirement.js';
 import { requiresFullVerificationIntent } from '../core/plan-pre-scope-blockers.js';
 import {
@@ -797,6 +798,15 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               return counterpartSettledGaps(counterpart, gaps, remedySettledRefsOf(ctx.root, args.storyId, counterpart, cl.items));
             } catch { return new Map<string, string>(); }
           })();
+          // Lab plan-deadend (old-PoS run 121, core/plan-gap-remedy.ts; switch plan.docDriftSettle, default on): a pre-existing
+          // doc/code drift on documentation the request neither names nor asks to change, and no item modifies, is settled.
+          const docDriftRequest = (() => {
+            try {
+              if (!docDriftSettleOn(loadConfig(ctx.root))) return null;
+              const request = readStoryRequest(store, args.storyId);
+              return request.status === 'ok' ? request.text : null;
+            } catch { return null; }
+          })();
           for (const gap of gaps) {
             const source = gap.source ? ` (source: ${gap.source})` : '';
             const settledWhy = settledGaps.get(gap.feature ?? '');
@@ -804,6 +814,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               issues.push({ type: SCOPE_GAP_COUNTERPART_SETTLED, severity: 'advisory',
                 message: `scope gap settled by the framework [${SCOPE_GAP_COUNTERPART_SETTLED}]${source}: "${gap.feature}": ${settledWhy}. The row stands; no checklist change and no reviewer rerun for it. `
                   + 'A request sentence that states a different result for this operation and case outranks it: quote it in the row\'s derivation and change the row.' });
+              continue;
+            }
+            const docDrift = docDriftRequest ? docDriftSettlement({ feature: gap.feature ?? '', source: gap.source ?? null, items: cl.items, requestText: docDriftRequest }) : null;
+            if (docDrift) {
+              issues.push({ type: SCOPE_GAP_DOC_DRIFT_SETTLED, severity: 'advisory',
+                message: `scope gap settled by the framework [${SCOPE_GAP_DOC_DRIFT_SETTLED}]${source}: "${gap.feature}": ${docDrift.why}. `
+                  + `A request sentence that asks to change ${docDrift.path}, or an item that modifies it, makes it the Story's own (then it blocks with a covering row).` });
               continue;
             }
             // Pin audit / same-semantics (old-PoS run 23, core/intent-derivation.ts):
@@ -830,10 +847,9 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                 ? `scope gap${source}: the scope-plan reviewer verdict of ${scopeData.checkedAt} lists "${gap.feature}" as neither covered nor excluded, and the checklist changed since that verdict. `
                   + `Next (PLAN, no INIT reopen): run \`${rerunScopeReviewer}\`: ${rerunWhat}, so it judges the current checklist. `
                   + `The INIT scope boundary is not an input of this verdict.`
-                : `scope gap${source}: the scope-plan reviewer found "${gap.feature}" neither covered by a checklist item (title/userSees/verificationIntent) nor excluded by an item's excludes. `
-                  + `Next (PLAN, no INIT reopen): cover it in a checklist item, or, for reference-only material or an acknowledged constraint, append an excludes entry that names it and says why `
-                  + `(\`proof-or-stop checklist_update --storyId=${args.storyId} --itemId=<CHK-id> --excludes='[...current excludes, "${gap.feature}: <why>"]'\`); `
-                  + `then run \`${rerunScopeReviewer}\`: ${rerunWhat}. The INIT scope boundary is not an input of this verdict.`,
+                // Lab plan-deadend (old-PoS run 121): a plain gap names ONE ready covering row (core/plan-gap-remedy.ts), so
+                // `next` always has a command for it (run 121: none, `Next: none runnable`, the owner stopped).
+                : plainScopeGapRemedy({ storyId: args.storyId, feature: gap.feature ?? '', source, items: cl.items, rerun: rerunScopeReviewer, rerunWhat }),
             });
           }
           // An excludes rationale that another item of the Story contradicts does not close the row.

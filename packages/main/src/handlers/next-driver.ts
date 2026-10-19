@@ -2484,14 +2484,23 @@ export function storyReviewBlockersStep(base: { storyId: string; phase: string }
   // Lab initplan (initplan-breakdown.md rank 6, run 80: 28 owner requests, mktemp / jq -f / apply_patch, to answer two
   // verdicts): the blockers' own row patches (a pin-audit row, an appended covering row) as ONE batch, one
   // checklist_update per item; a blocker without a row patch keeps its message.
-  const calls = mergeChecklistUpdateCalls(blockers.flatMap(row => blockerRowPatchCalls(row.message)));
+  // Lab plan-deadend (old-PoS run 121): an open question's own resolve command joins the batch (resolution authored).
+  const calls = [...mergeChecklistUpdateCalls(blockers.flatMap(row => blockerRowPatchCalls(row.message))), ...blockers.flatMap(row => openQuestionResolveCalls(row.message))];
   const why = `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is current; fix each blocker in PLAN `
     + `(checklist_update: cover the point, correct the pinned value${excludesRoute}): ${listed}${blockers.length > 8 ? ` +${blockers.length - 8} more` : ''}. `
     + `${GAP_ROW_QUOTE_RULE} `
     + (calls.length ? `The row patches below carry those blockers' rows (${calls.length} checklist_update command(s), one per item: each patches only the named rows by ref and appends new rows with <item>:<lane>:+; author every <...> field). ` : '')
     + `Then run \`proof-or-stop next --storyId=${base.storyId} --run\`: the changed checklist stales the round and the scope-plan verdict, so it reruns story_review and relaunches the scope-plan reviewer once on the final checklist (do not run story_review or host_run by hand).`;
   if (calls.length) return batchStep(base, 'plan_review_blockers', calls.map(call => nextStepCall('plan_review_blockers', call)), why, 'getGuardFailureReason(DEV) + latest story_review round blockers (row patches)');
+  // Lab plan-deadend (old-PoS run 121): every scope_gap now carries its row patch (core/plan-gap-remedy.ts); a blocker
+  // without one keeps its message, and the render of this agent step names the action, never "none runnable".
   return step(base, 'agent', 'plan_review_blockers', null, why, 'getGuardFailureReason(DEV) + latest story_review round blockers');
+}
+
+/** Lab plan-deadend: the scope_question_resolve call an open-question blocker names (its resolution is the owner's to write). */
+function openQuestionResolveCalls(message: string): Array<{ command: string; payload: Record<string, unknown> }> {
+  const match = message.match(/proof-or-stop scope_question_resolve --storyId=(\S+) --oqId=([^\s`]+)/);
+  return match ? [{ command: 'scope_question_resolve', payload: { storyId: match[1]!, oqId: match[2]!, resolution: '<the written conclusion that answers the question (at least 20 characters)>' } }] : [];
 }
 
 /**
@@ -2673,6 +2682,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     } catch { return []; }
   }
 
+  /** Lab plan-deadend: whether the current scope-plan verdict raises a row the previous verdict raised too (no side effect). */
+  function pinDisputePending(storyId: string): boolean {
+    try { return disputedRows(scopeVerdictHistory({ store: ctx.store as never, storyId, gitCwd: gitCwdOf(storyId) })).length > 0; } catch { return false; }
+  }
+
   /** The timestamp of the Story's latest story_review round, or null. */
   function latestStoryReviewRound(storyId: string): string | null {
     try { return (ctx.store.readReview(storyId).reviews.at(-1) as { timestamp?: string } | undefined)?.timestamp ?? null; } catch { return null; }
@@ -2772,6 +2786,15 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // 'held', the DEV-entry gate's own predicate): its gap must land before DEV.
     // Old-PoS run 31 (D8): the verdict's pin-audit values, applied without a rerun.
     if (!scopeFailure && !rerun) {
+      // Lab plan-deadend (old-PoS run 121): the dispute step lists the round's other blockers with their row patches, read
+      // from the latest story_review round. Run 121 decided every dispute right after the scope-plan wait, from the round
+      // of the PREVIOUS verdict, so the new verdict's other gaps were never shown with a remedy. A round older than its
+      // inputs (the new verdict) is rerun first (framework, the same deterministic record guardStep reruns).
+      if (storyReviewRoundStale(ctx.store.storyDirPath(storyId), latestStoryReviewRound(storyId)) && pinDisputePending(storyId)) {
+        return step(base, 'framework', 'story_review_rerun', { command: 'story_review', payload: { storyId } },
+          'The scope-plan reviewer raised a row it raised in the previous verdict too (a pin dispute), and the latest story_review round is older than that verdict: rerun story_review first, so the dispute step lists the CURRENT verdict\'s other blockers with their row patches.',
+          'scopeVerdictHistory + disputedRows (core/pin-dispute.ts) + storyReviewRoundStale (core/story-review-staleness.ts)');
+      }
       // Lab run95 (fix 1c): a row the reviewer raised in consecutive verdicts gets the framework's remedy, not another value swap.
       const dispute = pinDisputeStep(base, ctx.store, ctx.root, gitCwdOf(storyId), currentStoryReviewBlockers(storyId));
       if (dispute) return dispute;
@@ -4009,7 +4032,10 @@ export function renderNextStep(next: NextStep, opts: { frameworkOwner?: boolean 
       : [
         ...(next.placeholders?.length ? ['Author before running (one line each):', ...renderPlaceholderHints(next.placeholderHints, '  ')] : []),
         ...(next.optional ?? []).flatMap(call => [`Optional first: ${call.command}`, ...renderPlaceholderHints(call.placeholderHints, '    ')]),
-        next.command ? `Next: ${next.command}` : `Next: ${next.done ? DONE_TERMINAL_STATEMENT : 'none runnable (see Why)'}`,
+        // Lab plan-deadend (old-PoS run 121): an agent step is runnable by definition (the owner does what Why names); only a
+        // human step or a terminal one prints "none runnable", which the owner's guidance treats as a stop.
+        next.command ? `Next: ${next.command}` : `Next: ${next.done ? DONE_TERMINAL_STATEMENT
+          : next.kind === 'agent' ? `do what Why names (agent step, no single command), then \`proof-or-stop next --storyId=${next.storyId} --run\`` : 'none runnable (see Why)'}`,
       ]),
     ...(next.kind === 'framework' && next.command && !opts.frameworkOwner ? ['(framework step: `proof-or-stop next --storyId=' + next.storyId + ' --run` runs it and prints the following step)'] : []),
   ].join('\n');
