@@ -110,6 +110,7 @@ import { evaluateFileStateConflict } from './file-state-conflict.js';
 import { FILE_STATE_CONFLICT, FILE_STATE_PRECEDENCE, type FileStateVerdict } from '../core/file-state-conflict.js';
 import { outOfScopePinTestProblem } from '../core/scope-pin-test.js';
 import { commitMessageNamesFinding, commitMessageNamesItem, implementationGroupingFiles, implementationGroupingStory, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup, storyItemGroup } from '../core/ab-dispatch-grouping.js';
+import { storyRunMemberClaimUsed } from '../core/lean-story-run.js';
 import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
 import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
 import { ownerDriver, probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
@@ -1320,10 +1321,15 @@ export function groupedImplementationRun(args: { root: string; gitCwd: string; s
  * item) and made, inside its window, a material commit whose message names the item id. The framework then marks the
  * item done (`story_item_done`); without such a commit the item gets its own implementer run. Shared by the live
  * driver and the harness.
+ * Lab lean-dev (old-PoS runs 117 / 118): a run whose claim on the item is already used (the item moved to done at or
+ * after the run's creation, `history` = the Story's process events and checklist audit log) no longer counts: a member a
+ * gate reopened after its done mark is implemented by its own run, never re-closed from the same commit.
  */
-export function storyGroupedItemRun(args: { root: string; gitCwd: string; storyId: string; item: Pick<ChecklistItem, 'id'>; runs: readonly FindingRepairRunView[] }):
+export function storyGroupedItemRun(args: { root: string; gitCwd: string; storyId: string; item: Pick<ChecklistItem, 'id'>; runs: readonly FindingRepairRunView[];
+  history: Pick<Parameters<typeof storyRunMemberClaimUsed>[0], 'events' | 'auditLog'> }):
   { runId: string; commit: string; subject: string } | null {
   for (const run of [...args.runs].filter(row => row.agentType === IMPLEMENTER_AGENT && row.terminal && row.state === 'completed').reverse()) {
+    if (storyRunMemberClaimUsed({ itemId: args.item.id, since: run.createdAt, ...args.history })) continue;
     let target: { itemId?: string; groupItemIds?: string[] } | null | undefined;
     try { target = readManagedHostRunBinding(args.root, run.runId).managedDispatchTarget as typeof target; } catch { continue; }
     if (!target?.itemId || target.itemId === args.item.id || !Array.isArray(target.groupItemIds) || !target.groupItemIds.includes(args.item.id)) continue;
@@ -3032,7 +3038,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // project probeRunner (its done check runs the item's probes and may refuse once: the item's own run handles that).
       const storyGrouping = !groupByFiles && implementationGroupingStory(ctx.root) && !storyProbeRunner(ctx.store, ctx.root, storyId, gitCwdOf(storyId));
       if (storyGrouping && item.status !== 'pending' && !inFlight(IMPLEMENTER_AGENT)) {
-        const member = storyGroupedItemRun({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, item, runs: hostRuns });
+        const member = storyGroupedItemRun({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, item, runs: hostRuns,
+          history: { events: ctx.store.readProcessEvents(storyId) as Array<Record<string, unknown>>, auditLog: checklist.auditLog ?? [] } });
         if (member && !missingAcceptance(item) && !acceptanceAmendmentBlocker(ctx.store, storyId, gitCwdOf(storyId))) {
           return step(base, 'framework', 'story_item_done', { command: 'checklist_update', payload: { storyId, itemId: item.id, status: 'done',
             reason: `Story run ${member.runId} (A/B implementation.grouping=story) implemented ${item.id}: commit ${member.commit.slice(0, 12)} "${member.subject.slice(0, 120)}" names it` } },
