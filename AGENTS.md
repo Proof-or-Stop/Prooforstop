@@ -1068,6 +1068,24 @@ Story base format that prints it (`pin_base_print_check`, `[pin_base_print]`, re
 patch). Use the named command; never pass a field to an editor that does not declare it.
 See docs/CLI.md "Old-PoS run 132".
 
+Old-PoS runs 133-135 (lab `codex/lab-run132`, continued). There are three rollback switches, all default on:
+`review.stragglerVerdict`, `plan.baseEvidence` and `remediation.baseClaimEvidence`. L is detection-positive.
+
+- `pin_audit_correction` is ONE ready row patch per gap item. Corrections apply partially, and the rest is the next
+  correction step.
+- A pin-audit value the Story base refutes is not offered. The pin stands, as advisory `[scope_gap_base_settled]`.
+  The dispute and pin-reversal remedies re-pin an existing-behaviour case to the base value instead of excluding it.
+- A `[pin-doubt]` that states only the base print is a ready patch.
+- A review lane far behind its finished siblings gives its verdict now, in its own resumed session.
+- The duplicate step names each finding, the repair commit and tests, and comes prefilled.
+- The scope-plan prompt names plan.md only when the Story has one.
+- A finding-repair report that says a boundary case "already matches the base" owes a
+  `[base-evidence] <case> :: <command on the Story base> -> <output>` line. Without it the repair is not accepted
+  (`[repair_base_claim_unproven]`).
+- Gate evidence under `runtime/` is recomputed in each process and never read back.
+
+Run the ready command. Probe the base before claiming a case is unchanged. See docs/CLI.md "Old-PoS runs 133-135".
+
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
 (`<common git dir>/info/proof-or-stop-cache/`, each answer keyed by the exact

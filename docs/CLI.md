@@ -1245,13 +1245,13 @@ Decision table (first matching row wins):
 | PLAN, otherwise | `story_advance --phase=DEV` if the DEV guard passes, else the guard's own `→`/`Next:` command (`story_review` when it has no clean round); the `why` carries the guard's first reason, never an empty "Cannot enter DEV:" (old-PoS run 34 F7, `guardRefusalSummary`) | framework / agent | `getGuardFailureReason(DEV)` |
 | PLAN, the DEV guard names `story_review` and its latest round is older than an input it judged (checklist.json, plan.md, scope-check.json, decision.json, background.md, request.md, the boundaries; 2 s slack) or no round exists (old-PoS run 34 F7: after a pin-audit correction and a new scope verdict the owner was sent to run story_review by hand) | `story_review_rerun`: `story_review` (the same PLAN checks, recorded the same way); a current round with blockers is the next row | framework | `getGuardFailureReason(DEV)` + `storyReviewRoundStale` (core/story-review-staleness.ts) |
 | PLAN, the DEV guard names `story_review` and its latest round is current with blockers (old-PoS run 40 N3: the step said `Next: proof-or-stop story_review` right after the framework reran it, and the scope_gap remedy named a host_run of the scope-plan reviewer, so the owner ran story_review twice more and launched the reviewer by hand) | `plan_review_blockers`: a batch of the blockers' row patches, one `checklist_update` per item (since lab initplan the pin-audit and covering-row `scope_gap` remedies are `--intentRows='[...]'` row patches; since lab plan-deadend, old-PoS run 121, every plain `scope_gap` names a covering row `<item>:edge:+` on the item it names / shares terms with / the first open item, an open question adds its `scope_question_resolve` call, and a pre-existing doc/code drift on unrequested documentation no item modifies is settled by story_review, `scope_gap_doc_drift_settled`, not a blocker); an agent step without a command never prints `none runnable`; the `why` lists the round's blockers (type and message, up to 8) and ONE action: fix each in PLAN (`checklist_update`: cover the point, correct the pinned value, or an excludes entry naming it and why; a `scope_exclusion_contradicted` blocker, and a `scope_gap` whose behaviour another item changes, name the item to add a covering row to and offer no excludes entry, old-PoS run 43), then `proof-or-stop next --storyId=<id> --run`, which reruns story_review (the round is then stale) and relaunches the scope-plan reviewer once on the final checklist (the verdict is then stale); never a hand-run `story_review` / `host_run` | agent | `getGuardFailureReason(DEV)` + the latest story_review round's blocker issues (`storyReviewBlockersStep`, shared with the reference driver) |
-| PLAN, a gap of the current scope-plan verdict cites a row (`CHK-NNN:<lane>:<i>`) that a gap of the previous verdict cited too (verdicts = scope-check.json and its Git history; lab run95, run 95: the same `pin-audit` row in five verdicts in a row) | `plan_pin_dispute`: ONE remedy per disputed row, merged with the round's other blockers' row patches: an error row pinning an exact text is relaxed to `<case> -> error` (the request states no text for it); a value row is removed (`{"ref","remove":true}`) and its case excluded with the item's `userSees` edited in the same call so the exclusion check accepts it; when the item itself adds the case, a re-pin to the request / base-probe value (the one field left to author). Before the pin-audit value correction and the generic `plan_review_blockers`; when the latest story_review round is older than the verdict, `next` reruns story_review first (`story_review_rerun`, lab plan-deadend: run 121's dispute steps listed the previous verdict's blockers), so the merged row patches are the current round's; journaled `runtime/pin-dispute/<storyId>.jsonl`; the rerun prompt names the disputed rows (A/B `plan.disputeConfirm=on`: a confirmation re-review). Since lab run102 a row the counterpart gate requires is never removed nor its case excluded: a counterpart-backed row is not disputed (its gap is settled), a contradicted error / a differing value is re-pinned to the counterpart value, another error row is relaxed with its case kept; every remedy's case goes through the PLAN remedy cycle breaker (`plan_remedy_cycle`, "Old-PoS runs 100-103") | agent | `scopeVerdictHistory` + `disputedRows` + `pinDisputeRemedy` (core/pin-dispute.ts), core/plan-remedy-cycle.ts |
+| PLAN, a gap of the current scope-plan verdict cites a row (`CHK-NNN:<lane>:<i>`) that a gap of the previous verdict cited too (verdicts = scope-check.json and its Git history; lab run95, run 95: the same `pin-audit` row in five verdicts in a row) | `plan_pin_dispute`: ONE remedy per disputed row, merged with the round's other blockers' row patches: an error row pinning an exact text is relaxed to `<case> -> error` (the request states no text for it); a value row whose case the Story base decides (lab run132, run 134, `plan.baseEvidence`: a request literal, the declared evaluator or a base test stating the case) is re-pinned to the base value (kind `base`, ready) or settled when it already pins it; any other value row is removed (`{"ref","remove":true}`) and its case excluded with the item's `userSees` edited in the same call so the exclusion check accepts it; when the item itself adds the case, a re-pin to the request / base-probe value (the one field left to author). Before the pin-audit value correction and the generic `plan_review_blockers`; when the latest story_review round is older than the verdict, `next` reruns story_review first (`story_review_rerun`, lab plan-deadend: run 121's dispute steps listed the previous verdict's blockers), so the merged row patches are the current round's; journaled `runtime/pin-dispute/<storyId>.jsonl`; the rerun prompt names the disputed rows (A/B `plan.disputeConfirm=on`: a confirmation re-review). Since lab run102 a row the counterpart gate requires is never removed nor its case excluded: a counterpart-backed row is not disputed (its gap is settled), a contradicted error / a differing value is re-pinned to the counterpart value, another error row is relaxed with its case kept; every remedy's case goes through the PLAN remedy cycle breaker (`plan_remedy_cycle`, "Old-PoS runs 100-103") | agent | `scopeVerdictHistory` + `disputedRows` + `pinDisputeRemedy` (core/pin-dispute.ts), core/plan-remedy-cycle.ts |
 | PLAN, every disputed row is one the counterpart gate requires and no remedy keeps its case (it already pins only the error), or its dispute remedy lost to a higher authority in the cycle breaker (lab run102) | `plan_remedy_settled`: the framework records the settlement (`runtime/plan-remedy/<storyId>.jsonl`) and reruns `story_review`, which records the gap(s) as `scope_gap_counterpart_settled` (advisory); no checklist change, no reviewer rerun for them | framework | `pinDisputeStep` + `recordRemedySettlement` (core/plan-remedy-cycle.ts) |
 | PLAN, before the scope-plan reviewer (merged with the other due PLAN lints), a row pins an exact text (an expected-side literal of three words or more) that neither the request states nor a Story base source contains (string literal, format string it instantiates, message prefix), or a request-template instance added / changed since the last verdict whose derivation quotes no line of the template's request scope (lab run95) | `unstated_pin_check`: one row patch per item, ready: an error row keeps its case and pins only the error (`<case> -> error`), any other row is removed; skippable, offered once per set of rows (at most twice per Story); the same rows appear in the PLAN pre-check `[unstated_pin]`; the exact whole-error lint leaves these rows to it | agent | `planUnstatedPins` (core/unstated-pin.ts) |
 | PLAN, before the scope-plan reviewer (merged with the other due PLAN lints), a row's pinned message instantiates a Story base format string but not the way the base prints it (the format's own quotes, a `%q` slot, or a quoted slot value the base test instances of that format print bare, or the reverse), and the request neither states the text nor quotes the placeholder nor rewrites the format (lab run132) | `pin_base_print_check`: one row patch per item, ready (the base form, the row's request quote, the re-pin with the format's file:line and the instance sample); skippable, offered once per set of rows (at most twice per Story); the same rows appear in the PLAN pre-check `[pin_base_print]`, a quoted slot value no base instance decides as `[pin_base_print_unverified]` (pre-check only); a row `pin_base_form` / `unstated_pin` / `pin_probe` lists is left to it | agent | `planPinBasePrint` (core/pin-base-print.ts) |
 | PLAN, a terminal implementer / finding-repair run declared an `[intent-conflict]` (old-PoS run 31: every other item field stating the pinned literal is added to the same step as a batch call; old-PoS run 37: when the pin is not a code literal, every row of any item stating the same pinned fragment is added too, one row-level `checklist_update {itemId, intentRows}` per sibling item) (or an implementer stated a deliberate deviation only in prose), the item's intent material (verificationIntent semantics + userSees) is unchanged since that run was dispatched, and the item does not yet state the value the conflict says the request implies in place of the pinned literal (old-PoS run 31) | `intent_conflict_amend`: `checklist_update {itemId, verificationIntent and/or userSees (the field the conflict names), reason, status: pending}` | agent | `openIntentConflicts` (run 23, run 31); lab run131: a conflict naming the pinned and the implied literal of a lane row is ONE ready `intentRows` patch to the implementer's value (re-pin stated, no placeholder; `intentConflictReadyRows`), the open conflicts journaled (`runtime/intent-conflict`), and a PLAN `checklist_update` keeping the disputed pin without the request text or a base check is refused `[intent_conflict_overruled]` (`plan.intentConflictGuard`, core/intent-conflict-overrule.ts); lab run132: two unbackticked values that are variants of one text count as the two literals (`intentConflictPair`), and adoption ignores `re-pin:` clauses (`intentConflictAdopted`) |
 | PLAN / DEV / REVIEW (REVIEW: after the round's lanes are imported), an open Story-metadata correction (lane findings reclassified at import, or a stored open finding citing checklist text; old-PoS run 31) | `metadata_correction`: ONE `checklist_update` with `metadataCorrection: true` for the cited item (wrong literal, the reviewer's value, the reviewer text in the Why) plus one call per other item stating the same wrong literal; outside PLAN an intent-row correction is `metadata_correction_plan` (`story_advance` toward PLAN; old-PoS run 33: in REVIEW it waits while the round's inventory epoch is OPEN or verified blocking findings are open, so inventory begin / critic launch / import / finalize run first). Since old-PoS run 44 (F-021: the agent step said DEV, the refusal said PLAN; 7 owner commands, 2 refusals) `metadata_correction_plan` is a framework step: REVIEW→DEV (or, when REVIEW→DEV still needs this round's remediation receipt and no epoch of the round is live, `inventory_begin` first), then DEV→PLAN, both inside one `next --run`; the `checklist_update` refusal of an intent-row correction in REVIEW (`[metadata_correction_intent_outside_plan]`) names `next --run` (from DEV: `story_advance --phase=PLAN`) | agent (`metadata_correction`) / framework (`metadata_correction_plan`) | `openMetadataCorrections` (core/metadata-correction.ts) + `literalOccurrences`; lab run131: in PLAN (and for userSees) the calls are ready payloads (`metadataCorrectionReadyPayload`: the reviewer's value in place of the wrong literal, rows / userSees written by the framework), and `[metadata_correction_unchanged]` / `[metadata_correction_none]` name the exact next command |
-| PLAN, the scope-plan verdict is current (not missing, no rerun due) and lists `pin-audit` gaps whose cited row still states the pinned value | `pin_audit_correction`: ONE `checklist_update` of the first gap's item (pinned value, the request's value, every other occurrence of the pinned literal; a batch when other items state it). Once the checklist's only changes since the verdict are those requested values (reverting them reproduces the judged `checklistDigest`), the gaps close without a scope-plan rerun; any other change reruns it (old-PoS run 31 D8). Values match as tokens (a value that starts / ends with a word character never continues a longer word) and the cited row must state the requested value on its value side (after its last `->` / `=>` / `==`); the revert is tried in the cited rows first, then in every text field (old-PoS run 34 F2: a one-character pin `a` -> `f` inside a row holding `"abcdef"` fell back to a full rerun) | agent | `openPinAuditGaps` / `openScopeGaps` (core/pin-audit-correction.ts) |
+| PLAN, the scope-plan verdict is current (not missing, no rerun due) and lists `pin-audit` gaps whose cited row still states the pinned value | `pin_audit_correction`: ONE ready row-level `checklist_update {intentRows}` per gap item (lab run132, run 133 A: the value side and the computation state the requested value, the case side unchanged; the sweep adds rows of the same role stating the same case; a batch for several items; before, one call for the first gap's item only). Lab run132 (run 134, `plan.baseEvidence`): a requested value the Story base refutes is never offered (the pin stands, story_review `[scope_gap_base_settled]`), a third base value is the value the patch states. Once the checklist's only changes since the verdict are those requested values (reverting them reproduces the judged `checklistDigest`), the gaps close without a scope-plan rerun; any other change reruns it (old-PoS run 31 D8). Values match as tokens (a value that starts / ends with a word character never continues a longer word) and the cited row must state the requested value on its value side (after its last `->` / `=>` / `==`); the revert is tried in the cited rows first, then in every text field (old-PoS run 34 F2: a one-character pin `a` -> `f` inside a row holding `"abcdef"` fell back to a full rerun); lab run132: the applied subset closes and the uncorrected rest is the next correction step, not a rerun (`pinAuditGapsPending`) | agent | `openPinAuditGaps` / `openScopeGaps` / `pinAuditRowPatch` (core/pin-audit-correction.ts), `planPinAuditBase` (core/pin-base-evidence.ts) |
 | PLAN, the scope-plan verdict is missing or must be rerun, the project declares `pinOracle` at the Story base, and a stored example row's input evaluates there to a value other than its pin with no matching `baseValue` (old-PoS run 31) | `pin_oracle_mismatch`: `checklist_update {itemId, intentRows}` of the first such item (since lab initplan a row patch of each listed row, placeholder: the row with the corrected value, or set `baseValue` to the computed base value); before the pre-scope `plan_authoring` batch and the scope-plan reviewer | agent | `pinOracleStep` / `pinOracleMismatches` (core/pin-oracle.ts) |
 | PLAN, no open intent conflict / metadata correction / pin-audit correction, the project's `probeRunner` (with the A/B arm `dev.probeEnforcement=enforce`; advisory, the default since old-PoS run 33, adds no PLAN step) at the Story base declares `parseErrorPattern` + `newSyntaxPattern`, and a runnable example row's program fails to parse on the base OUTSIDE the new-syntax region (old-PoS run 32: `f(){...}` for `f name(){...}`) | `probe_row_syntax`: `checklist_update {itemId, intentRows}` of the first such item (a row patch since lab initplan; placeholder: each listed row in valid syntax, or plain prose if it is not runnable code), each row with the parser's error and position; also when the rows were amended after the scope verdict | agent | `probeSyntaxStep` / `probeSyntaxErrors` (core/request-probes.ts) + `parseErrorOutsideNewSyntax` (core/pin-oracle.ts) |
 | DEV, no implementer / finding-repair in flight, an open intent conflict (same predicate; it precedes every repair, `finding_resolve` and `finding_resolve_batch` step, so a finding whose repair declared a conflict is never resolved before the amendment) | `intent_conflict`: `story_advance --phase=PLAN` | agent | `openIntentConflicts` (run 23) |
@@ -2142,6 +2142,137 @@ NPDE-D NPDE-S` (RED on the base in 10 s: the drift was a blocker, `plan_review_b
 CHK-002 / CHK-001 get covering rows, the rerun verdict re-raising only the drift reaches `enter_dev`, and the dispute step
 carries the new gap's row after a framework story_review rerun).
 
+### Old-PoS runs 133-135: pin-audit corrections per item and checked against the base, a review straggler budget, base evidence for "unchanged" repair claims (lab `codex/lab-run132`, continued)
+
+Sources: `bench-staging/oldpos/run133-analysis.md` (items A-D), `run134-analysis.md` (items 1-3, here E-G) and
+`run135-analysis.md` (items H-L). Cross-task mechanisms only; detection-neutral except L, which is detection-positive.
+Three new switches, all default on with `off` as the recorded rollback: `review.stragglerVerdict`, `plan.baseEvidence`
+and `remediation.baseClaimEvidence`.
+
+- **A. Pin-audit correction per item, applied partially (run 133 PLAN reruns 3-4, ~6.1 min; run 134 R2-R4;
+  `core/pin-audit-correction.ts`, `handlers/next-driver.ts` `pinAuditCorrectionStep`).**
+  - **Before:** the step offered a placeholder call for the first gap's item only (run 134's CHK-004 was named but never
+    offered). The deterministic check was all or nothing. The literal sweep pointed at a read row because it stated the
+    same list as a write row's pin. A row written with `\uXXXX` escapes never matched the reviewer's decoded value.
+  - **Now, the call:** `pin_audit_correction` is ONE ready row-level `checklist_update {intentRows}` per gap item
+    (`pinAuditRowPatch`). The value side of the desc (after its last arrow) and the computation state the requested
+    value. The case side keeps its text.
+  - **Now, the check:** the check applies the gaps whose cited row states the requested value when reverting exactly
+    those reproduces the judged checklist. The open rest is the next correction step, not a scope-plan rerun
+    (`pinAuditGapsPending`).
+  - **Now, the sweep:** the sweep lists rows of the gap row's role only (`rowRole`: an assignment target vs a read). It
+    gives a ready patch only to a row stating the same case.
+  - **Now, matching:** values match through `\u` escapes, and a replacement keeps the row's escape form.
+  - **Disputes:** the step journals what it offered (`recordPinAuditOffer`). A dispute streak counts only verdicts
+    whose row was offered a correction.
+  - **Gap formats:** run 134's form `pins <case> -> <value>; request gives <value> because <why>` parses, also when
+    the case contains `;`.
+- **B. A `[pin-doubt]` that states only the base print is a ready patch (run 133 DEV->PLAN detour;
+  `core/intent-conflict-overrule.ts` `pinDoubtReadyRows`, `core/pin-base-print.ts`).**
+  - `[pin-doubt] <ref> | base prints: <text>` gives no pinned side. The pinned side is the row's own expected text that
+    is a variant of the base text (spacing, as in `{ }` vs `{}`, or a variant of one error text).
+  - The result is ONE ready row patch to the base text, with the re-pin stated.
+  - A new PLAN lint, `empty_collection`, covers an expected side holding a spaced empty group (`{ }`, `[ ]`, `( )`)
+    when the base sources write that opener and closer only as separate literals. It is one ready patch to the compact
+    form. A request that states the spaced form decides instead.
+- **C. Review straggler verdict (run 133 R1 concept lane: 13.1 min against 3.7-7.1 min for its siblings;
+  `core/managed-host-run.ts` `reviewStragglerDecision`, `managedReviewVerdictNowPrompt`; switch
+  `review.stragglerVerdict`).**
+  - **Trigger:** a managed code-review lane still in its first turn when every sibling lane of its round has finished,
+    and running longer than max(floor, 2 x the median completed sibling duration).
+  - **Floor:** 8 min (`PROOF_OR_STOP_MANAGED_REVIEW_STRAGGLER_MS`, in ms; 0 = off; sealed in the spec at submit).
+  - **Action:** the worker stops the lane and resumes its own session with a verdict-now prompt: no further commands;
+    report the findings it established, with evidence, and name in the note what it did not check. The output passes
+    the same final-result validation.
+  - **No resumable session yet:** the event is journaled once (`review_straggler_verdict_unavailable`), the check
+    repeats, and the lane keeps running.
+  - **Failed resume:** a resume that fails is an auto-replaceable failure (`review_straggler_verdict_failed`).
+  - **What counts as a sibling:** only the framework's validated projection of the sibling's managed run (immutable
+    spec / owner / snapshot binding, sealed artifacts matching its terminal, same Story, review run and reviewer
+    profile). A hand-written `terminal.json` is no finished sibling. A sibling's duration runs from its creation.
+  - **Excluded:** the inventory critic, which runs alone.
+- **D. The duplicate closure step names what the owner searched for (run 133, 16.8 min, 9 owner calls;
+  `handlers/next-driver.ts` `duplicateContextWhy`, `core/duplicate-auto-coverage.ts` `duplicateCoverageSuggestion`).**
+  - For each duplicate, the step gives the first sentence and file:line of the duplicate and of its canonical, the
+    canonical's repair commit and tests, and where the findings are.
+  - The `finding_resolve` call is prefilled from the Go test function of the canonical repair commit that shares the
+    most terms with the duplicate. The framework still runs that coverage.
+- **E. A pin-audit value is checked against the Story base before it is offered (run 134 item 1;
+  `core/pin-base-evidence.ts`; switch `plan.baseEvidence`).**
+  - **Before:** run 134's reviewer asked for `[0,1,2,3][1:2] -> [2]`, but the base's end-exclusive two-part range,
+    which the request keeps, gives `[1]`. The step said only "Apply the value the verdict requests", and the wrong
+    value reached DEV.
+  - **Evidence for the row's case, first decisive source wins:**
+    1. a request literal example (`<input> -> <output>`), which outranks the base;
+    2. the project's declared evaluator (`probeRunner`, else `pinOracle`), run on a `git archive` of the Story base;
+    3. base test sources that state the case as a string literal followed by one value literal on the same line, where
+       every such line agrees.
+  - **Decisions:**
+    - `settle`: the evidence gives the pinned value. The gap closes with the row unchanged: `openScopeGaps`
+      `baseValues`, and story_review lists it as advisory `[scope_gap_base_settled]`.
+    - `correct`: the evidence gives a third value. The correction re-pins to the base value.
+    - `keep`: there is no evidence, the base agrees with the reviewer, or a request sentence states the reviewer's
+      value. The correction is offered as before.
+  - **Error evidence:** an error decides only `settle`, and only when its text contains the pinned text.
+  - **Prompt:** the scope-plan prompt says that existing behaviour the request keeps takes its value from the base,
+    and it names the base-decided rows.
+  - **Journal:** decisions are written (write-only) to `runtime/pin-audit-base/<storyId>.json` and recomputed in every
+    process (see Security below).
+  - **Limit:** without a declared evaluator, only request literals and base tests stating the exact case decide. Run
+    134's control arm declared no evaluator, and no base test states `[0,1,2,3][1:2]`, so on run 134 the gap stays a
+    correction.
+- **F. Existing-behaviour cases are re-pinned to the base, not excluded (run 134 item 2; `core/pin-dispute.ts`
+  `pinDisputeRemedy`, `core/pin-amendment.ts` `pinReversalRemedy`, `storyBaseEvidenceLookup`; switch
+  `plan.baseEvidence`).**
+  - Before, the `plan_pin_dispute` and pin-reversal remedies excluded `[1:2]` and `[1:4:2]` because "neither the
+    request nor the counterpart states its value", although the base implements them.
+  - Now a value row whose case has base evidence gets kind `base`: a ready re-pin to the base value, or `settle` when
+    the row already pins it.
+  - The reversal remedy keeps the earlier pin, keeps the new pin with the re-pin stated, or states the base value.
+  - Exclusion remains only where no base evidence exists.
+- **G. plan.md is named only when the Story has one (run 134 item 3; `handlers/story-dispatch.ts`
+  `storyPlanPresent`).**
+  - The scope-plan prompt listed `4. plan.md` as required reading although this flow writes none. The reviewer raised
+    the open question "PLAN artifact plan.md absent", a blocker the owner could not act on.
+  - The scope-plan, story-review and delivery prompts now name plan.md only when it exists. Otherwise they say the
+    checklist is the plan and its absence is no finding. The reviewer templates already said "(if any)".
+- **L. "Already matches the base" repair claims owe base evidence (run 135 F-009, new-PoS ADR-056 / ADR-070
+  direction; `core/repair-report-lines.ts` `unprovenBaseClaims`, `repairBaseClaimProblem`; switch
+  `remediation.baseClaimEvidence`; detection-positive).**
+  - **Before:** F-008's repair report said the empty-range alias "already matched the base". It did not, and R3 found
+    F-009.
+  - **What counts as a claim:** a report sentence that says a boundary case (empty, negative, out of range, zero,
+    nil / null / none, reversed, omitted / missing, overflow) already matches, is unchanged from, is the same as, or is
+    preserved as on the Story base.
+  - **What it owes:** one `[base-evidence] <case> :: <command run on the Story base> -> <output>` line naming the same
+    case class.
+  - **Prompt:** the finding-repair prompt states the rule.
+  - **In-session request:** the managed worker asks for missing lines in the repair's own resumed session before the
+    run seals, the same report follow-up as `[branch-test]` / `[mechanism]` (sealed in the spec as
+    `repairBaseClaims`).
+  - **Acceptance:** a report that still lacks the line is not an accepted repair (`repairRunTestProblem`,
+    `[repair_base_claim_unproven]`). The relaunched repair's prompt names the unproven claim.
+- **Security: gate evidence is recomputed, never read back.**
+  - **Affected:** `plan.counterpartCoverage` (a DEV-entry gate), `unstated_pin`, `pin_base_form`, `pin_base_print` and
+    the new `pin-audit-base` evidence.
+  - **Flaw:** each wrote `runtime/<check>/<storyId>.json` keyed by an `inputsDigest` and trusted a stored file whose
+    schema and digest matched. The digest is computable from public inputs, so the owner could write forged decisions.
+  - **Fix:** each process now recomputes the result, memoized in process only, and the file is a write-only journal.
+    The straggler's sibling reader uses only sealed managed runs.
+  - **Accepted:** two offer journals stay readable, because forging them only removes a framework offer and does not
+    bypass a gate: `pin_base_print`'s "offered once" and the pin-audit offer journal, where a forged entry gives at
+    most the pre-lab dispute count.
+
+Tests (RED on the commit before each change, GREEN after; made-up rows only):
+
+- `run133-fixes-smoke`: A1-A5, B1-B3, C1-C3, D1-D2.
+- `run134-fixes-smoke`: E1-E7, F1-F3, G1. E6 checks that a forged journal with a matching digest is ignored by a fresh
+  process; E7 checks that no gate module trusts a stored digest.
+- `review-straggler-smoke`: a fake codex driven through the real runner, cases S1-S5. S1 is the stop plus resumed
+  verdict, S4 the not-resumable case, S5 a forged sibling.
+- `run135-l-smoke`: L1-L4.
+- Adapter `test_run133_135_switches_reach_the_pos_config`, and `npm run test:ab-variant-switches`.
+
 ### Old-PoS run 132: unknown metadata arguments refused, INIT reviewer carry-forward, bare intent-conflict values, pinned messages vs the base format (lab `codex/lab-run132`)
 
 Source: `bench-staging/oldpos/run132-analysis.md` (control arm, build 88bfae43e0, abs-stepped-slices; passed, 63.8 min
@@ -2281,7 +2412,11 @@ to the model. Seven detection-neutral fixes, each a cross-task mechanism:
   - the request states the new value: `repin`;
   - the request states the old value: `keep`;
   - the same receiver's counterpart gives the value: `counterpart`;
-  - otherwise the `plan_pin_dispute` remedy of the earlier row (`relax`: the error only; `exclude`: the case);
+  - lab run132 (run 134, `plan.baseEvidence`): the Story base decides the case (a request literal, the declared
+    evaluator, a base test): `keep` (the base gives the old value), the new pin with the re-pin stated, or `base` (a
+    third base value);
+  - otherwise the `plan_pin_dispute` remedy of the earlier row (`relax`: the error only; `exclude`: the case, only
+    where no base evidence exists);
   - fallback, when the item itself adds the case: the PLAN value stands, with the re-pin stated.
 
   Before this fix the remedy came only after three scope-plan reruns. `storyWasInDev` now also counts a transition from
@@ -2500,7 +2635,7 @@ the watchdog kills the call after the step-stall limit and the Story reaches DON
 
 ### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102), the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), and the lab lean umbrella `pipeline.lean` (EXPERIMENTAL, default off) with `remediation.familyEvidence` (default on), below)
 
-### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102), the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), the lab run110 switches `scope.boundaryExcludes` / `remediation.fileStateSettle` (default on) and `review.driftBaseSymbol` (EXPERIMENTAL, off), the lab plan-deadend switch `plan.docDriftSettle` (default on), the lab run131 switches `remediation.scopeGateSettle` / `remediation.conflictSettle` / `plan.intentConflictGuard` (default on), and the lab run132 INIT switch `init.reviewerCarryForward` (default on), below)
+### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102), the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), the lab run110 switches `scope.boundaryExcludes` / `remediation.fileStateSettle` (default on) and `review.driftBaseSymbol` (EXPERIMENTAL, off), the lab plan-deadend switch `plan.docDriftSettle` (default on), the lab run131 switches `remediation.scopeGateSettle` / `remediation.conflictSettle` / `plan.intentConflictGuard` (default on), the lab run132 INIT switch `init.reviewerCarryForward` (default on), and the lab run132 switches `review.stragglerVerdict` / `plan.baseEvidence` / `remediation.baseClaimEvidence` (default on, runs 133-135), below)
 
 Nine project-config switches were added to measure, in a detection A/B, whether a
 structural review/dispatch change loses findings (bench-staging run-17 cost
@@ -2933,8 +3068,10 @@ write, e.g. `t = "pqr"; t[-1] = "z"; t -> "pqz"`, else a placeholder naming the 
 right after `pin_probe_mismatch`, before the authoring batch and the scope-plan reviewer, so the reviewer judges rows
 that already exist. Evidence: `.proof-or-stop/runtime/counterpart-coverage/<storyId>.json`
 (`proof-or-stop.counterpart-coverage.v1`: base, `inputsDigest` = sha256 of base + checklist + request + discovery
-version, the cache key reused across CLI processes; scanned file count, probe kind, checks with every signal,
-refusals, advisories, `abVariant`).
+version; scanned file count, probe kind, checks with every signal, refusals, advisories, `abVariant`). Since lab
+run132 the file is a write-only journal: each CLI process recomputes the gate (memoized in process by `inputsDigest`)
+and never reads the file back, because the owner can write it with a matching digest (the same holds for the
+`unstated-pin`, `pin-base-form`, `pin-base-print` and `pin-audit-base` evidence).
 
 Implementer prompt (switch on only): after the exact-text relaunch lines, `Counterpart probe
 (plan.counterpartCoverage): before writing an operation the Story adds on a receiver type, run the SAME receiver's
@@ -3050,6 +3187,30 @@ nothing is carried). The unknown-argument refusal, the blocker commands, the bar
 lint change no verdict and are not switched. A malformed value keeps the default where it is consumed. Bench arm:
 `POS_AB_FLAGS='{"init.reviewerCarryForward":"off"}'` (adapter `AB_FLAGS` + `test_run132_switch_reaches_the_pos_config`).
 Tests: `run132-fixes-smoke` B, harness NIC / NIC-F / NIC-OFF, `npm run test:ab-variant-switches`.
+
+#### Lab run132 switches `review.stragglerVerdict`, `plan.baseEvidence`, `remediation.baseClaimEvidence` (`on` default | `off`; old-PoS runs 133-135)
+
+See "Old-PoS runs 133-135" C, E/F and L. Each `off` is the recorded rollback.
+
+- `review.stragglerVerdict=off` seals a floor of 0, so no lane is stopped (`stragglerVerdictOn`,
+  `managedReviewStragglerFloorMs`). `PROOF_OR_STOP_MANAGED_REVIEW_STRAGGLER_MS=0` does the same per environment.
+- `plan.baseEvidence=off` makes no base decision. The reviewer's pin-audit values are offered as before, and the
+  dispute / reversal remedies exclude existing-behaviour cases as before (`baseEvidenceOn`).
+- `remediation.baseClaimEvidence=off` drops the repair-prompt rule, the in-session follow-up and the acceptance check
+  (`baseClaimEvidenceOn`). L is detection-positive.
+
+The per-item pin-audit patches (A), the pin-doubt patch and the `empty_collection` lint (B), the duplicate step text
+(D), the plan.md prompt condition (G) and the security fix change no verdict and are not switched. A malformed value
+keeps the default where it is consumed.
+
+Bench arms (adapter `AB_FLAGS` + `test_run133_135_switches_reach_the_pos_config`):
+
+- `POS_AB_FLAGS='{"review.stragglerVerdict":"off"}'`
+- `'{"plan.baseEvidence":"off"}'`
+- `'{"remediation.baseClaimEvidence":"off"}'`
+
+Tests: `run133-fixes-smoke`, `run134-fixes-smoke`, `review-straggler-smoke`, `run135-l-smoke`, and
+`npm run test:ab-variant-switches`.
 
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.
 

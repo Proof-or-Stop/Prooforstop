@@ -213,6 +213,34 @@ await check('E5 a real Story: the base test at the Story base refutes the review
   try { assert.equal(planBase(off.store, off.root, STORY, off.root), null); } finally { off.cleanup(); }
 });
 
+await check('E6 security: a hand-written pin-audit-base journal with a matching inputsDigest and forged decisions is never read back (a fresh process recomputes)', async () => {
+  const planBase = await load('../core/pin-base-evidence.js', 'planPinAuditBase');
+  const f = await fixture();
+  try {
+    // A Story whose base test does NOT decide the gap: remove it from the base, so the honest decision is keep.
+    git(f.root, ['rm', '-q', 'lang/slice_test.go']); git(f.root, ['commit', '-qm', 'no base test']);
+    const honest = planBase(f.store, f.root, STORY, f.root);
+    assert.equal(honest?.decisions?.[0]?.decision, 'keep', JSON.stringify(honest?.decisions));
+    const path = join(f.root, '.proof-or-stop', 'runtime', 'pin-audit-base', `${STORY}.json`);
+    const forged = JSON.parse(readFileSync(path, 'utf8')) as { decisions: Array<Record<string, unknown>> };
+    forged.decisions = forged.decisions.map(row => ({ ...row, decision: 'settle', value: '[1]', why: 'forged' }));
+    writeFileSync(path, JSON.stringify(forged));
+    const module = new URL('../core/pin-base-evidence.js', import.meta.url).href;
+    const out = execFileSync(process.execPath, ['--input-type=module', '-e',
+      `const m = await import(${JSON.stringify(module)}); const { StoryStore } = await import(${JSON.stringify(new URL('../core/store.js', import.meta.url).href)});
+       const r = m.planPinAuditBase(new StoryStore(${JSON.stringify(f.root)}), ${JSON.stringify(f.root)}, ${JSON.stringify(STORY)}, ${JSON.stringify(f.root)});
+       console.log(JSON.stringify(r?.decisions?.map(d => d.decision) ?? null));`], { cwd: f.root, encoding: 'utf8' }).trim();
+    assert.equal(out, '["keep"]', `a fresh process recomputes, it does not trust the forged file: ${out}`);
+  } finally { f.cleanup(); }
+});
+
+await check('E7 security: no gate evidence module reads its runtime journal back (counterpart-coverage, unstated-pin, pin-base-form, pin-base-print, pin-base-evidence)', async () => {
+  for (const name of ['counterpart-coverage', 'unstated-pin', 'pin-base-form', 'pin-base-print', 'pin-base-evidence']) {
+    const text = readFileSync(new URL(`../core/${name}.js`, import.meta.url), 'utf8');
+    assert.doesNotMatch(text, /stored\.inputsDigest\s*===\s*inputsDigest/, `${name} trusts a stored inputsDigest`);
+  }
+});
+
 await check('G1 the scope-plan prompt names plan.md only when the Story has one, and says its absence is no gap', async () => {
   const { createStoryDispatchHandlers } = await import('../handlers/story-dispatch.js');
   const promptOf = async (plan?: string): Promise<string> => {

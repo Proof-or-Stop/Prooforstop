@@ -12,6 +12,7 @@
  *   S2 a sibling lane still runs: nothing is stopped (one invocation).
  *   S3 the floor is 0 (environment override; review.stragglerVerdict=off seals 0 too): nothing is stopped.
  *   S4 no resumable session: journaled as unavailable, the lane keeps running (one invocation).
+ *   S5 security: a hand-written sibling terminal is no finished sibling (only a framework-sealed run counts).
  *
  * Usage: node packages/main/dist/tasks/review-straggler-smoke.js
  */
@@ -31,8 +32,8 @@ const REVIEW_RUN = `${STORY}:RR-002`;
 const SIBLING_RUN = `${STORY}:RR-001`;
 const THREAD = '019a1f18-c8d8-7000-8000-0000000013c1';
 
-const envelope = JSON.stringify({
-  schemaVersion: 'lattice.managed_review_final_proposal.v1', storyId: STORY, providerAgent: LANE, lane: LANE, reviewRunId: REVIEW_RUN,
+const envelopeOf = (lane: string, reviewRunId: string): string => JSON.stringify({
+  schemaVersion: 'lattice.managed_review_final_proposal.v1', storyId: STORY, providerAgent: lane, lane, reviewRunId,
   conclusion: 'pass', note: 'Concept lane: the reviewed range paths match the request; not checked: the docs examples (stopped early).',
   // The read manifest / log of the managed-final-json-repair fixture (a shape the final validation accepts).
   readManifest: { filesReadFully: ['docs/src/docs/types/array.md', 'docs/src/docs/types/string.md', 'docs/src/docs/syntax/assignments.md', 'examples/index_ranges.abs', 'examples/unicode.abs'],
@@ -55,7 +56,7 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   fs.appendFileSync(path.join(state, 'invocations.jsonl'), JSON.stringify({ argv: process.argv.slice(2), stdin: input }) + '\\n');
   const emit = e => process.stdout.write(JSON.stringify(e) + '\\n');
   emit({ type: 'thread.started', thread_id: ${JSON.stringify(THREAD)} });
-  if (!resumed && mode !== 'nosession') {
+  if (!resumed && mode !== 'nosession' && mode !== 'quick') {
     const dir = path.join(process.env.CODEX_HOME, 'sessions', '2026', '10', '22');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'rollout-2026-10-22T06-58-17-${THREAD}.jsonl'), '{}\\n');
@@ -65,7 +66,7 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
     emit({ type: 'item.completed', item: { id: 'item_1', type: 'agent_message', text: fs.readFileSync(path.join(state, 'final.txt'), 'utf8') } });
     emit({ type: 'turn.completed', usage: { input_tokens: 10, cached_input_tokens: 0, output_tokens: 10 } });
   };
-  if (resumed) return finish();
+  if (resumed || mode === 'quick') return finish();
   // The first turn keeps working (reading files) for a while, emitting items so no stall timer fires.
   let ticks = 0;
   const timer = setInterval(() => {
@@ -77,22 +78,25 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
 `, { mode: 0o755 });
 }
 
-/** The round's other lane: completed in 100 ms (spec + events + terminal), or still running (no terminal). */
-function writeSibling(root: string, state: 'completed' | 'running'): void {
-  const store = new StoryStore(root);
+/** The round's two review runs (review-runs.json). */
+function writeReviewRuns(root: string): void {
   const startedAt = '2026-10-22T06:00:00.000Z';
   const run = (reviewRunId: string, lane: string) => ({ reviewRunId, storyId: STORY, agent: lane, lane, reviewRound: 'round-1', startedAt, headHash: 'h', materialHash: 'm', promptHash: 'p' });
-  store.writeReviewRuns(STORY, { runs: [run(SIBLING_RUN, SIBLING_LANE), run(REVIEW_RUN, LANE)] } as never);
+  new StoryStore(root).writeReviewRuns(STORY, { runs: [run(SIBLING_RUN, SIBLING_LANE), run(REVIEW_RUN, LANE)] } as never);
+}
+
+/** A hand-written sibling run directory (spec + events, and a terminal when `forged`): not a framework-sealed run. */
+function writeHandSibling(root: string, terminal: boolean): void {
   const dir = join(managedHostRunsRoot(root), 'mhr_sibling_fixture');
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'spec.json'), JSON.stringify({ storyId: STORY, reviewRunId: SIBLING_RUN, lane: SIBLING_LANE }));
   writeFileSync(join(dir, 'events.jsonl'), `${JSON.stringify({ type: 'provider_spawned', at: '2026-10-22T06:00:00.000Z' })}\n`);
-  if (state === 'completed') writeFileSync(join(dir, 'terminal.json'), JSON.stringify({ state: 'completed', terminalAt: '2026-10-22T06:00:00.100Z' }));
+  if (terminal) writeFileSync(join(dir, 'terminal.json'), JSON.stringify({ state: 'completed', terminalAt: '2026-10-22T06:00:00.100Z' }));
 }
 
 interface Outcome { terminal: ManagedHostRunTerminal; invocations: Array<{ argv: string[]; stdin: string }>; events: Array<{ type: string; detail?: Record<string, unknown> }> }
 
-async function runCase(base: string, name: string, opts: { sibling: 'completed' | 'running'; floorMs: string; mode?: 'normal' | 'nosession' }): Promise<Outcome> {
+async function runCase(base: string, name: string, opts: { sibling: 'completed' | 'running' | 'forged'; floorMs: string; mode?: 'normal' | 'nosession' }): Promise<Outcome> {
   const root = join(base, name);
   const state = join(root, '.fake-codex');
   const bin = join(root, '.fake-bin');
@@ -100,16 +104,38 @@ async function runCase(base: string, name: string, opts: { sibling: 'completed' 
   mkdirSync(state, { recursive: true });
   mkdirSync(codexHome, { recursive: true });
   writeFakeCodex(bin, state);
-  writeFileSync(join(state, 'mode'), opts.mode ?? 'normal');
-  writeFileSync(join(state, 'final.txt'), envelope);
-  writeFileSync(join(state, 'invocations.jsonl'), '');
-  writeSibling(root, opts.sibling);
+  writeReviewRuns(root);
   const previous = process.env.PROOF_OR_STOP_MANAGED_REVIEW_STRAGGLER_MS;
   process.env.PROOF_OR_STOP_MANAGED_REVIEW_STRAGGLER_MS = opts.floorMs;
-  let worker: Promise<ManagedHostRunTerminal> | null = null;
   try {
+    // The sibling lane: a real managed review run that completes at once, a hand-written terminal, or one still running.
+    if (opts.sibling === 'completed') {
+      writeFileSync(join(state, 'mode'), 'quick');
+      writeFileSync(join(state, 'final.txt'), envelopeOf(SIBLING_LANE, SIBLING_RUN));
+      const sibling = await submitReview(root, `${name}-sibling`, SIBLING_LANE, SIBLING_RUN, bin, codexHome);
+      assert.equal(sibling.terminal.state, 'completed', `the sibling lane completed: ${sibling.terminal.reason}`);
+    } else {
+      writeHandSibling(root, opts.sibling === 'forged');
+    }
+    writeFileSync(join(state, 'mode'), opts.mode ?? 'normal');
+    writeFileSync(join(state, 'final.txt'), envelopeOf(LANE, REVIEW_RUN));
+    writeFileSync(join(state, 'invocations.jsonl'), '');
+    const { terminal, runId } = await submitReview(root, name, LANE, REVIEW_RUN, bin, codexHome);
+    const log = join(state, 'invocations.jsonl');
+    const invocations = existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line) as { argv: string[]; stdin: string }) : [];
+    const events = readFileSync(join(managedHostRunDirectory(root, runId), 'events.jsonl'), 'utf8').trim().split('\n').filter(Boolean)
+      .map(line => JSON.parse(line) as { type: string; detail?: Record<string, unknown> });
+    return { terminal, invocations, events };
+  } finally {
+    if (previous === undefined) delete process.env.PROOF_OR_STOP_MANAGED_REVIEW_STRAGGLER_MS; else process.env.PROOF_OR_STOP_MANAGED_REVIEW_STRAGGLER_MS = previous;
+  }
+}
+
+async function submitReview(root: string, name: string, lane: string, reviewRunId: string, bin: string, codexHome: string): Promise<{ terminal: ManagedHostRunTerminal; runId: string }> {
+  let worker: Promise<ManagedHostRunTerminal> | null = null;
+  {
     const submitted = await submitManagedHostRun({
-      root, cwd: root, host: 'codex', storyId: STORY, phase: 'REVIEW', agentType: LANE, reviewRunId: REVIEW_RUN, lane: LANE, promptText: 'review the concept lane',
+      root, cwd: root, host: 'codex', storyId: STORY, phase: 'REVIEW', agentType: lane, reviewRunId, lane, promptText: `review the ${lane} lane`,
       deadlineMs: 60_000, projectRootHash: `sha256:${name}`, profile: 'managed_reviewer',
       reviewBinding: { headHash: 'h', materialHash: 'm', storyFilesHash: 's', promptHash: 'p', envelopeId: null },
     }, {
@@ -124,13 +150,7 @@ async function runCase(base: string, name: string, opts: { sibling: 'completed' 
     });
     assert.ok(worker, 'the worker was launched');
     const terminal = await (worker as unknown as Promise<ManagedHostRunTerminal>);
-    const log = join(state, 'invocations.jsonl');
-    const invocations = existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line) as { argv: string[]; stdin: string }) : [];
-    const events = readFileSync(join(managedHostRunDirectory(root, submitted.runId), 'events.jsonl'), 'utf8').trim().split('\n').filter(Boolean)
-      .map(line => JSON.parse(line) as { type: string; detail?: Record<string, unknown> });
-    return { terminal, invocations, events };
-  } finally {
-    if (previous === undefined) delete process.env.PROOF_OR_STOP_MANAGED_REVIEW_STRAGGLER_MS; else process.env.PROOF_OR_STOP_MANAGED_REVIEW_STRAGGLER_MS = previous;
+    return { terminal, runId: submitted.runId };
   }
 }
 
@@ -154,7 +174,7 @@ try {
     assert.ok(types(out).includes('review_straggler_verdict_now'), `journaled: ${types(out).join(',')}`);
     assert.ok(types(out).includes('review_straggler_verdict_resume'));
     const decision = out.events.find(event => event.type === 'review_straggler_verdict_now')!.detail!;
-    assert.equal(decision.thresholdMs, 1500, 'max(floor 1500, 2 x median 100)');
+    assert.ok(Number(decision.thresholdMs) >= 1500, `max(floor 1500, 2 x median sibling): ${decision.thresholdMs}`);
   });
   await check('S2 a sibling lane still runs: nothing is stopped', async () => {
     const out = await runCase(base, 'sibling-running', { sibling: 'running', floorMs: '1500' });
@@ -174,6 +194,11 @@ try {
     assert.ok(types(out).includes('review_straggler_verdict_unavailable'), `journaled: ${types(out).join(',')}`);
     assert.ok(!types(out).includes('review_straggler_verdict_now'));
     assert.equal(types(out).filter(type => type === 'review_straggler_verdict_unavailable').length, 1, 'journaled once although the check repeats');
+  });
+  await check('S5 security: a hand-written sibling terminal (no framework-sealed run) is no finished sibling: nothing is stopped', async () => {
+    const out = await runCase(base, 'forged', { sibling: 'forged', floorMs: '1500' });
+    assert.equal(out.invocations.length, 1, 'never stopped');
+    assert.ok(!types(out).some(type => type.startsWith('review_straggler')), `no straggler decision: ${types(out).join(',')}`);
   });
 } finally {
   if (!process.env.KEEP_STRAGGLER_FIXTURE) rmSync(base, { recursive: true, force: true }); else console.log(`fixture kept: ${base}`);

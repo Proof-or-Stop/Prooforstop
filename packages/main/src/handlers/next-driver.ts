@@ -136,7 +136,8 @@ import { disputedRows, pinAuditOffer, pinDisputeRemedy, recordPinAuditOffer, rec
 import { planRemedyConflict, recordPlanRemedy, recordRemedySettlement, remedySettledRefsOf } from '../core/plan-remedy-cycle.js';
 import { initReviewDeferredToPlan, planReviewMergeActive } from '../core/plan-review-merge.js';
 import { intentRowCount, recordRowBudgetOffer, ROW_BUDGET_GUIDANCE, rowBudgetExtras, rowBudgetOfferDue, rowBudgetTrimPayloads } from '../core/plan-row-budget.js';
-import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
+import { abVariantEvidenceOf, baseClaimEvidenceOn, rowBudgetOn } from '../core/ab-variants.js';
+import { repairBaseClaimProblem } from '../core/repair-report-lines.js';
 import { describeUnextractableRows, PROBE_REQUEST_MISMATCH, probeRunnerDeclared, probeSyntaxErrors, reportProbeDecision, requestAnchoredKeys, runnerProbeDecision, storyProbeRunner, unextractableRows, type ProbeFlagDecision } from '../core/request-probes.js';
 import { describeExactTextGap, exactTextKeyOf, exactTextPrefixAssertions, exactRequestLiteralItem, readExactTextState, writeExactTextState, type ExactTextGap } from '../core/exact-text-assertions.js';
 import { implementerRunReports } from '../core/finding-repair-attempts.js';
@@ -679,6 +680,11 @@ function repairRunTestProblem(root: string, gitCwd: string, storyId: string, fin
   // Lab run110: a repair-added test that hashes / git-pins an out-of-scope file is no accepted repair (core/scope-pin-test.ts).
   if (!problem) {
     try { problem = outOfScopePinTestProblem({ gitCwd, commits, contract: new StoryStore(root).readScopeContract(storyId) }); } catch { problem = null; }
+  }
+  // Lab run132 (old-PoS run 135 item L, remediation.baseClaimEvidence): a report claiming a boundary case "already matches
+  // the base" without a [base-evidence] line is no accepted repair (the worker asked for the evidence in-session first).
+  if (!problem && (() => { try { return baseClaimEvidenceOn(loadConfig(root)); } catch { return true; } })()) {
+    problem = repairBaseClaimProblem(managedRunFinalMessage(root, run.runId));
   }
   repairTestProblemCache.set(key, problem);
   return problem;

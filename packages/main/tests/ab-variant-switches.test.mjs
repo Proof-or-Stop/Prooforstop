@@ -67,6 +67,8 @@
  *                                    for its verdict now in its own resumed session
  *   plan.baseEvidence                default ON (`off` = rollback): a pin-audit value the Story base refutes is not offered;
  *                                    dispute / reversal remedies re-pin an existing-behaviour case to the base value
+ *   remediation.baseClaimEvidence    default ON (`off` = rollback; run 135 L, tasks/run135-l-smoke.ts): a finding-repair
+ *                                    report claiming a boundary case matches the base owes a [base-evidence] line
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -140,7 +142,9 @@ await check('config: absent switches resolve to production values; malformed fai
     // Lab run132: the INIT reviewer carry-forward is on (`off` = rollback).
     reviewerCarryForward: 'on',
     // Lab run132 (runs 133/134): the review straggler verdict and the Story-base pin evidence are on (`off` = rollback).
-    stragglerVerdict: 'on', baseEvidence: 'on' });
+    stragglerVerdict: 'on', baseEvidence: 'on',
+    // Lab run132 (run 135 L): a repair report's "matches the base" claim owes base evidence (`off` = rollback).
+    baseClaimEvidence: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -198,6 +202,10 @@ await check('config: absent switches resolve to production values; malformed fai
   const { stragglerVerdictOn, baseEvidenceOn } = await load('core/ab-variants.js');
   assert.equal(stragglerVerdictOn({ review: { stragglerVerdict: 'maybe' } }), true, 'lab run132 (run 133): malformed = on where consumed');
   assert.equal(baseEvidenceOn({ plan: { baseEvidence: 'maybe' } }), true, 'lab run132 (run 134): malformed = on where consumed');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { baseClaimEvidence: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.baseClaimEvidence': 'off' } }, 'lab run132 (run 135 L): the rollback arm is recorded');
+  const { baseClaimEvidenceOn } = await load('core/ab-variants.js');
+  assert.equal(baseClaimEvidenceOn({ remediation: { baseClaimEvidence: 'maybe' } }), true, 'lab run132 (run 135 L): malformed = on where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

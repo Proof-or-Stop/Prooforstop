@@ -48,7 +48,8 @@ import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
-import { baseEvidenceOn, disputeConfirmOn, familyEvidenceOn, probeMatrixOn } from '../core/ab-variants.js';
+import { baseClaimEvidenceOn, baseEvidenceOn, disputeConfirmOn, familyEvidenceOn, probeMatrixOn } from '../core/ab-variants.js';
+import { BASE_EVIDENCE_LINE_FORM, REPAIR_BASE_CLAIM_UNPROVEN, repairBaseClaimProblem } from '../core/repair-report-lines.js';
 import { pinDisputeOffered } from '../core/pin-dispute.js';
 import { counterpartImplementerLines, planCounterpartCoverage, renderCounterpartBackedRows } from '../core/counterpart-coverage.js';
 import { renderSiblingParity } from '../core/sibling-parity.js';
@@ -1137,6 +1138,15 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         for (const row of finding.status === 'open' ? earlierFindingRepairReports(root, args.storyId, finding.id) : []) {
           const problem = branchTestProblem(managedRunFinalMessage(root, row.runId), recorded);
           if (problem) lines.push(`- Earlier repair run ${row.runId} did not report every branch: ${problem}. Test and report those branches now.`);
+        }
+      }
+      // Lab run132 (old-PoS run 135 item L, remediation.baseClaimEvidence): run 135 F-009 came from a repair report saying
+      // the empty-range alias "already matched the base" (it did not). A "matches the base" claim owes base evidence.
+      if (agentType === 'proof-or-stop-finding-repair' && (() => { try { return baseClaimEvidenceOn(loadConfig(root)); } catch { return true; } })()) {
+        lines.push(`- A report sentence saying a boundary case (empty, negative, out of range, zero, nil / null, reversed, omitted) already matches / is unchanged from the Story base owes one line per case: \`${BASE_EVIDENCE_LINE_FORM}\` from running it on the Story base below; without it the repair is not accepted [${REPAIR_BASE_CLAIM_UNPROVEN}].`);
+        for (const row of finding.status === 'open' ? earlierFindingRepairReports(root, args.storyId, finding.id) : []) {
+          const problem = repairBaseClaimProblem(managedRunFinalMessage(root, row.runId));
+          if (problem) lines.push(`- Earlier repair run ${row.runId} was not accepted: ${problem}. Probe those cases on the Story base before relying on them.`);
         }
       }
       const storyBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();

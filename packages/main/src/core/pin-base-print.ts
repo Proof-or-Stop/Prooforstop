@@ -43,7 +43,7 @@
  * concatenation), slot renderings judged only by quoting; dynamic output (the slot value's own printer) is plan.pinProbe's.
  */
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { ChecklistItem } from './types.js';
 import type { StoryStore } from './store.js';
@@ -350,14 +350,10 @@ export function planPinBasePrint(store: Pick<StoryStore, 'readStory' | 'readChec
     const base = pinOracleStoryBase(cwd, story.integrationTarget?.parentCommitAtCreation);
     const inputsDigest = createHash('sha256').update(JSON.stringify({ v: 2, base, requestText, items: items.map(item => ({ id: item.id, status: item.status, intent: item.verificationIntent })) })).digest('hex');
     const path = evidencePath(root, storyId);
+    // Security (lab run132 review): recomputed in this process (in-process memo only); the runtime file is a write-only
+    // journal and never read back, since the owner can write it with a matching inputsDigest.
     const cached = memo.get(path);
     if (cached?.inputsDigest === inputsDigest) return cached;
-    if (existsSync(path)) {
-      try {
-        const stored = JSON.parse(readFileSync(path, 'utf8')) as PinBasePrintEvidence;
-        if (stored.schema === PIN_BASE_PRINT_SCHEMA && stored.inputsDigest === inputsDigest) { memo.set(path, stored); return stored; }
-      } catch { /* recomputed below */ }
-    }
     const files = base ? readBaseSources(cwd, base) ?? [] : [];
     const evidence: PinBasePrintEvidence = { schema: PIN_BASE_PRINT_SCHEMA, storyId, checkedAt: new Date().toISOString(), base, inputsDigest, scanned: files.length,
       conflicts: pinBasePrintConflicts({ items, requestText, files }) };

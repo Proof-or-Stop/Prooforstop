@@ -3258,15 +3258,19 @@ function reviewLaneSiblings(spec: Pick<ManagedHostRunSpec, 'root' | 'storyId' | 
       if (other.storyId === spec.storyId && other.reviewRunId && latest.includes(other.reviewRunId)) byReviewRun.set(other.reviewRunId, runId);
     } catch { /* not a readable managed run */ }
   }
+  // Security (lab run132 review): a sibling counts only through the framework's validated projection of its run (the
+  // immutable spec/owner/snapshot binding) with its sealed artifacts matching its terminal, of the same Story, review
+  // run and reviewer profile. A hand-written terminal.json / events.jsonl beside it is not a finished sibling. Its
+  // duration runs from the run's creation (queueing included: a longer median only stops a straggler later).
   return latest.map(reviewRunId => {
     const runId = byReviewRun.get(reviewRunId);
     if (!runId) return { terminal: false, completed: false, durationMs: null };
     try {
-      const terminal = JSON.parse(readFileSync(join(runsRoot, runId, 'terminal.json'), 'utf8')) as { state?: string; terminalAt?: string };
-      const spawned = readFileSync(join(runsRoot, runId, 'events.jsonl'), 'utf8').split('\n').map(line => { try { return JSON.parse(line) as { type?: string; at?: string }; } catch { return null; } })
-        .find(event => event?.type === 'provider_spawned')?.at;
-      const durationMs = spawned && terminal.terminalAt ? Date.parse(terminal.terminalAt) - Date.parse(spawned) : null;
-      return { terminal: true, completed: terminal.state === 'completed', durationMs: Number.isFinite(durationMs) ? durationMs : null };
+      const run = projectionFor(pathsFor(spec.root, runId));
+      if (run.storyId !== spec.storyId || run.reviewRunId !== reviewRunId || run.profile !== 'managed_reviewer' || !run.terminal) return { terminal: false, completed: false, durationMs: null };
+      assertSealedManagedHostRunArtifacts(pathsFor(spec.root, runId), run.terminal);
+      const durationMs = Date.parse(run.terminal.terminalAt) - Date.parse(run.createdAt);
+      return { terminal: true, completed: run.terminal.state === 'completed', durationMs: Number.isFinite(durationMs) && durationMs >= 0 ? durationMs : null };
     } catch {
       return { terminal: false, completed: false, durationMs: null };
     }

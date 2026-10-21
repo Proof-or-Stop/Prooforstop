@@ -89,7 +89,7 @@
  * otherwise>"). The framework never writes a value. `next` (PLAN) returns the
  * same step before the scope-plan reviewer is launched. Evidence:
  * `.proof-or-stop/runtime/counterpart-coverage/<storyId>.json` (schema,
- * abVariant, base, inputs digest = cache key, checks, refusals, advisories).
+ * abVariant, base, inputs digest (in-process memo key; the file is a write-only journal, never read back), checks, refusals, advisories).
  *
  * Limits (documented in docs/CLI.md): definitions are found by line patterns
  * for Go, Python, and brace languages (JS/TS, Rust, Java, Kotlin, C#, Swift,
@@ -102,7 +102,7 @@
  */
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ChecklistItem } from './types.js';
 import { VERIFICATION_LANES } from './verification.js';
@@ -1141,7 +1141,7 @@ function evidencePath(root: string, storyId: string): string {
 
 const memo = new Map<string, CounterpartCoverageEvidence>();
 
-/** The switch's result for a Story (cached by base + checklist + request), or null when plan.counterpartCoverage is off or the config is unreadable. */
+/** The switch's result for a Story (recomputed per process, memoized by base + checklist + request), or null when plan.counterpartCoverage is off or the config is unreadable. */
 export function planCounterpartCoverage(store: Pick<StoryStore, 'readStory' | 'readChecklist' | 'storyFilePath'>, root: string, storyId: string, gitCwd: string | (() => string)): CounterpartCoverageEvidence | null {
   let config: unknown;
   try { config = loadConfig(root); } catch { return null; }
@@ -1157,13 +1157,9 @@ export function planCounterpartCoverage(store: Pick<StoryStore, 'readStory' | 'r
       items: items.map(item => ({ id: item.id, status: item.status, title: item.title, userSees: item.userSees, context: item.context, intent: item.verificationIntent })) })).digest('hex');
     const path = evidencePath(root, storyId);
     const cached = memo.get(path);
+    // Security (lab run132 review): recomputed in this process (in-process memo only); the runtime file is a write-only
+    // journal and never read back: the owner can write it with a matching inputsDigest (computable from public inputs).
     if (cached?.inputsDigest === inputsDigest) return cached;
-    if (existsSync(path)) {
-      try {
-        const stored = JSON.parse(readFileSync(path, 'utf8')) as CounterpartCoverageEvidence;
-        if (stored.schema === COUNTERPART_COVERAGE_SCHEMA && stored.inputsDigest === inputsDigest) { memo.set(path, stored); return stored; }
-      } catch { /* recomputed below */ }
-    }
     const files = base ? readBaseSources(cwd, base) : null;
     let probeKind: CounterpartCoverageEvidence['probe'] = null;
     let probe: ((cases: ProbeRequest[]) => Array<ProbeObservation | undefined>) | undefined;

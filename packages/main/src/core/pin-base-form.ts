@@ -32,7 +32,7 @@
  * base evidence only from literal pairs in test files.
  */
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { ChecklistItem } from './types.js';
 import type { StoryStore } from './store.js';
@@ -255,13 +255,9 @@ export function planPinBaseForm(store: Pick<StoryStore, 'readStory' | 'readCheck
     const base = pinOracleStoryBase(cwd, story.integrationTarget?.parentCommitAtCreation);
     const inputsDigest = createHash('sha256').update(JSON.stringify({ v: 1, base, requestText, items: items.map(item => ({ id: item.id, status: item.status, intent: item.verificationIntent })) })).digest('hex');
     const cached = memo.get(path);
+    // Security (lab run132 review): recomputed in this process (in-process memo only); the runtime file is a write-only
+    // journal and never read back: the owner can write it with a matching inputsDigest (computable from public inputs).
     if (cached?.inputsDigest === inputsDigest) return cached;
-    if (existsSync(path)) {
-      try {
-        const stored = JSON.parse(readFileSync(path, 'utf8')) as PinBaseFormEvidence;
-        if (stored.schema === PIN_BASE_FORM_SCHEMA && stored.inputsDigest === inputsDigest) { memo.set(path, stored); return stored; }
-      } catch { /* recomputed below */ }
-    }
     const files = base ? (readBaseSources(cwd, base) ?? []).filter(file => isTestSource(file.path)) : [];
     const evidence: PinBaseFormEvidence = { schema: PIN_BASE_FORM_SCHEMA, storyId, checkedAt: new Date().toISOString(), base, inputsDigest, scanned: files.length,
       conflicts: pinBaseFormConflicts({ items, requestText, files }) };

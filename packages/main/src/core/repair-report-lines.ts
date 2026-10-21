@@ -134,6 +134,14 @@ export function unprovenBaseClaims(report: string | null | undefined): string[] 
   return [...new Set(out)];
 }
 
+/** Lab run132 (run 135 L): the acceptance problem of a repair report with unproven base claims, or null. */
+export function repairBaseClaimProblem(report: string | null | undefined): string | null {
+  const claims = unprovenBaseClaims(report);
+  if (!claims.length) return null;
+  return `its report claims base behaviour for a boundary case without base evidence [${REPAIR_BASE_CLAIM_UNPROVEN}]: ${claims.map(claim => `"${claim}"`).join('; ')}; `
+    + `run that case on the Story base and report \`${BASE_EVIDENCE_LINE_FORM}\`, or test the case and fix the repair if the base differs`;
+}
+
 /**
  * The follow-up prompt for a finding repair whose final report misses required lines: ONE resumed turn of the same
  * session that asks for exactly those lines (the commit stays; nothing else is redone). Null when nothing is missing.

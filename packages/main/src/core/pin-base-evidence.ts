@@ -26,8 +26,9 @@
  *   correct  the evidence gives a third value: the correction step re-pins the row to the base value (not the
  *            reviewer's), and a row stating it closes the gap.
  * An error evidence decides only `settle` (its text contains the pinned text) and otherwise keeps the correction.
- * The decisions are recorded under `.proof-or-stop/runtime/pin-audit-base/<storyId>.json` keyed by an inputs digest
- * (base, request, verdict, cited rows) and recomputed on any change; readers never trust a stale record.
+ * The decisions are journaled (write-only) under `.proof-or-stop/runtime/pin-audit-base/<storyId>.json` with an inputs
+ * digest (base, request, verdict, cited rows); every reader recomputes them in its own process (in-process memo only)
+ * and never reads that file back: the owner can write it.
  *
  * Remedies (`storyBaseEvidenceLookup`, injected into core/pin-dispute.ts pinDisputeRemedy and core/pin-amendment.ts
  * pinReversalRemedy): an "exclude" of a value row whose case has base evidence becomes a ready re-pin to the base value
@@ -39,7 +40,7 @@
  * `[0,1,2,3][1:2]`); an error text is compared by containment only.
  */
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { ChecklistItem, ScopeCheckData } from './types.js';
 import type { StoryStore } from './store.js';
@@ -260,14 +261,11 @@ export function planPinAuditBase(store: Pick<StoryStore, 'readStory' | 'readChec
       .map(gap => ({ ref: gap.ref, row: (items.find(item => item.id === gap.itemId)?.verificationIntent as Record<string, unknown[] | undefined> | undefined)?.[gap.lane]?.[gap.index] ?? null }));
     const inputsDigest = createHash('sha256').update(JSON.stringify({ v: 1, base, requestText, verdictAt: scope.checkedAt ?? null, gaps: gaps.map(gap => gap.feature), cited })).digest('hex');
     const path = evidencePath(root, storyId);
+    // Security (lab run132 review): the decisions drop pin-audit gaps and change remedies, so they are recomputed in this
+    // process from the inputs every time (in-process memo only). The runtime file is a write-only journal: an owner can
+    // write it (its inputsDigest is computable from public inputs), so it is never read back.
     const cached = memo.get(path);
     if (cached?.inputsDigest === inputsDigest) return cached;
-    if (existsSync(path)) {
-      try {
-        const stored = JSON.parse(readFileSync(path, 'utf8')) as PinAuditBaseEvidence;
-        if (stored.schema === PIN_AUDIT_BASE_SCHEMA && stored.inputsDigest === inputsDigest) { memo.set(path, stored); return stored; }
-      } catch { /* recomputed below */ }
-    }
     const decisions = pinAuditBaseDecisions(storyBaseEvidenceContext(store, root, storyId, cwd, requestText), items, gaps);
     const evidence: PinAuditBaseEvidence = { schema: PIN_AUDIT_BASE_SCHEMA, storyId, checkedAt: new Date().toISOString(), verdictAt: scope.checkedAt ?? null, base, inputsDigest, decisions };
     try {
