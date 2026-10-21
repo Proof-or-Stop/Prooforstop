@@ -29,6 +29,7 @@ import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
 import { shellQuote } from './shell-quote.js';
 import { rowPins } from './pin-amendment.js';
+import { closeRepinPatch } from './pin-repin-closure.js';
 
 export const INTENT_CONFLICT_OVERRULED = 'intent_conflict_overruled';
 const SCHEMA = 'proof-or-stop.intent-conflict-open.v1' as const;
@@ -151,7 +152,24 @@ export function intentConflictRowPatch(args: { row: IntentRow | undefined; confl
 }
 
 /** The ready intentRows of one item's conflicts, or null when any of them cannot be made ready (prose, userSees, no row). */
-export function intentConflictReadyRows(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[], requestText: string | null):
+export function intentConflictReadyRows(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[], requestText: string | null,
+  opts: { repinAllRows?: boolean } = {}): ReadyRows | null {
+  return closedReadyRows(item, intentConflictReadyRowsRaw(item, conflicts, requestText), 'the request sentence decides it', opts);
+}
+
+/**
+ * Lab run132 (old-PoS run 135 item K, plan.repinAllRows): a ready row patch re-pins EVERY row of the item pinning the
+ * old value of the case (core/pin-repin-closure.ts closeRepinPatch), so pin_reversal_unstated never refuses the call the
+ * framework emits; null (no call offered) when it cannot be made gate-clean.
+ */
+type ReadyRows = Array<{ ref: string; desc?: string; derivation?: { requestQuote: string; computation: string } } & Record<string, unknown>>;
+function closedReadyRows(item: ItemSlice | undefined, rows: ReadyRows | null, why: string, opts: { repinAllRows?: boolean }): ReadyRows | null {
+  if (!item || !rows?.length) return rows;
+  const closed = closeRepinPatch({ storyId: '', item: item as never, patch: rows, why, repinAllRows: opts.repinAllRows });
+  return closed ? closed as ReadyRows : null;
+}
+
+function intentConflictReadyRowsRaw(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[], requestText: string | null):
   Array<{ ref: string; desc: string; derivation: { requestQuote: string; computation: string } }> | null {
   if (!item || !conflicts.length) return null;
   const out = new Map<string, NonNullable<ReturnType<typeof intentConflictRowPatch>>>();
@@ -171,7 +189,11 @@ export function intentConflictReadyRows(item: ItemSlice | undefined, conflicts: 
  * implementer's report as its source; the request quote is kept (the request does not state the pinned text:
  * pinDoubtVerdict). Null when a row states no such variant.
  */
-export function pinDoubtReadyRows(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[]):
+export function pinDoubtReadyRows(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[], opts: { repinAllRows?: boolean } = {}): ReadyRows | null {
+  return closedReadyRows(item, pinDoubtReadyRowsRaw(item, conflicts), "the implementer's [pin-doubt] reports the Story base prints it, and where the request is silent the base decides", opts);
+}
+
+function pinDoubtReadyRowsRaw(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[]):
   Array<{ ref: string; desc: string; derivation: { requestQuote: string; computation: string } }> | null {
   if (!item || !conflicts.length) return null;
   const out = new Map<string, { ref: string; desc: string; derivation: { requestQuote: string; computation: string } }>();

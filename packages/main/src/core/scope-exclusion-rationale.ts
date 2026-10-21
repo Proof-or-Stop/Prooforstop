@@ -131,7 +131,7 @@ export function exclusionRejection(storyId: string, row: ExclusionContradiction,
   const target = row.items[0]!;
   return `scope exclusion rejected [scope_exclusion_contradicted]: "${row.feature}" is closed by the excludes rationale "${row.rationale.slice(0, 200)}", but ${itemList(row.items)} of this Story adds or changes that behaviour, so the rationale does not hold. `
     + `Next (PLAN): add a covering row to ${target.id} that runs the existing behaviour and the new variant on the same operand cases, and drop that excludes entry `
-    + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target.id} --intentRows='${JSON.stringify([coveringRowPatch(target.id, 'changing')])}'\`); then run \`${rerun}\`: ${rerunWhat}.`;
+    + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target.id} --intentRows='${JSON.stringify([coveringRowPatch(target.id, 'changing', row.feature)])}'\`); then run \`${rerun}\`: ${rerunWhat}.`;
 }
 
 /** The scope_gap remedy when an item of the Story changes the gap's behaviour (no excludes route). */
@@ -139,7 +139,7 @@ export function gapCoveredByItemRemedy(storyId: string, feature: string, source:
   const target = items[0]!;
   return `scope gap${source}: the scope-plan reviewer found "${feature}" neither covered nor excluded, and ${itemList(items)} of this Story adds or changes that behaviour, so an excludes entry cannot close it. `
     + `Next (PLAN, no INIT reopen): add a covering row to ${target.id} that runs the existing behaviour and the new variant on the same operand cases `
-    + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target.id} --intentRows='${JSON.stringify([coveringRowPatch(target.id, 'changing')])}'\`); then run \`${rerun}\`: ${rerunWhat}.`;
+    + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target.id} --intentRows='${JSON.stringify([coveringRowPatch(target.id, 'changing', feature)])}'\`); then run \`${rerun}\`: ${rerunWhat}.`;
 }
 
 
@@ -199,9 +199,22 @@ export function checklistChangeIsExcludesOnly(
 
 /** scope_gap remedy for a row an excludes entry cannot close: ONE Next, a covering row pinning the answer. */
 /** Lab initplan: the appended covering row of a gap an excludes entry cannot close (placeholders the owner authors). */
-export function coveringRowPatch(itemId: string, kind: ExcludesProofGap['kind']): Record<string, unknown> {
+/**
+ * Lab run132 (old-PoS run 135 item J): the gap a placeholder covering row is for, as text that stays ONE placeholder
+ * inside `--intentRows='...'` (no `<`, `>`, quotes; whitespace folded; at most 200 characters). Run 135 appended 16 rows
+ * that all read `<the case the gap names -> the expected result>`, so the owner could not tell which row was which gap.
+ */
+export function gapCaseLabel(feature: string | undefined): string {
+  const text = String(feature ?? '').replace(/[<>"'`\\]/g, '').replace(/\s+/g, ' ').trim();
+  return text.length > 200 ? `${text.slice(0, 199).trimEnd()}…` : text;
+}
+
+export function coveringRowPatch(itemId: string, kind: ExcludesProofGap['kind'], feature?: string): Record<string, unknown> {
+  const gap = gapCaseLabel(feature);
   return { ref: `${itemId}:edge:+`,
-    desc: kind === 'precedent' ? '<the operand case of the gap -> the value the chosen precedent gives>' : '<the existing behaviour and the new variant on the same operand case -> the expected result>',
+    desc: kind === 'precedent'
+      ? `<the operand case of the gap${gap ? ` (${gap})` : ''} -> the value the chosen precedent gives>`
+      : `<the existing behaviour and the new variant on the same operand case${gap ? ` of the gap (${gap})` : ''} -> the expected result>`,
     type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
     verification: { command: '<pinned test command, e.g. go test -v ./pkg -run ^TestName$>', selector: '<line its passing run prints, e.g. --- PASS: TestName>' },
     derivation: { requestQuote: '<the request sentence that decides the case, verbatim (a base-counterpart derivation only when no sentence speaks)>', computation: '<the steps from it to the pinned value>' } };
@@ -217,7 +230,7 @@ export function excludesProofGapRemedy(storyId: string, feature: string, source:
     + `${excludesOnly ? ' (the excludes entry added since the verdict leaves the checklist the reviewer judges unchanged, so the reviewer is not rerun on it)' : ''}. `
     + `Next (PLAN, no INIT reopen): add a covering row to ${target} that ${proof.kind === 'precedent' ? 'pins which precedent applies, with a derivation quoting the base probe' : 'runs the existing behaviour and the new variant on the same operand cases'} `
     // Lab initplan (initplan-breakdown.md rank 6): a row patch that appends the covering row, not the whole intent.
-    + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target} --intentRows='${JSON.stringify([coveringRowPatch(target, proof.kind)])}'\`); `
+    + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target} --intentRows='${JSON.stringify([coveringRowPatch(target, proof.kind, feature)])}'\`); `
     + `then run \`${rerun}\`: ${rerunWhat}. The INIT scope boundary is not an input of this verdict.`;
 }
 

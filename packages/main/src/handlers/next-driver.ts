@@ -38,7 +38,7 @@ import { evaluateReviewMaterialReopen } from '../core/review-material-reopen.js'
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, realpathSync, writeFileSync } from 'node:fs';
 import { hostname } from 'node:os';
-import { join, relative, sep } from 'node:path';
+import { join, relative, resolve as resolvePath, sep } from 'node:path';
 import type { HandlerContext } from './context.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { loadConfig, resetConfigCache } from '../core/config.js';
@@ -118,14 +118,15 @@ import { commitMessageNamesFinding, commitMessageNamesItem, implementationGroupi
 import { storyRunMemberClaimUsed } from '../core/lean-story-run.js';
 import { acceptanceAmendmentBlocker } from '../core/acceptance-amendment-journal.js';
 import { missingAcceptance } from '../core/acceptance-amendment-gates.js';
-import { ownerDriver, probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
+import { ownerDriver, probeEnforcementOn, probeMatrixOn, repinAllRowsOn } from '../core/ab-variants.js';
 import { driveUntilAgent, driveWatchdogConfig, NEXT_DRIVE_SCHEMA, runWatchedCall } from './next-drive.js';
 import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 import { conflictPinnedForm, conflictPinnedFragment, MASKED_LITERAL, maskLiterals, parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { intentSemantics } from '../core/verification-intent-amendment.js';
 import { isMetadataTargetFinding, literalOccurrences, metadataCorrectionReadyPayload, openMetadataCorrections, statedForm, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
-import { openPinAuditGaps, parsePinAuditGap, pinAuditRowPatch, pinAuditSweepRows } from '../core/pin-audit-correction.js';
+import { openPinAuditGaps, parsePinAuditGap, pinAuditRowPatch, pinAuditSweepRows, PIN_AUDIT_REPIN_WHY } from '../core/pin-audit-correction.js';
+import { closeRepinPatch } from '../core/pin-repin-closure.js';
 import { pinAuditBaseValues, planPinAuditBase, storyBaseEvidenceLookup, SCOPE_GAP_BASE_SETTLED, type PinAuditBaseEvidence } from '../core/pin-base-evidence.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
 import { baseErrorDecorationOf, describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
@@ -900,7 +901,11 @@ export function journalOpenIntentConflicts(root: string, storyId: string, confli
  * owner returns to PLAN (one command); in PLAN, `next` proposes the audited
  * revision of the first conflicting item.
  */
-export function intentConflictStep(base: { storyId: string; phase: string }, conflicts: readonly OpenIntentConflict[], items?: readonly ChecklistItem[]): NextStep {
+/** Lab run132 (old-PoS run 135 item K): plan.repinAllRows of a project root (default on; unreadable config = on). */
+const repinAllRowsOf = (root: string | undefined): boolean => { try { return root ? repinAllRowsOn(loadConfig(root)) : true; } catch { return true; } };
+
+export function intentConflictStep(base: { storyId: string; phase: string }, conflicts: readonly OpenIntentConflict[], items?: readonly ChecklistItem[],
+  opts: { repinAllRows?: boolean } = {}): NextStep {
   const listed = conflicts.map(describeIntentConflict).join('; ');
   // Lab run89 (fix 1): pin doubts the base printer confirms are re-derived by the framework (DEV->PLAN hop, then the row
   // patch to the base form, item back to pending): nothing for the owner to decide (oracle order: the request is silent,
@@ -917,7 +922,7 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
       'openIntentConflicts ([pin-doubt], pinDoubtVerdict + planPinBaseForm, core/pin-base-form.ts)');
     }
     // Lab run132 (run 133 B): a pin doubt stating the literal the base prints is ONE ready row patch to that literal.
-    const doubtRows = mine.every(row => row.conflict.pinDoubt) ? pinDoubtReadyRows(items?.find(row => row.id === itemId) as never, mine.map(journaledConflict)) : null;
+    const doubtRows = mine.every(row => row.conflict.pinDoubt) ? pinDoubtReadyRows(items?.find(row => row.id === itemId) as never, mine.map(journaledConflict), opts) : null;
     if (doubtRows?.length) {
       return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload: { storyId: base.storyId, itemId, intentRows: doubtRows,
         reason: `pin doubt: ${doubtRows.map(row => row.ref).join(', ')} re-pinned to the output the implementer reports the Story base prints (the request does not state the pinned text)`, status: 'pending' } },
@@ -939,7 +944,7 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
     // request sentence that states it (a bare re-assertion is refused [intent_conflict_overruled]).
     const item = items?.find(row => row.id === itemId);
     const ready = !mine.some(row => row.conflict.pinDoubt || row.conflict.undeclared || row.agentType === FRAMEWORK_PROBE)
-      ? intentConflictReadyRows(item as never, mine.map(journaledConflict), null) : null;
+      ? intentConflictReadyRows(item as never, mine.map(journaledConflict), null, opts) : null;
     if (ready?.length) {
       const pinnedLiteral = conflictLiteral(mine[0]!.conflict.intentPins) ?? intentConflictPair(journaledConflict(mine[0]!))?.pinned ?? null;
       const others = items ? literalOccurrences(items, pinnedLiteral ?? '').filter(row => pinnedLiteral && !(row.itemId === itemId && row.field === 'verificationIntent')) : [];
@@ -989,7 +994,7 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
   }
   // Lab run132 (run 133 B): pin doubts whose rows have a ready patch to the reported base output take the same hop.
   const readyDoubts = conflicts.length > 0 && conflicts.every(row => row.conflict.pinDoubt) && [...new Set(conflicts.map(row => row.itemId))]
-    .every(itemId => Boolean(pinDoubtReadyRows(items?.find(row => row.id === itemId) as never, conflicts.filter(row => row.itemId === itemId).map(journaledConflict))?.length));
+    .every(itemId => Boolean(pinDoubtReadyRows(items?.find(row => row.id === itemId) as never, conflicts.filter(row => row.itemId === itemId).map(journaledConflict), opts)?.length));
   if (confirmed(conflicts) || readyDoubts) {
     return step(base, 'framework', 'pin_doubt_plan', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
       `Pin doubt (${listed}). The pinned value is not stated by the request and the Story base renders it differently, so the row is re-derived to the base form before anything is built for it. Intents are frozen in DEV: DEV->PLAN now (framework step); in PLAN ${confirmed(conflicts) ? 'the framework applies the row patch' : 'next gives the ready row patch to the base output the implementer reports'} and DEV implements the item again.`,
@@ -1146,6 +1151,14 @@ export function pinAuditCorrectionStep(base: { storyId: string; phase: string },
     const sweep = pinAuditSweepRows(items, gap, cited);
     for (const row of sweep.ready) { add(row.itemId, row.patch); swept.push(row.ref); }
     for (const ref of sweep.named) named.add(ref);
+  }
+  // Lab run132 (old-PoS run 135 item K, plan.repinAllRows): each item's row patch re-pins every row of the case with the
+  // `re-pin:` clause pin_reversal_unstated requires (core/pin-repin-closure.ts); one that cannot be made gate-clean is
+  // not offered as ready (the owner composes the whole intent instead).
+  const repinAll = repinAllRowsOf(root);
+  for (const [itemId, rows] of patches) {
+    const closed = closeRepinPatch({ storyId: base.storyId, item: items.find(item => item.id === itemId) as never, patch: rows, why: PIN_AUDIT_REPIN_WHY, repinAllRows: repinAll });
+    if (closed) patches.set(itemId, closed as typeof rows); else { patches.delete(itemId); unpatched.add(itemId); }
   }
   const userSees = [...new Set(gaps.flatMap(gap => literalOccurrences(items, gap.pinned).filter(row => row.field === 'userSees').map(row => row.ref)))];
   const calls = [...new Set([...gaps.map(gap => gap.itemId), ...patches.keys()])].map(itemId => {
@@ -2352,7 +2365,7 @@ export function pinDisputeStep(base: { storyId: string; phase: string }, store: 
     const baseOf = storyBaseEvidenceLookup(store, root, base.storyId, gitCwd);
     let remedies = disputes.flatMap(dispute => {
       const item = items.find(row => row.id === dispute.itemId);
-      const remedy = item ? pinDisputeRemedy({ storyId: base.storyId, item: item as never, dispute, requestText: request.status === 'ok' ? request.text : null, counterpart, baseOf: baseOf as never }) : null;
+      const remedy = item ? pinDisputeRemedy({ storyId: base.storyId, item: item as never, dispute, requestText: request.status === 'ok' ? request.text : null, counterpart, baseOf: baseOf as never, repinAllRows: repinAllRowsOf(root) }) : null;
       return remedy ? [remedy] : [];
     });
     if (!remedies.length) return null;
@@ -2725,7 +2738,10 @@ export function guardRefusalSummary(failure: string): string {
  * live and the reference driver.
  */
 export function storyReviewBlockersStep(base: { storyId: string; phase: string }, failure: string, blockers: ReadonlyArray<{ type: string; message: string }>): NextStep {
-  const listed = blockers.slice(0, 8).map((row, index) => `(${index + 1}) ${row.type}: ${row.message.length > 600 ? `${row.message.slice(0, 599)}…` : row.message}`).join(' ');
+  // Lab run132 (old-PoS run 135 item J): every blocker in full (run 135 listed 8 of 16, each cut at 600 characters, and
+  // the owner dug the rest out of story_get); a long Why spills whole to its -why.txt (spillLargeNextStep), and the
+  // count leads so the cut step still says how many there are.
+  const listed = blockers.map((row, index) => `(${index + 1}) ${row.type}: ${row.message}`).join(' ');
   // Old-PoS runs 61 / 63: when every open scope gap is one an excludes entry cannot close, the header does not offer that route.
   const scopeGaps = blockers.filter(row => row.type === 'scope_gap');
   const excludesRoute = scopeGaps.length > 0 && scopeGaps.every(row => /excludes entry cannot close it/.test(row.message)) ? '' : ', or add an excludes entry naming it and why';
@@ -2735,7 +2751,7 @@ export function storyReviewBlockersStep(base: { storyId: string; phase: string }
   // Lab plan-deadend (old-PoS run 121): an open question's own resolve command joins the batch (resolution authored).
   const calls = [...mergeChecklistUpdateCalls(blockers.flatMap(row => blockerRowPatchCalls(row.message))), ...blockers.flatMap(row => openQuestionResolveCalls(row.message))];
   const why = `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is current; fix each blocker in PLAN `
-    + `(checklist_update: cover the point, correct the pinned value${excludesRoute}): ${listed}${blockers.length > 8 ? ` +${blockers.length - 8} more` : ''}. `
+    + `(checklist_update: cover the point, correct the pinned value${excludesRoute}); ${blockers.length} blocker${blockers.length === 1 ? '' : 's'}, every one listed in full: ${listed}. `
     + `${GAP_ROW_QUOTE_RULE} `
     + (calls.length ? `The row patches below carry those blockers' rows (${calls.length} checklist_update command(s), one per item: each patches only the named rows by ref and appends new rows with <item>:<lane>:+; author every <...> field). ` : '')
     + `Then run \`proof-or-stop next --storyId=${base.storyId} --run\`: the changed checklist stales the round and the scope-plan verdict, so it reruns story_review and relaunches the scope-plan reviewer once on the final checklist (do not run story_review or host_run by hand).`;
@@ -2958,7 +2974,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // Old-PoS run 31: probe rows still contradicting their request sentence after a relaunch.
       ...probeEscalationConflicts(openProbeFlags({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, items: ctx.store.readChecklist(storyId).items }))];
     journalOpenIntentConflicts(ctx.root, storyId, conflicts);
-    if (conflicts.length > 0) return intentConflictStep(base, conflicts, ctx.store.readChecklist(storyId).items);
+    if (conflicts.length > 0) return intentConflictStep(base, conflicts, ctx.store.readChecklist(storyId).items, { repinAllRows: repinAllRowsOf(ctx.root) });
     // Old-PoS run 31: a Story-metadata review finding routed back to PLAN (intent rows).
     const metadata = metadataStep(base);
     if (metadata) return metadata;
@@ -3269,7 +3285,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
       const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: hostRuns });
       if (conflicts.length > 0) journalOpenIntentConflicts(ctx.root, storyId, conflicts);
-      if (conflicts.length > 0) return intentConflictStep(base, conflicts, ctx.store.readChecklist(storyId).items);
+      if (conflicts.length > 0) return intentConflictStep(base, conflicts, ctx.store.readChecklist(storyId).items, { repinAllRows: repinAllRowsOf(ctx.root) });
       // Old-PoS run 31: Story-metadata corrections are owner work, never repair work.
       const metadata = metadataStep(base);
       if (metadata) return metadata;
@@ -4266,8 +4282,9 @@ const NEXT_STEP_INLINE_PAYLOAD_CHARS = 600;
  * the <...> values in the file), and caps the Why (full text in a file). The
  * --json form is unchanged.
  */
-export function spillLargeNextStep(next: NextStep, dir: string): NextStep {
+export function spillLargeNextStep(next: NextStep, spillDir: string): NextStep {
   if (renderNextStep(next).length <= NEXT_STEP_RENDER_CAP_CHARS) return next;
+  const dir = resolvePath(spillDir);
   mkdirSync(dir, { recursive: true });
   const stamp = `${(next.storyId || 'story').replace(/[^A-Za-z0-9_-]/g, '_')}-${next.reason.replace(/[^A-Za-z0-9_-]/g, '_')}-${Date.now().toString(36)}`;
   const spill = <T extends { command: string | null; cli: { command: string; payload: Record<string, unknown> } | null; placeholderHints?: Record<string, string> }>(call: T, index: number): T => {
@@ -4285,11 +4302,15 @@ export function spillLargeNextStep(next: NextStep, dir: string): NextStep {
   let out: NextStep = next.batch?.length
     ? { ...next, batch: next.batch.map((call, index) => spill(call, index + 1)) }
     : next.cli ? spill(next, 0) : next;
+  // Lab run132 (old-PoS run 135 item J): the spilled files are named by absolute path, and the step says to edit them
+  // there (run 135's owner patched `.proof-or-stop/...` relative to /app, not the Story worktree the command reads).
+  const spilled = (out.batch ?? [out]).some(call => /@\//.test(String(call.command ?? '')));
+  const where = spilled ? ` The payload files above are at their absolute paths in the Story's git worktree (${dir}): edit them at that absolute path (an editor or apply_patch with the absolute path), never a path relative to another directory.` : '';
   if (out.why.length > NEXT_STEP_WHY_CAP_CHARS) {
     const file = join(dir, `${stamp}-why.txt`);
     writeFileSync(file, `${next.why}\n`);
-    out = { ...out, why: `${out.why.slice(0, NEXT_STEP_WHY_CAP_CHARS)}… (full text: ${file})` };
-  }
+    out = { ...out, why: `${out.why.slice(0, NEXT_STEP_WHY_CAP_CHARS)}… (full text, the whole list: ${file}).${where}` };
+  } else if (where) out = { ...out, why: `${out.why}${where}` };
   return out;
 }
 

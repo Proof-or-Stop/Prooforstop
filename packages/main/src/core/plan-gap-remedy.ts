@@ -27,7 +27,7 @@
  * Detection: the doc settle waives only a reviewer gap on unrequested documentation that no item changes; any gap the
  * request or an item makes the Story's own stays a blocker with its row patch.
  */
-import { behaviourTerms, itemsChangingBehaviour } from './scope-exclusion-rationale.js';
+import { behaviourTerms, gapCaseLabel, itemsChangingBehaviour } from './scope-exclusion-rationale.js';
 import { requestAsksDocsChange } from './boundary-path-excludes.js';
 import { isDocumentationPath, normalizeScopePath, pathMatchesScopePattern } from './scope-path-classifier.js';
 
@@ -109,8 +109,10 @@ export function gapCoveringTarget(feature: string, items: readonly ItemLike[]): 
 }
 
 /** The appended covering row of a plain gap (placeholders the owner authors; nothing is pinned for it). */
-export function gapCoveringRowPatch(itemId: string): Record<string, unknown> {
-  return { ref: `${itemId}:edge:+`, desc: '<the case the gap names -> the expected result>',
+export function gapCoveringRowPatch(itemId: string, feature?: string): Record<string, unknown> {
+  // Lab run132 (old-PoS run 135 item J): the placeholder names the gap it covers.
+  const gap = gapCaseLabel(feature);
+  return { ref: `${itemId}:edge:+`, desc: `<the case the gap names${gap ? ` (${gap})` : ''} -> the expected result>`,
     type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
     verification: { command: '<pinned test command, e.g. go test -v ./pkg -run ^TestName$>', selector: '<line its passing run prints, e.g. --- PASS: TestName>' },
     derivation: { requestQuote: '<the request sentence that decides the case, verbatim (a base-counterpart derivation only when no sentence speaks)>', computation: '<the steps from it to the pinned value>' } };
@@ -131,7 +133,7 @@ export function plainScopeGapRemedy(args: { storyId: string; feature: string; so
       + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=<CHK-id> --excludes='[...current excludes, "${feature}: <why>"]'\`); ${tail}`;
   }
   return `${head}Next (PLAN, no INIT reopen): cover it with a row on ${target} that pins the case it names `
-    + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target} --intentRows='${JSON.stringify([gapCoveringRowPatch(target)])}'\`); `
+    + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target} --intentRows='${JSON.stringify([gapCoveringRowPatch(target, feature)])}'\`); `
     + `only for reference-only material or an acknowledged constraint, append an excludes entry to ${target} instead that names it and says why `
     + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target} --excludes='[...current excludes, "${feature.slice(0, 160)}: <why>"]'\`); ${tail}`;
 }

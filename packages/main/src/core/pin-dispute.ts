@@ -35,6 +35,7 @@ import { counterpartRowRoles, edgeLabel, rowPinsError, COUNTERPART_PRECEDENCE, t
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
 import { leadingLiteral, sameValue } from './pin-audit-correction.js';
+import { closeRepinPatch } from './pin-repin-closure.js';
 
 /** Lab run132: the shape of core/pin-base-evidence.ts BaseEvidence the remedies read (no import cycle). */
 export interface BaseEvidenceLike { value: string; status: 'value' | 'error'; detail: string }
@@ -133,7 +134,21 @@ type ItemLike = Pick<ChecklistItem, 'id' | 'title' | 'userSees' | 'status' | 'ex
 export function pinDisputeRemedy(args: { storyId: string; item: ItemLike; dispute: DisputedRow; requestText: string | null;
   counterpart?: Pick<CounterpartCoverageResult, 'checks'> | null;
   /** Lab run132 (run 134 item 2, plan.baseEvidence): the Story-base evidence of a row's case (core/pin-base-evidence.ts). */
-  baseOf?: ((item: ItemLike, ref: string) => BaseEvidenceLike | null) | null }): PinDisputeRemedy | null {
+  baseOf?: ((item: ItemLike, ref: string) => BaseEvidenceLike | null) | null;
+  /** Lab run132 (old-PoS run 135 item K, plan.repinAllRows; default true): close the row patch over every row of the case. */
+  repinAllRows?: boolean }): PinDisputeRemedy | null {
+  const raw = pinDisputeRemedyRaw(args);
+  // Lab run132 (old-PoS run 135 item K): a ready row patch re-pins EVERY row of the item pinning the old value of the
+  // case, its re-pin stated (core/pin-repin-closure.ts), or no call is offered (the framework never emits a call its own
+  // pin_reversal_unstated gate refuses). An owner-filled template (`<the value ...>`) is not a ready call: kept as it is.
+  const rows = raw?.payload?.intentRows;
+  if (!raw || !Array.isArray(rows) || /"<[a-z][^"]*>"|<the [^<>]*>/i.test(JSON.stringify(rows))) return raw;
+  const closed = closeRepinPatch({ storyId: args.storyId, item: args.item as never, patch: rows as Array<Record<string, unknown>>, why: raw.why, repinAllRows: args.repinAllRows });
+  if (!closed) return null;
+  return closed === rows ? raw : { ...raw, payload: { ...raw.payload, intentRows: closed } };
+}
+
+function pinDisputeRemedyRaw(args: Parameters<typeof pinDisputeRemedy>[0]): PinDisputeRemedy | null {
   const { storyId, item, dispute } = args;
   const row = (item.verificationIntent?.[dispute.lane as (typeof VERIFICATION_LANES)[number]] ?? [])[dispute.index] as { desc?: string; derivation?: { requestQuote?: string } } | undefined;
   if (!row?.desc) return null;

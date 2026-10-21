@@ -179,6 +179,15 @@ function replaceOnValueSide(desc: string, from: string, to: string): string {
  * rows only, or every text field. Lab run132: `side` 'value' reverts a cited row's desc on its value side only (a ready
  * patch leaves the case side as it was, and that side may state the requested value as an input).
  */
+/**
+ * Lab run132 (old-PoS run 135 item K): the `re-pin:` clause a pin_audit_correction row states (pin_reversal_unstated
+ * requires it once the Story has been in DEV) ends with this text; reverting the requested values drops the clause, so
+ * a checklist whose only changes are the requested values (and their re-pin clauses) still reproduces the judged one.
+ */
+export const PIN_AUDIT_REPIN_WHY = 'the scope-plan pin audit requests this value';
+const PIN_AUDIT_REPIN_CLAUSE = new RegExp(`(?:^|;\\s*)re-pin: (?:(?!re-pin: )[\\s\\S])*?: ${PIN_AUDIT_REPIN_WHY}`, 'g');
+export const withoutPinAuditRepin = (computation: string): string => computation.replace(PIN_AUDIT_REPIN_CLAUSE, '');
+
 function revertRequestedValues(items: readonly ChecklistItem[], gaps: readonly PinAuditGap[], scope: 'cited' | 'all', side: 'value' | 'whole' = 'whole'): ChecklistItem[] {
   const revert = (text: string, gapsHere: readonly PinAuditGap[]): string => gapsHere.reduce((current, gap) => replaceToken(current, gap.requestValue, gap.pinned), text);
   const revertDesc = (text: string, gapsHere: readonly PinAuditGap[]): string => side === 'value' && scope === 'cited'
@@ -193,7 +202,7 @@ function revertRequestedValues(items: readonly ChecklistItem[], gaps: readonly P
         if (!applicable.length) return;
         if (typeof row.desc === 'string') row.desc = revertDesc(row.desc, applicable);
         const derivation = (row as { derivation?: { computation?: string } }).derivation;
-        if (derivation && typeof derivation.computation === 'string') derivation.computation = revert(derivation.computation, applicable);
+        if (derivation && typeof derivation.computation === 'string') derivation.computation = revert(withoutPinAuditRepin(derivation.computation), applicable);
       });
     }
     return copy;

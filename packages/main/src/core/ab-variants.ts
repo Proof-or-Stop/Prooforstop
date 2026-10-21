@@ -195,6 +195,10 @@
  *   review.deltaSelectorRepair 'on' (default) | 'off'  a delta confirmation lane's generic [reverified] selector (`PASS`) is
  *                              filled from the test its command names or the lane's recorded run of it (the re-run still
  *                              checks it), else asked for once in its own resumed session (core/delta-reverify-selector.ts)
+ *   plan.repinAllRows          'on' (default) | 'off'  old-PoS run 135 K: pin_reversal_unstated compares a new pin with
+ *                              every earlier pin of its case (an unchanged prefix-pinned row is no reversal), and the
+ *                              reversal remedy re-pins every row of the item and of other items pinning the old value,
+ *                              as row patches (core/pin-amendment.ts)
  *   plan.baseEvidence          'on' (default) | 'off'  Story-base evidence (a request literal example, the declared
  *                              evaluator, a base test stating the case) decides a pin-audit value the reviewer requests
  *                              and replaces a plan_pin_dispute / pin-reversal "exclude" of an existing-behaviour case by
@@ -249,6 +253,7 @@ export const AB_VARIANT_FLAGS = {
   'review.stragglerVerdict': ['on', 'off'],
   'review.deltaSelectorRepair': ['on', 'off'],
   'plan.baseEvidence': ['on', 'off'],
+  'plan.repinAllRows': ['on', 'off'],
   'remediation.baseClaimEvidence': ['on', 'off'],
   'remediation.duplicateReproAppend': ['on', 'off'],
 } as const;
@@ -261,7 +266,7 @@ export interface AbVariantConfigSlice {
   remediation?: { grouping?: string; thread?: string; familyEvidence?: string; fileStateSettle?: string; scopeGateSettle?: string; conflictSettle?: string; baseClaimEvidence?: string; duplicateReproAppend?: string };
   scope?: { boundaryExcludes?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
-  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string; docDriftSettle?: string; intentConflictGuard?: string; baseEvidence?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string; docDriftSettle?: string; intentConflictGuard?: string; baseEvidence?: string; repinAllRows?: string };
   dev?: { probeEnforcement?: string; removedGuardScan?: string };
   pipeline?: { lean?: string };
   init?: { reviewerCarryForward?: string };
@@ -307,6 +312,7 @@ export interface AbVariants {
   stragglerVerdict: AbVariantValue<'review.stragglerVerdict'>;
   deltaSelectorRepair: AbVariantValue<'review.deltaSelectorRepair'>;
   baseEvidence: AbVariantValue<'plan.baseEvidence'>;
+  repinAllRows: AbVariantValue<'plan.repinAllRows'>;
   baseClaimEvidence: AbVariantValue<'remediation.baseClaimEvidence'>;
   duplicateReproAppend: AbVariantValue<'remediation.duplicateReproAppend'>;
 }
@@ -405,6 +411,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     stragglerVerdict: pick('review.stragglerVerdict', section(config, 'review').stragglerVerdict),
     deltaSelectorRepair: pick('review.deltaSelectorRepair', section(config, 'review').deltaSelectorRepair),
     baseEvidence: pick('plan.baseEvidence', section(config, 'plan').baseEvidence),
+    repinAllRows: pick('plan.repinAllRows', section(config, 'plan').repinAllRows),
     baseClaimEvidence: pick('remediation.baseClaimEvidence', section(config, 'remediation').baseClaimEvidence),
     duplicateReproAppend: pick('remediation.duplicateReproAppend', section(config, 'remediation').duplicateReproAppend),
   };
@@ -452,6 +459,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.stragglerVerdict !== 'on') flags['review.stragglerVerdict'] = variants.stragglerVerdict;
   if (variants.deltaSelectorRepair !== 'on') flags['review.deltaSelectorRepair'] = variants.deltaSelectorRepair;
   if (variants.baseEvidence !== 'on') flags['plan.baseEvidence'] = variants.baseEvidence;
+  if (variants.repinAllRows !== 'on') flags['plan.repinAllRows'] = variants.repinAllRows;
   if (variants.baseClaimEvidence !== 'on') flags['remediation.baseClaimEvidence'] = variants.baseClaimEvidence;
   if (variants.duplicateReproAppend !== 'on') flags['remediation.duplicateReproAppend'] = variants.duplicateReproAppend;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
@@ -467,7 +475,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle' | 'remediation.scopeGateSettle' | 'remediation.conflictSettle' | 'plan.intentConflictGuard' | 'init.reviewerCarryForward' | 'review.stragglerVerdict' | 'review.deltaSelectorRepair' | 'plan.baseEvidence' | 'remediation.baseClaimEvidence' | 'remediation.duplicateReproAppend'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle' | 'remediation.scopeGateSettle' | 'remediation.conflictSettle' | 'plan.intentConflictGuard' | 'init.reviewerCarryForward' | 'review.stragglerVerdict' | 'review.deltaSelectorRepair' | 'plan.baseEvidence' | 'remediation.baseClaimEvidence' | 'remediation.duplicateReproAppend' | 'plan.repinAllRows'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -530,6 +538,8 @@ export const stragglerVerdictOn = (config: unknown): boolean => catchEarlierPick
 export const deltaSelectorRepairOn = (config: unknown): boolean => catchEarlierPick(config, 'review.deltaSelectorRepair') === 'on';
 /** Lab run132 plan.baseEvidence (default on; `off` = rollback): Story-base evidence decides pin-audit values and replaces existing-behaviour excludes (core/pin-base-evidence.ts); malformed = on. */
 export const baseEvidenceOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.baseEvidence') === 'on';
+/** Lab run132 plan.repinAllRows (old-PoS run 135 item K; default on; `off` = rollback): pin_reversal_unstated compares a pin with every earlier pin of its case, and the reversal remedy re-pins every row (and other items) pinning the old value, as row patches (core/pin-amendment.ts); malformed = on. */
+export const repinAllRowsOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.repinAllRows') === 'on';
 /** Lab run132 remediation.baseClaimEvidence (default on; `off` = rollback): a repair report's "matches the base" claim about a boundary case owes a [base-evidence] line (core/repair-report-lines.ts); malformed = on. */
 export const baseClaimEvidenceOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.baseClaimEvidence') === 'on';
 

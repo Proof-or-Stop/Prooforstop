@@ -30,6 +30,10 @@ import { pinDisputeRemedy, type BaseEvidenceLike } from './pin-dispute.js';
 import { counterpartRowRoles, type CounterpartCoverageResult } from './counterpart-coverage.js';
 import { shellQuote } from './shell-quote.js';
 import { leadingLiteral, sameValue } from './pin-audit-correction.js';
+import { alignCaseRows, intentRowPatchOf, rowPins, unstatedPinReversals, type PinReversal } from './pin-repin-closure.js';
+
+// Lab run132 (old-PoS run 135 item K): the gate core lives in core/pin-repin-closure.ts (no import cycle with pin-dispute).
+export { closeRepinPatch, intentRowPatchOf, rowPins, unstatedPinReversals, type PinReversal } from './pin-repin-closure.js';
 
 export const PIN_REVERSAL_UNSTATED = 'pin_reversal_unstated';
 const LANES = ['happy', 'edge', 'adversarial'] as const;
@@ -37,52 +41,6 @@ type Row = { desc?: string; derivation?: { requestQuote?: string; computation?: 
 
 const rowsOf = (intent: VerificationIntent | undefined): Row[] => LANES.flatMap(lane => ((intent as unknown as Record<string, Row[] | undefined>)?.[lane] ?? []));
 
-/**
- * The `<case> -> <value>` pairs a row states (each backticked span, else the desc), case and value normalized. Lab run132
- * (old-PoS run 134: `[0,1,2,3][1:2] -> [1] preserves existing two-part ... behavior` vs `-> [2] preserves ...`): a value
- * side that starts with a literal (a quoted string, a bracket group, a number) followed by prose is that literal, so a
- * re-pin clause naming the old literal states the reversal, and a row whose literal is unchanged (only its prose
- * changed) reverses nothing.
- */
-export function rowPins(desc: string): Array<{ caseKey: string; caseText: string; value: string; valueText: string }> {
-  const spans = [...desc.matchAll(/`([^`]+)`/g)].map(match => match[1]!);
-  const out: Array<{ caseKey: string; caseText: string; value: string; valueText: string }> = [];
-  for (const text of spans.length ? spans : [desc]) {
-    const arrow = text.match(/\s*(?:->|→|=>)\s*/);
-    if (!arrow || arrow.index === undefined || arrow.index === 0) continue;
-    const caseText = text.slice(0, arrow.index).trim();
-    const sideText = text.slice(arrow.index + arrow[0].length).trim();
-    const literal = leadingLiteral(sideText);
-    const valueText = literal && /^\s+[A-Za-z(]/.test(sideText.slice(literal.length)) ? literal : sideText;
-    const caseKey = normalizeProbe(caseText);
-    const value = normalizeProbe(valueText);
-    if (caseKey.length >= 3 && value) out.push({ caseKey, caseText, value, valueText });
-  }
-  return out;
-}
-
-export interface PinReversal { caseText: string; oldValue: string; newValue: string }
-
-/**
- * E: the cases whose pinned value the new intent changes without stating it.
- * A row states the re-pin when its desc or derivation says `re-pin` and names
- * the old value.
- */
-export function unstatedPinReversals(before: VerificationIntent | undefined, after: VerificationIntent | undefined): PinReversal[] {
-  const old = new Map<string, { caseText: string; value: string; valueText: string }>();
-  for (const row of rowsOf(before)) for (const pin of rowPins(String(row.desc ?? ''))) if (!old.has(pin.caseKey)) old.set(pin.caseKey, pin);
-  const out: PinReversal[] = [];
-  for (const row of rowsOf(after)) {
-    const statement = `${row.desc ?? ''} ${row.derivation?.computation ?? ''} ${row.derivation?.requestQuote ?? ''}`;
-    for (const pin of rowPins(String(row.desc ?? ''))) {
-      const earlier = old.get(pin.caseKey);
-      if (!earlier || earlier.value === pin.value) continue;
-      const stated = /\bre-?pin/i.test(statement) && normalizeProbe(statement).includes(earlier.value);
-      if (!stated && !out.some(row => row.caseText === pin.caseText)) out.push({ caseText: pin.caseText, oldValue: earlier.valueText, newValue: pin.valueText });
-    }
-  }
-  return out;
-}
 
 export const PIN_ORACLE_ORDER = 'Oracle order: a request sentence decides; else the SAME receiver\'s pre-existing counterpart (its read for a new write, its write for a new read); another receiver\'s same operation is only secondary.';
 
@@ -99,7 +57,9 @@ export const PIN_ORACLE_ORDER = 'Oracle order: a request sentence decides; else 
  *                the re-pin stated.
  * Every remedy passes unstatedPinReversals against the stored rows. Null when no row of a reversal is found.
  */
-export interface PinReversalRemedy { kind: 'repin' | 'keep' | 'counterpart' | 'relax' | 'exclude' | 'base'; why: string; payload: Record<string, unknown> }
+export interface PinReversalRemedy { kind: 'repin' | 'keep' | 'counterpart' | 'relax' | 'exclude' | 'base'; why: string; payload: Record<string, unknown>;
+  /** Lab run132 (old-PoS run 135 item K): ready row patches of other items that pin the same case with the old value. */
+  also?: Array<Record<string, unknown>> }
 
 type IntentRow = Row & Record<string, unknown>;
 type ItemLike = Pick<ChecklistItem, 'id' | 'title' | 'userSees' | 'status' | 'excludes'> & { verificationIntent?: VerificationIntent | unknown; files?: { modify?: readonly string[]; create?: readonly string[] } };
@@ -129,8 +89,14 @@ const withRepin = (row: IntentRow, reversal: PinReversal, why: string, now = rev
 export function pinReversalRemedy(args: { storyId: string; item: ItemLike; afterIntent: unknown; reversals: readonly PinReversal[]; requestText: string | null;
   counterpart?: Pick<CounterpartCoverageResult, 'checks'> | null; ownerArgs?: Record<string, unknown>;
   /** Lab run132 (run 134 item 2, plan.baseEvidence): the Story-base evidence of a row's case (core/pin-base-evidence.ts). */
-  baseOf?: ((item: ItemLike, ref: string) => BaseEvidenceLike | null) | null }): PinReversalRemedy | null {
+  baseOf?: ((item: ItemLike, ref: string) => BaseEvidenceLike | null) | null;
+  /** Lab run132 (old-PoS run 135 item K, plan.repinAllRows; default true): every row pinning the case, row patches, other items. */
+  repinAllRows?: boolean;
+  /** The Story's other items (their rows pinning the same case with the old value get their own ready call). */
+  otherItems?: readonly ItemLike[] }): PinReversalRemedy | null {
   if (!args.reversals.length) return null;
+  const allRows = args.repinAllRows !== false;
+  const targets: Array<{ reversal: PinReversal; caseKey: string; lane: (typeof LANES)[number]; index: number }> = [];
   const next = structuredClone(args.afterIntent ?? {}) as Record<string, IntentRow[] | undefined>;
   const kinds: PinReversalRemedy['kind'][] = [];
   const whys: string[] = [];
@@ -141,6 +107,7 @@ export function pinReversalRemedy(args: { storyId: string; item: ItemLike; after
     const target = findPinRow(next, caseKey, normalizeProbe(reversal.newValue));
     const earlier = findPinRow(args.item.verificationIntent, caseKey, normalizeProbe(reversal.oldValue));
     if (!target || !earlier) return null;
+    targets.push({ reversal, caseKey, lane: target.lane, index: target.index });
     const rows = next[target.lane]!;
     const request = args.requestText ?? '';
     const statesNew = statesBoth(request, reversal.caseText, reversal.newValue);
@@ -185,7 +152,7 @@ export function pinReversalRemedy(args: { storyId: string; item: ItemLike; after
       continue;
     }
     const dispute = pinDisputeRemedy({ storyId: args.storyId, item: args.item as never, requestText: args.requestText, counterpart: args.counterpart ?? null,
-      dispute: { ref: earlierRef, itemId: args.item.id, lane: earlier.lane, index: earlier.index, verdicts: 1, features: [] } });
+      dispute: { ref: earlierRef, itemId: args.item.id, lane: earlier.lane, index: earlier.index, verdicts: 1, features: [] }, repinAllRows: args.repinAllRows });
     const ready = dispute?.payload && !/<[a-z][^<>]*>/i.test(JSON.stringify(dispute.payload));
     if (dispute && ready && dispute.kind === 'relax') {
       const patch = ((dispute.payload!.intentRows as IntentRow[] | undefined) ?? [])[0] ?? {};
@@ -206,26 +173,57 @@ export function pinReversalRemedy(args: { storyId: string; item: ItemLike; after
     rows[target.index] = withRepin(target.row, reversal, 'the request and the same receiver\'s counterpart are silent and the item itself adds the case; the PLAN value stands');
     kinds.push('repin'); whys.push(`\`${reversal.caseText}\`: no oracle decides it; the new pin stands with the re-pin stated`);
   }
+  // Lab run132 (old-PoS run 135 item K): the decided value goes to EVERY row of the item that still pins the old value of
+  // the case (a duplicate pin in another lane), with the re-pin stated; a row whose pin the decided value satisfies (a
+  // prefix pin, the same value) stays as it is. The decided values also go to other items' rows (`also`).
+  const decided = allRows ? targets.filter(row => !removals.some(removal => removal.lane === row.lane && removal.index === row.index))
+    .map(row => ({ ...row, value: rowPins(String(next[row.lane]?.[row.index]?.desc ?? '')).find(pin => pin.caseKey === row.caseKey)?.valueText ?? null }))
+    .filter((row): row is typeof row & { value: string } => row.value !== null) : [];
+  if (allRows) {
+    for (const row of decided) alignCaseRows(next, row.caseKey, row.reversal, row.value, `${args.item.id}:${row.lane}:${row.index}`, { lane: row.lane, index: row.index });
+  }
   for (const removal of removals.sort((a, b) => b.index - a.index)) next[removal.lane]!.splice(removal.index, 1);
-  if (unstatedPinReversals(args.item.verificationIntent as VerificationIntent, next as unknown as VerificationIntent).length) return null;
+  if (unstatedPinReversals(args.item.verificationIntent as VerificationIntent, next as unknown as VerificationIntent, { allEarlierPins: allRows }).length) return null;
   const { intentRows: _rows, verificationIntent: _intent, intentBasis: _basis, ...owner } = args.ownerArgs ?? {};
   const kind = kinds.find(entry => entry !== 'repin') ?? 'repin';
-  const payload: Record<string, unknown> = { ...owner, storyId: args.storyId, itemId: args.item.id, verificationIntent: next, ...extra,
+  // Lab run132 (old-PoS run 135 item K): the remedy is a row patch of the rows it changes (run 135's whole-intent remedy
+  // was ~8k characters and the owner rebuilt it with jq instead); the whole intent only when rows were removed.
+  // A remedy that only restores the stored rows (keep) patches nothing: the whole intent then, as before.
+  const rowPatch = allRows && !removals.length ? (patch => (patch?.length ? patch : null))(intentRowPatchOf(args.item.id, args.item.verificationIntent, next)) : null;
+  const payload: Record<string, unknown> = { ...owner, storyId: args.storyId, itemId: args.item.id, ...(rowPatch ? { intentRows: rowPatch } : { verificationIntent: next }), ...extra,
     reason: String(owner.reason ?? '').trim() ? `${String(owner.reason).trim()} (pin reversal settled: ${kinds.join(', ')})` : `pin reversal settled by the oracle order: ${kinds.join(', ')}` };
-  return { kind, why: whys.join('; '), payload: { storyId: payload.storyId, itemId: payload.itemId, ...payload } };
+  const also: Array<Record<string, unknown>> = [];
+  for (const other of allRows ? args.otherItems ?? [] : []) {
+    if (other.id === args.item.id || other.status === 'withdrawn') continue;
+    const otherNext = structuredClone(other.verificationIntent ?? {}) as Record<string, IntentRow[] | undefined>;
+    let changed = false;
+    for (const row of decided) changed = alignCaseRows(otherNext, row.caseKey, row.reversal, row.value, `${args.item.id}:${row.lane}:${row.index}`, null) || changed;
+    if (!changed || unstatedPinReversals(other.verificationIntent as VerificationIntent, otherNext as unknown as VerificationIntent).length) continue;
+    const patch = intentRowPatchOf(other.id, other.verificationIntent, otherNext);
+    if (patch?.length) also.push({ storyId: args.storyId, itemId: other.id, intentRows: patch, reason: `the same case as ${args.item.id}, re-pinned with it (pin reversal settled: ${kinds.join(', ')})` });
+  }
+  return { kind, why: whys.join('; '), payload: { storyId: payload.storyId, itemId: payload.itemId, ...payload }, ...(also.length ? { also } : {}) };
 }
 
 /** E: the refusal text (one Next), or null. Lab run131: with `remedy`, the Next is that ready command. */
-export function pinReversalRefusal(args: { storyId: string; itemId: string; reversals: readonly PinReversal[]; remedy?: Pick<PinReversalRemedy, 'kind' | 'why' | 'payload'> | null }): string | null {
+export function pinReversalRefusal(args: { storyId: string; itemId: string; reversals: readonly PinReversal[]; remedy?: Pick<PinReversalRemedy, 'kind' | 'why' | 'payload' | 'also'> | null }): string | null {
   if (!args.reversals.length) return null;
   const listed = args.reversals.slice(0, 6).map(row => `\`${row.caseText}\` was pinned ${row.oldValue}, the update pins ${row.newValue}`).join('; ');
   const head = `checklist_update refused: the update silently reverses ${args.reversals.length} earlier pin(s) of ${args.itemId} [${PIN_REVERSAL_UNSTATED}]: ${listed}. ${PIN_ORACLE_ORDER} `;
   if (args.remedy) {
-    return `${head}The framework applied that order now (${args.remedy.kind}): ${args.remedy.why}. Run this update (your update with the remedy applied; nothing else changes):\n`
+    // Lab run132 (old-PoS run 135 item K): other items pinning the same case with the old value, re-pinned with it.
+    const also = (args.remedy.also ?? []).map(payload => `\`proof-or-stop checklist_update ${shellQuote(JSON.stringify(payload))}\``);
+    return `${head}The framework applied that order now (${args.remedy.kind}): ${args.remedy.why}. `
+      + (also.length ? `Other items pin the same case with the old value; run their ready update${also.length > 1 ? 's' : ''} in the same turn: ${also.join(' ')}. ` : '')
+      + 'Run this update (your update with the remedy applied; every row of the item pinning that case states the re-pin; nothing else changes):\n'
       + `Next: proof-or-stop checklist_update ${shellQuote(JSON.stringify(args.remedy.payload))}`;
   }
-  return `${head}If the earlier pin is right, keep it; if the new value is right, state the re-pin on the row (derivation computation \`re-pin: <case> was <old>, now <new>: <the request sentence or the same receiver's counterpart that decides it>\`).\n`
-    + `Next: proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","intentRows":[{"ref":"<the row's ref>","derivation":{"requestQuote":"<request sentence>","computation":"re-pin: ${args.reversals[0]!.caseText.replace(/["\\]/g, '')} was ${args.reversals[0]!.oldValue.replace(/["\\]/g, '')}, now <new value>: <why>"}}]}'`;
+  // Lab run132 (old-PoS run 135 item K): the template keeps the case and the old value exactly (run 135 stripped their
+  // quotes, so the clause it suggested named another case).
+  const first = args.reversals[0]!;
+  return `${head}If the earlier pin is right, keep it; if the new value is right, state the re-pin on EVERY row pinning that case (derivation computation \`re-pin: <case> was <old>, now <new>: <the request sentence or the same receiver's counterpart that decides it>\`).\n`
+    + `Next: proof-or-stop checklist_update ${shellQuote(JSON.stringify({ storyId: args.storyId, itemId: args.itemId, intentRows: [{ ref: '<the row\'s ref>',
+      derivation: { requestQuote: '<request sentence>', computation: `re-pin: ${first.caseText} was ${first.oldValue}, now <new value>: <why>` } }] }))}`;
 }
 
 /**

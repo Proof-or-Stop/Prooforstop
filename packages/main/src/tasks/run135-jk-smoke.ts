@@ -90,7 +90,7 @@ await check('J3 each placeholder covering row names the case of its gap (still o
   const feature = FEATURES[3]!;
   for (const row of [gapRow('CHK-001', feature), covering('CHK-001', 'changing', feature), covering('CHK-001', 'precedent', feature)]) {
     const desc = String(row.desc);
-    assert.match(desc, /^<[^<>]*>$/, `one placeholder: ${desc}`);
+    assert.match(desc, /^<[^<]*>$/, `one placeholder (its own \`->\` aside, no other <...>): ${desc}`);
     assert.match(desc, /Existing widget 4 behaviour/, `the case is named: ${desc}`);
     assert.doesNotMatch(desc, /'/, 'shell-safe inside --intentRows=\'...\'');
   }
@@ -129,7 +129,8 @@ async function gateClean(label: string, before: ReturnType<typeof kItem>, payloa
   noPlaceholder(payload);
   const reversals = await load('../core/pin-amendment.js', 'unstatedPinReversals');
   const after = await applied(before, payload!);
-  assert.deepEqual(reversals(before.verificationIntent, after), [], `${label}: the payload passes pin_reversal_unstated`);
+  // handlers/checklist.ts applies pin_reversal_unstated to every PLAN update but a metadataCorrection (exempt there).
+  if (!payload!.metadataCorrection) assert.deepEqual(reversals(before.verificationIntent, after), [], `${label}: the payload passes pin_reversal_unstated`);
   const derivation = await load('../core/intent-derivation.js', 'intentDerivationFailure');
   assert.equal(derivation('checklist_update', before.id, after, REQUEST), null, `${label}: the payload passes the derivation rule`);
 }
@@ -155,7 +156,7 @@ await check('K2 the reversal remedy re-pins EVERY row of the item pinning the ol
   await gateClean('reversal remedy', before, out.payload);
   const fixed = await applied(before, out.payload) as ReturnType<typeof kItem>['verificationIntent'];
   assert.match(String(fixed.happy[1]!.desc), /x on ARRAY$/, 'the duplicate happy row is re-pinned too');
-  assert.doesNotMatch(String(fixed.happy[1]!.desc), /"x"/);
+  assert.ok(!String(fixed.happy[1]!.desc).includes(OLD), 'the old value is gone from the duplicate row');
   assert.match(String(fixed.happy[1]!.derivation.computation), /re-pin: .* was .*"x".*, now /);
   assert.equal(fixed.adversarial[0]!.desc, before.verificationIntent.adversarial[0]!.desc, 'the prefix row still holds and is left as it is');
   assert.ok(Array.isArray(out.payload.intentRows), 'a row patch, not the whole intent');
@@ -223,6 +224,27 @@ await check('K5 invariant: no framework remedy generator emits a payload its own
   await attempt('metadata_correction', async () => (await load('../core/metadata-correction.js', 'metadataCorrectionReadyPayload'))(STORY, before,
     [{ itemId: 'CHK-001', field: 'verificationIntent', rowRefs: ['CHK-001:edge:0'], wrongLiteral: OLD, correctedValue: NEW, fieldHash: null }]));
   assert.deepEqual(errors, [], errors.join(" || "));
+});
+
+await check('K7 a pin_audit_correction applied with its re-pin clauses still counts as applied (no extra scope-plan rerun)', async () => {
+  const before = kItem();
+  const digest = (await import('../core/scope-check-integrity.js')).scopeReviewChecklistDigest({ items: [before] } as never);
+  const scope = { checkedAt: '2026-10-22T00:00:00.000Z', checklistDigest: digest, features: [{ feature: `pin-audit CHK-001:edge:0: pins ${OLD}; request gives ${NEW} (the request's inspect form)`, status: 'gap', source: 'request.md' }] };
+  const out = (await load('../handlers/next-driver.js', 'pinAuditCorrectionStep'))({ storyId: STORY, phase: 'PLAN' }, { readScopeCheck: () => scope, readChecklist: () => ({ items: [before] }) }, new Set());
+  const payload = (out?.batch?.[0]?.cli ?? out?.cli)?.payload as Record<string, unknown>;
+  assert.match(JSON.stringify(payload), /re-pin: /, 'the re-pin is stated');
+  const after = { ...before, verificationIntent: await applied(before, payload) as typeof before.verificationIntent };
+  const appliedGaps = (await load('../core/pin-audit-correction.js', 'appliedPinAuditGaps'))(scope, { items: [after] }) as Set<string>;
+  assert.equal(appliedGaps.size, 1, 'the correction is recognised as applied');
+});
+
+await check('K8 the switch off: the generators emit their earlier patch (no closure)', async () => {
+  const before = kItem();
+  const doubt = { itemId: 'CHK-001', intentRef: 'CHK-001:edge:0', intentPins: `\`${OLD}\``, requestImplies: `\`${NEW}\``, runId: 'run-1', requestSentence: `The start \`${CASE}\` raises \`${NEW}\`.` };
+  const ready = await load('../core/intent-conflict-overrule.js', 'intentConflictReadyRows');
+  const on = ready(before, [doubt], REQUEST) as Array<{ ref: string }>;
+  const off = ready(before, [doubt], REQUEST, { repinAllRows: false }) as Array<{ ref: string }>;
+  assert.ok(on.length > off.length, `on re-pins the duplicate rows too: ${on.map(row => row.ref)} vs ${off.map(row => row.ref)}`);
 });
 
 await check('K6 the switch: plan.repinAllRows=off keeps the earlier gate (first pin of the case) and remedy; a known A/B flag, default on', async () => {

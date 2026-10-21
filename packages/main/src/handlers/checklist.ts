@@ -76,7 +76,7 @@ import { pendingPinnedVerificationIntents } from '../core/evidence-chain-check.j
 import { keepDoneAfterPin, pinReversalRefusal, pinReversalRemedy, storyWasInDev, unstatedPinReversals } from '../core/pin-amendment.js';
 import { storyBaseEvidenceLookup } from '../core/pin-base-evidence.js';
 import { intentConflictOverrule, openIntentConflictJournal, type JournaledIntentConflict } from '../core/intent-conflict-overrule.js';
-import { intentConflictGuardOn } from '../core/ab-variants.js';
+import { intentConflictGuardOn, repinAllRowsOn } from '../core/ab-variants.js';
 import { counterpartRowRoles, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { planPinBaseForm } from '../core/pin-base-form.js';
 import { pinProbeMismatches } from '../core/plan-pin-probe.js';
@@ -3790,7 +3790,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         let processEvents: Array<Record<string, unknown>> = [];
         try { processEvents = store.readProcessEvents(args.storyId) as Array<Record<string, unknown>>; } catch { processEvents = []; }
         if (storyWasInDev(story as never, processEvents)) {
-          const reversals = unstatedPinReversals(item.verificationIntent, args.verificationIntent);
+          // Lab run132 (old-PoS run 135 item K, plan.repinAllRows): a pin is compared with every earlier pin of its case (an
+          // unchanged prefix-pinned row is no reversal), and the remedy re-pins every row and other items pinning the old value.
+          const repinAll = (() => { try { return repinAllRowsOn(loadConfig(root)); } catch { return true; } })();
+          const reversals = unstatedPinReversals(item.verificationIntent, args.verificationIntent, { allEarlierPins: repinAll });
           // Lab run131 (run 131 PLAN-C): the remedy is decided at the FIRST reversal (oracle order, then the
           // plan_pin_dispute remedy), and the refusal's ONE Next is the owner's update with it applied.
           const remedy = reversals.length ? (() => {
@@ -3800,7 +3803,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               // Lab run132 (run 134 item 2, plan.baseEvidence): the Story base decides an existing-behaviour case before any exclusion.
               const baseOf = (() => { try { return storyBaseEvidenceLookup(store, root, args.storyId, resolveStoryGitCwd(args.storyId)); } catch { return null; } })();
               return pinReversalRemedy({ storyId: args.storyId, item: item as never, afterIntent: args.verificationIntent, reversals, requestText: request.status === 'ok' ? request.text : null,
-                counterpart, ownerArgs: args as unknown as Record<string, unknown>, baseOf: baseOf as never });
+                counterpart, ownerArgs: args as unknown as Record<string, unknown>, baseOf: baseOf as never, repinAllRows: repinAll, otherItems: cl.items as never });
             } catch { return null; }
           })() : null;
           const refusal = pinReversalRefusal({ storyId: args.storyId, itemId: args.itemId, reversals, remedy });
