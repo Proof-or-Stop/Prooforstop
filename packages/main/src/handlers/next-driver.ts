@@ -107,6 +107,9 @@ import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-pr
 import { describePinBaseForm, pinBaseFormOfferDue, pinBaseFormRowPatch, pinDoubtVerdict, planPinBaseForm, recordPinBaseFormOffer, type PinBaseFormConflict } from '../core/pin-base-form.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { evaluateFileStateConflict } from './file-state-conflict.js';
+import { evaluateFindingConflictSettlement } from './finding-conflict-settle.js';
+import { intentConflictReadyRows, recordOpenIntentConflicts, type JournaledIntentConflict } from '../core/intent-conflict-overrule.js';
+import { FINDING_CONFLICT_SETTLED, FINDING_CONFLICT_PRECEDENCE, type ConflictSettlement } from '../core/finding-conflict-settle.js';
 import { FILE_STATE_CONFLICT, FILE_STATE_PRECEDENCE, type FileStateVerdict } from '../core/file-state-conflict.js';
 import { outOfScopePinTestProblem } from '../core/scope-pin-test.js';
 import { commitMessageNamesFinding, commitMessageNamesItem, implementationGroupingFiles, implementationGroupingStory, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup, storyItemGroup } from '../core/ab-dispatch-grouping.js';
@@ -119,7 +122,7 @@ import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guida
 import { conflictPinnedForm, conflictPinnedFragment, MASKED_LITERAL, maskLiterals, parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { intentSemantics } from '../core/verification-intent-amendment.js';
-import { isMetadataTargetFinding, literalOccurrences, openMetadataCorrections, statedForm, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
+import { isMetadataTargetFinding, literalOccurrences, metadataCorrectionReadyPayload, openMetadataCorrections, statedForm, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
 import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
 import { baseErrorDecorationOf, describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
@@ -887,6 +890,17 @@ function conflictSiblingRows(items: readonly ChecklistItem[], conflicts: readonl
   return out;
 }
 
+/** Lab run131: an open conflict as core/intent-conflict-overrule.ts journals and patches it. */
+function journaledConflict(row: OpenIntentConflict): JournaledIntentConflict {
+  return { itemId: row.itemId, intentRef: row.conflict.intentRef, intentPins: row.conflict.intentPins, requestImplies: row.conflict.requestImplies,
+    requestSentence: row.conflict.requestSentence, runId: row.runId };
+}
+
+/** Lab run131: journal the open declared lane-row conflicts (the PLAN amend check reads them); best effort. */
+export function journalOpenIntentConflicts(root: string, storyId: string, conflicts: readonly OpenIntentConflict[]): void {
+  recordOpenIntentConflicts(root, storyId, conflicts.filter(row => !row.conflict.pinDoubt && !row.conflict.undeclared && row.agentType !== FRAMEWORK_PROBE).map(journaledConflict));
+}
+
 /**
  * D1: a declared intent conflict blocks the item before anything else. Intents
  * are frozen in DEV (checklist_update refuses verificationIntent there), so the
@@ -917,6 +931,23 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
       return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload },
       `Pin doubt (${listed}). A pinned value the request does not state and the Story base contradicts is re-derived before DEV builds anything for it: re-pin each listed row to the base output (oracle order: a request sentence decides; else the same receiver's base behaviour), or keep it with the request sentence that states it; status pending makes DEV implement the item again. Then continue PLAN with next.`,
       'openIntentConflicts ([pin-doubt], pinDoubtVerdict, core/pin-base-form.ts)', { placeholders: placeholderPaths(payload) });
+    }
+    // Lab run131 (core/intent-conflict-overrule.ts): a conflict naming the pinned and the implied literal of a lane row is
+    // ONE ready row patch to the implementer's value (the re-pin stated); the owner runs it, or keeps the pin by quoting the
+    // request sentence that states it (a bare re-assertion is refused [intent_conflict_overruled]).
+    const item = items?.find(row => row.id === itemId);
+    const ready = !mine.some(row => row.conflict.pinDoubt || row.conflict.undeclared || row.agentType === FRAMEWORK_PROBE)
+      ? intentConflictReadyRows(item as never, mine.map(journaledConflict), null) : null;
+    if (ready?.length) {
+      const pinnedLiteral = conflictLiteral(mine[0]!.conflict.intentPins);
+      const others = items ? literalOccurrences(items, pinnedLiteral ?? '').filter(row => pinnedLiteral && !(row.itemId === itemId && row.field === 'verificationIntent')) : [];
+      const payload = { storyId: base.storyId, itemId, intentRows: ready, reason: `the implementer [intent-conflict] on ${ready.map(row => row.ref).join(', ')}: the request implies the value it reports`, status: 'pending' };
+      const why = `Open intent conflict (${listed}). The request outranks the intent: the framework gives the row patch to the value the implementer reports the request implies, with the re-pin stated (re-pin: <case> was <old>, now <new>); status pending makes DEV implement the item again. `
+        + 'If the request does state the pinned value, keep the row instead and quote that sentence verbatim as its derivation.requestQuote (a re-assertion without it, or without a base check confirming the pin, is refused [intent_conflict_overruled]). Then continue PLAN with next.';
+      const source = 'openIntentConflicts + intentConflictReadyRows (core/intent-conflict-overrule.ts)';
+      if (!others.length || !pinnedLiteral) return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload }, why, source);
+      return batchStep(base, 'intent_conflict_amend', [nextStepCall('intent_conflict_amend', { command: 'checklist_update', payload }), ...sweepCalls(base, others, 'intent_conflict_amend', pinnedLiteral)],
+        `${why} ${sweepWhy(pinnedLiteral, others)}`, `${source} + literalOccurrences (sweep)`);
     }
     // Old-PoS run 31: a conflict naming userSees is amended in userSees; a lane row
     // (or an unlocated one) in the verificationIntent.
@@ -1032,6 +1063,24 @@ export function metadataCorrectionStep(base: { storyId: string; phase: string },
     'openMetadataCorrections (repair_expected_value_changed, core/repair-value-change.ts)');
   }
   const sweep = first.wrongLiteral ? literalOccurrences(items, first.wrongLiteral).filter(row => !(row.itemId === first.itemId && fields.includes(row.field))) : [];
+  // Lab run131 (run 131 PLAN-B: 15 refusals): the reviewer's value replaces the wrong literal in the cited rows / userSees,
+  // written by the framework (core/metadata-correction.ts metadataCorrectionReadyPayload); the sweep is ready the same way.
+  const ready = (base.phase === 'PLAN' || !fields.includes('verificationIntent'))
+    ? metadataCorrectionReadyPayload(base.storyId, items.find(row => row.id === first.itemId), sameItem,
+      `Story-metadata correction (${first.sources.map(source => source.findingId ?? source.lane ?? 'reviewer').slice(0, 3).join(', ')}): ${sameItem.map(row => `${row.wrongLiteral} -> ${row.correctedValue}`).join('; ').slice(0, 300)}`)
+    : null;
+  if (ready) {
+    const readySweep = sweep.length ? [...new Set(sweep.map(row => row.itemId))].map(itemId => metadataCorrectionReadyPayload(base.storyId, items.find(row => row.id === itemId),
+      [{ ...first, itemId, rowRefs: [], fieldHash: null, field: sweep.find(row => row.itemId === itemId && row.field === 'verificationIntent') && base.phase === 'PLAN' ? 'verificationIntent' : 'userSees' }])) : [];
+    if (readySweep.every(Boolean)) {
+      const calls = [nextStepCall('metadata_correction', { command: 'checklist_update', payload: ready }),
+        ...readySweep.map(payload => nextStepCall('metadata_correction', { command: 'checklist_update', payload: payload! }))];
+      const readyWhy = `${head} The framework wrote the correction: the reviewer's value replaces the wrong literal in ${(first.rowRefs.join(', ') || `${first.itemId} ${fields.join(' / ')}`)}`
+        + `${readySweep.length ? ` and in every other occurrence (${sweep.map(row => row.ref).join(', ')})` : ''}; run it (metadataCorrection=true; the framework verifies the cited text changed, then clears every report of it). No review round is spent.`;
+      return calls.length === 1 ? step(base, 'agent', 'metadata_correction', calls[0]!.cli, readyWhy, 'openMetadataCorrections + metadataCorrectionReadyPayload (core/metadata-correction.ts)')
+        : batchStep(base, 'metadata_correction', calls, readyWhy, 'openMetadataCorrections + metadataCorrectionReadyPayload (core/metadata-correction.ts) + literalOccurrences');
+    }
+  }
   const payload: Record<string, unknown> = { storyId: base.storyId, itemId: first.itemId,
     ...(fields.includes('userSees') ? { userSees: `<${first.itemId} userSees stating ${first.correctedValue ?? 'the value the request implies'} instead of ${first.wrongLiteral ?? 'the cited text'}>` } : {}),
     ...(fields.includes('verificationIntent') ? { verificationIntent: `<complete ${first.itemId} verificationIntent JSON with ${(first.rowRefs.join(', ') || 'the cited rows')} stating ${first.correctedValue ?? 'the value the request implies'}>` } : {}),
@@ -1619,6 +1668,12 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
   for (const finding of candidates) {
     const conflict = findingConflictOf({ finding, findings: all, storyId, rejected, duplicateOf: id => findingDuplicateOf(store, storyId, id)?.canonicalFindingId ?? null });
     if (!conflict || args.repaired(finding)) continue;
+    // Lab run131 (runs 128 / 129): a conflict the checklist pin and the resolved finding's test already decide is
+    // settled once by the framework (core/finding-conflict-settle.ts), never another PLAN trip.
+    if (finding.status === 'open' && finding.evidenceState !== 'suspected' && conflict.resolvedId) {
+      const settlement = evaluateFindingConflictSettlement({ store: store as never, root, storyId, finding, findings: all, gitCwd, events });
+      if (settlement) return findingConflictSettleStep(base, finding, settlement);
+    }
     const pinned = Boolean(conflict.since) && items.some(item => {
       const before = committedIntentHashBefore(root, gitCwd, checklistPath, item.id, conflict.since);
       return before !== undefined && before !== intentMaterialHash(item);
@@ -1644,6 +1699,21 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
       + (rows.length ? `Rows that pin a listed case now: ${rows.join(' | ').slice(0, 600)}; a pin that changes one must state the re-pin (\`re-pin: <case> was <old>, now <new>\` in its derivation). ` : '')
       + `Return to PLAN and pin each case: checklist_update the item's verificationIntent with a row stating the expected outcome for that case and a derivation quoting the request sentence (or the base probe) that decides it; then next continues and the findings are repaired against the pin.`,
     'findingConflictOf (core/resolved-finding-guard.ts) + committed checklist intent since the conflict + rowsCitingCase');
+}
+
+/**
+ * Lab run131 (runs 128 / 129, core/finding-conflict-settle.ts): the losing side of a finding conflict the checklist pin
+ * and the resolved finding's covering test decide (precedence request text > base behaviour > reviewer opinion) is
+ * closed by ONE framework step; finding_resolve disposition=finding_conflict_settled recomputes the same decision and
+ * records it (resolutionType superseded, `[finding_conflict_settled]` reason, severity unchanged). Shared by the live and
+ * the reference driver (via findingConflictStep).
+ */
+export function findingConflictSettleStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>,
+  settlement: Pick<ConflictSettlement, 'winner' | 'reason' | 'cases'> & { settle: boolean }): NextStep {
+  return step(base, 'framework', FINDING_CONFLICT_SETTLED, { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
+    disposition: FINDING_CONFLICT_SETTLED, resolution: `none: the ${settlement.winner === 'request' ? 'request text' : 'checklist pin'} decides ${settlement.cases.map(row => `\`${row}\``).join(', ')}` } },
+  `Verified ${finding.severity ?? ''} finding ${finding.id} is the losing side of a finding conflict: ${settlement.reason} It is not repaired and the Story does not return to PLAN: the framework closes it once (${FINDING_CONFLICT_SETTLED}, precedence ${FINDING_CONFLICT_PRECEDENCE}); finding_resolve recomputes the decision and records it. \`proof-or-stop next --storyId=${base.storyId} --run\` records it and goes on.`,
+  'evaluateFindingConflictSettlement (core/finding-conflict-settle.ts) + findingConflictOf');
 }
 
 export function findingRepairReplanStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>, runIds: readonly string[],
@@ -2454,6 +2524,18 @@ export function targetRelaunchIsFramework(earlier: ReadonlyArray<Pick<HostRunVie
 }
 
 /**
+ * Lab run131 (run 131 RR-004 / RR-010, ~22 min on the critical path): a review lane whose managed run failed
+ * auto-replaceably (provider stalled / transport, no work product; targetRelaunchIsFramework) is prepared again at once
+ * as a framework step, for that lane only (review_round_prepare lanes=[...]), while its sibling lanes still run.
+ * Model, effort and provider are unchanged. Shared by the live and the reference driver.
+ */
+export function laneRelaunchStep(base: { storyId: string; phase: string }, lanes: readonly string[], running: number): NextStep {
+  return step(base, 'framework', 'review_round_prepare', { command: 'review_round_prepare', payload: { storyId: base.storyId, lanes: [...lanes], json: true } },
+    `Lane(s) ${lanes.map(lane => lane.replace('proof-or-stop-review-', '')).join(', ')} failed auto-replaceably (provider stalled or transport error, no work product): prepare them again now, while ${running} sibling lane(s) still run (no wait for the round); the same host, model and effort.`,
+    'managed host-run projection (autoReplaceable) + targetRelaunchIsFramework');
+}
+
+/**
  * Old-PoS run 34 (F7): a gate refusal as one line for a step's Why. A first
  * line that only announces the refusal ("Cannot enter DEV:") is followed by
  * its first reason, never printed empty.
@@ -2709,6 +2791,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const conflicts = [...openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: listStoryHostRuns(ctx, storyId) }),
       // Old-PoS run 31: probe rows still contradicting their request sentence after a relaunch.
       ...probeEscalationConflicts(openProbeFlags({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, items: ctx.store.readChecklist(storyId).items }))];
+    journalOpenIntentConflicts(ctx.root, storyId, conflicts);
     if (conflicts.length > 0) return intentConflictStep(base, conflicts, ctx.store.readChecklist(storyId).items);
     // Old-PoS run 31: a Story-metadata review finding routed back to PLAN (intent rows).
     const metadata = metadataStep(base);
@@ -3007,6 +3090,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // repair or REVIEW (unless a writer run is still in flight: wait first).
     if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
       const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: hostRuns });
+      if (conflicts.length > 0) journalOpenIntentConflicts(ctx.root, storyId, conflicts);
       if (conflicts.length > 0) return intentConflictStep(base, conflicts, ctx.store.readChecklist(storyId).items);
       // Old-PoS run 31: Story-metadata corrections are owner work, never repair work.
       const metadata = metadataStep(base);
@@ -3344,13 +3428,20 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const toLaunch: Array<{ lane: string; run: ReviewRun }> = [];
     const waiting: HostRunView[] = [];
     const importable: Array<{ run: HostRunView; receiptId: string }> = [];
+    const relaunch: string[] = [];
     for (const lane of [...new Set(runs.map(run => run.lane))]) {
       const latest = runs.filter(run => run.lane === lane).at(-1)!;
       if (evidenced(latest)) continue;
       const hostRun = hostRunFor(hostRuns, latest.reviewRunId);
       if (!hostRun) { toLaunch.push({ lane, run: latest }); continue; }
       if (!hostRun.terminal) { waiting.push(hostRun); continue; }
-      if (hostRun.state !== 'completed') continue; // replacement: reviewer_batch → review_round_prepare
+      if (hostRun.state !== 'completed') {
+        // Lab run131 (shared rule): an auto-replaceable failure (provider stalled / supervisor never ready, no work product)
+        // is relaunched now, while its sibling lanes still run; otherwise reviewer_batch → review_round_prepare after them.
+        const earlier = runs.filter(run => run.lane === lane).map(run => hostRunFor(hostRuns, run.reviewRunId)).filter((run): run is HostRunView => Boolean(run));
+        if (hostRun.autoReplaceable && targetRelaunchIsFramework(earlier)) relaunch.push(lane);
+        continue;
+      }
       let receiptId = '';
       try { receiptId = managedHostRunReceipt(ctx.root, hostRun.runId).receiptId; } catch { continue; }
       // A/B V3 R2A-r2: a receipt whose import was refused for good is never
@@ -3375,6 +3466,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       }
       return launches[0]!;
     }
+    if (relaunch.length && waiting.length) return laneRelaunchStep(base, relaunch, waiting.length);
     // Old-PoS run 34 (§4 sink 1c): a lane that finished is imported while slower lanes
     // still run (run 34 waited for the slowest lane first: 15 + 8 + 7 s per round on the
     // critical path); then one wait that returns when ANY running lane ends.

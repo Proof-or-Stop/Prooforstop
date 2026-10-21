@@ -227,7 +227,7 @@ import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairR
 import { evaluateFileStateConflict } from '../../handlers/file-state-conflict.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
-  groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, frameworkResolveStep, managedRunsWaitStep, adoptedAmendmentRun, intentAmendmentVerifyStep, guardRefusalSummary, storyReviewBlockersStep, openIntentConflicts, intentConflictStep, nextStepCall, DONE_TERMINAL_STATEMENT, type NextStep } from '../../handlers/next-driver.js';
+  groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, frameworkResolveStep, managedRunsWaitStep, adoptedAmendmentRun, intentAmendmentVerifyStep, guardRefusalSummary, storyReviewBlockersStep, openIntentConflicts, intentConflictStep, journalOpenIntentConflicts, laneRelaunchStep, nextStepCall, DONE_TERMINAL_STATEMENT, type NextStep } from '../../handlers/next-driver.js';
 import { scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../../core/scope-plan-deferral.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
@@ -449,6 +449,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const inFlight = (agentType: string) => hostRuns.filter(run => run.agentType === agentType && !run.terminal).at(-1);
     if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
       const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: hostRuns });
+      if (conflicts.length > 0) journalOpenIntentConflicts(ctx.root, storyId, conflicts);
       if (conflicts.length > 0) return intentConflictStep(base, conflicts);
       // Mirrors next-driver.ts (orchestration-overlap N8): a deferred scope verdict with a gap returns to PLAN.
       const scopeVerdict = scopeVerdictReviewEntryFailure(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId));
@@ -657,13 +658,20 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const toLaunch: Array<{ lane: string; run: ReviewRun }> = [];
     const waiting: HostRunView[] = [];
     const importable: Array<{ run: HostRunView; receiptId: string }> = [];
+    const relaunch: string[] = [];
     for (const lane of [...new Set(runs.map(run => run.lane))]) {
       const latest = runs.filter(run => run.lane === lane).at(-1)!;
       if (evidenced(latest)) continue;
       const hostRun = hostRunFor(hostRuns, latest.reviewRunId);
       if (!hostRun) { toLaunch.push({ lane, run: latest }); continue; }
       if (!hostRun.terminal) { waiting.push(hostRun); continue; }
-      if (hostRun.state !== 'completed') continue; // replacement: reviewer_batch → review_round_prepare
+      if (hostRun.state !== 'completed') {
+        // Lab run131 (shared rule): an auto-replaceable failure (provider stalled / supervisor never ready, no work product)
+        // is relaunched now, while its sibling lanes still run; otherwise reviewer_batch → review_round_prepare after them.
+        const earlier = runs.filter(run => run.lane === lane).map(run => hostRunFor(hostRuns, run.reviewRunId)).filter((run): run is HostRunView => Boolean(run));
+        if (hostRun.autoReplaceable && targetRelaunchIsFramework(earlier)) relaunch.push(lane);
+        continue;
+      }
       let receiptId = '';
       try { receiptId = managedHostRunReceipt(ctx.root, hostRun.runId).receiptId; } catch { continue; }
       // A/B V3 R2A-r2: a receipt whose import was refused for good is never
@@ -685,6 +693,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       }
       return launches[0]!;
     }
+    if (relaunch.length && waiting.length) return laneRelaunchStep(base, relaunch, waiting.length);
     // old-PoS run 34: a finished lane is imported while slower lanes run; one any-terminal wait.
     if (importable.length) return laneImportStep(base, importable);
     if (waiting.length) return waiting.length === 1 ? waitStep(base, waiting[0]!, 'Managed reviewer run') : managedRunsWaitStep(base, waiting, 'Managed reviewer runs');

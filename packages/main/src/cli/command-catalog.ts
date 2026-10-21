@@ -1277,6 +1277,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     fullScanReason: z.string().optional().describe('Justified tool-driven broad-scan reason; passed to candidate_spec_route only when routing requires escalation.'),
     inventoryCritic: z.boolean().optional().describe('Prepare the inventory-completeness critic instead of lanes (one step, v4.1 N2): review_inventory_begin when the current round has no OPEN epoch, then, when review_inventory_status reports REVIEW_INVENTORY_CRITIC_INCOMPLETE, the critic dispatch (unless already bound) and its review_run_start, in-process with each handler\'s own gates. Launches no reviewer host.'),
+    lanes: z.array(z.string()).optional().describe('Lab run131: prepare only these launchable lanes (next relaunches a lane whose managed run failed auto-replaceably while its sibling lanes still run); a running sibling is never restarted. Refused when none of them is launchable.'),
     json: z.boolean().optional().describe('Output a JSON object with the same fields.'),
   }},
   // Lifecycle Readiness P7: reviewer_batch — read-only reviewer-launcher PLAN producer.
@@ -2466,8 +2467,8 @@ Behavior:
     coverage: z.object({ command: z.string().describe('Allowlisted command (executable + argv) that runs THIS finding\'s own case, e.g. go test -v ./pkg -run TestX'),
       selector: z.string().describe('Output text that proves the case passed, e.g. --- PASS: TestX') }).optional()
       .describe('With duplicateOf: the framework runs the command in the Story worktree; exit 0 + selector closes the duplicate, otherwise it is refused and next dispatches its own repair.'),
-    disposition: z.enum(['preexisting_out_of_scope', 'file_state_conflict']).optional()
-      .describe('preexisting_out_of_scope: close a finding whose cited path:line defect sites are unchanged since the Story base and that no scope-contract path, checklist file, scope boundary or request sentence covers. file_state_conflict: close the losing side of a file-state conflict (its only remedy changes documentation the scope boundary excludes, or it keeps unchanged a file the request asks to change; precedence request text > scope boundary > reviewer opinion). The framework recomputes that evidence (refused otherwise, the finding stays open) and records it with resolution as the follow-up note.'),
+    disposition: z.enum(['preexisting_out_of_scope', 'file_state_conflict', 'finding_conflict_settled']).optional()
+      .describe('preexisting_out_of_scope: close a finding whose cited path:line defect sites are unchanged since the Story base and that no scope-contract path, checklist file, scope boundary or request sentence covers. file_state_conflict: close the losing side of a file-state conflict (its only remedy changes documentation the scope boundary excludes, it keeps unchanged a file the request asks to change, or (lab run131) it calls an edit of documentation the deterministic scope gate admits a scope violation; precedence request text > scope boundary > reviewer opinion). finding_conflict_settled (lab run131): close the losing side of a finding conflict that a current checklist pin and the resolved finding\'s covering test decide (precedence request text > base behaviour > reviewer opinion). The framework recomputes that evidence (refused otherwise, the finding stays open) and records it with resolution as the follow-up note.'),
   }},
   { name: 'finding_dismiss', description: 'Confirm a finding will not be fixed (reason required)', schema: {
     storyId: z.string().describe('Story ID'),

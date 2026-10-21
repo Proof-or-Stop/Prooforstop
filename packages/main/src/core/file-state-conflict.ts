@@ -35,8 +35,8 @@ import { dirname, join } from 'node:path';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
 import { findingDefectAnchors, findingSites, isDocCodeDriftFinding, stripLeadingTags } from './finding-preexisting.js';
-import { isDocumentationPath, normalizeScopePath, pathMatchesScopePattern } from './scope-path-classifier.js';
-import { requestAsksChangeOf } from './boundary-path-excludes.js';
+import { classifyScopePath, isDocumentationPath, normalizeScopePath, pathMatchesScopePattern } from './scope-path-classifier.js';
+import { contractExcludesDocumentation, requestAsksChangeOf } from './boundary-path-excludes.js';
 
 export const FILE_STATE_CONFLICT = 'file_state_conflict';
 export const FILE_STATE_REASON_PREFIX = `[${FILE_STATE_CONFLICT}]`;
@@ -48,18 +48,19 @@ export type FileStateDir = 'change' | 'unchanged';
 export interface FileStateVerdict {
   /** True when this finding is the losing side and the framework closes it. */
   settle: boolean;
-  winner: 'request' | 'scope_boundary' | null;
+  winner: 'request' | 'scope_boundary' | 'scope_gate' | null;
   /** The direction that stands for `files`. */
   dir: FileStateDir;
   files: string[];
   reason: string;
 }
 
-interface ContractSlice { explicitExcludes?: readonly string[]; protectedFiles?: readonly string[] }
+interface ContractSlice { explicitExcludes?: readonly string[]; protectedFiles?: readonly string[]; storyId?: string;
+  allowedModify?: readonly string[]; allowedCreate?: readonly string[]; allowedTest?: readonly string[] }
 interface FindingSlice { id: string; desc?: string; files?: readonly string[]; category?: string }
 
 /** A finding that demands files stay as they are (scope violation / boundary / must not change). */
-const SCOPE_DEMAND = /\b(?:scope[- ]boundary|out[- ]of[- ]scope|outside (?:of )?(?:the |this )?(?:story'?s? )?(?:declared |allowed )?scope|scope violation|scope contract|excluded (?:by|from|in)|must not (?:be )?(?:changed|modified|edited|touched)|should not (?:be )?(?:changed|modified|edited|touched)|(?:revert|undo) (?:the |this )?(?:doc|docs|documentation|change|edit))/i;
+const SCOPE_DEMAND = /\b(?:scope[- ]boundary|out[- ]of[- ]scope|outside (?:of )?(?:the |this )?(?:story'?s? )?(?:declared |allowed )?scope|scope[- ]violation|scope[- ]contract|allowed ?modify|excluded (?:by|from|in)|must not (?:be )?(?:changed|modified|edited|touched)|should not (?:be )?(?:changed|modified|edited|touched)|(?:revert|undo) (?:the |this )?(?:doc|docs|documentation|change|edit))/i;
 
 const short = (id: string): string => id.replace(/^[^:]+:/, '');
 
@@ -75,11 +76,49 @@ const excludedBy = (contract: ContractSlice | null | undefined, path: string): s
   [...(contract?.explicitExcludes ?? []), ...(contract?.protectedFiles ?? [])].find(pattern => pathMatchesScopePattern(path, pattern));
 
 /**
+ * Lab run131 (bench-staging/oldpos/run131-analysis.md §3 cycle 3): the deterministic scope gate's verdict for each path,
+ * the one scope_contract_check and the prewrite guard compute (core/scope-path-classifier.ts classifyScopePath:
+ * protectedFiles / explicitExcludes first, then allowedModify / allowedCreate / allowedTest, then the
+ * `documentation-default` admission of a documentation file). `admitted` = every path is allowed.
+ */
+export function scopeGateAdmission(contract: ContractSlice | null | undefined, paths: readonly string[]): { admitted: boolean; rows: Array<{ path: string; allowed: boolean; source: string }> } {
+  if (!contract || !paths.length) return { admitted: false, rows: [] };
+  const full = { storyId: contract.storyId ?? '', allowedModify: [...(contract.allowedModify ?? [])], allowedCreate: [...(contract.allowedCreate ?? [])],
+    allowedTest: [...(contract.allowedTest ?? [])], protectedFiles: [...(contract.protectedFiles ?? [])], explicitExcludes: [...(contract.explicitExcludes ?? [])] };
+  const rows = paths.map(path => {
+    try { const verdict = classifyScopePath(full as never, path); return { path, allowed: verdict.allowed === true, source: String(verdict.source) }; }
+    catch { return { path, allowed: false, source: 'unreadable' }; }
+  });
+  return { admitted: rows.every(row => row.allowed), rows };
+}
+
+/**
+ * Lab run131: the review-lane block naming the documentation files of the Story diff the scope gate admits (the inverse of
+ * the excluded-docs block, core/managed-review-evidence.ts renderScopeExcludedDocumentation). Empty when the contract
+ * excludes documentation or the diff touches no admitted documentation file.
+ */
+export function scopeAdmittedDocumentationLines(args: { contract: ContractSlice | null | undefined; docs: readonly string[] }): string[] {
+  if (!args.contract || contractExcludesDocumentation(args.contract as never)) return [];
+  const rows = scopeGateAdmission(args.contract, args.docs.filter(path => isDocumentationPath(normalizeScopePath(path)))).rows.filter(row => row.allowed);
+  if (!rows.length) return [];
+  return [
+    '--- BEGIN SCOPE-ADMITTED DOCUMENTATION ---',
+    'The Story\'s scope contract admits these documentation edits (the deterministic scope gate, scope_contract_check / the prewrite guard, '
+      + 'classifies each as allowed; `documentation-default` = a documentation file the contract neither protects nor excludes, docs describing the changed behaviour are part of delivering it). '
+      + 'Editing them is not a scope violation: do not report one (the framework closes such a finding against the gate verdict). Review what the docs SAY (a doc/code mismatch is a finding as usual).',
+    ...rows.slice(0, 12).map(row => `- ${row.path}: ${row.source}`),
+    '--- END SCOPE-ADMITTED DOCUMENTATION ---',
+  ];
+}
+
+/**
  * The file-state verdict for one open finding, or null when it states no file-state demand the contract or the
  * request decides. `boundaryExcluded` are the scope boundary's excluded entries (named in the reason).
+ * Lab run131: a scope demand against documentation files the deterministic scope gate admits loses to the gate
+ * (winner `scope_gate`; `scopeGateSettle: false` = the remediation.scopeGateSettle=off rollback).
  */
 export function fileStateConflictOf(args: { finding: FindingSlice; findings?: readonly FindingSlice[]; contract: ContractSlice | null | undefined;
-  requestText: string | null; boundaryExcluded?: readonly string[] }): FileStateVerdict | null {
+  requestText: string | null; boundaryExcluded?: readonly string[]; scopeGateSettle?: boolean }): FileStateVerdict | null {
   const { finding, contract } = args;
   const files = findingTargetFiles(finding);
   if (!files.length) return null;
@@ -90,7 +129,16 @@ export function fileStateConflictOf(args: { finding: FindingSlice; findings?: re
     // UNCHANGED side: it loses only to the request, for files the contract does not exclude.
     if (files.some(path => excludedBy(contract, path))) return null;
     const asked = files.map(path => ({ path, sentence: requestAsksChangeOf(args.requestText, path) }));
-    if (!asked.every(row => row.sentence)) return null;
+    if (!asked.every(row => row.sentence)) {
+      // Lab run131 (run 131 F-024): the files are documentation the deterministic scope gate admits: the gate stands.
+      if (args.scopeGateSettle === false || !files.every(path => isDocumentationPath(normalizeScopePath(path)))) return null;
+      const gate = scopeGateAdmission(contract, files);
+      if (!gate.admitted) return null;
+      return { settle: true, winner: 'scope_gate', dir: 'change', files,
+        reason: `${FILE_STATE_REASON_PREFIX} ${short(finding.id)} calls the edit of ${files.join(', ')} a scope violation, but the deterministic scope gate admits ${files.length > 1 ? 'them' : 'it'} `
+          + `(scope_contract_check / prewrite guard verdict: ${gate.rows.map(row => `${row.path} allowed by ${row.source}`).join('; ')}; nothing in protectedFiles / explicitExcludes matches). `
+          + `Resolved once by the framework's precedence (${FILE_STATE_PRECEDENCE}): the scope contract stands and the documentation edit is in scope. Closed without a repair; severity unchanged.` };
+    }
     return { settle: true, winner: 'request', dir: 'change', files,
       reason: `${FILE_STATE_REASON_PREFIX} ${short(finding.id)} requires ${files.join(', ')} to stay unchanged, but the request asks to change ${files.length > 1 ? 'them' : 'it'} ("${asked[0]!.sentence!.slice(0, 160)}"). `
         + `Resolved once by the framework's precedence (${FILE_STATE_PRECEDENCE}): the request stands; the change is in scope. Closed without a repair; severity unchanged.` };

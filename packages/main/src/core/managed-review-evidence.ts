@@ -1,5 +1,5 @@
 import { isManagedInventoryCriticEnvelopeValid, MANAGED_INVENTORY_CRITIC_PROTOCOL } from './managed-inventory-critic.js';
-import { resolveAbVariants } from './ab-variants.js';
+import { resolveAbVariants, scopeGateSettleOn } from './ab-variants.js';
 import { isMissingReviewSnapshotError } from './review-metadata-surface.js';
 import { reportHealthIssue } from './health.js';
 import { isVerifiedReviewMaintenanceCommit } from './review-maintenance-lineage.js';
@@ -45,9 +45,9 @@ import { isMaterialExcludedPath } from './material-path-policy.js';
 import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previousCandidateLaneRun } from './review-round-order.js';
 import { findingSites } from './finding-preexisting.js';
 import { contractExcludesDocumentation } from './boundary-path-excludes.js';
-import { fileStateSettlements } from './file-state-conflict.js';
+import { fileStateSettlements, scopeAdmittedDocumentationLines } from './file-state-conflict.js';
 import { resolveReviewLanePack, type ReviewLanePack } from './review-lane-pack.js';
-import { DELTA_ROUND_ESCALATION_EVENT, renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delta-round.js';
+import { DELTA_ROUND_ESCALATION_EVENT, DELTA_ROUND_GAP_EVENT, DELTA_ROUND_REVERIFIED_EVENT, renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delta-round.js';
 import { renderLaneMergeBlock, type LaneMergePlan } from './review-lane-merge.js';
 import { laneMergeDimensionSections } from './review-lane-merge-prompt.js';
 import { readStoryRequest } from './story-request.js';
@@ -213,6 +213,8 @@ function importerCommitRefusal(
     // its own dimension uncovered) publishes only its coverage + refusal records. That commit carries no review
     // evidence and changes nothing a sibling receipt was reviewed against, so it must not invalidate the
     // other merged session of the same split round, imported in the same batch right after it.
+    // Lab run131 (run 127 R2, harness NDI): the same for a delta-round confirmation lane whose pass has a gap
+    // (its delta-round records + refusal); the raiser lanes of that round import after it.
     return refusalRecordOnlyCommit(git, canonicalStoryDir, files, commit) ? null : 'importer commit publishes no review evidence';
   }
   if (!names.has('review-passes.json')) return null;
@@ -244,8 +246,14 @@ function importerCommitRefusal(
  * Process events a refused managed review import commits without publishing evidence (lane merge carrier gap):
  * its coverage and refusal records, plus the round's lane `dispatch` records appended since the last commit
  * (an evidence-carrying importer commit would carry them the same way).
+ * Lab run131 (old-PoS run 127 R2: 3 of 4 lane imports refused `managed_review_live_head_lineage_invalid`, the round's
+ * 7.9 min / 9.0M tokens discarded): a delta-round confirmation lane whose pass has a gap is not imported; its importer
+ * commit carries only the framework's delta-round records (`delta_round_reverified` re-runs, `delta_round_confirmation_gap`,
+ * `delta_round_escalated`) and the refusal. Those are verdict records about the confirmation lane itself, never review
+ * evidence and never a code change, so the sibling raiser lanes reviewed against the head before that commit stay valid.
  */
-const REFUSAL_RECORD_EVENTS: ReadonlySet<string> = new Set(['review_lane_merge_coverage', 'managed_review_import_refused', 'dispatch']);
+const REFUSAL_RECORD_EVENTS: ReadonlySet<string> = new Set(['review_lane_merge_coverage', 'managed_review_import_refused', 'dispatch',
+  DELTA_ROUND_REVERIFIED_EVENT, DELTA_ROUND_GAP_EVENT, DELTA_ROUND_ESCALATION_EVENT]);
 
 /**
  * True when an importer commit only appends refusal records to the Story's
@@ -1020,6 +1028,22 @@ export function renderScopeExcludedDocumentation(root: string, run: ReviewRun): 
 }
 
 /**
+ * Lab run131 (bench-staging/oldpos/run131-analysis.md §3 cycle 3, F-024): the inverse of the block above. When the scope
+ * contract does not exclude documentation, a code review lane is told which documentation files of the reviewed Story
+ * diff the deterministic scope gate admits (core/file-state-conflict.ts scopeAdmittedDocumentationLines), so it does not
+ * file a "scope violation" against them. With remediation.scopeGateSettle=off nothing is rendered.
+ */
+export function renderScopeAdmittedDocumentation(root: string, run: ReviewRun): string[] {
+  if (!isCodeReviewLaneRun(run)) return [];
+  try { if (!scopeGateSettleOn(loadConfig(root))) return []; } catch { /* unreadable config: the production default (on) */ }
+  const docs = run.scopeBinding?.reviewedChangedFiles ?? [];
+  if (!docs.length) return [];
+  try {
+    return scopeAdmittedDocumentationLines({ contract: new StoryStore(root).readScopeContract(run.storyId), docs });
+  } catch { return []; }
+}
+
+/**
  * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §4; run 48 cycle C):
  * one pre-existing documentation defect was re-filed by four lanes in four
  * rounds because a later lane saw it only as "status=resolved" and, asked to
@@ -1092,7 +1116,7 @@ export function buildManagedReviewerPrompt(
   }));
   const lanePack = managedReviewLanePack(root, run);
   const rereview = renderManagedReviewerRereview(root, run, lanePack, deltaRound ?? null);
-  const dispositioned = [...renderDispositionedPreexistingSites(root, run), ...renderScopeExcludedDocumentation(root, run)];
+  const dispositioned = [...renderDispositionedPreexistingSites(root, run), ...renderScopeExcludedDocumentation(root, run), ...renderScopeAdmittedDocumentation(root, run)];
   const merged = laneMerge?.role === 'merged' && isCodeReviewLaneRun(run)
     ? renderLaneMergeBlock(laneMerge.plan, laneMergeDimensionSections(root, (() => {
       try { const request = readStoryRequest(new StoryStore(root), run.storyId); return request.status === 'ok' ? request.text : ''; } catch { return ''; }

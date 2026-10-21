@@ -87,7 +87,7 @@ import { LANE_MERGE_COVERAGE_EVENT } from './review-lane-merge.js';
 import { isCodeReviewLaneRun, isEarlierReviewRound } from './review-round-order.js';
 import type { StoryStore } from './store.js';
 import type { Finding, ReviewInventoryEpoch, ReviewInventoryReceipt, ReviewRun } from './types.js';
-import { isFileStateSettled } from './file-state-conflict.js';
+import { isFrameworkSettled } from './finding-conflict-settle.js';
 
 export const DELTA_ROUND_SCHEMA = 'proof-or-stop.review-delta-round.v1' as const;
 export const DELTA_ROUND_GAP_EVENT = 'delta_round_confirmation_gap' as const;
@@ -373,7 +373,7 @@ function isDuplicateFinding(epochs: { criticReceipts?: Array<{ findingDispositio
 /** A resolution that repaired nothing (old-PoS run 52): pre-existing outside the Story, an accepted risk, or a duplicate. */
 function closedWithoutRepair(finding: Finding): boolean {
   return finding.status === 'resolved' && (finding.resolutionType === 'preexisting_out_of_scope'
-    || finding.resolutionType === 'accepted_risk' || finding.resolutionType === 'duplicate' || isFileStateSettled(finding));
+    || finding.resolutionType === 'accepted_risk' || finding.resolutionType === 'duplicate' || isFrameworkSettled(finding));
 }
 
 /** The canonical a duplicate was closed against: the closure record's `[duplicate of <id>`, else the critic's latest disposition. */
@@ -397,7 +397,7 @@ function duplicateCanonicalOf(epochs: Parameters<typeof isDuplicateFinding>[0], 
  */
 export function resolvedFindingsToReverify(findings: readonly Finding[], boundary: string,
   epochs: Parameters<typeof isDuplicateFinding>[0] = {}): Finding[] {
-  const nonRepair = (finding: Finding) => finding.resolutionType === 'preexisting_out_of_scope' || finding.resolutionType === 'accepted_risk' || isFileStateSettled(finding);
+  const nonRepair = (finding: Finding) => finding.resolutionType === 'preexisting_out_of_scope' || finding.resolutionType === 'accepted_risk' || isFrameworkSettled(finding);
   const candidates = findings.filter(finding => finding.status === 'resolved' && (finding.resolvedAt ?? '') >= boundary && !nonRepair(finding));
   const rerun = new Set(candidates.filter(finding => finding.resolutionType !== 'duplicate').map(finding => finding.id));
   const byId = new Map(findings.map(finding => [finding.id, finding] as const));

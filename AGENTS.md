@@ -857,7 +857,9 @@ conflict (suspected `[precedent-conflict]` findings included) into ONE PLAN
 visit and gives the oracle order; a case a current row already pins needs no
 pin. After DEV, a PLAN `checklist_update` that changes the value an existing
 row pins is refused `[pin_reversal_unstated]` unless the row states
-`re-pin: <case> was <old>, now <new>`. A pin keeps a done item done when its
+`re-pin: <case> was <old>, now <new>`; since lab run131 the refusal's ONE Next is the
+ready remedy the oracle order decides (repin / keep / counterpart / the
+plan_pin_dispute relax or exclude), not a placeholder patch. A pin keeps a done item done when its
 rows' pinned tests pass on the current code (and state its amended rows).
 `review_round_prepare` reroutes a full-scan route that only went stale with a
 framework reason. A canonical closed without a repair (pre-existing
@@ -1033,6 +1035,23 @@ right after a new verdict reruns story_review first so its merged row patches ar
 current round's; and an agent step without a command prints "do what Why names, then `next
 --run`". Author the rows (or, for reference-only material, the excludes entry the step also
 names) and run `next --run`. See docs/CLI.md "Lab plan-deadend".
+
+Old-PoS run 131 (lab `codex/lab-run131`, runs 127-131; detection-neutral, three
+rollback switches default on): a "scope violation" finding against documentation the
+scope gate admits (`documentation-default` / `allowedModify`, nothing protected or
+excluded) is closed once against the gate verdict (winner `scope_gate`,
+`remediation.scopeGateSettle`), and code lanes are told which docs are admitted; an
+`[intent-conflict]` naming both literals gives ONE ready amend patch, and a PLAN amend
+re-asserting the disputed pin without the request text or a base check is refused
+`[intent_conflict_overruled]` (`plan.intentConflictGuard`); a finding whose repair broke a
+resolved finding's test, on a case a row pins the way that test states, is closed once by
+the framework step `finding_conflict_settled` (`remediation.conflictSettle`), never another
+`finding_conflict_pin` trip; `pin_reversal_unstated` and the `metadata_correction`
+refusals carry ONE ready command; a delta-confirmation refusal commit no longer voids the
+sibling lanes' evidence; a lane with no provider item in 150 s
+(`PROOF_OR_STOP_MANAGED_PROVIDER_FIRST_ITEM_MS`) is `provider_stalled` and relaunched at once
+(`review_round_prepare {lanes}`) while its siblings run. Run the ready command; do not
+re-assert a disputed pin without the request sentence. See docs/CLI.md "Old-PoS run 131".
 
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache

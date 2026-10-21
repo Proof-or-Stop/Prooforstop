@@ -376,7 +376,10 @@ await check('F3 the reverse: a scope-violation finding against a doc the request
   const out = conflictOf({ finding: scope, findings: [], contract: contractOf(), requestText: 'Add stepped slices and update the docs for them.', boundaryExcluded: [] });
   assert.equal(out?.settle, true, JSON.stringify(out));
   assert.equal(out.winner, 'request');
-  assert.ok(!conflictOf({ finding: scope, findings: [], contract: contractOf(), requestText: 'Add stepped slices.', boundaryExcluded: [] })?.settle, 'without the request the scope finding stands');
+  // Lab run131 (fix 1): without the request, a doc the scope gate admits (documentation-default) decides it (winner scope_gate);
+  // with remediation.scopeGateSettle=off (the rollback) the scope finding stands, as before lab run131.
+  assert.equal(conflictOf({ finding: scope, findings: [], contract: contractOf(), requestText: 'Add stepped slices.', boundaryExcluded: [] })?.winner, 'scope_gate', 'without the request the scope gate decides');
+  assert.ok(!conflictOf({ finding: scope, findings: [], contract: contractOf(), requestText: 'Add stepped slices.', boundaryExcluded: [], scopeGateSettle: false })?.settle, 'rollback: without the request the scope finding stands');
 });
 
 await check('F4 settlements are journaled once per file and direction; a settled finding is no repair (no regression guard, not re-verified)', async () => {

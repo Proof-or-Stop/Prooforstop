@@ -279,6 +279,12 @@ export interface HostRunSpawnPlan {
    * timeoutKind `provider_stall_timeout` (managed runs: provider_stalled).
    */
   stallTimeoutMs?: number;
+  /**
+   * Lab run131 (run 131 RR-004 / RR-010: lanes hung after `turn.started` for the whole 300 s window): an optional
+   * shorter budget, counted from spawn, while no provider item event (providerItemEventSeen) has been printed; the
+   * ordinary stall budget applies after the first item. Expiry is the same `provider_stall_timeout`.
+   */
+  firstItemTimeoutMs?: number;
   /** Optional caller cancellation; termination still waits for child close/reap. */
   signal?: AbortSignal;
   /** The absolute prompt-file path for claude (informational; runner reads argv). */
@@ -445,6 +451,8 @@ export interface HostRunArgs {
   startupTimeoutMs?: number;
   /** Optional stdout stall budget (HostRunSpawnPlan.stallTimeoutMs). */
   stallTimeoutMs?: number;
+  /** Lab run131: optional no-item budget (HostRunSpawnPlan.firstItemTimeoutMs). */
+  firstItemTimeoutMs?: number;
   /** Optional caller cancellation. */
   signal?: AbortSignal;
   /** Exact protected launcher profile owned by cross_host_review or the managed-review worker. */
@@ -2345,10 +2353,14 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       startupTimer = schedule(() => terminate('startup_no_output_timeout'), plan.startupTimeoutMs);
     }
     // Stall budget: silence counted from spawn and from every stdout chunk.
+    // Lab run131: until the first provider item event, the remaining no-item budget (from spawn) caps it.
+    const firstItemDeadline = plan.firstItemTimeoutMs && plan.firstItemTimeoutMs > 0 ? Date.now() + plan.firstItemTimeoutMs : null;
+    let itemSeen = false;
     const armStallTimer = (): void => {
       if (!plan.stallTimeoutMs || plan.stallTimeoutMs <= 0 || settled || closeObserved || timeoutKind !== null) return;
       if (stallTimer) cancel(stallTimer);
-      stallTimer = schedule(() => terminate('provider_stall_timeout'), plan.stallTimeoutMs);
+      const window = firstItemDeadline !== null && !itemSeen ? Math.max(0, Math.min(plan.stallTimeoutMs, firstItemDeadline - Date.now())) : plan.stallTimeoutMs;
+      stallTimer = schedule(() => terminate('provider_stall_timeout'), window);
     };
     armStallTimer();
     if (plan.timeoutMs && plan.timeoutMs > 0) {
@@ -2361,6 +2373,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     handleStdoutText = (text: string): void => {
       if (text.length > 0) {
         markFirstOutput();
+        if (!itemSeen && firstItemDeadline !== null && providerItemEventSeen(text)) itemSeen = true;
         if (stallTimer) armStallTimer();
       }
       deliver({ stream: 'stdout', text });
@@ -2931,6 +2944,7 @@ async function runAdmittedHostRun(args: HostRunArgs, deps: HostRunDeps, executio
         timeoutMs: args.timeoutMs,
         startupTimeoutMs: args.startupTimeoutMs,
         stallTimeoutMs: args.stallTimeoutMs,
+        ...(args.firstItemTimeoutMs ? { firstItemTimeoutMs: args.firstItemTimeoutMs } : {}),
         signal: args.signal,
         promptFile: launch.promptFile,
         host: args.host,
@@ -3467,4 +3481,12 @@ function numOrNull(value: unknown): number | null {
 /** Whether the slot registry dir currently exists (test/diagnostic helper). */
 export function hostRunSlotsDirExists(root: string): boolean {
   return existsSync(providerProcessSlotsDir(root));
+}
+
+/**
+ * Lab run131: whether provider stdout text carries a provider item event (codex `item.*`, a turn end or an error), the
+ * event that ends the no-item phase of a managed run. `thread.started` / `turn.started` are not items.
+ */
+export function providerItemEventSeen(text: string): boolean {
+  return /"type"\s*:\s*"(?:item\.[a-z_]+|turn\.(?:completed|failed)|error)"/.test(text);
 }

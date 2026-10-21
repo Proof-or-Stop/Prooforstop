@@ -67,6 +67,8 @@ import {
 } from '../core/agent-dispatch-registry.js';
 import { PREEXISTING_OUT_OF_SCOPE, preexistingDispositionReason } from '../core/finding-preexisting.js';
 import { FILE_STATE_CONFLICT, FILE_STATE_REASON_PREFIX, recordFileStateSettlement } from '../core/file-state-conflict.js';
+import { FINDING_CONFLICT_SETTLED, FINDING_CONFLICT_REASON_PREFIX, recordConflictSettlement } from '../core/finding-conflict-settle.js';
+import { evaluateFindingConflictSettlement } from './finding-conflict-settle.js';
 import { evaluateFileStateConflict, fileStateSettlementReason } from './file-state-conflict.js';
 import { evaluatePreexistingFinding } from './finding-preexisting.js';
 import {
@@ -845,6 +847,23 @@ export function createFindingHandlers(ctx: HandlerContext) {
     recordFileStateSettlement(ctx.root, storyId, { files: verdict.files, dir: verdict.dir, winner: verdict.winner ?? 'scope_boundary', findingId, why: verdict.reason });
     return fileStateSettlementReason(verdict, followUp);
   };
+  /**
+   * Lab run131: the audited reason of a finding_conflict_settled disposition, from the framework's own decision
+   * (handlers/finding-conflict-settle.ts evaluateFindingConflictSettlement), never the caller's claim. Refuses, leaving
+   * the finding open, when the conflict is not the framework's to decide.
+   */
+  const conflictDisposition = (storyId: string, findingId: string, followUp: string): string => {
+    const findings = store.readFindings(storyId).findings;
+    const finding = findings.find(row => row.id === findingId);
+    if (!finding) throw new Error(`Finding ${findingId} not found`);
+    if (finding.status !== 'open') throw new Error(`finding_resolve: ${findingId} is ${finding.status}, not open`);
+    const settlement = evaluateFindingConflictSettlement({ store, root: ctx.root, storyId, finding, findings });
+    if (!settlement) {
+      throw new Error(`finding_resolve: ${findingId} cannot be closed as ${FINDING_CONFLICT_SETTLED}: no conflict with a resolved finding that a current checklist pin and that finding's covering test decide. It stays open.\nNext: proof-or-stop next --storyId=${storyId}`);
+    }
+    recordConflictSettlement(ctx.root, storyId, { findingId, resolvedId: settlement.resolvedId, cases: settlement.cases, winner: settlement.winner, why: settlement.reason });
+    return `${settlement.reason} Follow-up: ${followUp.trim() || 'none'}`;
+  };
   const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   /**
    * Old-PoS run 24 (F4): finding_resolve with resolutions[] closes several
@@ -1365,13 +1384,22 @@ export function createFindingHandlers(ctx: HandlerContext) {
       if (args.disposition !== FILE_STATE_CONFLICT && String(args.resolution ?? '').trimStart().startsWith(FILE_STATE_REASON_PREFIX)) {
         throw new Error(`finding_resolve: a resolution starting with ${FILE_STATE_REASON_PREFIX} is recorded only by disposition=${FILE_STATE_CONFLICT} (the framework recomputes the conflict).\nNext: proof-or-stop next --storyId=${args.storyId}`);
       }
+      // Lab run131: likewise the `[finding_conflict_settled]` reason.
+      if (args.disposition !== FINDING_CONFLICT_SETTLED && String(args.resolution ?? '').trimStart().startsWith(FINDING_CONFLICT_REASON_PREFIX)) {
+        throw new Error(`finding_resolve: a resolution starting with ${FINDING_CONFLICT_REASON_PREFIX} is recorded only by disposition=${FINDING_CONFLICT_SETTLED} (the framework recomputes the conflict).\nNext: proof-or-stop next --storyId=${args.storyId}`);
+      }
       if (args.disposition !== undefined) {
-        if (args.disposition !== PREEXISTING_OUT_OF_SCOPE && args.disposition !== FILE_STATE_CONFLICT) throw new Error(`finding_resolve: disposition must be ${PREEXISTING_OUT_OF_SCOPE} or ${FILE_STATE_CONFLICT}`);
+        if (args.disposition !== PREEXISTING_OUT_OF_SCOPE && args.disposition !== FILE_STATE_CONFLICT && args.disposition !== FINDING_CONFLICT_SETTLED) {
+          throw new Error(`finding_resolve: disposition must be ${PREEXISTING_OUT_OF_SCOPE}, ${FILE_STATE_CONFLICT} or ${FINDING_CONFLICT_SETTLED}`);
+        }
         if (args.duplicateOf !== undefined || args.coverage !== undefined || args.resolutionType !== undefined) {
           throw new Error('finding_resolve: disposition cannot be combined with duplicateOf, coverage or resolutionType');
         }
         if (args.disposition === FILE_STATE_CONFLICT) {
           dispositionReason = fileStateDisposition(args.storyId, findingId, args.resolution ?? '');
+          resolutionType = 'superseded';
+        } else if (args.disposition === FINDING_CONFLICT_SETTLED) {
+          dispositionReason = conflictDisposition(args.storyId, findingId, args.resolution ?? '');
           resolutionType = 'superseded';
         } else {
           dispositionReason = preexistingDisposition(args.storyId, findingId, args.resolution ?? '');

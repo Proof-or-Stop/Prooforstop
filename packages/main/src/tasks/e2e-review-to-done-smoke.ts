@@ -398,7 +398,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S|NSG|NSG-X|NIO|NFC|NPV|NMC|NDI|NSL]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -875,6 +875,8 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
     fs.writeFileSync(path.join(dir, 'byrun', runId + '.resume.json'), JSON.stringify(script.resume));
   }
   announceThread();
+  // Lab run131 (NSL): a provider stall before any item (thread.started printed, then nothing).
+  if (script.stallMs) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, script.stallMs);
   // EXPERIMENTAL A/B review.deltaRounds (ND-DR*): a confirmation lane answers the
   // check items its sealed prompt lists, as a reviewer reading the prompt would.
   if (script.delta && input.includes('--- BEGIN DELTA ROUND CONFIRMATION')) {
@@ -936,6 +938,7 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   // (a merged session: its '### Dimension' sections; an ordinary lane: 1), so a round's wall shows whether
   // the sessions of a round overlap (parallel) or queue (serial).
   if (script.latency) {
+    if (script.latency.itemFirst) emit({ type: 'item.completed', item: { id: 'reasoning_0', type: 'reasoning', text: 'Reading the diff.' } });
     const sections = merged ? (input.slice(input.indexOf('--- BEGIN MERGED REVIEW DIMENSIONS')).match(/^### Dimension \\d+\\/\\d+: /gm) || []).length : 1;
     const ms = script.latency.baseMs + script.latency.perDimensionMs * Math.max(1, sections);
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
@@ -1841,7 +1844,7 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
    * Old-PoS run 44: 'short-literal' = D_FINDING plus a metadata finding citing only a short quoted literal of CHK-001's
    * userSees (no corrected value extractable; run 44 R2), copied in CHK-002's userSees (the sweep).
    */
-  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal' | 'intent-only';
+  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal' | 'intent-only' | 'intent-literal';
   /**
    * EXPERIMENTAL A/B review.deltaRounds (ND-DR*): later-round lanes answer a delta-round
    * confirmation block from their prompt: 'full' checks every item and names the re-run of
@@ -1864,6 +1867,10 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
   laneMerge?: LaneMergeMode;
   /** Lab lane-split (NLM4*, NLM-S): every code-review lane session sleeps this scripted latency. */
   laneLatency?: LaneLatency;
+  /** Lab run131 (NDI, NSL): per-lane scripted latency (short lane name), from review round `fromRound` (1-based) on. */
+  laneLatencyFor?: Record<string, LaneLatency & { fromRound: number }>;
+  /** Lab run131 (NSL): the first run of this lane (short name) prints thread.started and then nothing for `ms` (a provider stall before any item). */
+  laneStall?: { lane: string; ms: number };
   /** Lab lean (NLN*): the merged session of round 1 reports D_FINDING; a later round's delta confirmation passes, or (escalate) reports LN_ESC_FINDING outside the delta. */
   lean?: LeanScriptMode }
 /** Lab lean (NLN*): what the review sessions of a pipeline.lean run report (LN_ESC_FINDING in round 2 when `escalate`). */
@@ -1876,7 +1883,9 @@ interface LeanScriptMode { escalate?: boolean }
  */
 interface LaneMergeMode { rounds: Array<{ findings: Array<Record<string, unknown>>; uncovered?: string[] }> }
 /** Lab lane-split: scripted model latency of one review session (fake provider sleeps base + per dimension). */
-interface LaneLatency { baseMs: number; perDimensionMs: number }
+interface LaneLatency { baseMs: number; perDimensionMs: number;
+  /** Lab run131 (NSL): print one reasoning item before the latency (a real session's first item arrives in seconds). */
+  itemFirst?: boolean }
 type DeltaNoteMode = 'full' | 'gap' | 'bad-rerun' | 'findings' | 'findings-flat' | 'findings-gap';
 type RecurringMode = 'site' | 'edited' | 'new-site';
 /** Old-PoS run 27 delivery overlap faults (scenarioNDL). */
@@ -1893,6 +1902,8 @@ const NC4_SUSPECTED = {
 const NC_REWORDED_DESC = 'Base-to-head gap: Reverse has no focused empty-string test; Reverse("") must return "" and never index r[-1] on an empty string.';
 
 type ProviderScript = { final: string; commands?: string[][];
+  /** Lab run131 (NSL): sleep this long after thread.started, before any item (a provider stall). */
+  stallMs?: number;
   /** NLM*: the fake provider appends the merged-session coverage lines its prompt asks for, minus `uncovered` (LaneMergeMode). */
   merge?: { uncovered?: string[]; findings?: Array<Record<string, unknown>> };
   /** NLM4* / NLM-S (lab lane-split): scripted session latency, baseMs + perDimensionMs per dimension the session carries. */
@@ -1961,6 +1972,11 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
     // Old-PoS run 33 (F-003 / trip 5): a lane cites an intent row that contradicts the request (a PLAN correction).
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
       note: 'Scripted run 33 lane: an untested edge and a checklist intent row that contradicts the request.', findings: [D_FINDING, metadataFindings(worktree, storyId).intentRow], ...readEvidenceFor(worktree, storyId) }) };
+  }
+  if (mode.metadata === 'intent-literal' && firstRound && lane === 'proof-or-stop-review-test-coverage') {
+    // Lab run131 (NMC, run 131 PLAN-B): the lane cites the wrong statement an intent row states and the reviewer's value.
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
+      note: 'Scripted run 131 lane: an untested edge and an intent row stating a wrong value.', findings: [D_FINDING, metadataFindings(worktree, storyId).intentLiteral], ...readEvidenceFor(worktree, storyId) }) };
   }
   if (mode.metadata === 'intent-only' && firstRound && lane === 'proof-or-stop-review-test-coverage') {
     // Old-PoS run 68 R2: the only report of the wave is an intent row the request contradicts (no product finding).
@@ -2403,7 +2419,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Run 17 Q1: round 1 also reports NU_DUP_FINDING, which the critic marks a duplicate of D_FINDING; 'covered' = the canonical repair's test covers it, 'uncovered' = it does not. */
   duplicate?: 'covered' | 'uncovered' | 'covered2';
   /** Old-PoS run 31 (NMF/NMF2): round 1 also reports Story-metadata findings (ScriptMode.metadata). */
-  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal' | 'intent-only';
+  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal' | 'intent-only' | 'intent-literal';
   /** Soft checks (NL): each violation is recorded and the flow continues, so one run reports every defect. */
   violations?: string[];
   /** Scenarios NC/NC2/NC3: the first round-1 critic restates (or leaves a new finding without a row). */
@@ -2438,6 +2454,9 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   laneMerge?: LaneMergeMode;
   /** Lab lane-split: see ScriptMode.laneLatency. */
   laneLatency?: LaneLatency;
+  /** Lab run131: see ScriptMode.laneLatencyFor / laneStall. */
+  laneLatencyFor?: Record<string, LaneLatency & { fromRound: number }>;
+  laneStall?: { lane: string; ms: number };
   /** Old-PoS run 52 (NPXR*): see ScriptMode.recurring. */
   recurring?: RecurringMode;
   /** Lab lean (NLN*): see ScriptMode.lean. */
@@ -2452,6 +2471,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   const watchdogKills: DriveStats['watchdogKills'] = [];
   const scriptKeyByRun = new Map<string, string>();
   let firstRound: string | undefined;
+  const stalledLanes = new Set<string>();
   const reasons: string[] = [];
   const statusOf = () => existsSync(o.worktree) ? execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: o.worktree, encoding: 'utf8' }) : '';
   let internalCalls = 0;
@@ -2570,7 +2590,13 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           const lane = String(lanePayload.lane);
           const reviewRunId = String(lanePayload.reviewRunId);
           const script = laneScript(o.worktree, id, lane, reviewRunId, round === firstRound, mode);
-          o.script(reviewRunId, mode.laneLatency ? { ...script, latency: mode.laneLatency } : script);
+          const roundIndex = [...new Set(new StoryStore(o.worktree).readReviewRuns(id).runs.map(row => row.reviewRound))].indexOf(round ?? '') + 1;
+          const own = mode.laneLatencyFor?.[short(lane)];
+          const latency = own && roundIndex >= own.fromRound ? { baseMs: own.baseMs, perDimensionMs: own.perDimensionMs, ...(own.itemFirst ? { itemFirst: true } : {}) } : mode.laneLatency;
+          // Lab run131 (NSL): the lane's first run stalls before any item.
+          const stall = mode.laneStall && short(lane) === mode.laneStall.lane && !stalledLanes.has(lane) ? mode.laneStall.ms : 0;
+          if (stall) stalledLanes.add(lane);
+          o.script(reviewRunId, { ...script, ...(latency ? { latency } : {}), ...(stall ? { stallMs: stall } : {}) });
         }
         break;
       }
@@ -6961,7 +6987,7 @@ function checklistRel(worktree: string, storyId: string): string {
  * checklist.json. `restated`: cites checklist.json:<line> (no item id) plus the
  * passing test that already asserts the right value.
  */
-function metadataFindings(worktree: string, storyId: string): { cited: Record<string, unknown>; restated: Record<string, unknown>; productCopy: Record<string, unknown>; intentRow: Record<string, unknown>; short: Record<string, unknown> } {
+function metadataFindings(worktree: string, storyId: string): { cited: Record<string, unknown>; restated: Record<string, unknown>; productCopy: Record<string, unknown>; intentRow: Record<string, unknown>; short: Record<string, unknown>; intentLiteral: Record<string, unknown> } {
   const rel = checklistRel(worktree, storyId);
   const text = readFileSync(join(worktree, rel), 'utf8').split('\n');
   const line = text.findIndex(row => row.includes('"userSees": "Upper(\\"ab\\") == \\"ab\\"')) + 1;
@@ -6976,6 +7002,9 @@ function metadataFindings(worktree: string, storyId: string): { cited: Record<st
     short: { desc: META_SHORT_DESC, severity: 'medium', category: 'missing', files: [rel], evidenceState: 'verified' },
     // Old-PoS run 33 trip 5: an intent row the request contradicts (only PLAN may correct it).
     intentRow: { desc: 'checklist-intent-drift: CHK-001:happy:0 verificationIntent pins Upper behaviour the request does not state; the request says Upper returns the upper-case form, so the row must say Upper("ab") -> "AB".',
+      severity: 'medium', category: 'missing', files: [rel], evidenceState: 'verified' },
+    // Lab run131 (NMC): an intent row states a wrong statement; the reviewer gives the value.
+    intentLiteral: { desc: `checklist-intent-drift: CHK-001:happy:0 verificationIntent states \`${NIO_PINNED}\`, but the request says Upper returns the upper-case form, so it should be \`"AB"\`.`,
       severity: 'medium', category: 'missing', files: [rel], evidenceState: 'verified' },
   };
 }
@@ -9179,8 +9208,310 @@ function listScopeRuns(o: Owner): number {
   }).length;
 }
 
+// ---------------------------------------------------------------------------
+// Lab run131 (bench-staging/oldpos/run131-analysis.md, run127-129-phase-cost.md): NSG / NSG-X (scope finding vs the
+// scope gate), NIO (intent conflict overruled by a bare re-assertion), NFC (finding conflict settled once), NPV (pin
+// reversal remedy at the first refusal), NMC (metadata correction ready rows), NDI (delta-confirmation refusal commit vs
+// a sibling lane import), NSL (a stalled lane relaunched while its siblings run). Synthetic `strs` helpers only.
+
+/** Run 131 F-024's shape (made-up): a lane calls a repair's doc edit a scope violation the scope gate admits. */
+const NSG_DOC = 'docs/types/string.md';
+const NSG_FINDING = `Scope violation: the repair of F-001 edited ${NSG_DOC}, but the scope-contract allowedModify lists no docs (only strs/strs.go); revert the documentation edit.`;
+const NSG_X_FINDING = 'Scope violation: the repair of F-001 edited internal/cache/cache.go, which the scope contract does not admit; revert it.';
+
+function scenarioNSG(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NSG' | 'NSG-X'): Outcome {
+  const admitted = tag === 'NSG';
+  const name = admitted
+    ? 'NSG lab run131 fix 1: a scope-violation finding on a doc the scope gate admits (documentation-default) is settled by ONE framework step: no repair, no guard, no PLAN trip'
+    : 'NSG-X lab run131 fix 1 control: a scope-violation finding on a path the scope gate refuses still goes to repair';
+  const o = new Owner(tag, admitted ? 'B-131a' : 'B-131b', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    devSetup(o);
+    seedFindings(o, [{ desc: admitted ? NSG_FINDING : NSG_X_FINDING, files: [admitted ? NSG_DOC : 'internal/cache/cache.go'], category: 'adversarial' }]);
+    const step = ask('next (scope finding)');
+    if (!admitted) {
+      assert.equal(step.reason, 'finding_repair', `[${tag}] a refused path keeps the repair route: ${step.reason}: ${step.why.slice(0, 400)}`);
+      o.cleanup();
+      return { name, status: 'PASS', lines };
+    }
+    assert.equal(step.reason, 'finding_file_state_settled', `[${tag}] the scope gate decides, not a repair: ${step.reason}: ${step.why.slice(0, 400)}`);
+    assert.equal(step.kind, 'framework', `[${tag}] no owner turn`);
+    assert.match(step.why, /scope gate|scope_contract_check/, `[${tag}] the why names the gate verdict: ${step.why.slice(0, 400)}`);
+    o.mustCli(step.cli!.command, step.cli!.payload, { label: 'finding_resolve (scope gate settle)' });
+    const finding = new StoryStore(o.worktree).readFindings(o.storyId).findings.find(row => row.desc === NSG_FINDING)!;
+    assert.equal(finding.status, 'resolved', `[${tag}] closed`);
+    assert.equal(finding.resolutionType, 'superseded', `[${tag}] superseded`);
+    assert.match(String(finding.resolvedReason), /^\[file_state_conflict\].*documentation-default/, `[${tag}] the gate verdict is recorded: ${finding.resolvedReason}`);
+    const after = ask('next (settled)');
+    assert.doesNotMatch(after.reason, /^finding_(?:repair|conflict_pin|file_state)/, `[${tag}] nothing left for the finding: ${after.reason}`);
+    assert.equal(managedPrompts(o, FINDING_REPAIR).length, 0, `[${tag}] no repair run`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NIO: the implementer reports the pinned row contradicts the request; the pin is a literal the request never states. */
+const NIO_PINNED = 'Upper("ab") == "ab"';
+const NIO_IMPLIED = 'Upper("ab") == "AB"';
+const NIO_CONFLICT_LINE = `[intent-conflict] CHK-001:happy:0 | request: "\`strs.Upper(s)\` returns the upper-case form of \`s\`" | request implies: ${NIO_IMPLIED} | intent pins: ${NIO_PINNED}`;
+const NIO_REQUEST = ['Implement the string helpers documented in docs/types/string.md:', '', '- `strs.Upper(s)` returns the upper-case form of `s`.', '- `strs.Reverse(s)` returns `s` reversed by rune.', ''].join('\n');
+
+function scenarioNIO(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NIO';
+  const name = 'NIO lab run131 fix 2: an amend that re-asserts the pin an implementer\'s [intent-conflict] disputed (request silent) is refused with ONE ready row patch; the amend step itself is ready';
+  const o = new Owner(tag, 'B-131c', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIO_REQUEST });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    const store = new StoryStore(o.worktree);
+    const cl = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-001' ? { ...item, verificationIntent: { ...item.verificationIntent!,
+      happy: [{ ...item.verificationIntent!.happy[0]!, desc: `${NIO_PINNED}; go test -v ./strs -run TestUpper prints --- PASS: TestUpper`,
+        derivation: { requestQuote: '`strs.Upper(s)` returns the upper-case form of `s`.', computation: 'the helper keeps lower-case input as is' } }] } } : item) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} pinned row`);
+    devSetup(o, false);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[${tag}] ${launch.reason}: ${launch.why.slice(0, 300)}`);
+    const script = implementerScript(o.storyId, String(launch.cli!.payload.itemId));
+    o.script(IMPLEMENTER, { ...script, final: `${script.final}\n${NIO_CONFLICT_LINE}` });
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label: 'host_run implementer (conflict)' });
+    waitTerminal(o, 'implementer', String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId));
+    o.unscript(IMPLEMENTER);
+    const blocked = ask('next (conflict declared)');
+    assert.equal(blocked.reason, 'intent_conflict', `[${tag}] ${blocked.reason}: ${blocked.why.slice(0, 300)}`);
+    o.mustCli('story_advance', blocked.cli!.payload, { label: 'story_advance PLAN (intent conflict)' });
+    const amend = ask('next (PLAN, conflict open)');
+    assert.equal(amend.reason, 'intent_conflict_amend', `[${tag}] ${amend.reason}`);
+    assert.deepEqual(amend.placeholders ?? [], [], `[${tag}] the amend is ready (the implementer's value, the re-pin stated): ${JSON.stringify(amend.cli?.payload).slice(0, 600)}`);
+    // The owner overrules with a bare re-assertion (run 131 06:40): refused, with the ready patch as the one Next.
+    const item = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(row => row.id === 'CHK-001')!;
+    const reasserted = JSON.parse(JSON.stringify(item.verificationIntent)) as { happy: Array<{ derivation?: { computation?: string } }> };
+    reasserted.happy[0]!.derivation = { ...reasserted.happy[0]!.derivation, computation: 'the pinned value stands: Upper keeps lower-case input, so Upper("ab") == "ab"' };
+    const refused = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: reasserted, reason: 'The intent is right.', status: 'pending' }, { label: 'checklist_update CHK-001 (re-assert)' });
+    assert.notEqual(refused.status, 0, `[${tag}] a bare re-assertion is refused`);
+    assert.match(refused.out, /\[intent_conflict_overruled\]/, `[${tag}] refusal code:\n${refused.out.slice(-1200)}`);
+    const nextLine = refused.out.split('\n').find(row => row.startsWith('Next: proof-or-stop checklist_update ')) ?? '';
+    assert.doesNotMatch(nextLine, /<[a-z][^<>]*>/i, `[${tag}] the Next is ready: ${nextLine}`);
+    const ready = JSON.parse(nextLine.slice('Next: proof-or-stop checklist_update '.length).replace(/^'|'$/g, '').replace(/'\\''/g, "'")) as Record<string, unknown>;
+    o.mustCli('checklist_update', ready, { label: 'checklist_update CHK-001 (ready patch)' });
+    const after = ask('next (amended)');
+    assert.doesNotMatch(after.reason, /^intent_conflict/, `[${tag}] the conflict is settled: ${after.reason}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NFC (runs 128 / 129): resolved G pins `Reverse("")` to an error marker (its repair test states it, a row pins it); open F demands the opposite. */
+const NFC_CASE = 'Reverse("")';
+const NFC_G = `strs/strs.go:9 Reverse of an empty string must return the error marker. Repro: \`${NFC_CASE}\``;
+const NFC_F = `strs/strs.go:9 Reverse of an empty string should return the empty string, like an omitted input. Repro: \`${NFC_CASE}\``;
+const NFC_TEST = '\nfunc TestReverseEmptyMarker(t *testing.T) {\n\tif Reverse("") != "error" {\n\t\tt.Fatal("want the error marker")\n\t}\n}\n';
+
+function scenarioNFC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NFC';
+  const name = 'NFC lab run131 fix 3: a finding whose repair broke a resolved finding\'s test, on a case the checklist pins as that test states, is settled once by a framework step (no repair, no PLAN trip)';
+  const o = new Owner(tag, 'B-131d', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    devSetup(o);
+    write(o.worktree, 'strs/strs_test.go', `${readFileSync(join(o.worktree, 'strs/strs_test.go'), 'utf8')}${NFC_TEST}`);
+    git(o.worktree, ['add', 'strs/strs_test.go']);
+    git(o.worktree, ['-c', `user.name=${FINDING_REPAIR}`, 'commit', '-qm', `${o.storyId} F-001: test the empty-string marker`]);
+    const gRepair = git(o.worktree, ['rev-parse', 'HEAD']);
+    write(o.worktree, 'strs/strs.go', `${readFileSync(join(o.worktree, 'strs/strs.go'), 'utf8')}\n// empty input handled\n`);
+    git(o.worktree, ['add', 'strs/strs.go']);
+    git(o.worktree, ['-c', `user.name=${FINDING_REPAIR}`, 'commit', '-qm', `${o.storyId} F-002: empty input returns empty`]);
+    const fRepair = git(o.worktree, ['rev-parse', 'HEAD']);
+    const store = new StoryStore(o.worktree);
+    const cl = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-002' ? { ...item, verificationIntent: { ...item.verificationIntent!,
+      edge: [...(item.verificationIntent!.edge ?? []), { desc: `\`${NFC_CASE} -> error\``, derivation: { requestQuote: 'Reverse returns the string reversed by rune.', computation: 'the empty string has no rune to reverse: the error marker' } }] } } : item) } as never);
+    seedFindings(o, [{ desc: NFC_G, status: 'resolved', resolutionType: 'fixed', resolvedAt: '2026-10-15T00:10:00.000Z', resolvedReason: `Repaired [repair commit ${gRepair.slice(0, 12)}]` }, { desc: NFC_F }]);
+    store.appendProcessEvent(o.storyId, { type: 'resolved_finding_guard_checked', storyId: o.storyId, findingId: `${o.storyId}:F-001`, passed: false, inconclusive: false,
+      command: 'go test -v ./strs -run ^TestReverseEmptyMarker$', scope: 'repro', outputTail: '--- FAIL: TestReverseEmptyMarker', rejectedRepairs: [{ findingId: `${o.storyId}:F-002`, commit: fRepair }] } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} guard rejected F-002's repair`);
+    const step = ask('next (conflict)');
+    assert.equal(step.reason, 'finding_conflict_settled', `[${tag}] the pin decides once, by the framework: ${step.reason}: ${step.why.slice(0, 500)}`);
+    assert.equal(step.kind, 'framework', `[${tag}] no owner turn`);
+    o.mustCli(step.cli!.command, step.cli!.payload, { label: 'finding_resolve (conflict settle)' });
+    const findings = new StoryStore(o.worktree).readFindings(o.storyId).findings;
+    const f = findings.find(row => row.desc === NFC_F)!;
+    assert.equal(f.status, 'resolved', `[${tag}] the losing finding is closed`);
+    assert.match(String(f.resolvedReason), /^\[finding_conflict_settled\]/, `[${tag}] ${f.resolvedReason}`);
+    const after = ask('next (settled)');
+    assert.doesNotMatch(after.reason, /^finding_(?:repair|conflict)/, `[${tag}] never reopened: ${after.reason}: ${after.why.slice(0, 300)}`);
+    assert.equal(managedPrompts(o, FINDING_REPAIR).length, 0, `[${tag}] no repair run`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NPV (run 131 PLAN-C): after DEV, the owner flips a pinned value without stating the re-pin. */
+function scenarioNPV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPV';
+  const name = 'NPV lab run131 fix 4: the first pin_reversal_unstated refusal carries the remedy as ONE ready command, which applies';
+  const o = new Owner(tag, 'B-131e', machineEnv, steps, false, { trackedGateFailureCounts: true, request: NIO_REQUEST });
+  const lines: string[] = [];
+  try {
+    const store = new StoryStore(o.worktree);
+    const cl = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-002' ? { ...item, verificationIntent: { ...item.verificationIntent!,
+      edge: [{ ...item.verificationIntent!.happy[0]!, id: 'CHK-002:edge:0', desc: '`Reverse("abc") -> "cba"`', derivation: { requestQuote: '`strs.Reverse(s)` returns `s` reversed by rune.', computation: 'three runes reversed' } }] } } : item) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} pinned edge row`);
+    devSetup(o);
+    o.mustCli('story_advance', { storyId: o.storyId, phase: 'PLAN' }, { label: 'story_advance PLAN (re-plan)' });
+    const item = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(row => row.id === 'CHK-002')!;
+    const flipped = JSON.parse(JSON.stringify(item.verificationIntent)) as { edge: Array<{ desc: string; derivation?: { requestQuote?: string; computation?: string } }> };
+    flipped.edge[0]!.desc = '`Reverse("abc") -> "cb"`';
+    flipped.edge[0]!.derivation = { ...flipped.edge[0]!.derivation, computation: 'the runes reversed, the first one dropped: "cb"' };
+    const refused = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', verificationIntent: flipped, reason: 'Correct the pin.' }, { label: 'checklist_update CHK-002 (silent reversal)' });
+    assert.notEqual(refused.status, 0, `[${tag}] a silent reversal is refused`);
+    assert.match(refused.out, /\[pin_reversal_unstated\]/, `[${tag}] refusal code:\n${refused.out.slice(-1200)}`);
+    const nextLine = refused.out.split('\n').find(row => row.startsWith('Next: proof-or-stop checklist_update ')) ?? '';
+    lines.push(`refusal Next: ${nextLine.slice(0, 300)}`);
+    assert.doesNotMatch(nextLine, /<[a-z][^<>]*>/i, `[${tag}] the Next is ready: ${nextLine}`);
+    const ready = JSON.parse(nextLine.slice('Next: proof-or-stop checklist_update '.length).replace(/^'|'$/g, '').replace(/'\\''/g, "'")) as Record<string, unknown>;
+    o.mustCli('checklist_update', ready, { label: 'checklist_update CHK-002 (ready remedy)' });
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NMC (run 131 PLAN-B): the PLAN intent-row correction is ready (no placeholder); an unchanged update's refusal names the ready rows. */
+function scenarioNMC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NMC';
+  const name = 'NMC lab run131 fix 5: the PLAN metadata correction carries the corrected rows (no placeholder); a refusal names the exact next command';
+  const o = new Owner(tag, 'B-131f', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  let reached: NextStepJson | null = null;
+  try {
+    const store0 = new StoryStore(o.worktree);
+    const cl0 = store0.readChecklist(o.storyId);
+    store0.writeChecklist(o.storyId, { ...cl0, items: cl0.items.map(item => item.id === 'CHK-001' ? { ...item, verificationIntent: { ...item.verificationIntent!,
+      happy: [{ ...item.verificationIntent!.happy[0]!, desc: `${NIO_PINNED}; go test -v ./strs -run TestUpper prints --- PASS: TestUpper` }] } } : item) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} row stating a wrong statement`);
+    devSetup(o);
+    try {
+      driveWithNext(o, { findingRound1: true, run: false, metadata: 'intent-literal' }, lines, next => {
+        if (next.reason === 'metadata_correction' && next.phase === 'PLAN') { reached = next; throw new StopDrive('PLAN correction reached'); }
+      });
+    } catch (error) {
+      if (!(error instanceof StopDrive)) throw error;
+    }
+    const step = reached as NextStepJson | null;
+    assert.ok(step, `[${tag}] next reached the PLAN correction`);
+    const calls = step!.batch?.length ? step!.batch.map(call => call.cli) : [step!.cli!];
+    for (const call of calls) assert.doesNotMatch(JSON.stringify(call.payload), /<[a-z][^<>]*>/i, `[${tag}] ready payload: ${JSON.stringify(call.payload).slice(0, 500)}`);
+    const item = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(row => row.id === String(calls[0]!.payload.itemId))!;
+    const unchanged = o.cli('checklist_update', { storyId: o.storyId, itemId: item.id, verificationIntent: item.verificationIntent, metadataCorrection: true, reason: 'Restating the rows.' }, { label: 'checklist_update (unchanged rows)' });
+    assert.match(unchanged.out, /\[metadata_correction_unchanged\]/, `[${tag}] refusal:\n${unchanged.out.slice(-800)}`);
+    const nextLine = unchanged.out.split('\n').find(row => row.startsWith('Next: ')) ?? '';
+    assert.match(nextLine, /^Next: proof-or-stop checklist_update '/, `[${tag}] the refusal names the ready rows: ${nextLine}`);
+    for (const call of calls) o.mustCli(call.command, call.payload, { label: `checklist_update ${String(call.payload.itemId)} (ready correction)` });
+    const none = o.cli('checklist_update', { storyId: o.storyId, itemId: item.id, userSees: item.userSees, metadataCorrection: true, reason: 'Again: the same correction.' }, { label: 'checklist_update (nothing open)' });
+    assert.match(none.out, /\[metadata_correction_none\]/, `[${tag}] refusal:\n${none.out.slice(-800)}`);
+    assert.match(none.out.split('\n').find(row => row.startsWith('Next: ')) ?? '', /^Next: proof-or-stop (?:checklist_update '|next --storyId)/, `[${tag}] one exact next command`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NDI (run 127 R2: 3 of 4 lane imports refused `managed_review_live_head_lineage_invalid`, the round discarded): a delta
+ * round whose confirmation lane gaps (its refusal commit lands first) while the raising lane is still running; the raising
+ * lane, reviewed against the head before that commit, imports.
+ */
+function scenarioNDI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NDI';
+  const name = 'NDI lab run131 fix 6: a delta-confirmation refusal commit does not invalidate the sibling lane reviewed before it (no lane re-run, no discarded evidence)';
+  const o = new Owner(tag, 'B-131g', machineEnv, steps, false, { trackedGateFailureCounts: true, config: { review: { deltaRounds: 'on' } } });
+  const lines: string[] = [];
+  try {
+    devSetup(o, true);
+    driveWithNext(o, { findingRound1: true, run: false, deltaNote: 'gap', laneLatencyFor: { 'test-coverage': { baseMs: 6000, perDimensionMs: 0, fromRound: 2 } } }, lines);
+    const store = new StoryStore(o.root);
+    const events = store.readProcessEvents(o.storyId);
+    const lineage = events.filter(event => event.type === 'managed_review_import_refused' && /lineage/.test(String(event.reason)));
+    const rounds = [...new Set(store.readReviewRuns(o.storyId).runs.map(run => run.reviewRound))];
+    const round2 = store.readReviewRuns(o.storyId).runs.filter(run => run.reviewRound === rounds[1] && run.reviewPurpose !== 'inventory-completeness').map(run => run.lane.replace('proof-or-stop-review-', ''));
+    lines.push(`round 2 lanes: ${round2.join(', ')}`);
+    assert.deepEqual(lineage, [], `[${tag}] no lineage refusal: ${JSON.stringify(lineage).slice(0, 600)}`);
+    assert.equal(round2.filter(lane => lane === 'test-coverage').length, 1, `[${tag}] the raising lane ran once in round 2 (its evidence kept): ${round2.join(', ')}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NSL (run 131 RR-004 / RR-010): one round-1 lane stalls (no item) while its siblings run; it is relaunched before they end. */
+function scenarioNSL(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NSL';
+  const name = 'NSL lab run131 fix 7: a lane that stalls before its first item is killed by the no-item window and relaunched (framework step) while its sibling lanes still run';
+  const o = new Owner(tag, 'B-131h', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const seen: Array<{ reason: string; kind: string; at: number }> = [];
+  try {
+    o.env.PROOF_OR_STOP_MANAGED_PROVIDER_FIRST_ITEM_MS = '3000';
+    o.env.PROOF_OR_STOP_MANAGED_PROVIDER_STALL_MS = '60000';
+    devSetup(o, true);
+    driveWithNext(o, { findingRound1: false, run: false, laneStall: { lane: 'quality', ms: 120_000 }, laneLatencyFor: { concept: { baseMs: 12_000, perDimensionMs: 0, fromRound: 1, itemFirst: true }, 'test-coverage': { baseMs: 12_000, perDimensionMs: 0, fromRound: 1, itemFirst: true } } }, lines,
+      next => { seen.push({ reason: next.reason, kind: next.kind, at: Date.now() }); });
+    const store = new StoryStore(o.root);
+    const runs = store.readReviewRuns(o.storyId).runs.filter(run => run.reviewPurpose !== 'inventory-completeness');
+    const quality = runs.filter(run => run.lane === 'proof-or-stop-review-quality');
+    lines.push(`steps: ${seen.map(row => `${row.reason}(${row.kind})`).join(' > ').slice(0, 900)}`);
+    assert.ok(quality.length >= 2, `[${tag}] the stalled lane was relaunched: ${quality.length}`);
+    const hostRuns = listHostRunsOnDisk(o);
+    const stalled = hostRuns.find(row => row.reviewRunId === quality[0]!.reviewRunId);
+    assert.match(String(stalled?.reason ?? ''), /^provider_stalled:/, `[${tag}] the first quality run stalled: ${JSON.stringify(stalled)}`);
+    const relaunch = hostRuns.find(row => row.reviewRunId === quality[1]!.reviewRunId);
+    const siblingsEnd = Math.max(...hostRuns.filter(row => runs.some(run => run.reviewRunId === row.reviewRunId && run.reviewRound === quality[0]!.reviewRound && run.lane !== 'proof-or-stop-review-quality')).map(row => row.endedAt));
+    assert.ok(relaunch && relaunch.createdAt < siblingsEnd, `[${tag}] relaunched while the siblings still ran (relaunch ${relaunch?.createdAt}, siblings end ${siblingsEnd})`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** Host runs on disk: review run binding, terminal reason, created / ended (ms). */
+function listHostRunsOnDisk(o: Owner): Array<{ runId: string; reviewRunId: string | null; reason: string; createdAt: number; endedAt: number }> {
+  const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+  if (!existsSync(runsRoot)) return [];
+  return readdirSync(runsRoot).flatMap(runId => {
+    try {
+      const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as Record<string, unknown>;
+      const terminalPath = join(runsRoot, runId, 'terminal.json');
+      const terminal = existsSync(terminalPath) ? JSON.parse(readFileSync(terminalPath, 'utf8')) as Record<string, unknown> : {};
+      return [{ runId, reviewRunId: typeof spec.reviewRunId === 'string' ? spec.reviewRunId : null,
+        reason: String(terminal.reason ?? ''), createdAt: Date.parse(String(spec.createdAt ?? '')) || 0, endedAt: Date.parse(String(terminal.terminalAt ?? '')) || Number.MAX_SAFE_INTEGER }];
+    } catch { return []; }
+  });
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?|NSG(?:-X)?|NIO|NFC|NPV|NMC|NDI|NSL)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -9306,6 +9637,15 @@ async function main(): Promise<void> {
     if (only.includes('NCS')) outcomes.push(scenarioNCS(machine.env, steps));
     // Lab run110: scope-boundary docs exclusion + file-state settlement (NFS), its request-wins control (NFS-S).
     for (const token of ['NFS', 'NFS-S'] as const) if (only.includes(token)) outcomes.push(scenarioNFS(machine.env, steps, token));
+    // Lab run131: scope finding vs the scope gate (NSG, NSG-X control), intent conflict overrule (NIO), finding conflict settle (NFC),
+    // pin reversal remedy (NPV), metadata correction ready rows (NMC), delta refusal commit vs sibling import (NDI), stalled lane relaunch (NSL).
+    for (const token of ['NSG', 'NSG-X'] as const) if (only.includes(token)) outcomes.push(scenarioNSG(machine.env, steps, token));
+    if (only.includes('NIO')) outcomes.push(scenarioNIO(machine.env, steps));
+    if (only.includes('NFC')) outcomes.push(scenarioNFC(machine.env, steps));
+    if (only.includes('NPV')) outcomes.push(scenarioNPV(machine.env, steps));
+    if (only.includes('NMC')) outcomes.push(scenarioNMC(machine.env, steps));
+    if (only.includes('NDI')) outcomes.push(scenarioNDI(machine.env, steps));
+    if (only.includes('NSL')) outcomes.push(scenarioNSL(machine.env, steps));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
@@ -9329,7 +9669,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NSG', 'NSG-X', 'NIO', 'NFC', 'NPV', 'NMC', 'NDI', 'NSL', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

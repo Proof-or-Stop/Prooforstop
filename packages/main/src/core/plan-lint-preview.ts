@@ -24,6 +24,7 @@ import { requestPinFindings } from './request-pin-audit.js';
 import { counterpartNextPayload, planCounterpartCoverage } from './counterpart-coverage.js';
 import { describePinBaseForm, pinBaseFormRowPatch, planPinBaseForm } from './pin-base-form.js';
 import { describeUnstatedPin, planUnstatedPins, unstatedPinRowPatch } from './unstated-pin.js';
+import { describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, planPinProbe } from './plan-pin-probe.js';
 import { changedIntentRowRefs } from './scope-plan-rerun-context.js';
 import { readStoryRequest } from './story-request.js';
 import { loadConfig } from './config.js';
@@ -133,7 +134,8 @@ export function mergeChecklistUpdateCalls(calls: ReadonlyArray<Call>): Call[] {
  * missing derivations, unstated request literals, coverage rows), exact whole-error pins, rows contradicting a
  * request example, pinned printed forms the base printer renders differently (lab run89), pinned texts neither the request
  * nor the Story base supports (lab run95, core/unstated-pin.ts) and, with
- * plan.counterpartCoverage (default on), uncovered counterpart cases. One text block, its ONE
+ * plan.counterpartCoverage (default on), uncovered counterpart cases, and with plan.pinProbe the request / base probe
+ * mismatches (lab run131). One text block, its ONE
  * Next the merged row patches (one checklist_update per item); null when nothing is due.
  */
 export function planLintPreview(args: { store: StoryStore; root: string; storyId: string }): string | null {
@@ -202,6 +204,14 @@ export function planLintPreview(args: { store: StoryStore; root: string; storyId
   for (const refusal of counterpart?.refusals ?? []) {
     findings.push(`${refusal.itemId} adds ${refusal.operation}; the same receiver's counterpart ${refusal.counterpart} special-cases cases no row covers [counterpart_coverage_missing]`);
     calls.push({ command: 'checklist_update', payload: counterpartNextPayload(storyId, items.find(item => item.id === refusal.itemId), refusal) });
+  }
+  // Lab run131 (run 131 cycle 1: the base checks first ran 100 min after a wrong pin was re-asserted): with plan.pinProbe
+  // (the configured base evaluator) the request / base probe runs here too, so a pin written in INIT or PLAN meets it at once.
+  const probe = (() => { try { return planPinProbe(store, root, storyId, root); } catch { return null; } })();
+  for (const row of probe?.mismatches ?? []) {
+    if (baseForm.some(entry => entry.ref === row.ref) || unstated.some(entry => entry.ref === row.ref)) continue;
+    findings.push(`${describePinProbeMismatch(row)} [${PIN_PROBE_MISMATCH}]`);
+    calls.push({ command: 'checklist_update', payload: { ...pinProbeNextPayload(storyId, row), reason: `pin probed against the ${row.source === 'base' ? 'Story base' : 'request'}: ${row.ref}` } });
   }
   if (!findings.length) return null;
   const merged = mergeChecklistUpdateCalls(calls);
