@@ -23,7 +23,6 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { extractFunctions, isScannedSource, isTestSource, langOf, maskSource, type FnDef } from './counterpart-coverage.js';
-import { parseUnifiedZeroDiff } from './evidence-chain-check.js';
 import { CALLER_CHECK_LINE_FORM, type CallSiteLike, type SharedHelperLike } from './repair-report-lines.js';
 
 export type CallSite = CallSiteLike;
@@ -34,6 +33,32 @@ const HELPER_MAX = 4;
 const SITE_MAX = 8;
 const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const fnEndLine = (fn: FnDef): number => fn.bodyLine + fn.body.split('\n').length - 1;
+
+/**
+ * The new-side line numbers each file's `git diff -U0` hunks touch (a pure deletion counts the lines around it). A local
+ * copy of core/evidence-chain-check.ts parseUnifiedZeroDiff: importing that module would pull this leaf, and the managed
+ * worker and reviewer prompt that use it, into the core import cycle (tasks/import-cycles-smoke.ts).
+ */
+function zeroDiffLines(diff: string): Map<string, Set<number>> {
+  const out = new Map<string, Set<number>>();
+  let file: string | null = null;
+  for (const line of diff.split('\n')) {
+    if (line.startsWith('+++ ')) {
+      const path = line.slice(4).trim();
+      file = path === '/dev/null' ? null : path.replace(/^b\//, '');
+      if (file && !out.has(file)) out.set(file, new Set());
+      continue;
+    }
+    const hunk = line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/);
+    if (!hunk || !file) continue;
+    const start = Number(hunk[1]);
+    const count = hunk[2] === undefined ? 1 : Number(hunk[2]);
+    const lines = out.get(file)!;
+    if (count === 0) { lines.add(start); lines.add(start + 1); continue; }
+    for (let n = start; n < start + count; n++) lines.add(n);
+  }
+  return out;
+}
 
 function tryGit(gitCwd: string, args: string[]): string | null {
   try { return execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }); } catch { return null; }
@@ -136,7 +161,7 @@ export function changedSharedHelpers(args: { gitCwd: string; from: string; to?: 
   if (!args.baseRef || !args.from) return [];
   const touched = changedSources(args.gitCwd, args.from, to);
   if (!touched.length) return [];
-  const diff = parseUnifiedZeroDiff(tryGit(args.gitCwd, ['diff', '-U0', '--no-renames', args.from, to, '--', ...touched]) ?? '');
+  const diff = zeroDiffLines(tryGit(args.gitCwd, ['diff', '-U0', '--no-renames', args.from, to, '--', ...touched]) ?? '');
   const changed: FnDef[] = [];
   for (const path of touched) {
     const lines = diff.get(path);

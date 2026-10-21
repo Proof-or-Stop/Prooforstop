@@ -88,7 +88,7 @@ import {
 import { providerDiagnosticLineText } from './host-execution-readiness.js';
 import { createManagedRunDiagnostics } from './managed-run-diagnostics.js';
 import { finalMessageFromLiveOutput, readRepairReportRequirements, repairReportFollowUp, type SharedHelperLike } from './repair-report-lines.js';
-import { MANAGED_REPAIR_REGRESSION_CHECK_MAX_ATTEMPTS, repairRegressionFailures, repairRegressionFollowUp } from './repair-regression-check.js';
+import type { RepairRegressionFailure } from './repair-regression-check.js';
 import { changedSharedHelpers } from './shared-helper-callers.js';
 import { pinOracleStoryBase } from './pin-oracle.js';
 import { MANAGED_SCOPE_CHECKED_WRITERS, MANAGED_WRITER_SCOPE_REPAIR_MAX_ATTEMPTS, managedWriterScopeBaseHead, managedWriterScopeRepairPrompt,
@@ -4791,8 +4791,12 @@ export async function runManagedHostRunWorker(
         if (!regressionStore || !spec.storyId) return null;
         try { return pinOracleStoryBase(spec.cwd, (regressionStore.readStory(spec.storyId) as { integrationTarget?: { parentCommitAtCreation?: string } }).integrationTarget?.parentCommitAtCreation); } catch { return null; }
       })();
-      for (let attempt = 1; regressionStore && regressionLaunchHead && reportFindingIds.length && spec.storyId && spec.host === 'codex'; attempt += 1) {
-        let check: ReturnType<typeof repairRegressionFailures> = { failures: [], changed: [] };
+      // Loaded lazily: core/repair-regression-check.ts reaches the guard (resolved-finding-guard.ts), whose imports lead back
+      // here; a static import would join the core import cycle (tasks/import-cycles-smoke.ts).
+      const regression = regressionStore && regressionLaunchHead && reportFindingIds.length ? await import('./repair-regression-check.js') : null;
+      for (let attempt = 1; regression && regressionStore && regressionLaunchHead && reportFindingIds.length && spec.storyId && spec.host === 'codex'; attempt += 1) {
+        const { MANAGED_REPAIR_REGRESSION_CHECK_MAX_ATTEMPTS, repairRegressionFailures, repairRegressionFollowUp } = regression;
+        let check: { failures: RepairRegressionFailure[]; changed: string[] } = { failures: [], changed: [] };
         try {
           const checklistRel = relative(spec.cwd, regressionStore.storyFilePath(spec.storyId, 'checklist.json'));
           check = repairRegressionFailures({ projectRoot: spec.root, gitCwd: spec.cwd, storyId: spec.storyId, findings: regressionStore.readFindings(spec.storyId).findings ?? [],
