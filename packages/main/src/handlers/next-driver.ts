@@ -94,8 +94,9 @@ import { isMaterialExcludedPath } from '../core/material-path-policy.js';
 import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from './managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
 import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../core/managed-reviewer-qualification.js';
+import { initBlockerFixCommands } from '../core/init-blocker-fix.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, initCheckAgentResults, invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } from '../core/init-check-gate.js';
-import { currentInitReviewerAuthorityInputHash } from './init-check.js';
+import { carriedInitReviewers, currentInitReviewerAuthorityInputHash } from './init-check.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildReviewEscalationGuidance, type ReviewAssuranceGuidance } from '../core/review-assurance-floor.js';
 import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligibility } from '../core/review-escalation.js';
@@ -105,10 +106,11 @@ import type { ChecklistItem, Finding, ReviewRun } from '../core/types.js';
 import { VERIFICATION_INTENT_TYPES } from '../core/types.js';
 import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-preexisting.js';
 import { describePinBaseForm, pinBaseFormOfferDue, pinBaseFormRowPatch, pinDoubtVerdict, planPinBaseForm, recordPinBaseFormOffer, type PinBaseFormConflict } from '../core/pin-base-form.js';
+import { describePinBasePrint, PIN_BASE_PRINT, pinBasePrintOfferDue, pinBasePrintRowPatch, planPinBasePrint, recordPinBasePrintOffer, type PinBasePrintConflict } from '../core/pin-base-print.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { evaluateFileStateConflict } from './file-state-conflict.js';
 import { evaluateFindingConflictSettlement } from './finding-conflict-settle.js';
-import { intentConflictReadyRows, recordOpenIntentConflicts, type JournaledIntentConflict } from '../core/intent-conflict-overrule.js';
+import { intentConflictAdopted, intentConflictPair, intentConflictReadyRows, recordOpenIntentConflicts, type JournaledIntentConflict } from '../core/intent-conflict-overrule.js';
 import { FINDING_CONFLICT_SETTLED, FINDING_CONFLICT_PRECEDENCE, type ConflictSettlement } from '../core/finding-conflict-settle.js';
 import { FILE_STATE_CONFLICT, FILE_STATE_PRECEDENCE, type FileStateVerdict } from '../core/file-state-conflict.js';
 import { outOfScopePinTestProblem } from '../core/scope-pin-test.js';
@@ -745,12 +747,6 @@ function committedIntentHashBefore(root: string, gitCwd: string, checklistPath: 
   }
 }
 
-/** Every string an item states about its expected behaviour (userSees, intent descs and derivations). */
-function itemIntentText(item: ChecklistItem): string {
-  const rows = VERIFICATION_LANES.flatMap(lane => item.verificationIntent?.[lane] ?? []);
-  return [item.userSees ?? '', ...rows.flatMap(row => [row.desc, row.derivation?.computation ?? ''])].join('\n');
-}
-
 /**
  * The literal a conflict field states: its last backticked span, else the field
  * itself when it is code-like (a quoted string, a bracket group or a call);
@@ -764,20 +760,9 @@ function conflictLiteral(field: string | null): string | null {
   return /^(?:"[^"]*"|'[^']*'|\[.*\]|\{.*\}|[\w.]+\(.*\)(?:\s*(?:==|->)\s*.+)?)$/.test(text) && text.length >= 2 ? text : null;
 }
 
-/**
- * Old-PoS run 31: the item now states what the implementer said the request
- * implies and no longer states what it said the intent pinned (whitespace
- * aside). For `requestImplies` an `a == b` / `a -> b` statement, both sides
- * must appear; for the pinned value the literal must be gone.
- */
+/** Old-PoS run 31 / lab run132 (D1): the item adopted the conflict's implied value (core/intent-conflict-overrule.ts). */
 function conflictValueAdopted(item: ChecklistItem, conflict: IntentConflict): boolean {
-  const implies = conflictLiteral(conflict.requestImplies);
-  const pins = conflictLiteral(conflict.intentPins);
-  if (!implies || !pins) return false;
-  const squash = (text: string) => text.replace(/\s+/g, '');
-  const text = squash(itemIntentText(item));
-  const impliedValue = implies.split(/\s*(?:==|->|→|=>)\s*/).at(-1)!;
-  return text.includes(squash(impliedValue)) && !text.includes(squash(pins));
+  return intentConflictAdopted(item, conflict);
 }
 
 /**
@@ -939,15 +924,23 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
     const ready = !mine.some(row => row.conflict.pinDoubt || row.conflict.undeclared || row.agentType === FRAMEWORK_PROBE)
       ? intentConflictReadyRows(item as never, mine.map(journaledConflict), null) : null;
     if (ready?.length) {
-      const pinnedLiteral = conflictLiteral(mine[0]!.conflict.intentPins);
+      const pinnedLiteral = conflictLiteral(mine[0]!.conflict.intentPins) ?? intentConflictPair(journaledConflict(mine[0]!))?.pinned ?? null;
       const others = items ? literalOccurrences(items, pinnedLiteral ?? '').filter(row => pinnedLiteral && !(row.itemId === itemId && row.field === 'verificationIntent')) : [];
       const payload = { storyId: base.storyId, itemId, intentRows: ready, reason: `the implementer [intent-conflict] on ${ready.map(row => row.ref).join(', ')}: the request implies the value it reports`, status: 'pending' };
       const why = `Open intent conflict (${listed}). The request outranks the intent: the framework gives the row patch to the value the implementer reports the request implies, with the re-pin stated (re-pin: <case> was <old>, now <new>); status pending makes DEV implement the item again. `
         + 'If the request does state the pinned value, keep the row instead and quote that sentence verbatim as its derivation.requestQuote (a re-assertion without it, or without a base check confirming the pin, is refused [intent_conflict_overruled]). Then continue PLAN with next.';
       const source = 'openIntentConflicts + intentConflictReadyRows (core/intent-conflict-overrule.ts)';
-      if (!others.length || !pinnedLiteral) return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload }, why, source);
-      return batchStep(base, 'intent_conflict_amend', [nextStepCall('intent_conflict_amend', { command: 'checklist_update', payload }), ...sweepCalls(base, others, 'intent_conflict_amend', pinnedLiteral)],
-        `${why} ${sweepWhy(pinnedLiteral, others)}`, `${source} + literalOccurrences (sweep)`);
+      // Lab run132 (D1): a bare-valued conflict is ready too; old-PoS run 37's sibling rows (the same pinned fragment in
+      // other items, other wording) stay in the same step.
+      const swept = new Set(others.map(row => row.itemId));
+      const siblings = items ? conflictSiblingRows(items, mine).filter(row => row.itemId !== itemId && !swept.has(row.itemId)) : [];
+      const siblingWhy = siblings.length
+        ? ` The same pinned ${JSON.stringify(siblings[0]!.fragment)} is also stated in ${siblings.map(row => row.ref).join(', ')}: amend each row that states the same result in this step (keep a row where it is a legitimate input), so one PLAN visit settles the pin for every item.`
+        : '';
+      const sweep = others.length && pinnedLiteral ? sweepCalls(base, others, 'intent_conflict_amend', pinnedLiteral) : [];
+      if (!sweep.length && !siblings.length) return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload }, why, source);
+      return batchStep(base, 'intent_conflict_amend', [nextStepCall('intent_conflict_amend', { command: 'checklist_update', payload }), ...sweep, ...siblingAmendCalls(base, items ?? [], siblings)],
+        `${why}${sweep.length ? ` ${sweepWhy(pinnedLiteral!, others)}` : ''}${siblingWhy}`, `${source}${sweep.length ? ' + literalOccurrences (sweep)' : ''}${siblings.length ? ' + conflictSiblingRows' : ''}`);
     }
     // Old-PoS run 31: a conflict naming userSees is amended in userSees; a lane row
     // (or an unlocated one) in the verificationIntent.
@@ -2222,6 +2215,42 @@ export function unstatedPinStep(base: { storyId: string; phase: string }, store:
 }
 
 /**
+ * Lab run132 (D2; core/pin-base-print.ts): ONE skippable PLAN step, before the scope-plan reviewer, for rows whose pinned
+ * message instantiates a Story base format string but not the way the base prints it (its quotes, a %q slot, or a quoted
+ * slot value the base's own test instances print bare), while the request does not state the text (run 132: a quoted
+ * operand pinned in an existing error format -> DEV->PLAN->DEV for one quote pair). Each row patch is ready (the base form,
+ * the row's request quote, the re-pin stated with the format and sample). A row another base check lists is left to it;
+ * an advisory (no base instance decides) is listed in the pre-check only. Offered once per set of rows (at most twice per
+ * Story); nothing blocks on it. Null when nothing is listed or the offer was made.
+ */
+export function pinBasePrintStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: () => string): NextStep | null {
+  try {
+    const other = new Set([...(planPinBaseForm(store, root, base.storyId, gitCwd)?.conflicts ?? []).map(row => row.ref),
+      ...(planUnstatedPins(store, root, base.storyId, gitCwd, changedIntentRowRefs({ store: store as never, storyId: base.storyId, gitCwd: gitCwd() }))?.pins ?? []).map(row => row.ref)]);
+    const conflicts = (planPinBasePrint(store, root, base.storyId, gitCwd)?.conflicts ?? []).filter(row => row.baseForm && !other.has(row.ref));
+    if (!pinBasePrintOfferDue(root, base.storyId, conflicts)) return null;
+    recordPinBasePrintOffer(root, base.storyId, conflicts);
+    const items = store.readChecklist(base.storyId).items;
+    const rowOf = (ref: string) => {
+      const [itemId, lane, index] = ref.split(':');
+      return (items.find(item => item.id === itemId)?.verificationIntent?.[lane as 'happy' | 'edge' | 'adversarial'] ?? [])[Number(index)];
+    };
+    const byItem = new Map<string, PinBasePrintConflict[]>();
+    for (const row of conflicts) byItem.set(row.itemId, [...(byItem.get(row.itemId) ?? []), row]);
+    const calls = [...byItem].map(([itemId, rows]) => nextStepCall('pin_base_print_check', { command: 'checklist_update', payload: { storyId: base.storyId, itemId,
+      intentRows: rows.map(row => pinBasePrintRowPatch(row, rowOf(row.ref) as never)),
+      reason: `pinned message re-derived from the Story base format (the request does not state it): ${rows.map(row => row.ref).join(', ')}` } }));
+    const listed = conflicts.slice(0, 6).map(describePinBasePrint).join('; ') + (conflicts.length > 6 ? ` +${conflicts.length - 6} more` : '');
+    return batchStep(base, 'pin_base_print_check', calls,
+      `Pinned message vs base printer [${PIN_BASE_PRINT}]: ${conflicts.length} row(s) pin a message the Story base prints differently, and the request does not state it: ${listed}. `
+        + 'Oracle order: a request sentence decides; where the request is silent, the base\'s own format for that message (an implementer otherwise builds to the base form and declares an [intent-conflict]). '
+        + `Each row patch is complete (the base form, the row's request quote, the re-pin with the base format and sample): run it, then \`proof-or-stop next --storyId=${base.storyId} --run\`. `
+        + `If the request does state the pinned text, skip it: run \`proof-or-stop next --storyId=${base.storyId} --run\` without it. Nothing blocks on it, and it is offered once for this set of rows.`,
+      'planPinBasePrint (core/pin-base-print.ts)');
+  } catch { return null; }
+}
+
+/**
  * Lab run95 (fix 1c; core/pin-dispute.ts): the scope-plan reviewer raised the same row again (a gap of the current verdict
  * cites a row a gap of the previous verdict cited). Instead of the generic blocker patches and another guess, ONE step with
  * the framework's remedy per disputed row (relax an error pin / remove + exclude with the userSees edit / re-pin to the
@@ -2848,6 +2877,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // Lab run95 (fix 1a): one skippable lint of exact texts neither the request nor the Story base supports.
       const unstated = unstatedPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
       if (unstated) due.push(unstated);
+      // Lab run132 (D2): one skippable lint of pinned messages a Story base format prints differently (request silent).
+      const basePrint = pinBasePrintStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+      if (basePrint) due.push(basePrint);
       return due;
     };
     // Lab sibling-gate (plan.counterpartCoverage, default on since lab run102): an added operation's counterpart cases, same order as the DEV gate.
@@ -3003,14 +3035,21 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (!blockers) return next;
       // Reviewer blockers: fix the INIT artifacts, then rerun next: an edit to an
       // input the reviewer judged stales its verdict and next relaunches it itself.
-      return { ...next, why: `${next.why} Fix each issue in the Story (story_update / checklist_update / background), then run \`proof-or-stop next --storyId=${storyId} --run\`: the changed inputs stale the verdict and it reruns the reviewer.` };
+      // Lab run132 (I1): the command per cited input (run 132 sent the background to story_update, which has no such argument).
+      const recorded = ctx.store.readInitCheck(storyId);
+      const fixes = recorded ? initBlockerFixCommands(storyId, blockingInitCheckIssues(recorded)) : [];
+      return { ...next, why: `${next.why} Fix each issue with the command that edits the input it cites${fixes.length ? `: ${fixes.join('; ')}` : ''}. Then run \`proof-or-stop next --storyId=${storyId} --run\`: the changed inputs stale the verdict and it reruns the reviewer.` };
     }
     const initCheck = ctx.store.readInitCheck(storyId);
     const stale = judgedStale.length > 0 || (Boolean(initCheck) && initCheck!._hash !== recomputeInitCheckHash(storyId, ctx.store, ctx.root));
     const results = initCheck ? initCheckAgentResults(initCheck) : [];
     const invalid = new Set(initCheck && !stale ? invalidInitReviewerDeliveries(initCheck, ctx.root, storyId).map(row => row.agentId) : []);
+    // Lab run132 (I2): after a signed-input edit, a reviewer's signed PASS whose own judged slice is unchanged is carried
+    // into the next signed record (init.reviewerCarryForward); only the stale reviewers rerun (all, if none is stale).
+    const carried = new Set(code === 'init_check_tampered' ? carriedInitReviewers(ctx.root, ctx.store, storyId, initCheck) : []);
+    const rerun = REQUIRED_INIT_CHECK_AGENTS.filter(agent => !carried.has(agent));
     const missing = new Set<string>(judgedStale.length > 0 ? judgedStale
-      : initCheck && !stale ? missingRequiredInitCheckAgents(initCheck) : [...REQUIRED_INIT_CHECK_AGENTS]);
+      : initCheck && !stale ? missingRequiredInitCheckAgents(initCheck) : rerun.length ? rerun : [...REQUIRED_INIT_CHECK_AGENTS]);
     const hostRuns = listStoryHostRuns(ctx, storyId);
     const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
     const waits: HostRunView[] = [];
@@ -3036,7 +3075,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         : stale && recordedBy === last.runId
           ? judgedStale.includes(agentType)
             ? `${agentType} run ${last.runId} recorded blocking issues, and the INIT inputs it judged (authorityInputHash: priority, userSees, verificationIntent, boundaries, ...) changed since; rerun it on the current Story.`
-            : `The Story's signed INIT inputs changed after ${agentType} run ${last.runId} judged them [init_check_tampered]; rerun it on the current text.`
+            : `The Story's signed INIT inputs changed after ${agentType} run ${last.runId} judged them [init_check_tampered]; rerun it on the current text.${carried.size
+              ? ` ${[...carried].join(', ')} keeps its signed PASS: the inputs it judged are unchanged (judgedSliceHash), so its record is carried into the next signed init-check.json.` : ''}`
           : `${agentType} has no current delivered verdict; its last run ${last.runId} ended ${last.state}${invalid.has(agentType) ? ' and its delivery is not acknowledged' : ''}. Inspect it (proof-or-stop host_run_status --runId=${last.runId}) before relaunching.`;
       launches.push(managedLaunchStep(base, 'init_review_launch', { ...selection, storyId, agentType, managedDispatch: true, detach: true, json: true },
         auto, `${why} Launch the managed INIT reviewer; it records its verdict with init_check_set.`,

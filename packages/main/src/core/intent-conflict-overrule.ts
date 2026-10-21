@@ -15,6 +15,13 @@
  *     request quote) or a base check (counterpart backing, the base-form / request-probe checks) confirms it; the refusal's
  *     ONE Next is that ready patch.
  * Rollback: plan.intentConflictGuard=off.
+ *
+ * Lab run132 (run132-analysis.md D1): run 132's implementer wrote both values bare (`request implies: index operator not
+ * supported: x on ARRAY | intent pins: index operator not supported: "x" on ARRAY`), so no literal was read: no ready amend,
+ * and after the owner's amend the adoption check failed too, because the `re-pin: <case> was <old>, now <new>` clause
+ * pin_reversal_unstated requires keeps the old text in the row's computation. Two unbackticked values that are variants of
+ * one text (a shared prefix and suffix, the difference in the middle: an operand quoted or not) are read as the two
+ * literals (`intentConflictPair`), and adoption (`intentConflictAdopted`, shared with next) ignores re-pin clauses.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -44,11 +51,67 @@ export function conflictFieldLiteral(field: string | null | undefined): string |
   return /^(?:"[^"]*"|'[^']*'|\[.*\]|\{.*\}|[\w.]+\(.*\)(?:\s*(?:==|->)\s*.+)?)$/.test(text) && text.length >= 2 ? text : null;
 }
 
+const words = (text: string): number => (text.match(/[A-Za-z]{2,}/g) ?? []).length;
+const MIN_SHARED = 12;
+
+/** Lab run132 (D1): two values that are variants of one text: a shared prefix + suffix of 12+ characters, 60 % of the longer. */
+function textVariants(a: string, b: string): boolean {
+  const x = flat(a);
+  const y = flat(b);
+  if (x === y || words(x) < 3 || words(y) < 3) return false;
+  let prefix = 0;
+  while (prefix < x.length && prefix < y.length && x[prefix] === y[prefix]) prefix += 1;
+  let suffix = 0;
+  while (suffix < x.length - prefix && suffix < y.length - prefix && x[x.length - 1 - suffix] === y[y.length - 1 - suffix]) suffix += 1;
+  return prefix + suffix >= MIN_SHARED && prefix + suffix >= 0.6 * Math.max(x.length, y.length);
+}
+
+/**
+ * The pinned and the implied literal of a conflict: each field's literal (its last backticked span, else the code-like
+ * field), or, lab run132, an unbackticked field taken whole when the two are variants of one text; null when the
+ * conflict names no literal pair (prose, or the same value twice).
+ */
+export function intentConflictPair(conflict: Pick<JournaledIntentConflict, 'intentPins' | 'requestImplies'>): { pinned: string; implied: string } | null {
+  const bare = (field: string | null | undefined): string | null => (field && !field.includes('`') ? field.trim() || null : null);
+  const pinnedLiteral = conflictFieldLiteral(conflict.intentPins);
+  const impliedLiteral = conflictFieldLiteral(conflict.requestImplies);
+  const pinned = pinnedLiteral ?? bare(conflict.intentPins);
+  const implied = impliedLiteral ?? bare(conflict.requestImplies);
+  if (!pinned || !implied || squash(pinned) === squash(implied)) return null;
+  if ((!pinnedLiteral || !impliedLiteral) && !textVariants(pinned, implied)) return null;
+  return { pinned, implied };
+}
+
+type IntentItem = { userSees?: string | null; verificationIntent?: Intent | unknown };
+/** A computation's `re-pin: <case> was <old>, now <new> ...` clause (it states the old pin by design; it runs to the end). */
+const REPIN_CLAUSE = /\bre-?pin\b[\s\S]*$/i;
+
+/** Every string an item states about its expected behaviour (userSees, intent descs and computations), re-pin clauses dropped. */
+export function itemStatedIntentText(item: IntentItem): string {
+  const intent = (item.verificationIntent ?? {}) as Intent;
+  const rows = (['happy', 'edge', 'adversarial'] as const).flatMap(lane => intent[lane] ?? []);
+  return [item.userSees ?? '', ...rows.flatMap(row => [String(row.desc ?? ''), String(row.derivation?.computation ?? '').replace(REPIN_CLAUSE, '')])].join('\n');
+}
+
+/**
+ * Old-PoS run 31: the item now states what the implementer said the request implies and no longer states what it said
+ * the intent pinned (whitespace aside). For a `requestImplies` `a == b` / `a -> b` statement its value side must appear;
+ * the pinned literal must be gone. Lab run132: bare variant values count (intentConflictPair), and a re-pin clause is
+ * not the row stating a value.
+ */
+export function intentConflictAdopted(item: IntentItem, conflict: Pick<JournaledIntentConflict, 'intentPins' | 'requestImplies'>): boolean {
+  const pair = intentConflictPair(conflict);
+  if (!pair) return false;
+  const text = squash(itemStatedIntentText(item));
+  const impliedValue = pair.implied.split(/\s*(?:==|->|→|=>)\s*/).at(-1)!;
+  return text.includes(squash(impliedValue)) && !text.includes(squash(pair.pinned));
+}
+
 /** What the row states and what replaces it: whole statements when both sides are `<case> == <value>`, else values. */
 function sides(conflict: Pick<JournaledIntentConflict, 'intentPins' | 'requestImplies'>): { pinned: string; implied: string; caseText: string | null; oldValue: string; newValue: string } | null {
-  const pinned = conflictFieldLiteral(conflict.intentPins);
-  const implied = conflictFieldLiteral(conflict.requestImplies);
-  if (!pinned || !implied || squash(pinned) === squash(implied)) return null;
+  const pair = intentConflictPair(conflict);
+  if (!pair) return null;
+  const { pinned, implied } = pair;
   const split = (text: string) => text.split(/\s*(?:==|->|→|=>)\s*/);
   const [pl, ...pr] = split(pinned); const [il, ...ir] = split(implied);
   if (pr.length && ir.length && squash(pl!) === squash(il!)) return { pinned, implied, caseText: pl!.trim(), oldValue: pr.join(' ').trim(), newValue: ir.join(' ').trim() };

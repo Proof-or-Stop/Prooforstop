@@ -363,6 +363,21 @@ export function initCheckHashMatches(
 }
 
 /**
+ * Lab run132 (I2): whether `data` is a record this tool signed over the inputs its `_signedInputs` states (an older
+ * snapshot): its stored `_hash` recomputed from those inputs and its PERSISTED verdict. A hand-edited verdict (issues,
+ * agentResults, a slice hash), edited inputs or a record without `_signedInputs` fails. It says nothing about the
+ * current Story; a caller carries forward only the reviewer rows whose own judged slice is still current.
+ */
+export function initCheckSignedOverRecordedInputs(storyId: string, data: InitCheckData | null | undefined): boolean {
+  const inputs = data?._signedInputs;
+  if (!data || !inputs || typeof inputs !== 'object') return false;
+  const fields = [inputs.backgroundHash, inputs.title, inputs.description, inputs.checklistHash, inputs.reviewRound];
+  if (fields.some(field => typeof field !== 'string')) return false;
+  return initCheckHashMatches(data, signInitCheck(storyId, inputs.backgroundHash, inputs.title, inputs.description, inputs.checklistHash, inputs.reviewRound,
+    computeInitCheckVerdictHash(data)));
+}
+
+/**
  * B-8df9 CHK-003: verifier entry point — recompute over the story's CURRENT content and
  * compare with the `_hash` stored beside the record.
  *

@@ -59,6 +59,9 @@
  *                                    finding's test decide is closed once by the framework
  *   plan.intentConflictGuard         default ON (`off` = rollback): a PLAN amend re-asserting a disputed pin needs the
  *                                    request text or a base check
+ *   Lab run132 (behaviour in tasks/run132-fixes-smoke.ts B, end to end in NIC / NIC-F / NIC-OFF):
+ *   init.reviewerCarryForward        default ON (`off` = rollback): a signed INIT reviewer PASS whose judged slice is
+ *                                    unchanged is carried forward after a signed-input edit (only stale reviewers rerun)
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -128,7 +131,9 @@ await check('config: absent switches resolve to production values; malformed fai
     // Lab plan-deadend: a pre-existing doc/code drift gap on unrequested documentation is settled (`off` = rollback).
     docDriftSettle: 'on',
     // Lab run131: the scope-gate settle, the finding-conflict settle and the intent-conflict guard are on (`off` = rollback).
-    scopeGateSettle: 'on', conflictSettle: 'on', intentConflictGuard: 'on' });
+    scopeGateSettle: 'on', conflictSettle: 'on', intentConflictGuard: 'on',
+    // Lab run132: the INIT reviewer carry-forward is on (`off` = rollback).
+    reviewerCarryForward: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -176,6 +181,11 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.equal(scopeGateSettleOn({ remediation: { scopeGateSettle: 'maybe' } }), true, 'lab run131: malformed = on where consumed');
   assert.equal(conflictSettleOn({ remediation: { conflictSettle: 'maybe' } }), true, 'lab run131: malformed = on where consumed');
   assert.equal(intentConflictGuardOn({ plan: { intentConflictGuard: 'maybe' } }), true, 'lab run131: malformed = on where consumed');
+  // Lab run132: the rollback arm is recorded; malformed = on where consumed.
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ init: { reviewerCarryForward: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'init.reviewerCarryForward': 'off' } }, 'lab run132: the rollback arm is recorded');
+  const { reviewerCarryForwardOn } = await load('core/ab-variants.js');
+  assert.equal(reviewerCarryForwardOn({ init: { reviewerCarryForward: 'maybe' } }), true, 'lab run132: malformed = on where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

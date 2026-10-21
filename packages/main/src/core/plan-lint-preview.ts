@@ -23,6 +23,7 @@ import { exactWholeErrorPins } from './exact-error-pin-lint.js';
 import { requestPinFindings } from './request-pin-audit.js';
 import { counterpartNextPayload, planCounterpartCoverage } from './counterpart-coverage.js';
 import { describePinBaseForm, pinBaseFormRowPatch, planPinBaseForm } from './pin-base-form.js';
+import { describePinBasePrint, PIN_BASE_PRINT, PIN_BASE_PRINT_UNVERIFIED, pinBasePrintRowPatch, planPinBasePrint } from './pin-base-print.js';
 import { describeUnstatedPin, planUnstatedPins, unstatedPinRowPatch } from './unstated-pin.js';
 import { describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, planPinProbe } from './plan-pin-probe.js';
 import { changedIntentRowRefs } from './scope-plan-rerun-context.js';
@@ -212,6 +213,17 @@ export function planLintPreview(args: { store: StoryStore; root: string; storyId
     if (baseForm.some(entry => entry.ref === row.ref) || unstated.some(entry => entry.ref === row.ref)) continue;
     findings.push(`${describePinProbeMismatch(row)} [${PIN_PROBE_MISMATCH}]`);
     calls.push({ command: 'checklist_update', payload: { ...pinProbeNextPayload(storyId, row), reason: `pin probed against the ${row.source === 'base' ? 'Story base' : 'request'}: ${row.ref}` } });
+  }
+  // Lab run132 (D2): pinned messages a Story base format prints differently (request silent): a ready row patch; a quoted
+  // slot value no base instance decides is an advisory without one. A row the checks above (or the base probe) list is left to them.
+  for (const conflict of (planPinBasePrint(store, root, storyId, root)?.conflicts ?? []).filter(row => !baseForm.some(entry => entry.ref === row.ref) && !unstated.some(entry => entry.ref === row.ref)
+    && !(probe?.mismatches ?? []).some(entry => entry.ref === row.ref))) {
+    findings.push(`${describePinBasePrint(conflict)} [${conflict.baseForm ? PIN_BASE_PRINT : PIN_BASE_PRINT_UNVERIFIED}]`);
+    const [itemId, lane, index] = conflict.ref.split(':');
+    const row = (items.find(item => item.id === itemId)?.verificationIntent?.[lane as 'happy' | 'edge' | 'adversarial'] ?? [])[Number(index)];
+    const patch = pinBasePrintRowPatch(conflict, row as never);
+    if (patch) calls.push({ command: 'checklist_update', payload: { storyId, itemId: conflict.itemId, intentRows: [patch],
+      reason: `pinned message re-derived from the Story base format (the request does not state it): ${conflict.ref}` } });
   }
   if (!findings.length) return null;
   const merged = mergeChecklistUpdateCalls(calls);

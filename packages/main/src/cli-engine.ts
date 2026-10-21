@@ -14,7 +14,7 @@ import { assertRuntimePackageVersion } from './core/runtime-package-version.js';
 
 import { validateExternalCommandDeclarations, validateExternalCommandHandlers } from './cli/extension-admission.js';
 import { z, type ZodType } from 'zod';
-import { existsSync, realpathSync } from 'fs';
+import { existsSync, mkdirSync, realpathSync, writeFileSync } from 'fs';
 import {
   enforceConvergenceBreakerGate,
   bumpGateFailureCount,
@@ -23,7 +23,7 @@ import {
 import { isCanonicalStoryId } from './core/lifecycle-registry.js';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
-import { isAbsolute, join, relative } from 'path';
+import { dirname, isAbsolute, join, relative } from 'path';
 import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
@@ -70,6 +70,7 @@ import {
 } from './cli/runtime-root.js';
 import { parseFlags } from './cli/flag-parser.js';
 import { parseCommandArgv } from './cli/command-args.js';
+import { unknownArgumentRefusal } from './cli/unknown-argument.js';
 import {
   printHelp,
   printToolHelp,
@@ -625,6 +626,18 @@ function stagedValidationNext(cmd: string, parsed: Record<string, unknown>, root
   return storyCreateSchemaRefusalNext(stageStoryCreatePayload(resolveMainRootFromWorktreeRoot(root) ?? root, parsed));
 }
 
+/** Lab run132 (I1): the ready payload of an unknown-argument refusal, staged in the main checkout's runtime (null: inline). */
+function stageUnknownArgumentPayload(root: string): (command: string, payload: Record<string, unknown>) => string | null {
+  return (command, payload) => {
+    const path = join(resolveMainRootFromWorktreeRoot(root) ?? root, PROOF_OR_STOP_DIR, 'runtime', 'unknown-argument', `${command}.json`);
+    try {
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
+      return path;
+    } catch { return null; }
+  };
+}
+
 function requestsJsonErrorOutput(parsed: Record<string, unknown>): boolean {
   return parsed.json === true || parsed.format === 'json';
 }
@@ -1047,6 +1060,15 @@ export async function runCli(opts?: {
     if (!hasExplicitStory && parsed.scope !== 'global') {
       parsed = { ...parsed, storyId: activeStory.storyId };
     }
+  }
+
+  // Lab run132 (I1): a Story-metadata editor refuses a key its schema does not declare (validation would strip it and the
+  // handler would report a lost edit as done), naming the command that takes it.
+  const unknownArgument = unknownArgumentRefusal({ command: cmd, parsed, tools: TOOLS, usageBin, stage: stageUnknownArgumentPayload(root0) });
+  if (unknownArgument) {
+    if (requestsJsonErrorOutput(parsed)) process.stdout.write(`${JSON.stringify(unknownArgument.json)}\n`);
+    else process.stderr.write(`${unknownArgument.text}\n`);
+    process.exit(1);
   }
 
   // Validate

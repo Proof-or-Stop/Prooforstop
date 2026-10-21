@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Lab run132 (old-PoS run 132; bench-staging/oldpos/run132-analysis.md): unit level, made-up rows only (no
- * benchmark-task material). The lifecycle shapes are harness NUA / NAB / NBP in tasks/e2e-review-to-done-smoke.ts.
+ * benchmark-task material). The lifecycle shapes are harness NUA / NAB / NBP / NIC in tasks/e2e-review-to-done-smoke.ts.
  *
  *   A. Unknown arguments (run 132 I1, ~3.3 min): `story_update {"background": ...}` printed "updated" and wrote nothing
  *      (the CLI strips a key the schema does not declare). A Story-metadata edit command now refuses an undeclared key,
@@ -272,6 +272,17 @@ await check('D5 the PLAN pre-check lists the conflict [pin_base_print] with its 
     assert.equal(evidence?.conflicts.length, 1, JSON.stringify(evidence));
     assert.equal(evidence!.conflicts[0]!.kind, 'slot_quoting');
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+await check('D6 a request template that keeps the base format (run 132: `<inspect>`) leaves the slot to the base; one quoting the placeholder, or rewriting the format, decides', async () => {
+  const conflictsOf = await load('../core/pin-base-print.js', 'pinBasePrintConflicts');
+  const keeps = `${REQUEST}- An operand error keeps the format \`unsupported operand: <inspect> for LIST\`.\n`;
+  assert.deepEqual((conflictsOf({ items: items(row(`${CASE} -> ${PINNED}`)), requestText: keeps, files: WITH_TEST }) as Array<Record<string, unknown>>).map(entry => [entry.kind, entry.baseForm]),
+    [['slot_quoting', IMPLIED]], 'the template keeps the format');
+  const quotes = `${REQUEST}- An operand error reads \`unsupported operand: "<value>" for LIST\`.\n`;
+  assert.deepEqual(conflictsOf({ items: items(row(`${CASE} -> ${PINNED}`)), requestText: quotes, files: WITH_TEST }), [], 'the template quotes the slot');
+  const rewrites = `${REQUEST}- An operand error now reads \`unsupported operand: <value> (a LIST)\`.\n`;
+  assert.deepEqual(conflictsOf({ items: items(row(`${CASE} -> ${PINNED}`)), requestText: rewrites, files: WITH_TEST }), [], 'the request rewrites the format');
 });
 
 console.log(failures.length ? `\nrun132-fixes-smoke: ${failures.length} FAIL (${failures.join(', ')})` : '\nrun132-fixes-smoke: all checks passed');
