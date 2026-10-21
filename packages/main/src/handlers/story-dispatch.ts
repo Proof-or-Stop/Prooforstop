@@ -48,7 +48,10 @@ import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
-import { baseClaimEvidenceOn, baseEvidenceOn, disputeConfirmOn, familyEvidenceOn, probeMatrixOn } from '../core/ab-variants.js';
+import { baseClaimEvidenceOn, baseEvidenceOn, disputeConfirmOn, familyEvidenceOn, probeMatrixOn, regressionCheckOn } from '../core/ab-variants.js';
+import { renderSharedHelperCallers, sharedHelpersAtFinding } from '../core/shared-helper-callers.js';
+import { renderFrameworkConflictPin } from '../core/finding-conflict-pin.js';
+import { evaluateFrameworkConflictPin } from './finding-conflict-settle.js';
 import { BASE_EVIDENCE_LINE_FORM, REPAIR_BASE_CLAIM_UNPROVEN, repairBaseClaimProblem } from '../core/repair-report-lines.js';
 import { pinDisputeOffered } from '../core/pin-dispute.js';
 import { counterpartImplementerLines, planCounterpartCoverage, renderCounterpartBackedRows } from '../core/counterpart-coverage.js';
@@ -1139,6 +1142,20 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           const problem = branchTestProblem(managedRunFinalMessage(root, row.runId), recorded);
           if (problem) lines.push(`- Earlier repair run ${row.runId} did not report every branch: ${problem}. Test and report those branches now.`);
         }
+      }
+      // Lab run137 (fix M, remediation.regressionCheck): run 137's F-004 repair changed a helper three other paths call and
+      // was checked against its own finding only (F-006 / F-007 one round later). The helper the finding sits in, when the
+      // Story diff calls it from several places, is listed with every call site; the worker checks the run before it seals.
+      if (agentType === 'proof-or-stop-finding-repair' && (() => { try { return regressionCheckOn(loadConfig(root)); } catch { return true; } })()) {
+        const helperBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId) ?? null; } catch { return null; } })();
+        const helpers = (() => { try { return sharedHelpersAtFinding({ gitCwd: findingGitCwd, baseRef: helperBase, finding }); } catch { return []; } })();
+        lines.push(...renderSharedHelperCallers(helpers, 'repair'));
+        lines.push('- Before this run ends, the framework re-runs the covering tests of the Story\'s resolved findings and the pinned checklist verifications of the packages your commits change; a failure comes back to you in this session with its output (fix the code, never the resolved test).');
+      }
+      // Lab run137 (fix N, remediation.conflictPin): a conflict the framework pinned on this finding's side (no PLAN trip).
+      if (agentType === 'proof-or-stop-finding-repair' && finding.status === 'open') {
+        const framework = evaluateFrameworkConflictPin({ store, root, storyId: args.storyId, finding, findings: data.findings, gitCwd: findingGitCwd, events: processEvents });
+        if (framework?.pin.side === 'finding') lines.push(...renderFrameworkConflictPin(framework.pin, framework.resolved.id));
       }
       // Lab run132 (old-PoS run 135 item L, remediation.baseClaimEvidence): run 135 F-009 came from a repair report saying
       // the empty-range alias "already matched the base" (it did not). A "matches the base" claim owes base evidence.

@@ -65,7 +65,7 @@ import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_R
 import { requestPinFindings, requestPinOfferDue, recordRequestPinOffer, GAP_ROW_QUOTE_RULE } from '../core/request-pin-audit.js';
 import { changedIntentRowRefs, FRAMEWORK_SOURCE_RULE } from '../core/scope-plan-rerun-context.js';
 import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate, duplicateJoinsRepairGroup, duplicateReproAppendCandidate, type DuplicateCoverageReceipt } from '../core/duplicate-finding-coverage.js';
-import { findingConflictOf, findingRepros, goSelectedTests, isReproCommand, rejectedRepairCommits, repairCommitFromResolution, repairTestIntegrityProblem, reproCoverage, rowsCitingCase } from '../core/resolved-finding-guard.js';
+import { findingConflictOf, findingRepros, goSelectedTests, isReproCommand, regressionTargets, rejectedRepairCommits, repairCommitFromResolution, repairTestIntegrityProblem, reproCoverage, rowsCitingCase } from '../core/resolved-finding-guard.js';
 import { StoryStore } from '../core/store.js';
 import {
   currentOpenReviewInventory,
@@ -109,7 +109,7 @@ import { describePinBaseForm, pinBaseFormOfferDue, pinBaseFormRowPatch, pinDoubt
 import { describePinBasePrint, PIN_BASE_PRINT, pinBasePrintOfferDue, pinBasePrintRowPatch, planPinBasePrint, recordPinBasePrintOffer, type PinBasePrintConflict } from '../core/pin-base-print.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { evaluateFileStateConflict } from './file-state-conflict.js';
-import { evaluateFindingConflictSettlement } from './finding-conflict-settle.js';
+import { evaluateFindingConflictSettlement, evaluateFrameworkConflictPin } from './finding-conflict-settle.js';
 import { intentConflictAdopted, intentConflictPair, intentConflictReadyRows, pinDoubtReadyRows, recordOpenIntentConflicts, type JournaledIntentConflict } from '../core/intent-conflict-overrule.js';
 import { FINDING_CONFLICT_SETTLED, FINDING_CONFLICT_PRECEDENCE, type ConflictSettlement } from '../core/finding-conflict-settle.js';
 import { FILE_STATE_CONFLICT, FILE_STATE_PRECEDENCE, type FileStateVerdict } from '../core/file-state-conflict.js';
@@ -150,7 +150,7 @@ import { orderLanesForLaunch } from '../core/review-lane-launch-order.js';
 import { intentBasisDigest } from '../core/intent-basis.js';
 import { describeRemovedGuard, openRemovedGuardGap, removedGuardRelaunchPending, type RemovedGuard } from '../core/removed-guard-scan.js';
 import { commitTestFunctions, duplicateCoverageSuggestion, frameworkDuplicateCoverage, type FrameworkDuplicateCoverage } from '../core/duplicate-auto-coverage.js';
-import { duplicateReproAppendOn } from '../core/ab-variants.js';
+import { conflictPinOn, duplicateReproAppendOn } from '../core/ab-variants.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
@@ -1753,12 +1753,22 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
   const unpinned: Array<{ finding: Finding; conflict: NonNullable<ReturnType<typeof findingConflictOf>>; repros: string[] }> = [];
   for (const finding of candidates) {
     const conflict = findingConflictOf({ finding, findings: all, storyId, rejected, duplicateOf: id => findingDuplicateOf(store, storyId, id)?.canonicalFindingId ?? null });
+    // Lab run137 (fix N, remediation.conflictPin): the framework's `[regression-of G]` finding that blames a repair the
+    // framework pin upholds is the losing side, settled once (run 137 F-008: a repair that only added tests, 99 s).
+    // Cheap checks first: repaired() reads the host runs and git (next-driver-cost budget).
+    if (!conflict && finding.status === 'open' && finding.evidenceState !== 'suspected' && regressionTargets(finding.desc, storyId).length && !args.repaired(finding)) {
+      const settlement = evaluateFindingConflictSettlement({ store: store as never, root, storyId, finding, findings: all, gitCwd, events });
+      if (settlement) return findingConflictSettleStep(base, finding, settlement);
+    }
     if (!conflict || args.repaired(finding)) continue;
     // Lab run131 (runs 128 / 129): a conflict the checklist pin and the resolved finding's test already decide is
     // settled once by the framework (core/finding-conflict-settle.ts), never another PLAN trip.
     if (finding.status === 'open' && finding.evidenceState !== 'suspected' && conflict.resolvedId) {
       const settlement = evaluateFindingConflictSettlement({ store: store as never, root, storyId, finding, findings: all, gitCwd, events });
       if (settlement) return findingConflictSettleStep(base, finding, settlement);
+      // Lab run137 (fix N): no row pins the case and the request / the finding's stated Story base value (base evaluator confirmed) decides it for
+      // this finding: it is repaired against the framework pin (its prompt states it), no PLAN trip.
+      if (evaluateFrameworkConflictPin({ store: store as never, root, storyId, finding, findings: all, gitCwd, events })?.pin.side === 'finding') continue;
     }
     const pinned = Boolean(conflict.since) && items.some(item => {
       const before = committedIntentHashBefore(root, gitCwd, checklistPath, item.id, conflict.since);
@@ -1797,7 +1807,7 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
 export function findingConflictSettleStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>,
   settlement: Pick<ConflictSettlement, 'winner' | 'reason' | 'cases'> & { settle: boolean }): NextStep {
   return step(base, 'framework', FINDING_CONFLICT_SETTLED, { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
-    disposition: FINDING_CONFLICT_SETTLED, resolution: `none: the ${settlement.winner === 'request' ? 'request text' : 'checklist pin'} decides ${settlement.cases.map(row => `\`${row}\``).join(', ')}` } },
+    disposition: FINDING_CONFLICT_SETTLED, resolution: `none: the ${settlement.winner === 'request' ? 'request text' : settlement.winner === 'story_base' ? 'Story base (framework pin)' : 'checklist pin'} decides ${settlement.cases.map(row => `\`${row}\``).join(', ')}` } },
   `Verified ${finding.severity ?? ''} finding ${finding.id} is the losing side of a finding conflict: ${settlement.reason} It is not repaired and the Story does not return to PLAN: the framework closes it once (${FINDING_CONFLICT_SETTLED}, precedence ${FINDING_CONFLICT_PRECEDENCE}); finding_resolve recomputes the decision and records it. \`proof-or-stop next --storyId=${base.storyId} --run\` records it and goes on.`,
   'evaluateFindingConflictSettlement (core/finding-conflict-settle.ts) + findingConflictOf');
 }
@@ -2703,6 +2713,34 @@ export function targetRelaunchIsFramework(earlier: ReadonlyArray<Pick<HostRunVie
 }
 
 /**
+ * Lab run137 (bench-staging/oldpos/run137-analysis.md fix O; run 137 2373e8ff: the grouped repair of F-003 + F-004 died
+ * after 311 s, exit nonzero, no commit). A grouped run that ended without a commit naming a member already splits the
+ * group: that member gets its own single-target run (groupedFindingRepairIds binds it). For the member the grouped run
+ * was bound to (its primary), the failed grouped run counted as an earlier run of the target that did not fail
+ * auto-replaceably, so the per-finding relaunch was the agent's step (run 137: one owner turn). That relaunch is the
+ * framework's: one grouped run that ended without a commit naming the finding (`groupSplit`), plus at most
+ * MANAGED_AUTO_RELAUNCHES_PER_TARGET auto-replaceable failures. Any other earlier run keeps it the agent's call.
+ */
+export function groupSplitRelaunchIsFramework(earlier: ReadonlyArray<{ autoReplaceable?: boolean; groupSplit?: boolean }>): boolean {
+  const splits = earlier.filter(run => run.groupSplit === true);
+  return splits.length <= 1 && targetRelaunchIsFramework(earlier.filter(run => run.groupSplit !== true).map(run => ({ autoReplaceable: run.autoReplaceable === true })));
+}
+
+/** Whether the next single-target repair launch of `findingId` is the framework's (groupSplitRelaunchIsFramework over its earlier runs). Shared by the live and the reference driver. */
+export function findingRepairRelaunchIsFramework(args: { root: string; gitCwd: string; storyId: string; hostRuns: HostRunView[]; findingId: string }): boolean {
+  return groupSplitRelaunchIsFramework(runsForTarget(args.root, args.hostRuns, FINDING_REPAIR_AGENT, { findingId: args.findingId }).map(run => {
+    let groupSplit = false;
+    try {
+      const target = readManagedHostRunBinding(args.root, run.runId).managedDispatchTarget as { findingId?: string; groupFindingIds?: string[] } | null | undefined;
+      if (run.terminal && target?.findingId && Array.isArray(target.groupFindingIds) && target.groupFindingIds.length > 1) {
+        groupSplit = !groupedRepairCommit(args.root, args.gitCwd, args.storyId, args.findingId, target.findingId, run);
+      }
+    } catch { groupSplit = false; }
+    return { autoReplaceable: run.autoReplaceable, groupSplit };
+  }));
+}
+
+/**
  * Lab run131 (run 131 RR-004 / RR-010, ~22 min on the critical path): a review lane whose managed run failed
  * auto-replaceably (provider stalled / transport, no work product; targetRelaunchIsFramework) is prepared again at once
  * as a framework step, for that lane only (review_round_prepare lanes=[...]), while its sibling lanes still run.
@@ -2956,6 +2994,31 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     try { return (ctx.store.readReview(storyId).reviews.at(-1) as { timestamp?: string } | undefined)?.timestamp ?? null; } catch { return null; }
   }
 
+  /**
+   * Lab run137 (fix N3): an unpinned finding conflict (findingConflictStep: the framework pin could not decide it) as the
+   * FIRST PLAN step, before the scope-plan rerun and the PLAN lints: one checklist_update row stating the case's
+   * outcome. Once the checklist intent differs from its state when the conflict became known, it counts as pinned and
+   * PLAN goes on. Rollback: remediation.conflictPin=off.
+   */
+  function planConflictPinStep(base: { storyId: string; phase: string }): NextStep | null {
+    const { storyId } = base;
+    try { if (!conflictPinOn(loadConfig(ctx.root))) return null; } catch { /* unreadable config: the production default (on) */ }
+    let open: Finding[] = [];
+    try { open = openBlockingFindings(storyId).map(row => row.finding); } catch { open = []; }
+    if (!open.length) return null;
+    const hostRuns = listStoryHostRuns(ctx, storyId);
+    const conflict = findingConflictStep({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, base, open,
+      repaired: row => managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row, runs: hostRuns }).repaired });
+    if (!conflict || conflict.reason !== 'finding_conflict_pin') return null;
+    return step(base, 'agent', 'finding_conflict_pin', { command: 'checklist_update', payload: { storyId, itemId: '<itemId>',
+      intentRows: [{ ref: '<itemId>:edge:+', desc: '<case> -> <expected outcome>', type: 'logic', priority: 'must',
+        derivation: { requestQuote: '<the request sentence that decides the case, verbatim>', computation: '<how that sentence (or the Story base probe) gives the outcome>' } }],
+      reason: '<why: the finding conflict this row pins, >=30 chars>' } },
+    `${conflict.why.replace(/ Return to PLAN and pin each case:[\s\S]*$/, '')} Pin each listed case NOW, before anything else in PLAN (no scope-plan rerun, lint or DEV entry comes first): one checklist_update row per case stating its expected outcome, with a derivation quoting the request sentence (or the Story base probe) that decides it. Then next goes on with the rest of PLAN and the findings are repaired against the pin.`,
+    `${conflict.source} (lab run137: pinned before the scope-plan rerun)`,
+    { placeholders: ['itemId', 'intentRows[0].ref', 'intentRows[0].desc', 'intentRows[0].derivation.requestQuote', 'intentRows[0].derivation.computation', 'reason'] });
+  }
+
   // -- PLAN → DEV -----------------------------------------------------------
 
   /**
@@ -2978,6 +3041,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // Old-PoS run 31: a Story-metadata review finding routed back to PLAN (intent rows).
     const metadata = metadataStep(base);
     if (metadata) return metadata;
+    // Lab run137 (fix N3, remediation.conflictPin): the finding conflict finding_conflict_pin sent here is pinned FIRST.
+    // Run 137's first PLAN trip went to a scope-plan rerun (340 s) the conflict did not need and wrote no pin; the owner
+    // left PLAN, was sent back, and pinned on the second trip.
+    const conflictPin = planConflictPinStep(base);
+    if (conflictPin) return conflictPin;
     if (!evaluateDevMemoryPreflightGate(storyId, ctx.store)) {
       // Old-PoS run 64 (lab neutral-64): with owner.driver=framework this turn only ran the command (0.2 min, a model round
       // trip); `next --run` runs it, and its lessons stay in the dev-memory pack the acknowledgement records.
@@ -3514,7 +3582,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         // Lab run89 (fix 2d): the one relaunch the route allows is the framework's (its prompt carries the earlier report;
         // nothing is for the owner to decide), like the first launch; run 89's owner lost 70 s / 98 s per relaunch reading source.
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
-          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && (targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })) || (route.kind === 'repair' && route.relaunch)),
+          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && (findingRepairRelaunchIsFramework({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, hostRuns, findingId: finding.id }) || (route.kind === 'repair' && route.relaunch)),
         `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).${route.kind === 'repair' && route.relaunch ? ' The relaunched run\'s prompt carries the earlier run\'s report; another run without an accepted repair returns the Story to PLAN.' : ''}`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState', route.kind === 'repair' && route.relaunch ? 'relaunch after a run without an accepted repair' : undefined);
       }

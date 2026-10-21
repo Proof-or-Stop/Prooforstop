@@ -398,7 +398,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S|NSG|NSG-X|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC|NIC-F|NIC-OFF]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S|NSG|NSG-X|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC|NIC-F|NIC-OFF|NRR|NRR-OFF|NCK|NCP|NCP-F|NCP-P|NGX|NCL|NCL-OFF]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -748,7 +748,7 @@ export class Owner {
     return notes.join('; ') || 'clean';
   }
 
-  script(key: string, script: { final: string; commands?: string[][]; resume?: { final: string; commands?: string[][] } }): void {
+  script(key: string, script: { final: string; commands?: string[][]; resume?: { final: string; commands?: string[][] }; fail?: string }): void {
     writeFileSync(join(this.scripts, `${key}.json`), JSON.stringify(script));
   }
 
@@ -953,6 +953,12 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
     fs.appendFileSync(path.join(dir, 'commands.log'), JSON.stringify({ argv: argv.slice(2, 3), status: r.status, out: out.slice(-1500) }) + '\\n');
     emit({ type: 'item.completed', item: { id: 'cmd_' + index, type: 'command_execution', command: argv.slice(2, 3).join(' '), aggregated_output: out.slice(-2000), exit_code: r.status } });
   });
+  // Lab run137 (NGX): a provider turn that dies (run 137 2373e8ff: an upstream error after 311 s, exit 1, no commit).
+  if (script.fail) {
+    emit({ type: 'error', message: script.fail });
+    emit({ type: 'turn.failed', error: { message: script.fail } });
+    process.exit(1);
+  }
   emit({ type: 'item.completed', item: { type: 'agent_message', text: script.final } });
   emit({ type: 'turn.completed', usage: { input_tokens: 10, cached_input_tokens: 0, output_tokens: 10 } });
 });
@@ -9726,8 +9732,347 @@ function listHostRunsOnDisk(o: Owner): Array<{ runId: string; reviewRunId: strin
   });
 }
 
+// ---------------------------------------------------------------------------
+// Lab run137 (bench-staging/oldpos/run137-analysis.md): NRR / NRR-OFF (a repair that breaks a resolved finding's test is
+// handed back to its own session before it seals), NCK (a repair in a shared helper owes one [caller-check] line per
+// caller), NCP (a finding conflict no row pins, decided by the finding-stated Story base value without a PLAN trip),
+// NCP-F (the security control: no evaluator, no framework pin), NCP-P (an undeterminable one: the PLAN trip pins first), NGX (a failed grouped repair splits as a framework step),
+// NCL / NCL-OFF (EXPERIMENTAL review.classEnumeration). Synthetic `strs` helpers only.
+
+/** A shared helper (made-up): clamp, called by Head and Tail, all added by the Story. */
+const SHARED_SRC = `${IMPL}\n// clamp bounds n into [0, len(s)].\nfunc clamp(s string, n int) int {\n\tif n > len(s) {\n\t\treturn len(s)\n\t}\n\treturn n\n}\n\n// Head returns the first n bytes of s.\nfunc Head(s string, n int) string { return s[:clamp(s, n)] }\n\n// Tail returns s from byte n on.\nfunc Tail(s string, n int) string { return s[clamp(s, n):] }\n`;
+const SHARED_CLAMP_LINE = SHARED_SRC.split('\n').findIndex(line => line.startsWith('func clamp(')) + 1;
+const SHARED_FIXED = SHARED_SRC.replace('\tif n > len(s) {', '\tif n < 0 {\n\t\treturn 0\n\t}\n\tif n > len(s) {');
+/** A shell command writing `text` to `path` (heredoc: tabs and quotes kept). */
+const writeFileCommand = (path: string, text: string): string => `cat > ${path} <<'POS_EOF'\n${text}POS_EOF\n`;
+const commitAll = (storyId: string, subject: string): string => `git add -A strs && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${subject}' && git log --format=%h -1`;
+
+function commitShared(o: Owner): void {
+  writeFileSync(join(o.worktree, 'strs/strs.go'), SHARED_SRC);
+  git(o.worktree, ['add', 'strs/strs.go']);
+  git(o.worktree, ['-c', 'user.name=proof-or-stop-implementer', 'commit', '-qm', 'add clamp, Head and Tail']);
+}
+
+/** Run the framework steps next returns (finding_resolve, evidence chain) until an agent step or a non-finding step. */
+function runFrameworkResolves(o: Owner, ask: (label: string) => NextStepJson, max = 4): NextStepJson {
+  let next = ask('next (after the repair)');
+  for (let index = 0; index < max && next.kind === 'framework' && /^(?:finding_resolve|evidence_chain|finding_conflict)/.test(next.reason); index += 1) {
+    const calls = next.batch?.length ? next.batch.map(call => call.cli) : next.cli ? [next.cli] : [];
+    for (const call of calls) o.cli(call.command, call.payload, { label: `${call.command} (${next.reason})` });
+    next = ask(`next (after ${next.reason})`);
+  }
+  return next;
+}
+
+const NRR_G = 'strs/strs.go:9 Reverse of a two-rune string must swap them. Repro: `Reverse("ab")`';
+const NRR_F = 'strs/strs.go:9 Reverse of a one-rune string allocates a rune slice; return short input unchanged. Repro: `Reverse("a")`';
+const NRR_G_TEST = '\nfunc TestReverseTwo(t *testing.T) {\n\tif Reverse("ab") != "ba" {\n\t\tt.Fatal("two runes")\n\t}\n}\n';
+/** The F repair that breaks G: a two-rune string is returned unchanged; the resumed turn narrows it to one rune. */
+const NRR_BROKEN = IMPL.replace('\tr := []rune(s)\n', '\tr := []rune(s)\n\tif len(r) <= 2 {\n\t\treturn s\n\t}\n');
+const NRR_FIXED = IMPL.replace('\tr := []rune(s)\n', '\tr := []rune(s)\n\tif len(r) <= 1 {\n\t\treturn s\n\t}\n');
+
+/**
+ * NRR / NRR-OFF (run 137 F-006 -> F-008, fix M): the repair of an open finding breaks a resolved finding's covering
+ * test. NRR: the worker re-runs that test before the run seals and hands the failure back to the SAME session, whose
+ * resumed turn fixes it: finding_resolve accepts, no `[regression-of]` finding. NRR-OFF (remediation.regressionCheck=off,
+ * the base behaviour): the run seals broken and a later gate refuses it (here the evidence chain's pinned CHK-002 check).
+ */
+function scenarioNRR(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NRR' | 'NRR-OFF'): Outcome {
+  const on = tag === 'NRR';
+  const name = on
+    ? 'NRR lab run137 fix M: a repair that breaks a resolved finding\'s covering test is handed back to its own session before it seals (failing output in the resumed prompt); no regression finding'
+    : 'NRR-OFF lab run137 fix M control: remediation.regressionCheck=off: the broken repair seals and a later gate refuses it outside its session (the evidence chain\'s pinned check or finding_resolve\'s guard)';
+  const o = new Owner(tag, on ? 'B-137a' : 'B-137c', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true, ...(on ? {} : { config: { remediation: { regressionCheck: 'off' } } }) });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    devSetup(o);
+    write(o.worktree, 'strs/strs_test.go', `${readFileSync(join(o.worktree, 'strs/strs_test.go'), 'utf8')}${NRR_G_TEST}`);
+    git(o.worktree, ['add', 'strs/strs_test.go']);
+    git(o.worktree, ['-c', `user.name=${FINDING_REPAIR}`, 'commit', '-qm', `${o.storyId} F-001: test two runes`]);
+    const gRepair = git(o.worktree, ['rev-parse', 'HEAD']);
+    seedFindings(o, [{ desc: NRR_G, status: 'resolved', resolutionType: 'fixed', resolvedAt: '2026-10-15T00:10:00.000Z', resolvedReason: `Repaired [repair commit ${gRepair.slice(0, 12)}]` }, { desc: NRR_F }]);
+    const launch = ask('next (open finding)');
+    assert.equal(launch.reason, 'finding_repair', `[${tag}] ${launch.reason}: ${launch.why.slice(0, 300)}`);
+    const report = 'Return one-rune input unchanged; committed.\n[family] one rune: fixed\n[intent-conflict] none';
+    o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `${writeFileCommand('strs/strs.go', NRR_BROKEN)}${commitAll(o.storyId, 'F-002: short input unchanged')}`]], final: report,
+      resume: { commands: [['/bin/sh', '-c', `${writeFileCommand('strs/strs.go', NRR_FIXED)}${commitAll(o.storyId, 'F-002: only one rune is unchanged')}`]], final: `${report}\nFixed the two-rune regression the framework reported.` } });
+    const run = launchManaged(o, tag, launch, 'host_run finding-repair (breaks a resolved test)');
+    o.unscript(FINDING_REPAIR);
+    const resumePrompt = join(o.scriptsDir, 'prompts', `${run.runId}.resume.txt`);
+    const events = runEvents(o, run.runId).map(row => row.type);
+    lines.push(`run events: ${events.filter(type => /regression|follow_up/.test(String(type))).join(', ') || 'none'}`);
+    if (on) {
+      assert.ok(existsSync(resumePrompt), `[${tag}] the worker handed the regression back to the session: ${JSON.stringify(events)}`);
+      const asked = readFileSync(resumePrompt, 'utf8');
+      assert.match(asked, /Regression check \(framework/, `[${tag}] ${asked.slice(0, 400)}`);
+      assert.match(asked, /F-001/, `[${tag}] names the resolved finding`);
+      assert.match(asked, /TestReverseTwo/, `[${tag}] names its covering test`);
+      assert.ok(events.includes('managed_repair_regression_check') && runEvents(o, run.runId).some(row => row.type === 'managed_repair_regression_check_outcome' && (row.detail as { outcome?: string } | undefined)?.outcome === 'passed'),
+        `[${tag}] journaled, and passing after the resumed turn: ${JSON.stringify(events)}`);
+    } else {
+      assert.ok(!existsSync(resumePrompt), `[${tag}] no in-session regression check when off`);
+    }
+    const last = runFrameworkResolves(o, ask);
+    const findings = new StoryStore(o.worktree).readFindings(o.storyId).findings;
+    const regression = findings.filter(row => /^\[regression-of F-001\]/.test(row.desc));
+    lines.push(`findings: ${findings.map(row => `${row.id.split(':')[1]} ${row.status}`).join(', ')}`);
+    if (on) {
+      assert.equal(regression.length, 0, `[${tag}] no regression finding: ${regression.map(row => row.desc.slice(0, 200)).join(' | ')}`);
+      assert.equal(findings.find(row => row.desc === NRR_F)?.status, 'resolved', `[${tag}] the repair is accepted`);
+    } else {
+      // The base behaviour: the broken repair sealed, and a later gate refuses it outside the repair's session (the
+      // evidence chain's pinned CHK-002 check, or finding_resolve's guard opening the [regression-of] finding).
+      assert.notEqual(findings.find(row => row.desc === NRR_F)?.status, 'resolved', `[${tag}] the broken repair is not accepted`);
+      assert.ok(regression.length === 1 || /^evidence_chain/.test(last.reason), `[${tag}] refused by a later gate: ${last.reason}: ${last.why.slice(0, 300)}`);
+    }
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NCK (run 137 F-004 -> F-006, fix M second half): the repair of a finding in a shared helper (clamp: Head and Tail call it). */
+function scenarioNCK(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NCK';
+  const name = 'NCK lab run137 fix M: a finding in a shared helper gets every caller in its repair prompt, and the repair that changed it is asked in the same session for one [caller-check] line per caller';
+  const o = new Owner(tag, 'B-137b', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    commitShared(o);
+    devSetup(o);
+    seedFindings(o, [{ desc: `strs/strs.go:${SHARED_CLAMP_LINE} clamp lets a negative n through, so Head panics. Repro: \`Head("abc", -1)\`` }]);
+    const launch = ask('next (open finding)');
+    assert.equal(launch.reason, 'finding_repair', `[${tag}] ${launch.reason}: ${launch.why.slice(0, 300)}`);
+    const test = '\nfunc TestHeadNegative(t *testing.T) {\n\tif Head("abc", -1) != "" {\n\t\tt.Fatal("negative")\n\t}\n}\n';
+    const report = 'Clamped a negative n to 0; committed.\n[family] negative n: fixed\n[branch-test] clamp n=-1: TestHeadNegative -> ""';
+    o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `${writeFileCommand('strs/strs.go', SHARED_FIXED)}printf '%s' '${test}' >> strs/strs_test.go && ${commitAll(o.storyId, 'F-001: clamp a negative n')}`]],
+      final: `${report}\n[intent-conflict] none`,
+      resume: { final: `${report}\n[caller-check] Head -> clamp: Head("abc", -1) base=panic HEAD="" changed: the finding\n[caller-check] Tail -> clamp: Tail("abc", -1) base=panic HEAD=abc changed: the finding\n[intent-conflict] none` } });
+    const run = launchManaged(o, tag, launch, 'host_run finding-repair (shared helper)');
+    o.unscript(FINDING_REPAIR);
+    const prompt = managedPrompts(o, FINDING_REPAIR)[0]!.prompt;
+    assert.match(prompt, /Shared helpers \(framework, from the Story diff\)/, `[${tag}] the repair prompt lists the shared helper`);
+    assert.match(prompt, /in Head: /, `[${tag}] with its Head call site`);
+    assert.match(prompt, /in Tail: /, `[${tag}] and its Tail call site`);
+    const resumePrompt = join(o.scriptsDir, 'prompts', `${run.runId}.resume.txt`);
+    assert.ok(existsSync(resumePrompt), `[${tag}] the worker asked the session for the caller lines: ${JSON.stringify(runEvents(o, run.runId).map(row => row.type))}`);
+    const asked = readFileSync(resumePrompt, 'utf8');
+    assert.match(asked, /Head -> clamp/, `[${tag}] ${asked.slice(0, 600)}`);
+    assert.match(asked, /Tail -> clamp/, `[${tag}] the other caller too`);
+    assert.match(asked, /\[caller-check\] <caller> -> <helper>/, `[${tag}] with the exact line form`);
+    const after = ask('next (repaired)');
+    assert.match(after.reason, /^(?:evidence_chain|finding_resolve)/, `[${tag}] accepted: ${after.reason}: ${after.why.slice(0, 300)}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+const NCP_CASE = 'Reverse("")';
+const NCP_G = `strs/strs.go:9 Reverse of an empty string must return the error marker. Repro: \`${NCP_CASE}\``;
+/** Run 137 F-006's shape: the finding states the Story base value and the HEAD value of the case. */
+const NCP_F = `strs/strs.go:9 Reverse of an empty string now returns the error marker. On the base \`${NCP_CASE}\` returns \`\` (the empty string); HEAD returns \`error\`.`;
+const NCP_F_UNSTATED = `strs/strs.go:9 Reverse of an empty string should return the empty string, like an omitted input. Repro: \`${NCP_CASE}\``;
+
+/** A resolved G whose repair test pins the case, an open F whose repair the G guard rejected, and (stated) the framework's R. */
+function seedConflict(o: Owner, fDesc: string, withRegression: boolean): void {
+  write(o.worktree, 'strs/strs_test.go', `${readFileSync(join(o.worktree, 'strs/strs_test.go'), 'utf8')}${NFC_TEST}`);
+  git(o.worktree, ['add', 'strs/strs_test.go']);
+  git(o.worktree, ['-c', `user.name=${FINDING_REPAIR}`, 'commit', '-qm', `${o.storyId} F-001: test the empty-string marker`]);
+  const gRepair = git(o.worktree, ['rev-parse', 'HEAD']);
+  write(o.worktree, 'strs/strs.go', `${readFileSync(join(o.worktree, 'strs/strs.go'), 'utf8')}\n// empty input handled\n`);
+  git(o.worktree, ['add', 'strs/strs.go']);
+  git(o.worktree, ['-c', `user.name=${FINDING_REPAIR}`, 'commit', '-qm', `${o.storyId} F-002: empty input returns empty`]);
+  const fRepair = git(o.worktree, ['rev-parse', 'HEAD']);
+  const command = 'go test -v ./strs -run ^(TestReverseEmptyMarker)$';
+  seedFindings(o, [{ desc: NCP_G, status: 'resolved', resolutionType: 'fixed', resolvedAt: '2026-10-15T00:10:00.000Z', resolvedReason: `Repaired [repair commit ${gRepair.slice(0, 12)}]` }, { desc: fDesc },
+    ...(withRegression ? [{ agent: 'main', desc: `[regression-of F-001] the repair of F-002 (commit ${fRepair.slice(0, 12)}) broke resolved finding F-001: its covering verification as recorded at its resolution now fails (\`${command}\`). Repro: \`${NCP_CASE}\`. Resolved finding: ${NCP_G}` }] : [])]);
+  new StoryStore(o.worktree).appendProcessEvent(o.storyId, { type: 'resolved_finding_guard_checked', storyId: o.storyId, findingId: `${o.storyId}:F-001`, passed: false, inconclusive: false,
+    command, scope: 'repro', outputTail: '--- FAIL: TestReverseEmptyMarker', rejectedRepairs: [{ findingId: `${o.storyId}:F-002`, commit: fRepair }] } as never);
+  commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} guard rejected F-002's repair`);
+}
+
+/** The project's declared base evaluator (pinOracle) for NCP: Reverse at the Story base, by rune. */
+const NCP_EVAL = [
+  "const src = require('fs').readFileSync(process.argv[2], 'utf8').trim();",
+  'const call = src.match(/^Reverse\\((".*")\\)$/);',
+  "if (!call) { console.error('undefined: ' + src); process.exit(1); }",
+  'console.log(JSON.stringify([...JSON.parse(call[1])].reverse().join("")));',
+  '',
+].join('\n');
+
+/**
+ * NCP (run 137 F-004 vs F-006, fix N): no row pins the case; the finding states the Story base value, which the project's
+ * declared base evaluator confirms (it ran and printed it); the request is silent. NCP-F (security control): the same
+ * conflict without an evaluator: the finding's own statement is no evidence, so the PLAN pin stays and the framework
+ * regression finding is not settled.
+ */
+function scenarioNCP(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP' | 'NCP-F' = 'NCP'): Outcome {
+  if (tag === 'NCP-F') return scenarioNCPF(machineEnv, steps);
+  const name = 'NCP lab run137 fix N: a finding conflict no row pins, decided by the finding-stated Story base value the base evaluator confirms: the framework regression finding is settled and the finding is repaired against the framework pin, no PLAN trip';
+  const o = new Owner(tag, 'B-137d', machineEnv, steps, false, { trackedGateFailureCounts: true, config: { pinOracle: NPO_ORACLE }, baseFiles: { 'tools/strs-eval.js': NCP_EVAL } });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  const seen: string[] = [];
+  try {
+    devSetup(o);
+    seedConflict(o, NCP_F, true);
+    const settle = ask('next (conflict, no pin)');
+    seen.push(settle.reason);
+    assert.equal(settle.reason, 'finding_conflict_settled', `[${tag}] the framework settles the regression finding of the upheld repair, no PLAN trip: ${settle.reason}: ${settle.why.slice(0, 500)}`);
+    assert.equal(settle.kind, 'framework', `[${tag}] no owner turn`);
+    assert.equal(settle.cli?.payload.findingId, `${o.storyId}:F-003`, `[${tag}] the regression finding is the losing side`);
+    o.mustCli(settle.cli!.command, settle.cli!.payload, { label: 'finding_resolve (framework pin settle)' });
+    const r = new StoryStore(o.worktree).readFindings(o.storyId).findings.find(row => row.id === `${o.storyId}:F-003`)!;
+    assert.equal(r.status, 'resolved', `[${tag}] closed`);
+    assert.match(String(r.resolvedReason), /^\[finding_conflict_settled\].*source story_base/, `[${tag}] ${r.resolvedReason}`);
+    const launch = ask('next (settled)');
+    seen.push(launch.reason);
+    assert.equal(launch.reason, 'finding_repair', `[${tag}] the finding is repaired against the pin: ${launch.reason}: ${launch.why.slice(0, 400)}`);
+    o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `printf '%s' '\nfunc TestReverseEmptyBase(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("base")\n\t}\n}\n' >> strs/strs_test.go && ${commitAll(o.storyId, 'F-002: empty input keeps the base behaviour')}`]],
+      final: 'Kept the Story base behaviour for the empty string; committed.\n[intent-conflict] none' });
+    launchManaged(o, tag, launch, 'host_run finding-repair (against the framework pin)');
+    o.unscript(FINDING_REPAIR);
+    const prompt = managedPrompts(o, FINDING_REPAIR)[0]!.prompt;
+    assert.match(prompt, /Framework pin \(finding_conflict_framework_pin/, `[${tag}] the repair prompt states the framework pin`);
+    assert.ok(prompt.includes('`Reverse("")` must give ``'), `[${tag}] with the pinned value`);
+    assert.ok(!seen.includes('finding_conflict_pin'), `[${tag}] never a PLAN trip: ${seen.join(' > ')}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${seen.join(' > ')}`, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+function scenarioNCPF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NCP-F';
+  const name = 'NCP-F lab run137 fix N security control: without a base evaluator the finding-stated base value is no evidence: no framework pin, the [regression-of] finding is not settled, finding_conflict_pin stays';
+  const o = new Owner(tag, 'B-137i', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    devSetup(o);
+    seedConflict(o, NCP_F, true);
+    const next = ask('next (conflict, no evaluator)');
+    assert.notEqual(next.reason, 'finding_conflict_settled', `[${tag}] never settled from the finding text alone: ${next.why.slice(0, 300)}`);
+    assert.equal(next.reason, 'finding_conflict_pin', `[${tag}] the PLAN pin stays: ${next.reason}: ${next.why.slice(0, 300)}`);
+    const refused = o.cli('finding_resolve', { storyId: o.storyId, findingId: `${o.storyId}:F-003`, disposition: 'finding_conflict_settled', resolution: 'none: the Story base (framework pin) decides `Reverse("")`' }, { label: 'finding_resolve (forced settle)' });
+    assert.notEqual(refused.status, 0, `[${tag}] a forced settle is refused (the decision is recomputed): ${refused.out.slice(-400)}`);
+    assert.equal(new StoryStore(o.worktree).readFindings(o.storyId).findings.find(row => row.id === `${o.storyId}:F-003`)?.status, 'open', `[${tag}] the regression finding stays open`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NCP-P (run 137 PLAN trip 1, fix N3): an undeterminable conflict keeps finding_conflict_pin; PLAN pins it FIRST. */
+function scenarioNCPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NCP-P';
+  const name = 'NCP-P lab run137 fix N3: a conflict the framework cannot decide keeps finding_conflict_pin, and the PLAN trip\'s FIRST step is the pin (no scope-plan rerun or lint before it); once pinned PLAN goes on';
+  const o = new Owner(tag, 'B-137e', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    devSetup(o);
+    seedConflict(o, NCP_F_UNSTATED, false);
+    const trip = ask('next (conflict, undeterminable)');
+    assert.equal(trip.reason, 'finding_conflict_pin', `[${tag}] the PLAN pin stays: ${trip.reason}: ${trip.why.slice(0, 300)}`);
+    o.mustCli(trip.cli!.command, trip.cli!.payload, { label: 'story_advance PLAN (conflict pin)' });
+    const first = ask('next (PLAN, conflict open)');
+    assert.equal(first.reason, 'finding_conflict_pin', `[${tag}] the first PLAN step is the pin: ${first.reason}: ${first.why.slice(0, 400)}`);
+    assert.equal(first.cli?.command, 'checklist_update', `[${tag}] a checklist_update row`);
+    assert.match(first.why, /Reverse\(""\)/, `[${tag}] naming the case`);
+    const store = new StoryStore(o.worktree);
+    const cl = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-002' ? { ...item, verificationIntent: { ...item.verificationIntent!,
+      edge: [...(item.verificationIntent!.edge ?? []), { desc: `\`${NCP_CASE} -> ""\``, derivation: { requestQuote: 'Reverse returns the string reversed by rune.', computation: 'the empty string has no rune to reverse: the empty string' } }] } } : item) } as never);
+    const after = ask('next (PLAN, pinned)');
+    assert.notEqual(after.reason, 'finding_conflict_pin', `[${tag}] pinned: PLAN goes on: ${after.reason}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NGX (run 137 2373e8ff, fix O): the grouped repair of two findings dies (exit 1, no commit). */
+function scenarioNGX(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NGX';
+  const name = 'NGX lab run137 fix O: a grouped repair that dies without a commit naming its primary finding is split at once: the per-finding relaunch is a framework step';
+  const o = new Owner(tag, 'B-137f', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    devSetup(o);
+    seedFindings(o, [{ desc: 'strs/strs.go:9 Reverse of an empty string indexes past the end. Repro: `Reverse("")`' }, { desc: 'strs/strs.go:6 Upper of an empty string allocates. Repro: `Upper("")`' }]);
+    const launch = ask('next (two open findings)');
+    assert.equal(launch.reason, 'finding_repair', `[${tag}] ${launch.reason}`);
+    assert.equal((launch.cli?.payload.groupFindingIds as string[] | undefined)?.length, 2, `[${tag}] one grouped run: ${JSON.stringify(launch.cli?.payload)}`);
+    o.script(FINDING_REPAIR, { final: '', fail: 'model turn aborted: the provider closed the turn' });
+    const payload = { ...launch.cli!.payload };
+    for (const [key, value] of Object.entries({ host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort })) if (typeof payload[key] !== 'string' || /^<.*>$/.test(String(payload[key]))) payload[key] = value;
+    const launched = o.mustCli(launch.cli!.command, payload, { label: 'host_run finding-repair (grouped, dies)' });
+    const terminal = waitTerminal(o, 'grouped repair', String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId));
+    o.unscript(FINDING_REPAIR);
+    lines.push(`grouped run: ${terminal.state} ${terminal.reason}`);
+    assert.equal(terminal.state, 'failed', `[${tag}] the grouped run failed`);
+    const relaunch = ask('next (grouped run failed)');
+    assert.equal(relaunch.reason, 'finding_repair', `[${tag}] ${relaunch.reason}: ${relaunch.why.slice(0, 300)}`);
+    assert.equal(relaunch.cli?.payload.groupFindingIds, undefined, `[${tag}] per finding`);
+    assert.equal(relaunch.cli?.payload.findingId, launch.cli?.payload.findingId, `[${tag}] the primary first`);
+    assert.equal(relaunch.kind, 'framework', `[${tag}] the split relaunch is the framework's: ${relaunch.why.slice(0, 300)}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NCL / NCL-OFF (run 137 "no class enumeration", fix P, EXPERIMENTAL review.classEnumeration). */
+function scenarioNCL(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCL' | 'NCL-OFF'): Outcome {
+  const on = tag === 'NCL';
+  const name = on
+    ? 'NCL lab run137 fix P (EXPERIMENTAL review.classEnumeration=on): concept and quality lanes get the changed shared helper with every caller to enumerate against the base; test-coverage does not'
+    : 'NCL-OFF lab run137 fix P control (default off): no lane prompt carries the shared-helper caller block';
+  const o = new Owner(tag, on ? 'B-137g' : 'B-137h', machineEnv, steps, false, { trackedGateFailureCounts: true, ...(on ? { config: { review: { classEnumeration: 'on' } } } : {}) });
+  const lines: string[] = [];
+  try {
+    commitShared(o);
+    devSetup(o);
+    driveWithNext(o, { findingRound1: false, run: false }, lines);
+    const has = (lane: string) => managedPrompts(o, `proof-or-stop-review-${lane}`).some(row => row.prompt.includes('--- BEGIN SHARED HELPER CALLERS ---'));
+    const prompts = (lane: string) => managedPrompts(o, `proof-or-stop-review-${lane}`).length;
+    lines.push(`lane prompts: concept ${prompts('concept')}, quality ${prompts('quality')}, test-coverage ${prompts('test-coverage')}`);
+    if (on) {
+      assert.ok(has('concept') && has('quality'), `[${tag}] concept and quality carry the block`);
+      const concept = managedPrompts(o, 'proof-or-stop-review-concept')[0]!.prompt;
+      assert.match(concept, /clamp \(strs\/strs\.go:\d+\) is called from 2 sites/, `[${tag}] the helper and its caller count`);
+      assert.match(concept, /in Head: [\s\S]*in Tail: /, `[${tag}] every caller`);
+      assert.ok(!has('test-coverage'), `[${tag}] not the test-coverage lane`);
+    } else {
+      assert.ok(!has('concept') && !has('quality') && !has('test-coverage'), `[${tag}] off: no lane carries it`);
+    }
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?|NSG(?:-X)?|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC(?:-F|-OFF)?)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?|NSG(?:-X)?|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC(?:-F|-OFF)?|NRR(?:-OFF)?|NCK|NCP(?:-[PF])?|NGX|NCL(?:-OFF)?)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -9871,6 +10216,15 @@ async function main(): Promise<void> {
     if (only.includes('NIC')) outcomes.push(scenarioNIC(machine.env, steps, 'on'));
     if (only.includes('NIC-F')) outcomes.push(scenarioNIC(machine.env, steps, 'forged'));
     if (only.includes('NIC-OFF')) outcomes.push(scenarioNIC(machine.env, steps, 'off'));
+    // Lab run137: repair regression check (NRR, NRR-OFF control) and caller lines (NCK), framework conflict pin (NCP) and
+    // the PLAN pin first (NCP-P), failed grouped repair split (NGX), EXPERIMENTAL class enumeration (NCL, NCL-OFF control).
+    for (const token of ['NRR', 'NRR-OFF'] as const) if (only.includes(token)) outcomes.push(scenarioNRR(machine.env, steps, token));
+    if (only.includes('NCK')) outcomes.push(scenarioNCK(machine.env, steps));
+    if (only.includes('NCP')) outcomes.push(scenarioNCP(machine.env, steps));
+    if (only.includes('NCP-F')) outcomes.push(scenarioNCP(machine.env, steps, 'NCP-F'));
+    if (only.includes('NCP-P')) outcomes.push(scenarioNCPP(machine.env, steps));
+    if (only.includes('NGX')) outcomes.push(scenarioNGX(machine.env, steps));
+    for (const token of ['NCL', 'NCL-OFF'] as const) if (only.includes(token)) outcomes.push(scenarioNCL(machine.env, steps, token));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
@@ -9894,7 +10248,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NSG', 'NSG-X', 'NIO', 'NFC', 'NPV', 'NMC', 'NDI', 'NSL', 'NUA', 'NAB', 'NBP', 'NIC', 'NIC-F', 'NIC-OFF', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NSG', 'NSG-X', 'NIO', 'NFC', 'NPV', 'NMC', 'NDI', 'NSL', 'NUA', 'NAB', 'NBP', 'NIC', 'NIC-F', 'NIC-OFF', 'NRR', 'NRR-OFF', 'NCK', 'NCP', 'NCP-F', 'NCP-P', 'NGX', 'NCL', 'NCL-OFF', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

@@ -142,6 +142,35 @@ export function repairBaseClaimProblem(report: string | null | undefined): strin
     + `run that case on the Story base and report \`${BASE_EVIDENCE_LINE_FORM}\`, or test the case and fix the repair if the base differs`;
 }
 
+// ---------------------------------------------------------------------------
+// Lab run137 (run 137 F-004 -> F-006 / F-007, remediation.regressionCheck): a repair that changed a shared helper owes
+// one `[caller-check]` line per caller (core/shared-helper-callers.ts finds the helpers and their call sites).
+
+/** A call site of a shared helper (core/shared-helper-callers.ts). */
+export interface CallSiteLike { file: string; line: number; caller: string; text: string }
+/** A shared helper: a non-test function with at least two call sites in the Story diff. */
+export interface SharedHelperLike { fn: string; file: string; line: number; sites: CallSiteLike[] }
+
+/** The one `[caller-check]` line form a repair report owes per caller of a changed shared helper. */
+export const CALLER_CHECK_LINE_FORM = '[caller-check] <caller> -> <helper>: <input> base=<result> HEAD=<result> unchanged | changed: <request sentence or CHK row that requires it>';
+
+const namesWord = (line: string, name: string): boolean => new RegExp(`(?<![\\w$])${escapeRegExp(name)}(?![\\w$])`).test(line);
+
+/** The callers of `helpers` (one site per caller) without a `[caller-check]` line naming both the caller and the helper. */
+export function missingCallerChecks(report: string | null | undefined, helpers: readonly SharedHelperLike[]): Array<{ helper: string; site: CallSiteLike }> {
+  const lines = (report ?? '').split('\n').filter(line => /\[caller-check\]/i.test(line));
+  const out: Array<{ helper: string; site: CallSiteLike }> = [];
+  for (const helper of helpers) {
+    const callers = new Map<string, CallSiteLike>();
+    for (const site of helper.sites) if (!callers.has(site.caller)) callers.set(site.caller, site);
+    for (const [caller, site] of callers) {
+      const reported = lines.some(line => namesWord(line, helper.fn) && (caller === '<top level>' ? line.includes(site.file) : namesWord(line, caller)));
+      if (!reported) out.push({ helper: helper.fn, site });
+    }
+  }
+  return out;
+}
+
 /**
  * The follow-up prompt for a finding repair whose final report misses required lines: ONE resumed turn of the same
  * session that asks for exactly those lines (the commit stays; nothing else is redone). Null when nothing is missing.
@@ -149,8 +178,17 @@ export function repairBaseClaimProblem(report: string | null | undefined): strin
 export function repairReportFollowUp(args: { report: string | null | undefined; matrices: ReadonlyArray<{ findingId: string; matrix: MatrixLike }>;
   mechanisms: readonly MechanismRequirement[];
   /** Lab run132 (run 135 L, remediation.baseClaimEvidence): ask for the base evidence of "matches the base" claims. */
-  baseClaims?: boolean }): string | null {
+  baseClaims?: boolean;
+  /** Lab run137 (remediation.regressionCheck): the shared helpers this repair's own commits changed. */
+  callerChecks?: readonly SharedHelperLike[] }): string | null {
   const parts: string[] = [];
+  const callers = missingCallerChecks(args.report, args.callerChecks ?? []);
+  if (callers.length) {
+    parts.push('- Your repair changed a shared helper that other code of the Story diff calls. Run each caller below once on the Story base (a detached temporary worktree of the base commit) and once on your commit, with one input that reaches the changed code, and add one line per caller:',
+      ...callers.map(({ helper, site }) => `  - ${site.caller} -> ${helper} (${site.file}:${site.line}: \`${site.text}\`)`),
+      `  ${CALLER_CHECK_LINE_FORM}`,
+      '  A caller whose result changed without a request sentence or checklist row requiring it is a regression of this repair: fix it (one new commit, with a test of that caller) before you write the line.');
+  }
   const claims = args.baseClaims ? unprovenBaseClaims(args.report) : [];
   if (claims.length) {
     parts.push(`- Your report claims base behaviour for a boundary case without base evidence: ${claims.map(claim => `"${claim}"`).join('; ')}. Run that case on the Story base (a detached temporary worktree of the base commit) and add one line per case:`,

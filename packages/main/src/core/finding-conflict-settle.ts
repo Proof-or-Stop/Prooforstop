@@ -15,8 +15,9 @@
  *     superseded, `[finding_conflict_settled]` reason, severity unchanged), journaled (runtime/finding-conflict/<story>.jsonl).
  *   - a later finding re-judging the same case against the same resolved finding (kind `same_case`) is settled by that
  *     record while the pin still agrees; a re-pin to F's side (pins disagree) reopens the question as before.
- * Not settled (today's route stands): a `[precedent-conflict]` finding, a case no row pins (one finding_conflict_pin
- * decides it), a pin that disagrees with G's test (the guard excuses the repair; F is repaired against the pin).
+ * Not settled (today's route stands): a `[precedent-conflict]` finding, a case no row pins (lab run137: the framework pin
+ * of core/finding-conflict-pin.ts decides it when the request or F's stated Story base value, confirmed by the base evaluator, does; else one
+ * finding_conflict_pin), a pin that disagrees with G's test (the guard excuses the repair; F is repaired against the pin).
  * Rollback: remediation.conflictSettle=off.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -50,7 +51,8 @@ type IntentRow = { desc?: string; derivation?: { requestQuote?: string; computat
 interface ItemSlice { id: string; verificationIntent?: Partial<Record<'happy' | 'edge' | 'adversarial', IntentRow[]>> }
 export interface SettledCase { resolvedId: string; cases: string[]; winner: string }
 
-export interface ConflictSettlement { settle: true; winner: 'request' | 'checklist_pin'; reason: string; cases: string[]; resolvedId: string }
+/** Lab run137: `story_base` = the framework pin's Story base side (core/finding-conflict-pin.ts, no checklist row pins the case). */
+export interface ConflictSettlement { settle: true; winner: 'request' | 'checklist_pin' | 'story_base'; reason: string; cases: string[]; resolvedId: string }
 
 const short = (id: string): string => id.replace(/^[^:]+:/, '');
 const flat = (text: string): string => text.replace(/\s+/g, ' ').trim().toLowerCase();
