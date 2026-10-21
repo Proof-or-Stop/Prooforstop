@@ -1,5 +1,6 @@
 import { DELTA_ROUND_ESCALATION_EVENT, DELTA_ROUND_GAP_EVENT, DELTA_ROUND_REVERIFIED_EVENT, deltaEscalations } from '../core/review-delta-round.js';
 import { evaluateDeltaConfirmation } from '../core/review-delta-confirmation.js';
+import { deltaSelectorRepairOn } from '../core/ab-variants.js';
 import { checkLaneMergeNote, findingDimension, LANE_MERGE_COVERAGE_EVENT } from '../core/review-lane-merge.js';
 import { readFileSync } from 'node:fs';
 import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
@@ -469,14 +470,18 @@ export function createManagedReviewEvidenceHandlers(
       if (deltaBinding?.role === 'confirmation' && !hasPersistedReceiptEvidence) {
         const gapRecorded = ctx.store.readProcessEvents(proposal.storyId).some(event => event.type === DELTA_ROUND_GAP_EVENT
           && event.managedRunId === runId && event.managedReceiptId === receiptId);
+        // Lab run132 (old-PoS run 135 item H, review.deltaSelectorRepair): a generic [reverified] selector is filled from the
+        // test the command names, else from the framework's own re-run output (core/delta-reverify-selector.ts; never a runtime
+        // file); the re-run still requires exit 0 and that line.
+        const fillGeneric = (() => { try { return deltaSelectorRepairOn(loadConfig(ctx.root)); } catch { return true; } })();
         const verdict = gapRecorded ? null : evaluateDeltaConfirmation({ binding: deltaBinding, storyId: proposal.storyId, conclusion,
-          note: proposal.note ?? '', readManifest: proposal.readManifest, projectRoot: ctx.root, cwd: gitCwd, headHash: reviewRun.headHash ?? null });
+          note: proposal.note ?? '', readManifest: proposal.readManifest, projectRoot: ctx.root, cwd: gitCwd, headHash: reviewRun.headHash ?? null, fillGeneric });
         for (const row of verdict?.reverified ?? []) {
           ctx.store.appendProcessEvent(proposal.storyId, { type: DELTA_ROUND_REVERIFIED_EVENT, storyId: proposal.storyId, command: 'managed_review_evidence_import',
             role: 'framework', agent: proposal.lane, result: row.passed ? 'pass' : 'fail', managedRunId: runId, managedReceiptId: receiptId,
             reviewRunId: proposal.reviewRunId, reviewRound: story.currentReviewRound ?? null, findingId: row.findingId, rerunCommand: row.command, selector: row.selector,
             passed: row.passed, exitCode: row.exitCode, timedOut: row.timedOut, selectorMatched: row.selectorMatched, outputTail: row.outputTail,
-            headHash: row.headHash, durationMs: row.durationMs });
+            headHash: row.headHash, durationMs: row.durationMs, ...(row.selectorSource ? { selectorSource: row.selectorSource, laneSelector: row.laneSelector } : {}) });
         }
         if (verdict && !verdict.ok) {
           ctx.store.appendProcessEvent(proposal.storyId, { type: DELTA_ROUND_GAP_EVENT, storyId: proposal.storyId, command: 'managed_review_evidence_import',

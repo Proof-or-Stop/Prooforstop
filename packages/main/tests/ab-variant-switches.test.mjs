@@ -69,6 +69,11 @@
  *                                    dispute / reversal remedies re-pin an existing-behaviour case to the base value
  *   remediation.baseClaimEvidence    default ON (`off` = rollback; run 135 L, tasks/run135-l-smoke.ts): a finding-repair
  *                                    report claiming a boundary case matches the base owes a [base-evidence] line
+ *   Lab run132, run 135 (behaviour in tasks/run135-hi-smoke.ts H / I):
+ *   review.deltaSelectorRepair       default ON (`off` = rollback): a delta confirmation lane's generic [reverified]
+ *                                    selector is filled (named test / the framework's own re-run) or corrected once
+ *   remediation.duplicateReproAppend default ON (`off` = rollback): one lacks-repro duplicate refusal gets the repro
+ *                                    append step instead of its own managed repair
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -143,8 +148,10 @@ await check('config: absent switches resolve to production values; malformed fai
     reviewerCarryForward: 'on',
     // Lab run132 (runs 133/134): the review straggler verdict and the Story-base pin evidence are on (`off` = rollback).
     stragglerVerdict: 'on', baseEvidence: 'on',
-    // Lab run132 (run 135 L): a repair report's "matches the base" claim owes base evidence (`off` = rollback).
-    baseClaimEvidence: 'on' });
+    // Lab run132 (L): a repair report's base-match claim owes a [base-evidence] line (`off` = rollback).
+    baseClaimEvidence: 'on',
+    // Lab run132 (run 135 H/I): the delta selector repair and the duplicate repro append are on (`off` = rollback).
+    deltaSelectorRepair: 'on', duplicateReproAppend: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -206,6 +213,11 @@ await check('config: absent switches resolve to production values; malformed fai
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.baseClaimEvidence': 'off' } }, 'lab run132 (run 135 L): the rollback arm is recorded');
   const { baseClaimEvidenceOn } = await load('core/ab-variants.js');
   assert.equal(baseClaimEvidenceOn({ remediation: { baseClaimEvidence: 'maybe' } }), true, 'lab run132 (run 135 L): malformed = on where consumed');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { deltaSelectorRepair: 'off' }, remediation: { duplicateReproAppend: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.deltaSelectorRepair': 'off', 'remediation.duplicateReproAppend': 'off' } }, 'lab run132 (run 135): the rollback arms are recorded');
+  const { deltaSelectorRepairOn, duplicateReproAppendOn } = await load('core/ab-variants.js');
+  assert.equal(deltaSelectorRepairOn({ review: { deltaSelectorRepair: 'maybe' } }), true, 'lab run132 (run 135 H): malformed = on where consumed');
+  assert.equal(duplicateReproAppendOn({ remediation: { duplicateReproAppend: 'maybe' } }), true, 'lab run132 (run 135 I): malformed = on where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

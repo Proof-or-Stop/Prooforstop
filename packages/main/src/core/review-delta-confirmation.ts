@@ -22,6 +22,7 @@
  * round is a full round (core/review-delta-round.ts PREVIOUS_CONFIRMATION_GAP).
  */
 import { checkDeltaConfirmationNote, type DeltaRoundRunBinding } from './review-delta-round.js';
+import { rerunPassSelector } from './delta-reverify-selector.js';
 import { runDuplicateCoverage } from './duplicate-finding-coverage.js';
 
 export interface DeltaReverifyReceipt {
@@ -35,6 +36,9 @@ export interface DeltaReverifyReceipt {
   outputTail: string;
   headHash: string | null;
   durationMs: number;
+  /** Lab run132 (old-PoS run 135 item H): where the selector came from (absent = the lane's own) and what the lane wrote. */
+  selectorSource?: 'lane' | 'command' | 'rerun_output';
+  laneSelector?: string;
 }
 
 export interface DeltaConfirmationVerdict {
@@ -58,8 +62,11 @@ export function evaluateDeltaConfirmation(args: {
   /** The Story worktree the re-runs execute in. */
   cwd: string;
   headHash: string | null;
+  /** Lab run132 (old-PoS run 135 item H, review.deltaSelectorRepair): fill generic selectors (the re-run still checks them). */
+  fillGeneric?: boolean;
 }): DeltaConfirmationVerdict {
-  const note = checkDeltaConfirmationNote({ binding: args.binding, storyId: args.storyId, note: args.note, readManifest: args.readManifest });
+  const note = checkDeltaConfirmationNote({ binding: args.binding, storyId: args.storyId, note: args.note, readManifest: args.readManifest,
+    fillGeneric: args.fillGeneric });
   const reverified: DeltaReverifyReceipt[] = [];
   const failures: string[] = [];
   // Old-PoS run 52: a findings verdict's re-verifications are re-run as well; a failure is recorded as its gap.
@@ -67,10 +74,13 @@ export function evaluateDeltaConfirmation(args: {
     for (const row of note.reverify) {
       try {
         const run = runDuplicateCoverage({ projectRoot: args.projectRoot, cwd: args.cwd, command: row.command, selector: row.selector,
-          headHash: args.headHash, findingId: row.findingId, canonicalFindingId: row.findingId });
-        reverified.push({ findingId: row.findingId, command: row.command, selector: row.selector, passed: run.passed, exitCode: run.exitCode,
-          timedOut: run.timedOut, selectorMatched: run.selectorMatched, outputTail: run.outputTail, headHash: run.headHash, durationMs: run.durationMs });
-        if (!run.passed) failures.push(`re-run of ${row.findingId} failed (${run.timedOut ? 'timed out' : `exit ${run.exitCode}`}${run.selectorMatched ? '' : `, "${row.selector}" not printed`}): ${row.command}`);
+          headHash: args.headHash, findingId: row.findingId, canonicalFindingId: row.findingId,
+          ...(row.selectorSource === 'rerun_output' ? { selectorFromOutput: rerunPassSelector } : {}) });
+        reverified.push({ findingId: row.findingId, command: row.command, selector: run.selector, passed: run.passed, exitCode: run.exitCode,
+          timedOut: run.timedOut, selectorMatched: run.selectorMatched, outputTail: run.outputTail, headHash: run.headHash, durationMs: run.durationMs,
+          ...(row.selectorSource ? { selectorSource: row.selectorSource, laneSelector: row.laneSelector } : {}) });
+        if (!run.passed) failures.push(`re-run of ${row.findingId} failed (${run.timedOut ? 'timed out' : `exit ${run.exitCode}`}${run.selectorMatched ? ''
+          : row.selectorSource === 'rerun_output' ? `, selector "${row.selector}" is generic and the re-run printed no single test-named pass line` : `, "${row.selector}" not printed`}): ${row.command}`);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         reverified.push({ findingId: row.findingId, command: row.command, selector: row.selector, passed: false, exitCode: null,

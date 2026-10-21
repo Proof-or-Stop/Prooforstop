@@ -64,8 +64,8 @@ import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
 import { requestPinFindings, requestPinOfferDue, recordRequestPinOffer, GAP_ROW_QUOTE_RULE } from '../core/request-pin-audit.js';
 import { changedIntentRowRefs, FRAMEWORK_SOURCE_RULE } from '../core/scope-plan-rerun-context.js';
-import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate, duplicateJoinsRepairGroup } from '../core/duplicate-finding-coverage.js';
-import { findingConflictOf, findingRepros, isReproCommand, rejectedRepairCommits, repairCommitFromResolution, repairTestIntegrityProblem, rowsCitingCase } from '../core/resolved-finding-guard.js';
+import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate, duplicateJoinsRepairGroup, duplicateReproAppendCandidate, type DuplicateCoverageReceipt } from '../core/duplicate-finding-coverage.js';
+import { findingConflictOf, findingRepros, goSelectedTests, isReproCommand, rejectedRepairCommits, repairCommitFromResolution, repairTestIntegrityProblem, reproCoverage, rowsCitingCase } from '../core/resolved-finding-guard.js';
 import { StoryStore } from '../core/store.js';
 import {
   currentOpenReviewInventory,
@@ -148,7 +148,8 @@ import { storyReviewRoundStale } from '../core/story-review-staleness.js';
 import { orderLanesForLaunch } from '../core/review-lane-launch-order.js';
 import { intentBasisDigest } from '../core/intent-basis.js';
 import { describeRemovedGuard, openRemovedGuardGap, removedGuardRelaunchPending, type RemovedGuard } from '../core/removed-guard-scan.js';
-import { duplicateCoverageSuggestion, frameworkDuplicateCoverage, type FrameworkDuplicateCoverage } from '../core/duplicate-auto-coverage.js';
+import { commitTestFunctions, duplicateCoverageSuggestion, frameworkDuplicateCoverage, type FrameworkDuplicateCoverage } from '../core/duplicate-auto-coverage.js';
+import { duplicateReproAppendOn } from '../core/ab-variants.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
@@ -1496,7 +1497,7 @@ export function groupedFindingRepairIds(args: { root: string; store: HandlerCont
   // Old-PoS run 73 (A): a duplicate with a failed / refused coverage check, or a regression of a resolved finding, is repaired in the group.
   const all = args.store.readFindings(args.storyId).findings ?? [];
   const others = args.findings.filter(row => row.id !== args.primary.id
-    && (!findingDuplicateOf(args.store, args.storyId, row.id) || duplicateJoinsRepairGroup(args.store, args.storyId, { id: row.id, desc: all.find(f => f.id === row.id)?.desc ?? '' }, all))
+    && (!findingDuplicateOf(args.store, args.storyId, row.id) || duplicateJoinsRepairGroup(args.store, args.storyId, { id: row.id, desc: all.find(f => f.id === row.id)?.desc ?? '' }, all, reproAppendEnabled(args.root)))
     && !isBoundRepairState(managedFindingRepairState({ root: args.root, gitCwd: args.gitCwd, storyId: args.storyId, finding: row, runs: args.runs })));
   return others.length ? [args.primary.id, ...others.map(row => row.id)] : [];
 }
@@ -2557,6 +2558,48 @@ export function duplicateFindingResolveStep(base: { storyId: string; phase: stri
     : next;
 }
 
+/** Lab run132 (old-PoS run 135 item I) remediation.duplicateReproAppend, read from the project config; malformed = on. */
+function reproAppendEnabled(root: string): boolean {
+  try { return duplicateReproAppendOn(loadConfig(root)); } catch { return true; }
+}
+
+/**
+ * Lab run132 (old-PoS run 135 item I, remediation.duplicateReproAppend): a duplicate whose coverage was refused once
+ * because the covering test does not state its own repro (`duplicate_coverage_lacks_repro`). Run 135 sent such a
+ * duplicate to a second managed repair that found it already fixed (~6.3 min). The owner instead appends the repro to
+ * the covering test (named from the refused command and the canonical's repair commit), commits that test change and
+ * reruns the same finding_resolve call; the framework runs every check of that call again, and a second refusal gives
+ * the finding its own managed repair as before.
+ */
+export function duplicateReproAppendStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string; desc?: string },
+  canonical: { id: string }, familyKey: string | null, receipt: Pick<DuplicateCoverageReceipt, 'command' | 'selector' | 'canonicalFindingId'>, context: DuplicateStepContext): NextStep {
+  const full: Pick<Finding, 'id' | 'desc' | 'files'> = context.findings.find(row => row.id === finding.id) ?? { id: finding.id, desc: finding.desc ?? '', files: [] };
+  const canonicalFull = context.findings.find(row => row.id === canonical.id);
+  const commit = canonicalFull ? repairCommitFromResolution(context.gitCwd, canonicalFull) : null;
+  const selected = (() => { try { return goSelectedTests(context.gitCwd, receipt.command, null) ?? []; } catch { return []; } })();
+  const changed = commit ? commitTestFunctions(context.gitCwd, commit) : [];
+  // The covering test: the one the refused command selects that the canonical repair commit added or changed, else the
+  // one it selects, else the canonical repair's test sharing most terms with the duplicate (duplicateCoverageSuggestion).
+  const suggestion = canonicalFull ? duplicateCoverageSuggestion({ gitCwd: context.gitCwd, finding: full, canonical: canonicalFull }) : null;
+  const covering = selected.find(test => changed.some(row => row.name === test.name && row.file === test.file)) ?? selected[0]
+    ?? (suggestion ? { name: suggestion.test, file: suggestion.file, body: '' } : null);
+  const desc = String(full.desc ?? '');
+  const missing = covering?.body ? reproCoverage({ desc, command: receipt.command, sourceText: covering.body }).missing : [];
+  const repros = missing.length ? missing : findingRepros(desc).repros;
+  const short = (id: string): string => id.split(':').pop() ?? id;
+  const reproText = repros.length ? repros.map(repro => `\`${repro}\``).join(', ') : `the case its text states (${findingGist(full)})`;
+  const where = covering ? `${covering.name} in ${join(context.gitCwd, covering.file)}` : `the test \`${receipt.command}\` runs`;
+  const commitCall = covering ? ` Commit only that file: \`git -C ${context.gitCwd} commit -m "${base.storyId} ${short(finding.id)}: state the duplicate repro in ${covering.name}" -- ${covering.file}\`.` : ' Commit that test change.';
+  const resolution = `duplicate of ${short(canonical.id)}: its repair ${commit ? commit.slice(0, 12) : 'commit'} fixed this case; ${covering ? `${covering.name} (${covering.file})` : 'the covering test'} now also runs this finding's repro ${repros.map(repro => `\`${repro}\``).join(', ')} (appended after the lacks-repro refusal)`;
+  return step(base, 'agent', 'duplicate_repro_append', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id, duplicateOf: canonical.id,
+    coverage: { command: receipt.command, selector: receipt.selector }, resolution } },
+  `Verified ${finding.severity} finding ${finding.id} is a duplicate of ${canonical.id}${familyKey ? ` (family ${familyKey})` : ''}, which was repaired and resolved${commit ? ` (repair commit ${commit.slice(0, 12)})` : ''}. `
+    + `Its coverage \`${receipt.command}\` was refused once because that test does not state ${finding.id}'s own repro (duplicate_coverage_lacks_repro); it is not repaired again. `
+    + `Append ${reproText} verbatim as a case of ${where}, with the result ${finding.id} expects, and run \`${receipt.command}\` once.${commitCall} `
+    + `Then run this call unchanged: the framework reruns the coverage and closes ${finding.id} on exit 0 with \`${receipt.selector}\`; a failing or refused rerun is recorded and ${finding.id} gets its own managed repair. The findings are in ${context.findingsPath}.`,
+  'duplicateReproAppendCandidate (core/duplicate-finding-coverage.ts, remediation.duplicateReproAppend) + commitTestFunctions');
+}
+
 /**
  * The open blocking finding DEV works on next: the first one, except that a
  * critic duplicate waits while its canonical finding is still open (the
@@ -3350,12 +3393,15 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const findings = blockingAll.filter(row => !isMetadata(row.finding));
     // Lab run95 (fix 2): an agent closure never goes ahead of a managed repair launch. While another open finding still
     // needs its repair, the metadata closure waits (the repair launches first; the closure comes once nothing is to launch).
+    const reproAppend = reproAppendEnabled(ctx.root);
     const launchable = (row: { finding: Finding }): boolean => {
       const state = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns });
       return !state.repaired
         && !evaluatePreexistingFinding({ store: ctx.store, root: ctx.root, storyId, finding: row.finding }).eligible
         && !evaluateFileStateConflict({ store: ctx.store, root: ctx.root, storyId, finding: row.finding })?.settle
-        && !duplicateResolveCandidate(ctx.store, storyId, row.finding, ctx.store.readFindings(storyId).findings ?? []);
+        && !duplicateResolveCandidate(ctx.store, storyId, row.finding, ctx.store.readFindings(storyId).findings ?? [])
+        // Lab run132 (old-PoS run 135 item I): a duplicate owed the repro append step is not a repair launch.
+        && !(reproAppend && duplicateReproAppendCandidate(ctx.store, storyId, row.finding, ctx.store.readFindings(storyId).findings ?? []));
     };
     if (metadataOnly && !inFlight(FINDING_REPAIR_AGENT) && !findings.some(launchable)) return metadataFindingResolveStep(base, metadataOnly.finding);
     // The evidence chain is read only by the rows below that consult it (a
@@ -3399,7 +3445,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         const all = ctx.store.readFindings(storyId).findings ?? [];
         const dup = duplicateResolveCandidate(ctx.store, storyId, finding, all);
         const canonical = dup ? all.find(other => other.id === dup.canonical.id) : undefined;
-        const agentOnly = dup && !(canonical && frameworkDuplicateCoverage({ gitCwd: gitCwdOf(storyId), finding, canonical }));
+        const agentOnly = (dup && !(canonical && frameworkDuplicateCoverage({ gitCwd: gitCwdOf(storyId), finding, canonical })))
+          || (reproAppend && Boolean(duplicateReproAppendCandidate(ctx.store, storyId, finding, all)));
         const alternative = agentOnly ? findings.find(row => row.finding.id !== finding.id && launchable(row)) : undefined;
         if (alternative) {
           finding = alternative.finding;
@@ -3435,6 +3482,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
           const duplicateContext = { gitCwd: gitCwdOf(storyId), findings: allFindings, findingsPath: relative(ctx.root, ctx.store.storyFilePath(storyId, 'findings.json')) || 'findings.json' };
           if (batch.length > 1) return duplicateResolveBatchStep(base, batch, duplicateContext);
           return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey, duplicateContext);
+        }
+        // Lab run132 (old-PoS run 135 item I): one lacks-repro refusal: the repro append step, never a managed repair first.
+        const append = repair.bound || !reproAppend ? null : duplicateReproAppendCandidate(ctx.store, storyId, finding, allFindings);
+        if (append) {
+          return duplicateReproAppendStep(base, finding, append.canonical, append.familyKey, append.receipt,
+            { gitCwd: gitCwdOf(storyId), findings: allFindings, findingsPath: relative(ctx.root, ctx.store.storyFilePath(storyId, 'findings.json')) || 'findings.json' });
         }
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
         const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');

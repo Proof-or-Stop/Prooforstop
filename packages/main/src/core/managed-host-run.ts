@@ -1,7 +1,8 @@
 import type { DeltaRoundRunBinding } from './review-delta-round.js';
+import { deltaReverifySelectorPrompt, fillReverifySelector, isGenericReverifySelector } from './delta-reverify-selector.js';
 import type { LaneMergeRunBinding } from './review-lane-merge.js';
 import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from './host-run-budget.js';
-import { baseClaimEvidenceOn, dispatchTargetThreadFresh, resolveAbVariants, stragglerVerdictOn, type AbVariantEvidence } from './ab-variants.js';
+import { baseClaimEvidenceOn, deltaSelectorRepairOn, dispatchTargetThreadFresh, resolveAbVariants, stragglerVerdictOn, type AbVariantEvidence } from './ab-variants.js';
 import { loadConfig } from './config.js';
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCriticCoverage, isManagedInventoryCriticEnvelopeValid, managedInventoryCriticCoverageViolations, type ManagedInventoryCritic, type ManagedInventoryCriticCoverage } from './managed-inventory-critic.js';
@@ -682,6 +683,8 @@ interface ManagedHostRunSpec {
   reviewStragglerMs?: number;
   /** Lab run132 (run 135 L): a finding repair's "matches the base" claims owe base evidence (remediation.baseClaimEvidence); absent = off. */
   repairBaseClaims?: boolean;
+  /** Lab run132 (run 135 H): a delta confirmation lane's generic [reverified] selectors are corrected once (review.deltaSelectorRepair); absent = off. */
+  deltaSelectorRepair?: boolean;
   /** Digest of normalized submit inputs, sealed by the owner's specDigest. */
   submissionDigest?: string;
   schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION;
@@ -3489,6 +3492,8 @@ export async function submitManagedHostRun(
   const reviewStragglerMs = args.profile === 'managed_reviewer' && args.storyId ? managedReviewStragglerFloorMs(args.environment ?? process.env, args.root) : 0;
   const repairBaseClaims = args.agentType === 'proof-or-stop-finding-repair' && Boolean(args.storyId)
     && (() => { try { return baseClaimEvidenceOn(loadConfig(args.root)); } catch { return true; } })();
+  const deltaSelectorRepair = args.profile === 'managed_reviewer' && args.reviewBinding?.deltaRound?.role === 'confirmation'
+    && (() => { try { return deltaSelectorRepairOn(loadConfig(args.root)); } catch { return true; } })();
   const sharedCallQuota = captureHostRunBudgetEnvironment(process.env, args.environment ?? {});
   const createdMs = now();
   const createdAt = new Date(createdMs).toISOString();
@@ -3601,6 +3606,7 @@ export async function submitManagedHostRun(
     providerFirstItemMs,
     ...(reviewStragglerMs > 0 ? { reviewStragglerMs } : {}),
     ...(repairBaseClaims ? { repairBaseClaims } : {}),
+    ...(deltaSelectorRepair ? { deltaSelectorRepair } : {}),
     ...(submissionDigest ? { submissionDigest } : {}),
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
     runId,
@@ -4449,6 +4455,85 @@ export async function runManagedHostRunWorker(
       if (spec.host === 'grok' && existingProposal) {
         return writeTerminal(paths, 'failed', 'grok_compatibility_proposal_unsupported', result.replacementSafe, result, now());
       }
+      const validFinalProposalOf = (providerResult: HostRunResult): ManagedReviewFinalProposalInput => {
+        const parsed = parseManagedReviewFinalProposal(providerResult);
+        // Run 19 (B-8166) / A/B control D2-r3, D9-r1: a shape-valid critic
+        // block the importer would refuse for coverage is repaired by the same
+        // session with the exact rows to add or remove, never sealed as is.
+        const coverage = spec.reviewBinding?.inventoryCriticCoverage;
+        if (parsed.inventoryCritic && isManagedInventoryCriticCoverage(coverage)) {
+          const violations = managedInventoryCriticCoverageViolations(parsed.inventoryCritic as ManagedInventoryCritic,
+            parsed.findings ?? [], coverage);
+          if (violations.length) throw new Error(`managed_review_final_result_malformed:inventory_critic_coverage: ${formatManagedReviewFinalViolations(violations)}`);
+        }
+        return parsed;
+      };
+      // Lab run132 (old-PoS run 135 item H): the one answer-only correction turn of a confirmation lane's generic selectors.
+      const deltaReverifySelectorCorrection = async (proposal: ManagedReviewFinalProposalInput, current: HostRunResult):
+        Promise<{ proposal: ManagedReviewFinalProposalInput } | { terminal: ManagedHostRunTerminal }> => {
+        const binding = spec.reviewBinding?.deltaRound;
+        if (!binding || !spec.storyId) return { proposal };
+        const storyPrefix = `${spec.storyId}:`;
+        const lines = new Map<string, { command: string; selector: string }>();
+        for (const match of String(proposal.note ?? '').matchAll(/\[reverified\]\s+(\S+?)[`'"*),;:.]*\s*::\s*([^\n]*?)\s*::\s*([^\n[]*)/g)) {
+          const id = match[1]!.replace(/^[`'"*(]+/, '');
+          lines.set(id.startsWith(storyPrefix) ? id : `${storyPrefix}${id}`, { command: match[2]!.trim(), selector: match[3]!.trim().replace(/[.;,]+$/, '').replace(/\s*\(\d+(?:\.\d+)?m?s\)$/, '') });
+        }
+        const rows = binding.reverifyFindingIds.flatMap(findingId => {
+          const line = lines.get(findingId);
+          if (!line || !line.command || !isGenericReverifySelector(line.selector) || fillReverifySelector({ command: line.command })) return [];
+          return [{ findingId: findingId.slice(storyPrefix.length), command: line.command, selector: line.selector }];
+        });
+        if (!rows.length) return { proposal };
+        const resumeSessionId = current.replacementSafe ? resumableManagedRunCodexSession(paths, codexHome) : null;
+        if (!resumeSessionId) {
+          appendEvent(paths, { schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'delta_reverify_selector_correction_unavailable', detail: { findingIds: rows.map(row => row.findingId), reason: current.replacementSafe ? 'session_not_resumable' : 'provider_not_replacement_safe' } });
+          return { proposal };
+        }
+        const journaled = updateSnapshotAndAppendEvent(paths, current => ({
+          ...current, generation: current.generation + 1, providerClosedAt: null, supervisionDiagnostic: null,
+        }), {
+          schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+          type: 'delta_reverify_selector_correction', detail: { findingIds: rows.map(row => row.findingId), resumeSessionId },
+        });
+        if (!journaled) return { terminal: readTerminal(paths)! };
+        const refusal = await authorizeLaunch();
+        if (refusal) {
+          if (refusal === 'absolute_deadline_exceeded') {
+            deadlineTriggered = true;
+            return { terminal: writeTerminal(paths, 'timed_out', refusal, current.replacementSafe, current, now()) };
+          }
+          cancelTriggered = readCancelRequest(paths) !== null;
+          if (cancelTriggered) return { terminal: writeTerminal(paths, 'cancelled', refusal, current.replacementSafe, current, now()) };
+          appendEvent(paths, { schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'delta_reverify_selector_correction_outcome', detail: { outcome: 'refused', refusal } });
+          return { proposal };
+        }
+        providerClosed = false;
+        result = null;
+        const next = await launchProvider(deltaReverifySelectorPrompt(rows, MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION), resumeSessionId,
+          Math.max(1, Math.min(spec.timeoutMs, Date.parse(spec.deadlineAt) - now())));
+        // Deadline, cancellation and authority outcomes of the correction turn keep their terminal; an ordinary failed
+        // turn keeps the valid original final result.
+        const ordinaryFailure = (next.blocked || next.exitCode !== 0) && !next.timedOut && !deadlineTriggered && !cancelTriggered && !readCancelRequest(paths);
+        if (!ordinaryFailure) {
+          const exitTerminal = await settleProviderExit(next);
+          if (exitTerminal) return { terminal: exitTerminal };
+        }
+        let corrected: ManagedReviewFinalProposalInput | null = null;
+        if (!ordinaryFailure) { try { corrected = validFinalProposalOf(next); } catch { corrected = null; } }
+        const stillGeneric = corrected ? rows.filter(row => {
+          const line = [...String(corrected!.note ?? '').matchAll(/\[reverified\][^\n]*/g)].map(match => match[0]).find(text => text.includes(row.findingId));
+          return !line || isGenericReverifySelector(line.split('::').at(-1) ?? '');
+        }).map(row => row.findingId) : rows.map(row => row.findingId);
+        appendEvent(paths, { schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+          type: 'delta_reverify_selector_correction_outcome',
+          detail: { outcome: corrected ? (stillGeneric.length ? 'still_generic' : 'corrected') : ordinaryFailure ? 'provider_failed' : 'invalid_kept_original', stillGeneric, exitCode: next.exitCode } });
+        if (!corrected) { result = current; return { proposal }; }
+        result = next;
+        return { proposal: corrected };
+      };
       // Older adapters may already have submitted one descriptor-attested,
       // immutable proposal before their ordinary final prose is emitted. That
       // proposal is the compatibility authority; only runs without it use the
@@ -4460,18 +4545,22 @@ export async function runManagedHostRunWorker(
         // re-emission passes the identical strict parser, proposal writer and
         // post-exit checks. Nothing is repaired or guessed by the framework.
         let rejectedFinalResult: string | null = null;
+        // Lab run132 (old-PoS run 135 item H, review.deltaSelectorRepair): checked once, on the first valid final result.
+        let deltaSelectorChecked = !spec.deltaSelectorRepair || spec.reviewBinding?.deltaRound?.role !== 'confirmation' || spec.host !== 'codex';
         for (let repairAttempt = 0; ; repairAttempt += 1) {
           let invalidReason: string;
           try {
-            const proposal = parseManagedReviewFinalProposal(result);
-            // Run 19 (B-8166) / A/B control D2-r3, D9-r1: a shape-valid critic
-            // block the importer would refuse for coverage is repaired by the same
-            // session with the exact rows to add or remove, never sealed as is.
-            const coverage = spec.reviewBinding?.inventoryCriticCoverage;
-            if (proposal.inventoryCritic && isManagedInventoryCriticCoverage(coverage)) {
-              const violations = managedInventoryCriticCoverageViolations(proposal.inventoryCritic as ManagedInventoryCritic,
-                proposal.findings ?? [], coverage);
-              if (violations.length) throw new Error(`managed_review_final_result_malformed:inventory_critic_coverage: ${formatManagedReviewFinalViolations(violations)}`);
+            let proposal = validFinalProposalOf(result);
+            // Lab run132 (old-PoS run 135 item H): a delta confirmation lane's [reverified] line whose selector is generic
+            // (`PASS`) and whose command names no single test (the import fills those, core/delta-reverify-selector.ts) is
+            // asked for ONCE in the lane's own resumed session, answer only. No runtime file is read for this decision.
+            // A failed or invalid correction keeps the valid original; the import then tries the framework's own re-run
+            // output, and the round escalates exactly as before when that does not decide it.
+            if (!deltaSelectorChecked) {
+              deltaSelectorChecked = true;
+              const corrected = await deltaReverifySelectorCorrection(proposal, result);
+              if ('terminal' in corrected) return corrected.terminal;
+              proposal = corrected.proposal;
             }
             writeManagedReviewEvidenceProposal({
               root: spec.root,

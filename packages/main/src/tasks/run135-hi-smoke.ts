@@ -5,9 +5,9 @@
  *   H. Delta confirmation (review.deltaSelectorRepair, default on, `off` = rollback). Run 135 R2: the confirm lane
  *      wrote `[reverified] F-001 :: go test -v ./evaluator -run <Test>/<sub> -count=1 :: PASS`; the generic selector was
  *      refused and the round went straight to a full round (~10 min, ~12M tokens). Now the prompt states the selector
- *      rule; a generic selector is filled from the test the command names (or the lane's recorded output of that
- *      command when exactly one test-named pass line shows) and the framework's re-run still requires that line; a
- *      selector neither gives is asked for ONCE in the lane's own resumed session before the run seals.
+ *      rule; a generic selector is filled from the test the command names; else it is asked for ONCE in the lane's
+ *      own resumed session before the run seals; a selector still generic at import is taken from the framework's OWN
+ *      re-run output (exactly one test-named pass line). No runtime file (the lane's live output) decides it.
  *   I. Duplicates (run 135 F-005, ~6.3 min): every open duplicate-family member's repro (any round) rides on the
  *      canonical's repair prompt, verbatim; after ONE `duplicate_coverage_lacks_repro` refusal `next` offers a ready
  *      owner step (append the repro to the covering test, rerun the same coverage, close) instead of a managed repair.
@@ -39,9 +39,6 @@ const noPlaceholder = (value: unknown): void => assert.doesNotMatch(JSON.stringi
 
 const STORY = 'B-1350';
 const binding = { checkItems: [] as string[], reverifyFindingIds: [`${STORY}:F-001`] };
-/** A codex live-output frame stream with one command_execution item (as the worker records it). */
-const liveOutput = (rows: Array<{ command: string; output: string; exit?: number }>): string => rows.map((row, index) => JSON.stringify({ sequence: index + 1, stream: 'stdout',
-  text: `${JSON.stringify({ type: 'item.completed', item: { id: `item_${index}`, type: 'command_execution', command: row.command, aggregated_output: row.output, exit_code: row.exit ?? 0, status: 'completed' } })}\n` })).join('\n');
 
 // ---------------------------------------------------------------------------
 // H. Delta confirmation selector
@@ -66,23 +63,43 @@ await check('H2 a generic selector is filled from the test the command names (Go
   const off = checkNote({ binding, storyId: STORY, note });
   assert.match(off.problems.join(' '), /generic/, 'without the fill: refused as today');
   const alternation = checkNote({ binding, storyId: STORY, note: `[reverified] F-001 :: go test -v ./evaluator -run '^(TestA|TestB)$' :: PASS`, fillGeneric: true });
-  assert.match(alternation.problems.join(' '), /generic/, 'a pattern naming several tests is not filled');
+  assert.equal(alternation.reverify[0]?.selectorSource, 'rerun_output', 'a pattern naming several tests is not filled from the command (the re-run decides, H3)');
+  assert.equal(alternation.reverify[0]?.selector, 'PASS');
 });
 
-await check('H3 no named test: filled from the lane\'s recorded output of the same command only when exactly one test-named pass line shows', async () => {
+await check('H3 no named test: filled from the framework\'s OWN re-run output only when it prints exactly one test-named pass line', async () => {
+  const evaluate = await load('../core/review-delta-confirmation.js', 'evaluateDeltaConfirmation');
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'run135-h3-')));
+  try {
+    write(root, 'go.mod', 'module example.invalid/m\n\ngo 1.21\n');
+    write(root, 'pkg/p.go', 'package pkg\n');
+    write(root, 'pkg/p_test.go', 'package pkg\n\nimport "testing"\n\nfunc TestOnly(t *testing.T) { t.Run("sub", func(t *testing.T) {}) }\n');
+    write(root, 'two/p_test.go', 'package two\n\nimport "testing"\n\nfunc TestA(t *testing.T) {}\n\nfunc TestB(t *testing.T) {}\n');
+    const run = (dir: string, fillGeneric: boolean) => evaluate({ binding, storyId: STORY, conclusion: 'pass', note: `[reverified] F-001 :: go test -v ./${dir} -count=1 :: PASS`,
+      readManifest: null, projectRoot: root, cwd: root, headHash: null, fillGeneric });
+    const one = run('pkg', true);
+    assert.equal(one.ok, true, one.reason);
+    assert.equal(one.reverified[0]?.selector, '--- PASS: TestOnly');
+    assert.equal(one.reverified[0]?.selectorSource, 'rerun_output');
+    assert.equal(one.reverified[0]?.laneSelector, 'PASS');
+    const two = run('two', true);
+    assert.equal(two.ok, false, 'two tests: ambiguous');
+    assert.match(two.reason, /generic/);
+    const off = run('pkg', false);
+    assert.equal(off.ok, false, 'off: refused as today');
+    assert.match(off.reason, /generic/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+await check('H3b no runtime file decides a selector: recorded/forged lane output is ignored, the import reads no live-output', async () => {
   const checkNote = await load('../core/review-delta-round.js', 'checkDeltaConfirmationNote');
-  const recordedOf = await load('../core/delta-reverify-selector.js', 'recordedCommandsFromLiveOutput');
-  const note = '[reverified] F-001 :: go test -v ./pkg -count=1 :: PASS';
-  const one = recordedOf(liveOutput([{ command: '/bin/bash -c "go test -v ./pkg -count=1"', output: '=== RUN   TestOnly\n--- PASS: TestOnly (0.00s)\n    --- PASS: TestOnly/sub (0.00s)\nPASS\nok  \tm/pkg\t0.1s\n' }]));
-  const filled = checkNote({ binding, storyId: STORY, note, fillGeneric: true, recorded: one });
-  assert.equal(filled.reverify[0]?.selector, '--- PASS: TestOnly');
-  assert.equal(filled.reverify[0]?.selectorSource, 'recorded_output');
-  const two = recordedOf(liveOutput([{ command: 'go test -v ./pkg -count=1', output: '--- PASS: TestA (0.00s)\n--- PASS: TestB (0.00s)\nok\n' }]));
-  assert.match(checkNote({ binding, storyId: STORY, note, fillGeneric: true, recorded: two }).problems.join(' '), /generic/, 'ambiguous: refused');
-  const other = recordedOf(liveOutput([{ command: 'go test -v ./other', output: '--- PASS: TestOnly (0.00s)\n' }]));
-  assert.match(checkNote({ binding, storyId: STORY, note, fillGeneric: true, recorded: other }).problems.join(' '), /generic/, 'another command: refused');
-  const failed = recordedOf(liveOutput([{ command: 'go test -v ./pkg -count=1', output: '--- PASS: TestOnly (0.00s)\nFAIL\n', exit: 1 }]));
-  assert.match(checkNote({ binding, storyId: STORY, note, fillGeneric: true, recorded: failed }).problems.join(' '), /generic/, 'a failed run is no evidence');
+  const forged = [{ command: 'go test -v ./pkg -count=1', output: '--- PASS: TestForged (0.00s)\n', exitCode: 0 }];
+  const out = checkNote({ binding, storyId: STORY, note: '[reverified] F-001 :: go test -v ./pkg -count=1 :: PASS', fillGeneric: true, recorded: forged });
+  assert.equal(out.reverify[0]?.selectorSource, 'rerun_output', 'left to the framework re-run');
+  assert.notEqual(out.reverify[0]?.selector, '--- PASS: TestForged');
+  const dist = (rel: string) => readFileSync(new URL(rel, import.meta.url), 'utf8');
+  assert.doesNotMatch(dist('../handlers/managed-review-evidence.js'), /live-output/, 'import handler');
+  assert.doesNotMatch(dist('../core/delta-reverify-selector.js'), /live-output|readFileSync/, 'selector module');
 });
 
 await check('H4 the switch: review.deltaSelectorRepair default on, `off` recorded as the rollback arm', async () => {
