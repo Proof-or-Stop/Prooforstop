@@ -193,8 +193,9 @@
  *                              past max(floor, 2 x their median duration) is asked, in its own resumed session, for its
  *                              verdict from what it has read (core/managed-host-run.ts reviewStragglerDecision)
  *   review.deltaSelectorRepair 'on' (default) | 'off'  a delta confirmation lane's generic [reverified] selector (`PASS`) is
- *                              filled from the test its command names or the lane's recorded run of it (the re-run still
- *                              checks it), else asked for once in its own resumed session (core/delta-reverify-selector.ts)
+ *                              filled from the one test its command names, else asked for once in its own resumed session,
+ *                              else taken from the framework's own re-run (one test-named pass line; never a runtime file)
+ *                              (core/delta-reverify-selector.ts)
  *   plan.repinAllRows          'on' (default) | 'off'  old-PoS run 135 K: pin_reversal_unstated compares a new pin with
  *                              every earlier pin of its case (an unchanged prefix-pinned row is no reversal), and the
  *                              reversal remedy re-pins every row of the item and of other items pinning the old value,

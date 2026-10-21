@@ -1068,9 +1068,9 @@ Story base format that prints it (`pin_base_print_check`, `[pin_base_print]`, re
 patch). Use the named command; never pass a field to an editor that does not declare it.
 See docs/CLI.md "Old-PoS run 132".
 
-Old-PoS runs 133-135 (lab `codex/lab-run132`, continued). There are five rollback switches, all default on:
-`review.stragglerVerdict`, `plan.baseEvidence`, `review.deltaSelectorRepair`, `remediation.duplicateReproAppend` and
-`remediation.baseClaimEvidence`. L is detection-positive.
+Old-PoS runs 133-135 (lab `codex/lab-run132`, continued). There are six rollback switches, all default on:
+`review.stragglerVerdict`, `plan.baseEvidence`, `review.deltaSelectorRepair`, `remediation.duplicateReproAppend`,
+`plan.repinAllRows` and `remediation.baseClaimEvidence`. L is detection-positive.
 
 - `pin_audit_correction` is ONE ready row patch per gap item. Corrections apply partially, and the rest is the next
   correction step.
@@ -1084,6 +1084,10 @@ Old-PoS runs 133-135 (lab `codex/lab-run132`, continued). There are five rollbac
 - A duplicate refused once for not running its repro gets the ready `duplicate_repro_append` step (append the repro to
   the named test, commit that file, rerun, close) instead of its own managed repair.
 - The scope-plan prompt names plan.md only when the Story has one.
+- `plan_review_blockers` lists every blocker in full; a spilled Why names the absolute `-why.txt` holding the whole
+  list, and payload files are named by absolute path in the Story's git worktree. Edit them there.
+- A framework re-pin remedy re-pins every row still pinning the old value, and other items get their own ready calls.
+  The framework never offers a remedy its own `pin_reversal_unstated` gate refuses.
 - A finding-repair report that says a boundary case "already matches the base" owes a
   `[base-evidence] <case> :: <command on the Story base> -> <output>` line. Without it the repair is not accepted
   (`[repair_base_claim_unproven]`).
