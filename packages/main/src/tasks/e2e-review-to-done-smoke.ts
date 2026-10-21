@@ -398,7 +398,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S|NSG|NSG-X|NIO|NFC|NPV|NMC|NDI|NSL]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S|NSG|NSG-X|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -9495,6 +9495,146 @@ function scenarioNSL(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Lab run132 (bench-staging/oldpos/run132-analysis.md): NUA (an INIT story_update with a key it does not declare is
+// refused with the owning command), NAB (a bare-valued [intent-conflict] gets a ready amend and the framework verifies the
+// adopted amendment), NBP (a pinned message the base format prints differently, listed at INIT and PLAN with a ready patch).
+
+const NUA_BACKGROUND = ['## Trigger Event', 'On 2026-10-21 (B-132a) the docs promised upper-casing and rune reversal while strs returned its input unchanged.', '',
+  '## Key Insights', 'The helpers live in strs/strs.go; both are pure functions over a Go string, so a focused go test pins each one exactly.', '',
+  '## Solution Tradeoffs', 'Upper uses strings.ToUpper and Reverse reverses a rune slice; no new package, no change to the docs, which already describe the result.', '',
+  '## Conversational Texture', 'The request is short and exact: each helper must do what docs/types/string.md says, verified by its own focused test.', ''].join('\n');
+
+/** NUA (run 132 I1): story_update {background} printed "Story ... updated" and wrote nothing; the owner reran the INIT reviewers on the old text. */
+function scenarioNUA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NUA';
+  const name = 'NUA lab run132 fix 1: story_update with a key it does not declare (background) is refused, nothing written, its ONE Next the owning command (background_set), which applies';
+  const o = new Owner(tag, 'B-132a', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true });
+  const lines: string[] = [];
+  try {
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'INIT' });
+    const before = store.readStory(o.storyId);
+    const refused = o.cli('story_update', { storyId: o.storyId, background: NUA_BACKGROUND, title: before.title }, { label: 'story_update (background)' });
+    lines.push(`story_update: exit ${refused.status}: ${refused.out.trim().split('\n').at(-1)?.slice(0, 200)}`);
+    assert.notEqual(refused.status, 0, `[${tag}] refused, not "updated":\n${refused.out.slice(-1500)}`);
+    assert.match(refused.out, /\[unknown_argument\]/, `[${tag}] the refusal code:\n${refused.out.slice(-1500)}`);
+    assert.doesNotMatch(refused.out, /Story B-132a updated/, `[${tag}] no success line`);
+    assert.ok(!existsSync(store.storyFilePath(o.storyId, 'background.md')), `[${tag}] nothing was written`);
+    const nextLine = refused.out.split('\n').find(row => row.startsWith('Next: proof-or-stop background_set ')) ?? '';
+    assert.ok(nextLine, `[${tag}] the ONE Next is the owning command:\n${refused.out.slice(-1500)}`);
+    const argv = nextLine.slice('Next: proof-or-stop background_set '.length).trim();
+    const payload = argv.startsWith('@') ? JSON.parse(readFileSync(argv.slice(1), 'utf8')) as Record<string, unknown>
+      : JSON.parse(argv.replace(/^'|'$/g, '').replace(/'\\''/g, "'")) as Record<string, unknown>;
+    o.mustCli('background_set', payload, { label: 'background_set (the Next)' });
+    assert.equal(readFileSync(store.storyFilePath(o.storyId, 'background.md'), 'utf8').trim(), NUA_BACKGROUND.trim(), `[${tag}] the background the owner meant`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NAB (run 132 D1): the implementer's [intent-conflict] names two unbackticked variants of one error text. */
+const NAB_PINNED = 'upper: unsupported operand "42" for UPPER';
+const NAB_IMPLIED = 'upper: unsupported operand 42 for UPPER';
+const NAB_CONFLICT_LINE = `[intent-conflict] CHK-001:happy:0 | request: "A non-string operand keeps the existing operand error format" | request implies: ${NAB_IMPLIED} | intent pins: ${NAB_PINNED}`;
+const NAB_REQUEST = ['Implement the string helpers documented in docs/types/string.md:', '', '- `strs.Upper(s)` returns the upper-case form of `s`.',
+  '- A non-string operand keeps the existing operand error format.', ''].join('\n');
+
+function scenarioNAB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NAB';
+  const name = 'NAB lab run132 fix 3: a bare-valued [intent-conflict] gets a ready intent_conflict_amend; after it, next verifies the pinned test itself (no implementer relaunch)';
+  const o = new Owner(tag, 'B-132b', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NAB_REQUEST });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  const implementerRuns = () => managedPrompts(o, IMPLEMENTER).filter(row => row.target?.itemId === 'CHK-001').length;
+  try {
+    const store = new StoryStore(o.worktree);
+    const cl = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-001' ? { ...item, verificationIntent: { ...item.verificationIntent!,
+      happy: [{ ...item.verificationIntent!.happy[0]!, desc: `Upper(42) -> ${NAB_PINNED}`,
+        derivation: { requestQuote: 'A non-string operand keeps the existing operand error format.', computation: 'the operand 42 is quoted in the error' } }] } } : item) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} pinned error row`);
+    devSetup(o, false);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[${tag}] ${launch.reason}: ${launch.why.slice(0, 300)}`);
+    o.script(IMPLEMENTER, { commands: pinnedImplementerCommands(o.storyId, 'CHK-001'), final: `Implemented Upper; CHK-001 marked done.\n${NAB_CONFLICT_LINE}` });
+    launchManaged(o, tag, launch, 'host_run implementer (bare conflict)');
+    o.unscript(IMPLEMENTER);
+    const blocked = ask('next (conflict declared)');
+    assert.equal(blocked.reason, 'intent_conflict', `[${tag}] ${blocked.reason}: ${blocked.why.slice(0, 300)}`);
+    o.mustCli('story_advance', blocked.cli!.payload, { label: 'story_advance PLAN (intent conflict)' });
+    const amend = ask('next (PLAN, conflict open)');
+    assert.equal(amend.reason, 'intent_conflict_amend', `[${tag}] ${amend.reason}`);
+    assert.deepEqual(amend.placeholders ?? [], [], `[${tag}] the amend is ready for bare values: ${JSON.stringify(amend.cli?.payload).slice(0, 600)}`);
+    const rows = amend.cli!.payload.intentRows as Array<{ ref: string; desc: string }>;
+    assert.equal(rows?.[0]?.desc, `Upper(42) -> ${NAB_IMPLIED}`, `[${tag}] the row re-pinned to the implied text: ${JSON.stringify(rows)}`);
+    o.mustCli(amend.cli!.command, amend.cli!.payload, { label: 'checklist_update CHK-001 (ready amend)' });
+    // PLAN re-approval is outside this harness: re-enter DEV as NAV does.
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'DEV' });
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} re-enter DEV after the amendment (fixture)`);
+    let step = ask('next (DEV, after amendment)');
+    if (step.reason === 'checklist_item_start') { o.mustCli(step.cli!.command, step.cli!.payload, { label: 'f:checklist_item_start' }); step = ask('next (item restarted)'); }
+    assert.equal(step.reason, 'intent_amend_verify', `[${tag}] the adopted amendment is verified by the framework (run 132: a no-op implementer re-verified it): ${step.reason}: ${step.why.slice(0, 400)}`);
+    assert.equal(step.kind, 'framework');
+    o.mustCli(step.cli!.command, step.cli!.payload, { label: 'f:intent_amend_verify' });
+    const done = ask('next (verified)');
+    assert.equal(done.reason, 'intent_amend_done', `[${tag}] ${done.reason}: ${done.why.slice(0, 300)}`);
+    assert.equal(implementerRuns(), 1, `[${tag}] one implementer run of CHK-001`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NBP (run 132 D2): the base formats the operand error with a bare %s; its tests show a quoted string input printed bare. */
+const NBP_BASE_FILES = {
+  'strs/operand.go': 'package strs\n\nimport "fmt"\n\nfunc operandError(v string, kind string) error {\n\treturn fmt.Errorf("unsupported operand: %s for %s", v, kind)\n}\n',
+  'strs/operand_test.go': ['package strs', '', 'import "testing"', '', 'var operandCases = []struct {', '\tinput    string', '\texpected string', '}{',
+    '\t{`Upper(["q"])`, "unsupported operand: q for LIST"},', '}', '', 'func TestOperandCases(t *testing.T) { _ = operandCases }', ''].join('\n'),
+};
+const NBP_PINNED_ROW = 'Upper(["k"]) -> unsupported operand: "k" for LIST';
+const NBP_BASE_ROW = 'Upper(["k"]) -> unsupported operand: k for LIST';
+
+function scenarioNBP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NBP';
+  const name = 'NBP lab run132 fix 4: a pinned message a Story base format prints differently is listed at INIT and PLAN [pin_base_print] with ONE ready row patch to the base form';
+  const o = new Owner(tag, 'B-132c', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NAB_REQUEST, baseFiles: NBP_BASE_FILES });
+  const lines: string[] = [];
+  const ask = askNextOf(o, tag, lines);
+  try {
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'INIT' });
+    const added = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:adversarial:+', desc: NBP_PINNED_ROW, type: 'logic', priority: 'must',
+      scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story', derivation: { requestQuote: 'A non-string operand keeps the existing operand error format.', computation: 'a list operand is not a string' } }],
+      reason: 'adversarial operand row' }, { label: 'checklist_update CHK-001 (quoted operand pin)' });
+    assert.match(added.out, /CHK-001:adversarial:0[^\n]*\[pin_base_print\]/, `[${tag}] the INIT pre-check lists the row: ${added.out.slice(-1500)}`);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+    const step = ask('next (PLAN, quoted operand pin)');
+    assert.match(step.why, /\[pin_base_print\]/, `[${tag}] PLAN's lint step names the pin: ${step.reason}: ${step.why.slice(0, 600)}`);
+    assert.match(step.why, /strs\/operand\.go:\d+/, `[${tag}] with the base format line`);
+    const calls = step.batch?.length ? step.batch.map(call => call.cli) : step.cli ? [step.cli] : [];
+    const patch = calls.flatMap(call => call.command === 'checklist_update' && call.payload.itemId === 'CHK-001' ? (call.payload.intentRows as Array<Record<string, unknown>> | undefined) ?? [] : [])
+      .find(row => row.ref === 'CHK-001:adversarial:0');
+    assert.ok(patch, `[${tag}] a row patch of CHK-001:adversarial:0: ${JSON.stringify(calls).slice(0, 800)}`);
+    assert.equal(patch!.desc, NBP_BASE_ROW, `[${tag}] the patch states the base form`);
+    assert.doesNotMatch(JSON.stringify(patch), /"<[^"]*>"/, `[${tag}] nothing for the owner to author`);
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [patch], reason: 'pin re-derived from the base format' }, { label: 'checklist_update CHK-001 (base form)' });
+    const after = ask('next (PLAN, base form)');
+    assert.doesNotMatch(after.why, /\[pin_base_print\]/, `[${tag}] not offered again: ${after.why.slice(0, 400)}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /** Host runs on disk: review run binding, terminal reason, created / ended (ms). */
 function listHostRunsOnDisk(o: Owner): Array<{ runId: string; reviewRunId: string | null; reason: string; createdAt: number; endedAt: number }> {
   const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
@@ -9511,7 +9651,7 @@ function listHostRunsOnDisk(o: Owner): Array<{ runId: string; reviewRunId: strin
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?|NSG(?:-X)?|NIO|NFC|NPV|NMC|NDI|NSL)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?|NSG(?:-X)?|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -9646,6 +9786,11 @@ async function main(): Promise<void> {
     if (only.includes('NMC')) outcomes.push(scenarioNMC(machine.env, steps));
     if (only.includes('NDI')) outcomes.push(scenarioNDI(machine.env, steps));
     if (only.includes('NSL')) outcomes.push(scenarioNSL(machine.env, steps));
+    // Lab run132: unknown story_update key refused with the owning command (NUA), bare-valued intent conflict amend + adoption (NAB),
+    // pinned message vs the base format (NBP).
+    if (only.includes('NUA')) outcomes.push(scenarioNUA(machine.env, steps));
+    if (only.includes('NAB')) outcomes.push(scenarioNAB(machine.env, steps));
+    if (only.includes('NBP')) outcomes.push(scenarioNBP(machine.env, steps));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
@@ -9669,7 +9814,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NSG', 'NSG-X', 'NIO', 'NFC', 'NPV', 'NMC', 'NDI', 'NSL', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NSG', 'NSG-X', 'NIO', 'NFC', 'NPV', 'NMC', 'NDI', 'NSL', 'NUA', 'NAB', 'NBP', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
