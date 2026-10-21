@@ -49,9 +49,12 @@ import {
   computeInitCheckVerdictHash,
   describeInitCheckSignatureDomain,
   initCheckHashMatches,
+  initCheckSignedOverRecordedInputs,
   signInitCheck,
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
+import { reviewerCarryForwardOn } from '../core/ab-variants.js';
+import { loadConfig } from '../core/config.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { digestCanonicalJson, digestText } from '../core/digest.js';
 import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
@@ -179,6 +182,48 @@ export function currentInitReviewerAuthorityInputHash(root: string, store: Story
     checklistItems = store.readChecklist(storyId).items;
   } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); }
   return computeInitReviewerAuthorityInputHash({ root, store, storyId, story, backgroundHash: computeBackgroundHash(root, storyId), checklistItems });
+}
+
+/**
+ * Lab run132 (bench-staging/oldpos/run132-analysis.md I2): the digest of the INIT inputs `agentId`'s role reads, signed
+ * into its agentResults row as judgedSliceHash. proof-or-stop-review-story-init reads (its template's required reading)
+ * the repository guides, background.md, the index title / description / type / priority / riskSignals and the checklist
+ * titles / contexts, and never userSees / verificationIntent / files / the boundaries or request.md; every other role
+ * judges the whole authority input (authorityInputHash).
+ */
+function initReviewerJudgedSliceHash(agentId: string, args: Parameters<typeof computeInitReviewerAuthorityInputHash>[0]): string {
+  if (agentId !== 'proof-or-stop-review-story-init') return computeInitReviewerAuthorityInputHash(args);
+  const background = args.store.storyFilePath(args.storyId, 'background.md');
+  return digestCanonicalJson({
+    slice: 'story-init.v1',
+    story: { title: args.story.title, description: args.story.description, type: args.story.type, priority: args.story.priority, riskSignals: args.story.riskSignals ?? [] },
+    background: existsSync(background) ? digestText(readFileSync(background, 'utf8')) : 'missing',
+    checklist: args.checklistItems.map(item => ({ id: item.id, title: item.title, context: item.context })),
+    repositoryGuides: ['AGENTS.md', 'CLAUDE.md'].map(path => ({ path, digest: existsSync(join(args.root, path)) ? digestText(readFileSync(join(args.root, path), 'utf8')) : 'missing' })),
+  });
+}
+
+/**
+ * Lab run132 (I2): the required INIT reviewers whose recorded PASS can be carried into the next signed record although
+ * the signed INIT inputs changed (init_check_tampered): the record verifies as one this tool signed over the inputs it
+ * states (initCheckSignedOverRecordedInputs: a hand-edited verdict or slice hash is refused), the row has a delivery
+ * run, no critical / high issue, and its own judgedSliceHash equals the slice digest of the Story NOW. Empty with
+ * init.reviewerCarryForward=off, for a record the current inputs verify (nothing to carry), and for legacy rows.
+ */
+export function carriedInitReviewers(root: string, store: StoryStore, storyId: string, data: InitCheckData | null = store.readInitCheck(storyId)): string[] {
+  if (!data || !initCheckSignedOverRecordedInputs(storyId, data)) return [];
+  try { if (!reviewerCarryForwardOn(loadConfig(root))) return []; } catch { /* malformed config: the switch's default */ }
+  let story: ReturnType<StoryStore['readStory']>;
+  let checklistItems: ChecklistItem[] = [];
+  try { story = store.readStory(storyId); } catch { return []; }
+  try { checklistItems = store.readChecklist(storyId).items; } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); }
+  const backgroundHash = computeBackgroundHash(root, storyId);
+  if (initCheckHashMatches(data, recomputeInitCheckHash(storyId, store, root, data))) return [];
+  const blocking = new Set(blockingInitCheckIssues(data).map(row => row.agentId));
+  return initCheckAgentResults(data)
+    .filter(row => (REQUIRED_INIT_CHECK_AGENTS as readonly string[]).includes(row.agentId) && !blocking.has(row.agentId) && Boolean(row.deliveryRunId?.trim())
+      && typeof row.judgedSliceHash === 'string' && row.judgedSliceHash === initReviewerJudgedSliceHash(row.agentId, { root, store, storyId, story, backgroundHash, checklistItems }))
+    .map(row => row.agentId);
 }
 
 function normalizeReviewerBlockingAuthority(
@@ -438,11 +483,15 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
           `[init_reviewer_unchanged_input_expansion]\n`,
         );
       }
-      const agentResults = previousTrusted && previous ? initCheckAgentResults(previous).filter(
-        result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId,
+      // Lab run132 (I2): a record signed by this tool over older inputs keeps the other reviewers' PASS rows whose own
+      // judged slice is unchanged (carriedInitReviewers; init.reviewerCarryForward); every other row is dropped as before.
+      const carried = new Set(!previousTrusted && previous ? carriedInitReviewers(root, store, args.storyId, previous) : []);
+      const agentResults = previous ? initCheckAgentResults(previous).filter(
+        result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId && (previousTrusted || carried.has(result.agentId)),
       ) : [];
-      const droppedResults = !previousTrusted && previous ? initCheckAgentResults(previous) : [];
-      agentResults.push({ agentId, checkedAt, deliveryRunId, authorityInputHash, authorityBaselineIssues, issues });
+      const droppedResults = !previousTrusted && previous ? initCheckAgentResults(previous).filter(result => !carried.has(result.agentId)) : [];
+      const judgedSliceHash = initReviewerJudgedSliceHash(agentId, { root, store, storyId: args.storyId, story, backgroundHash, checklistItems });
+      agentResults.push({ agentId, checkedAt, deliveryRunId, authorityInputHash, authorityBaselineIssues, judgedSliceHash, issues });
 
       // Name the corruption. Silently discarding another reviewer's record would be
       // indistinguishable from that reviewer never having run, which is the confusion this
@@ -450,17 +499,18 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       // pipes stdout still sees it; a short marker also rides the return value because the
       // dropped coverage is a fact about the record just written, not commentary on it.
       let untrustedNotice = '';
-      if (previous && !previousTrusted) {
+      if (previous && !previousTrusted && carried.size) untrustedNotice = `; carried forward ${[...carried].join(', ')} (signed PASS, judged slice unchanged)`;
+      if (previous && !previousTrusted && droppedResults.length) {
         const dropped = droppedResults.map(r => r.agentId || '<unknown>');
         const storedHash = typeof previous._hash === 'string' ? previous._hash.trim() : '';
-        untrustedNotice = `; dropped ${dropped.length} unverifiable prior reviewer record(s): ${dropped.join(', ') || '<none>'}`;
+        untrustedNotice += `; dropped ${dropped.length} unverifiable prior reviewer record(s): ${dropped.join(', ') || '<none>'}`;
         process.stderr.write(
           `⚠ init_check_set ${args.storyId}: the existing init-check.json does NOT verify against its own signature ` +
           `(stored _hash=${storedHash ? storedHash.slice(0, 12) : '<absent>'}, expected=${expectedPreviousHash.slice(0, 12)}; ` +
           `signed components: ${describeInitCheckSignatureDomain()}).\n` +
           `  Its recorded reviewer results were DROPPED rather than carried into this newly signed record, ` +
           `so tampered or stale coverage cannot be re-signed into validity: ${dropped.join(', ') || '<none>'}\n` +
-          `  Only ${agentId}'s result is recorded now; every other required reviewer must run init_check_set again. ` +
+          `  Only ${[agentId, ...carried].join(' and ')}'s result${carried.size ? 's are' : ' is'} recorded now; every other required reviewer must run init_check_set again. ` +
           `[init_check_untrusted_carry_forward]\n`,
         );
       }
@@ -472,6 +522,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         agentId,
         issues,
         agentResults,
+        _signedInputs: { backgroundHash, title, description, checklistHash, reviewRound },
         _hash: '',
       };
 

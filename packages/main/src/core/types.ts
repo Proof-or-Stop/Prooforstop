@@ -3126,8 +3126,20 @@ export interface InitCheckData {
      * intermediate advisory write to erase an earlier PASS or blocker set.
      */
     authorityBaselineIssues?: InitCheckIssue[];
+    /**
+     * Lab run132 (I2): signed digest of the slice of the INIT inputs this reviewer's role reads (story-init: the
+     * background, the index fields, the checklist titles / contexts, the repository guides; every other role: the
+     * authorityInputHash inputs). A PASS whose slice is unchanged is carried forward when other signed inputs change.
+     */
+    judgedSliceHash?: string;
     issues: InitCheckIssue[];
   }>;
+  /**
+   * Lab run132 (I2): the signed components this record was signed over (all but storyId and the verdict), so a record
+   * the inputs have since moved past can still be verified as one this tool signed (initCheckSignedOverRecordedInputs).
+   * Not part of the signature domain: editing it makes that verification fail.
+   */
+  _signedInputs?: { backgroundHash: string; title: string; description: string; checklistHash: string; reviewRound: string };
   /**
    * B-95d8 CHK-001: manual fallback / repair attestation.
    *

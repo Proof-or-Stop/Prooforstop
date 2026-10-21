@@ -230,6 +230,7 @@ export const AB_VARIANT_FLAGS = {
   'remediation.scopeGateSettle': ['on', 'off'],
   'remediation.conflictSettle': ['on', 'off'],
   'plan.intentConflictGuard': ['on', 'off'],
+  'init.reviewerCarryForward': ['on', 'off'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -243,6 +244,7 @@ export interface AbVariantConfigSlice {
   plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string; docDriftSettle?: string; intentConflictGuard?: string };
   dev?: { probeEnforcement?: string; removedGuardScan?: string };
   pipeline?: { lean?: string };
+  init?: { reviewerCarryForward?: string };
 }
 
 export interface AbVariants {
@@ -281,6 +283,7 @@ export interface AbVariants {
   scopeGateSettle: AbVariantValue<'remediation.scopeGateSettle'>;
   conflictSettle: AbVariantValue<'remediation.conflictSettle'>;
   intentConflictGuard: AbVariantValue<'plan.intentConflictGuard'>;
+  reviewerCarryForward: AbVariantValue<'init.reviewerCarryForward'>;
 }
 
 export interface AbVariantEvidence {
@@ -373,6 +376,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     scopeGateSettle: pick('remediation.scopeGateSettle', section(config, 'remediation').scopeGateSettle),
     conflictSettle: pick('remediation.conflictSettle', section(config, 'remediation').conflictSettle),
     intentConflictGuard: pick('plan.intentConflictGuard', section(config, 'plan').intentConflictGuard),
+    reviewerCarryForward: pick('init.reviewerCarryForward', section(config, 'init').reviewerCarryForward),
   };
 }
 
@@ -414,6 +418,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.scopeGateSettle !== 'on') flags['remediation.scopeGateSettle'] = variants.scopeGateSettle;
   if (variants.conflictSettle !== 'on') flags['remediation.conflictSettle'] = variants.conflictSettle;
   if (variants.intentConflictGuard !== 'on') flags['plan.intentConflictGuard'] = variants.intentConflictGuard;
+  if (variants.reviewerCarryForward !== 'on') flags['init.reviewerCarryForward'] = variants.reviewerCarryForward;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -427,7 +432,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle' | 'remediation.scopeGateSettle' | 'remediation.conflictSettle' | 'plan.intentConflictGuard'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle' | 'remediation.scopeGateSettle' | 'remediation.conflictSettle' | 'plan.intentConflictGuard' | 'init.reviewerCarryForward'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -482,6 +487,8 @@ export const scopeGateSettleOn = (config: unknown): boolean => catchEarlierPick(
 export const conflictSettleOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.conflictSettle') === 'on';
 /** Lab run131 plan.intentConflictGuard (default on; `off` = rollback): an amend that re-asserts a pin an implementer's [intent-conflict] disputed needs the request text or a base check (core/intent-conflict-overrule.ts); malformed = on. */
 export const intentConflictGuardOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.intentConflictGuard') === 'on';
+/** Lab run132 init.reviewerCarryForward (default on; `off` = rollback): a signed INIT reviewer PASS whose own judged slice is unchanged is carried forward when other signed INIT inputs change (handlers/init-check.ts carriedInitReviewers); malformed = on. */
+export const reviewerCarryForwardOn = (config: unknown): boolean => catchEarlierPick(config, 'init.reviewerCarryForward') === 'on';
 /** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }
