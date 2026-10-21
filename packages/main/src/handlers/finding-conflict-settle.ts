@@ -21,7 +21,9 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { findingDuplicateOf } from '../core/duplicate-finding-coverage.js';
 import { findingConflictOf, findingGuard, findingRepros, guardStatesPins, isReproCommand, regressionTargets, rejectedRepairCommits, repairCommitFromResolution, rowsCitingCase } from '../core/resolved-finding-guard.js';
 import { conflictSettlements, findingConflictSettlement, FINDING_CONFLICT_PRECEDENCE, FINDING_CONFLICT_REASON_PREFIX, type ConflictSettlement } from '../core/finding-conflict-settle.js';
-import { frameworkConflictPin, type FrameworkConflictPin } from '../core/finding-conflict-pin.js';
+import { frameworkConflictPin, frameworkPinConfirmed, type FrameworkConflictPin } from '../core/finding-conflict-pin.js';
+import { isTestPath } from '../core/probe-text.js';
+import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -98,15 +100,17 @@ export function evaluateFrameworkConflictPin(args: { store: StoryStore; root: st
     if (repros.length && rowsCitingCase(items, repros).length) return null;
     const request = readStoryRequest(store, storyId);
     const gitCwd = args.gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+    const requestText = request.status === 'ok' ? request.text : null;
     const base = freshBaseProbe(store, storyId, gitCwd);
     let pin: FrameworkConflictPin | null;
     try {
-      pin = frameworkConflictPin({ finding, resolved, conflict, requestText: request.status === 'ok' ? request.text : null,
-        ...(base ? { baseProbe: base.probe } : {}) });
+      pin = frameworkConflictPin({ finding, resolved, conflict, requestText, ...(base ? { baseProbe: base.probe } : {}),
+        trustedTexts: trustedProbeSources({ gitCwd, requestText, items, resolved }) });
     } finally {
       base?.dispose();
     }
-    if (!pin) return null;
+    // Security review: nothing is decided without a positive confirmation record of every case.
+    if (!pin || !frameworkPinConfirmed(pin)) return null;
     // A case a current row pins is the row's to decide (lab run131 settle / the repair against the row).
     if (rowsCitingCase(items, pin.cases.map(row => row.expr)).length) return null;
     return { pin, resolved };
@@ -133,13 +137,38 @@ function regressionOfFrameworkPin(args: { store: StoryStore; root: string; story
     if (!owner) continue;
     const framework = evaluateFrameworkConflictPin({ ...args, finding: owner, findings });
     if (framework?.pin.side !== 'finding' || !targets.includes(framework.resolved.id)) continue;
-    // Security review: a framework guard finding is settled only on a request-quoted value or the Story base evaluator's
-    // own output, never on what the finding (a reviewer) wrote.
-    if (framework.pin.confirmedBy !== 'request' && framework.pin.confirmedBy !== 'base_probe') continue;
+    // Security review: a framework guard finding is settled only on a positive confirmation record (a request-quoted value,
+    // or the Story base evaluator's own output for an expression a trusted source names or the strict grammar admits),
+    // never on what the finding (a reviewer) wrote.
+    if (!frameworkPinConfirmed(framework.pin)) continue;
     return frameworkPinSettlement(finding, framework.resolved, framework.pin,
       `${short(finding.id)} reports that the repair of ${short(owner.id)} broke resolved ${short(framework.resolved.id)}'s covering test`);
   }
   return null;
+}
+
+/**
+ * Lab run137 (security review 2 of fix N): the texts a probed case expression must appear in, or whose calls it may use
+ * (core/finding-conflict-pin.ts probeExprTrust): the request, the checklist rows' own text (title, userSees, intent row
+ * desc / derivation), and the test files of the resolved finding's recorded repair commit as committed there (git, not
+ * the work tree). Never the open finding's text.
+ */
+function trustedProbeSources(args: { gitCwd: string; requestText: string | null; items: ReadonlyArray<{ title?: unknown; userSees?: unknown; verificationIntent?: unknown }>; resolved: Finding }): string[] {
+  const out: string[] = [];
+  if (args.requestText) out.push(args.requestText);
+  const strings = (value: unknown): void => {
+    if (typeof value === 'string') out.push(value);
+    else if (Array.isArray(value)) value.forEach(strings);
+    else if (value && typeof value === 'object') for (const [key, inner] of Object.entries(value)) if (key !== 'evidence' && key !== 'history') strings(inner);
+  };
+  for (const item of args.items) strings({ title: item.title, userSees: item.userSees, verificationIntent: item.verificationIntent });
+  const commit = (() => { try { return repairCommitFromResolution(args.gitCwd, args.resolved); } catch { return null; } })();
+  if (commit && /^[0-9a-f]{7,40}$/.test(commit)) {
+    const git = (gitArgs: string[]): string | null => { try { return execFileSync('git', gitArgs, { cwd: args.gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }); } catch { return null; } };
+    const files = (git(['show', '--name-only', '--format=', '--no-renames', commit]) ?? '').split('\n').map(row => row.trim()).filter(path => path && isTestPath(path)).slice(0, 8);
+    for (const path of files) { const text = git(['show', `${commit}:${path}`]); if (text !== null) out.push(text); }
+  }
+  return out;
 }
 
 /** Per-process memo of fresh base-probe results (base commit + evaluator config + expression); never persisted. */

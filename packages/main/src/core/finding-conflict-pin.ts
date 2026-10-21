@@ -18,7 +18,9 @@
  *     the probe ran and printed the stated value for every case. Then the finding demands the base behaviour and the
  *     resolved finding's test pins something else, so the finding wins (source `story_base`). The finding's statement
  *     alone is never evidence (security review of this lab: a reviewer-authored claim must not become a framework pin):
- *     no evaluator, a probe that cannot run or throws, or one that disagrees leaves the case to the PLAN pin;
+ *     no evaluator, a probe that cannot run or throws, or one that disagrees leaves the case to the PLAN pin. Only a
+ *     trusted case expression is ever run (probeExprTrust: verbatim in a trusted source, or one plain expression), so a
+ *     crafted case cannot print its own claim; the pin carries a positive confirmation record (frameworkPinConfirmed);
  *   - else (no stated base value, a `[precedent-conflict]`, a request value matching neither side) null: the PLAN pin
  *     stays (finding_conflict_pin), and that PLAN trip writes the pin before any scope-plan rerun (handlers/next-driver.ts).
  * Pure: the decision is recomputed from the finding text, the request and the base probe on every call (no runtime file
@@ -33,8 +35,13 @@ export interface FrameworkConflictPin {
   /** `finding`: the open finding's demand wins (the resolved finding's test is wrong for the cases); `resolved`: it loses. */
   side: 'finding' | 'resolved';
   source: 'request' | 'story_base';
-  /** What decided it: a request line quoting the value, or the Story base evaluator run on every case (never finding text). */
-  confirmedBy: 'request' | 'base_probe';
+  /**
+   * The positive record of what decided it (never finding text): the request lines' values, or, per case, what the Story
+   * base evaluator printed for an expression a trusted source names (`source`) or the strict grammar admits (`grammar`).
+   * frameworkPinConfirmed re-checks it against `cases` before anything is settled.
+   */
+  confirmation: { kind: 'request'; cases: Array<{ expr: string; value: string }> }
+    | { kind: 'base_probe'; cases: Array<{ expr: string; printed: string; trustedBy: ProbeExprTrust }> };
   /** Each decided case and the value the framework pins for it. */
   cases: Array<{ expr: string; value: string }>;
   reason: string;
@@ -88,12 +95,82 @@ export function requestStatedValue(requestText: string | null | undefined, expr:
 
 const short = (id: string): string => id.replace(/^[^:]+:(?=F-)/, '');
 
+export type ProbeExprTrust = 'source' | 'grammar';
+
+/** Identifiers a probed case may never name (output, control flow, process, module and shell access). */
+const PROBE_BANNED = /(?<![\w$])(?:print|println|printf|sprintf|puts|echo|exit|quit|die|panic|abort|process|require|import|eval|exec|system|spawn|popen|subprocess|os|fmt|console|log|open|write|read|sh|bash|globalThis|global|window|Deno|Bun|Function|setTimeout|__\w*)(?![\w$])/i;
+
+/** The expression with string literal contents blanked (they are data, not code); null when a literal is unterminated. */
+function blankStrings(expr: string): string | null {
+  let out = '';
+  let quote: string | null = null;
+  for (let index = 0; index < expr.length; index += 1) {
+    const char = expr[index]!;
+    if (quote) {
+      if (char === '\\') { index += 1; continue; }
+      if (char === quote) { quote = null; out += char; }
+      continue;
+    }
+    if (char === '"' || char === "'") { quote = char; out += char; continue; }
+    out += char;
+  }
+  return quote ? null : out;
+}
+
+const flatText = (text: string): string => text.replace(/\s+/g, ' ').trim();
+
+/**
+ * Whether a finding-authored case expression may be probed on the Story base (security review of this lab: a crafted
+ * expression such as `print("[0]"); x` or `"" && E` would make the evaluator print the finding's own claim):
+ *   - `source`: it appears verbatim (whitespace-normalized, one line) in a trusted source: the request, a checklist row,
+ *     or the resolved finding's covering test file at its recorded repair commit;
+ *   - `grammar`: ONE plain expression: one line, at most 240 characters, string contents treated as data; no `;`, `&`,
+ *     `|`, `=`, backtick, braces, top-level comma, or banned identifier (print / exit / process / require / import ...);
+ *     balanced brackets; and every call (`name(`) is to a function a trusted source calls the same way. With no trusted
+ *     source nothing is callable.
+ * Anything else: null (no framework pin; the PLAN pin decides).
+ */
+export function probeExprTrust(expr: string, trustedTexts: readonly string[]): ProbeExprTrust | null {
+  if (!expr || /[\r\n]/.test(expr) || expr.length > 240) return null;
+  const flat = flatText(expr);
+  if (trustedTexts.some(text => flatText(text).includes(flat))) return 'source';
+  const code = blankStrings(expr);
+  if (code === null || /[;&|=`{}]|\$\(/.test(code) || PROBE_BANNED.test(code)) return null;
+  let depth = 0;
+  for (const char of code) {
+    if ('([' .includes(char)) depth += 1;
+    else if (')]'.includes(char)) { depth -= 1; if (depth < 0) return null; }
+    else if (char === ',' && depth === 0) return null;
+  }
+  if (depth !== 0) return null;
+  for (const call of code.matchAll(/([A-Za-z_$][\w$]*)\s*\(/g)) {
+    const name = call[1]!;
+    if (!trustedTexts.some(text => new RegExp(`(?<![\\w$])${name.replace(/\$/g, '\\$')}\\s*\\(`).test(text))) return null;
+  }
+  return 'grammar';
+}
+
+/** probeExprTrust as a yes / no. */
+export const trustedProbeExpr = (expr: string, trustedTexts: readonly string[]): boolean => probeExprTrust(expr, trustedTexts) !== null;
+
+/** Whether a pin carries a positive confirmation of every case it decides (re-checked before anything is settled). */
+export function frameworkPinConfirmed(pin: FrameworkConflictPin): boolean {
+  if (!pin.cases.length) return false;
+  if (pin.source === 'request') return pin.confirmation.kind === 'request'
+    && pin.cases.every(row => (pin.confirmation as { cases: Array<{ expr: string; value: string }> }).cases.some(seen => seen.expr === row.expr && sameValue(seen.value, row.value)));
+  return pin.confirmation.kind === 'base_probe'
+    && pin.cases.every(row => (pin.confirmation as { cases: Array<{ expr: string; printed: string; trustedBy: ProbeExprTrust }> }).cases
+      .some(seen => seen.expr === row.expr && (seen.trustedBy === 'source' || seen.trustedBy === 'grammar') && sameValue(seen.printed, row.value)));
+}
+
 /**
  * The framework's pin for a finding conflict no checklist row pins, or null when it is not the framework's to decide
  * (see the module comment). `baseProbe(expr)` returns the Story base's printed value, or null when it cannot run.
  */
 export function frameworkConflictPin(args: { finding: { id: string; desc?: string }; resolved: { id: string; desc?: string };
-  conflict: { kind?: string; resolvedId?: string | null }; requestText: string | null | undefined; baseProbe?: (expr: string) => string | null }): FrameworkConflictPin | null {
+  conflict: { kind?: string; resolvedId?: string | null }; requestText: string | null | undefined; baseProbe?: (expr: string) => string | null;
+  /** Trusted sources a probed expression must appear in, or whose calls it may use (probeExprTrust). */
+  trustedTexts?: readonly string[] }): FrameworkConflictPin | null {
   if (args.conflict.kind === 'precedent' || !args.conflict.resolvedId || /\[precedent-conflict\]/i.test(args.finding.desc ?? '')) return null;
   const cases = statedBaseCases(args.finding.desc).filter(row => row.head === undefined || !sameValue(row.head, row.base));
   if (!cases.length) return null;
@@ -110,19 +187,26 @@ export function frameworkConflictPin(args: { finding: { id: string; desc?: strin
     if (sides.size !== 1 || sides.has('neither')) return null;
     const side = [...sides][0] as 'finding' | 'resolved';
     const list = stated.map(({ row, value }) => `\`${row.expr}\` -> \`${value}\``).join(', ');
-    return { side, source: 'request', confirmedBy: 'request', cases: stated.map(({ row, value }) => ({ expr: row.expr, value })),
+    const decided = stated.map(({ row, value }) => ({ expr: row.expr, value }));
+    return { side, source: 'request', confirmation: { kind: 'request', cases: decided }, cases: decided,
       reason: `the request states ${list}, which ${side === 'finding' ? `open ${f} demands; resolved ${g}'s covering test states otherwise` : `resolved ${g}'s repair keeps; open ${f} demands otherwise`}` };
   }
   // 2. The Story base: the finding states the base value of each case, and the base evaluator must have run and printed
   // it for every case (fail closed: no probe, an unrunnable or throwing one, or a disagreement leaves it to PLAN).
+  // Only an expression a trusted source names, or a plain one (probeExprTrust), is ever run: a finding-authored case could
+  // otherwise print its own claim.
   if (!args.baseProbe) return null;
+  const probed: Array<{ expr: string; printed: string; trustedBy: ProbeExprTrust }> = [];
   for (const row of cases) {
-    let probed: string | null = null;
-    try { probed = args.baseProbe(row.expr); } catch { probed = null; }
-    if (probed === null || !sameValue(probed, row.base)) return null;
+    const trustedBy = probeExprTrust(row.expr, args.trustedTexts ?? []);
+    if (!trustedBy) return null;
+    let printed: string | null = null;
+    try { printed = args.baseProbe(row.expr); } catch { printed = null; }
+    if (printed === null || !sameValue(printed, row.base)) return null;
+    probed.push({ expr: row.expr, printed, trustedBy });
   }
   const list = cases.map(row => `\`${row.expr}\` -> \`${row.base}\``).join(', ');
-  return { side: 'finding', source: 'story_base', confirmedBy: 'base_probe', cases: cases.map(row => ({ expr: row.expr, value: row.base })),
+  return { side: 'finding', source: 'story_base', confirmation: { kind: 'base_probe', cases: probed }, cases: cases.map(row => ({ expr: row.expr, value: row.base })),
     reason: `the request is silent on ${cases.length > 1 ? 'these cases' : 'this case'} and open ${f} states the Story base behaviour (${list}); the Story base evaluator prints the same; resolved ${g}'s covering test pins a value the request does not ask for, so the base behaviour stands` };
 }
 

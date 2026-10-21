@@ -2,7 +2,7 @@
 /**
  * Lab run137 (old-PoS run 137, bench-staging/oldpos/run137-analysis.md; new-PoS ADR-056 / ADR-070 / ADR-071 / ADR-082
  * direction): unit level, made-up `clip` helpers only (no benchmark-task material). The lifecycle shapes are harness
- * NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-P / NGX / NCL / NCL-OFF in tasks/e2e-review-to-done-smoke.ts.
+ * NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-X / NCP-P / NGX / NCL / NCL-OFF in tasks/e2e-review-to-done-smoke.ts.
  *
  *   M. Repair regression check (switch remediation.regressionCheck, default on): before a finding-repair run seals, the
  *      covering tests of the Story's resolved findings and the pinned checklist verifications of the changed packages
