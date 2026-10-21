@@ -219,10 +219,12 @@ await check('N1 the Story base values a finding states are read per case (base a
 
 /** The Story base evaluator agreeing with N_F's stated base values (a probe that ran). */
 const N_BASE = (expr: string): string | null => expr.startsWith('Slice') ? 'bcd' : expr.startsWith('From') ? 'abcd' : null;
+/** Trusted sources the cases appear in (the resolved finding's covering test file at its repair commit, say). */
+const N_TRUSTED = ['func TestBounds(t *testing.T) {\n\t_ = Slice("abcd", 1, 99)\n\t_ = From("abcd", 99)\n}\n'];
 
 await check('N2 the framework pin decides by precedence: the finding demanding the stated base value the base probe confirms wins (story_base); a request sentence stating the case decides first; no stated value: no pin', async () => {
   const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
-  const won = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- Existing Slice and From behaviour stays the same.\n', baseProbe: N_BASE });
+  const won = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- Existing Slice and From behaviour stays the same.\n', baseProbe: N_BASE, trustedTexts: N_TRUSTED });
   assert.equal(won?.side, 'finding', JSON.stringify(won));
   assert.equal(won.source, 'story_base');
   assert.deepEqual(won.cases, [{ expr: 'Slice("abcd", 1, 99)', value: 'bcd' }, { expr: 'From("abcd", 99)', value: 'abcd' }]);
@@ -239,15 +241,34 @@ await check('N5 security: a finding-stated base value alone never becomes a fram
   assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request }), null, 'no base evaluator: the finding text is not evidence');
   assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseProbe: () => null }), null, 'the probe cannot run');
   assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseProbe: () => { throw new Error('boom'); } }), null, 'the probe throws');
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseProbe: (expr: string) => expr.startsWith('Slice') ? 'bcd' : null }), null, 'one case unconfirmed');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseProbe: (expr: string) => expr.startsWith('Slice') ? 'bcd' : null, trustedTexts: N_TRUSTED }), null, 'one case unconfirmed');
   const quoted = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- `Slice("abcd", 1, 99)` returns `bcd`.\n' });
   assert.equal(quoted?.source, 'request', `a request-quoted value needs no probe: ${JSON.stringify(quoted)}`);
 });
 
+await check('N6 security: a finding-authored probe expression cannot confirm itself: separators, sequencing, print / exit / process / require / import, or a call no trusted source names give no pin, whatever the probe prints; a case verbatim in a trusted source or a plain call a trusted source names still pins', async () => {
+  const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
+  const trusted = await load('../core/finding-conflict-pin.js', 'trustedProbeExpr');
+  const echo = (claim: string) => () => claim;
+  const crafted = (expr: string, claim: string) => ({ ...N_F, desc: `clip/clip.go:16 Slice clamps. On the base \`${expr}\` returns \`${claim}\`; HEAD returns \`\`.` });
+  for (const expr of ['print("[0]"); x', 'fmt.Println("bcd"); Slice("abcd", 1, 99)', '"bcd" || Slice("abcd", 1, 99)', '"" && Slice("abcd", 1, 99)', 'Slice("abcd", 1, 99), "bcd"',
+    'process.exit(0)', 'require("fs")', 'import("x")', 'exit()', 'Slice("abcd", 1, 99)\nprint("bcd")', 'Format("bcd")']) {
+    assert.equal(trusted(expr, N_TRUSTED), false, `untrusted: ${expr}`);
+    assert.equal(pin({ finding: crafted(expr, 'bcd'), resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: echo('bcd'), trustedTexts: N_TRUSTED }), null, `no pin from ${expr}`);
+  }
+  assert.equal(trusted('Slice("abcd", 1, 99)', N_TRUSTED), true, 'verbatim in a trusted source');
+  assert.equal(trusted('Slice("a;b", 0, 1)', N_TRUSTED), true, 'a plain call a trusted source names (string contents are data)');
+  assert.equal(trusted('Slice("abcd", 1, 99)', []), false, 'no trusted source: no call is allowed');
+  const ok = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: N_BASE, trustedTexts: N_TRUSTED });
+  assert.equal(ok?.confirmation?.kind, 'base_probe', JSON.stringify(ok));
+  assert.deepEqual(ok.confirmation.cases.map((row: { expr: string; printed: string; trustedBy: string }) => [row.expr, row.printed, row.trustedBy]),
+    [['Slice("abcd", 1, 99)', 'bcd', 'source'], ['From("abcd", 99)', 'abcd', 'source']]);
+});
+
 await check('N3 a base probe that disagrees with the finding-stated base value leaves the case to the PLAN pin; one that ran and printed every stated value confirms it', async () => {
   const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: (expr: string) => expr.startsWith('Slice') ? 'bc' : N_BASE(expr) }), null);
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: N_BASE })?.side, 'finding');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: (expr: string) => expr.startsWith('Slice') ? 'bc' : N_BASE(expr), trustedTexts: N_TRUSTED }), null);
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: N_BASE, trustedTexts: N_TRUSTED })?.side, 'finding');
 });
 
 await check('N4 remediation.conflictPin: default on, `off` recorded as the rollback arm', async () => {
