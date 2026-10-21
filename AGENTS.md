@@ -839,7 +839,8 @@ coverage run that exercises the duplicate's own repro. Lanes re-run resolved
 findings' repros instead of trusting `resolved`. A finding that contradicts a
 resolved finding's repair (a `[precedent-conflict]`, a guard-rejected repair, or
 the same case re-judged) goes to the owner's PLAN pin (`finding_conflict_pin`),
-not to repair. A repair that deletes a test it added, or a test running the
+not to repair, unless a row already pins the case (lab run131) or the request /
+the finding's stated Story base value decides it (lab run137 framework pin). A repair that deletes a test it added, or a test running the
 finding's repro, is not a repair: a failing test it wrote is a product defect.
 The scope-plan reviewer (A/B `plan.baseDisagreement`, default on) probes the
 base precedents of each new operation, alone and in combination (a negative or
@@ -1094,6 +1095,24 @@ Old-PoS runs 133-135 (lab `codex/lab-run132`, continued). There are six rollback
 - Gate evidence under `runtime/` is recomputed in each process and never read back.
 
 Run the ready command. Probe the base before claiming a case is unchanged. See docs/CLI.md "Old-PoS runs 133-135".
+
+Old-PoS run 137 (lab `codex/lab-run137`). Two rollback switches default on, `remediation.regressionCheck` (M,
+detection-positive) and `remediation.conflictPin` (N); one EXPERIMENTAL switch defaults off, `review.classEnumeration` (P).
+
+- Before a finding-repair run seals, the framework re-runs the covering tests of the Story's resolved findings and the
+  pinned checklist checks of the paths the repair changed. A failure comes back to the same session with its output:
+  fix the product code, never the resolved test; a true conflict is one `[intent-conflict]` line.
+- A repair prompt lists the shared helper a finding sits in with every call site. A repair that changes a shared helper
+  ends its report with one `[caller-check] <caller> -> <helper>: <input> base=<result> HEAD=<result> unchanged | changed:
+  <reason>` line per caller (asked for in the same session when missing).
+- A finding conflict no checklist row pins is decided by the framework when the request or the finding's stated Story
+  base value decides it (no PLAN trip): the winner is repaired against `Framework pin (finding_conflict_framework_pin)`,
+  the loser is closed by `finding_conflict_settled`. Otherwise `finding_conflict_pin` stays, and the pin is the FIRST
+  PLAN step.
+- After a grouped repair run dies without a commit naming a finding, that finding's own relaunch is a framework step.
+- With `review.classEnumeration=on` the concept and quality lanes get the changed shared helpers with every caller.
+
+State the base of every case you call unchanged. See docs/CLI.md "Old-PoS run 137".
 
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
