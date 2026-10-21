@@ -1053,6 +1053,21 @@ sibling lanes' evidence; a lane with no provider item in 150 s
 (`review_round_prepare {lanes}`) while its siblings run. Run the ready command; do not
 re-assert a disputed pin without the request sentence. See docs/CLI.md "Old-PoS run 131".
 
+Old-PoS run 132 (lab `codex/lab-run132`; detection-neutral, one rollback switch default
+on): a Story-metadata editor (`story_update`, `checklist_update`, `checklist_add`,
+`background_set`, `background_append`, `story_request_set`) refuses a key it does not
+declare (`[unknown_argument]`, nothing written) and names the command that takes it, e.g.
+`background_set` for `background` (its Next carries the value); the INIT blocker guidance
+names the exact command per cited input. After a signed INIT input edit
+(`[init_check_tampered]`), a reviewer's signed PASS whose own judged slice
+(`judgedSliceHash`) is unchanged is carried into the next record and only the stale
+reviewers rerun (`init.reviewerCarryForward`; a hand-edited record carries nothing). Two
+unbackticked `[intent-conflict]` values that are variants of one text are literals (ready
+amend), and adoption ignores `re-pin:` clauses. At PLAN a pinned message is compared with the
+Story base format that prints it (`pin_base_print_check`, `[pin_base_print]`, ready row
+patch). Use the named command; never pass a field to an editor that does not declare it.
+See docs/CLI.md "Old-PoS run 132".
+
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
 (`<common git dir>/info/proof-or-stop-cache/`, each answer keyed by the exact
