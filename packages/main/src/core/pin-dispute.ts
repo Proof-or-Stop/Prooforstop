@@ -34,6 +34,17 @@ import { exclusionUserSeesRemedy } from './scope-exclusion-rationale.js';
 import { counterpartRowRoles, edgeLabel, rowPinsError, COUNTERPART_PRECEDENCE, type CounterpartCoverageResult } from './counterpart-coverage.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
+import { leadingLiteral, sameValue } from './pin-audit-correction.js';
+import { closeRepinPatch } from './pin-repin-closure.js';
+
+/** Lab run132: the shape of core/pin-base-evidence.ts BaseEvidence the remedies read (no import cycle). */
+export interface BaseEvidenceLike { value: string; status: 'value' | 'error'; detail: string }
+/** `value` written the way the row's literal is (a quoted base output is unquoted for an unquoted group pin). */
+function basePinnedForm(value: string, pinned: string): string {
+  const text = value.trim();
+  const quoted = text.length >= 2 && /^["'`]/.test(text) && text.at(-1) === text[0];
+  return quoted && !/^["'`]/.test(pinned.trim()) && /^[[{(]/.test(text.slice(1, -1).trim()) ? text.slice(1, -1) : text;
+}
 
 export const PIN_DISPUTE_SCHEMA = 'proof-or-stop.pin-dispute.v1' as const;
 const ROW_REF = /\b(CHK-\d+):(happy|edge|adversarial):(\d+)\b/g;
@@ -76,14 +87,25 @@ export function gapRowRefs(verdict: Verdict): Map<string, string[]> {
 
 export interface DisputedRow { ref: string; itemId: string; lane: string; index: number; verdicts: number; features: string[] }
 
-/** Rows a gap of the current verdict cites that a gap of the previous verdict cited too, with the length of that streak. */
-export function disputedRows(history: readonly Verdict[]): DisputedRow[] {
+/** Lab run132: what the pin-audit correction step named and offered a call for on one verdict (journaled by `next`). */
+export interface PinAuditOffer { named: string[]; offered: string[] }
+
+/**
+ * Rows a gap of the current verdict cites that a gap of the previous verdict cited too, with the length of that streak.
+ * Lab run132 (run 133: CHK-004:edge:1 was named by the pin-audit step, never offered a call, raised again and removed
+ * with its case excluded although the request quotes it): an earlier verdict counts toward the streak of a row only
+ * when the framework offered a correction for it; a row the pin-audit step named without a call (`offerOf`) does not.
+ */
+export function disputedRows(history: readonly Verdict[], offerOf: (verdictAt: string) => PinAuditOffer | null = () => null): DisputedRow[] {
   if (history.length < 2) return [];
   const refs = history.map(gapRowRefs);
+  const offers = history.map(verdict => (verdict.checkedAt ? offerOf(verdict.checkedAt) : null));
+  const counted = (index: number, ref: string): boolean => refs[index]!.has(ref)
+    && !(offers[index]?.named.includes(ref) && !offers[index]!.offered.includes(ref));
   const out: DisputedRow[] = [];
   for (const [ref, features] of refs[0]!) {
     let streak = 1;
-    while (streak < refs.length && refs[streak]!.has(ref)) streak += 1;
+    while (streak < refs.length && counted(streak, ref)) streak += 1;
     if (streak < 2) continue;
     const match = ref.match(/^(CHK-\d+):(happy|edge|adversarial):(\d+)$/)!;
     out.push({ ref, itemId: match[1]!, lane: match[2]!, index: Number(match[3]), verdicts: streak, features });
@@ -96,7 +118,7 @@ export function disputedRows(history: readonly Verdict[]): DisputedRow[] {
  * command left (the required row already pins only the error): the framework records that the row stands and the gap is
  * settled. `note` is what the scope-plan rerun is told about the row; `key` / `dir` feed the PLAN remedy cycle breaker.
  */
-export interface PinDisputeRemedy { ref: string; kind: 'relax' | 'exclude' | 'repin' | 'counterpart' | 'settle'; payload: Record<string, unknown> | null; why: string;
+export interface PinDisputeRemedy { ref: string; kind: 'relax' | 'exclude' | 'repin' | 'counterpart' | 'settle' | 'base'; payload: Record<string, unknown> | null; why: string;
   note?: string; key?: string; dir?: 'drop' | 'require' }
 
 type ItemLike = Pick<ChecklistItem, 'id' | 'title' | 'userSees' | 'status' | 'excludes'> & { verificationIntent?: ChecklistItem['verificationIntent']; files?: { modify?: readonly string[]; create?: readonly string[] } };
@@ -110,7 +132,23 @@ type ItemLike = Pick<ChecklistItem, 'id' | 'title' | 'userSees' | 'status' | 'ex
  * case kept, and a row already pinning only the error is settled (it stands).
  */
 export function pinDisputeRemedy(args: { storyId: string; item: ItemLike; dispute: DisputedRow; requestText: string | null;
-  counterpart?: Pick<CounterpartCoverageResult, 'checks'> | null }): PinDisputeRemedy | null {
+  counterpart?: Pick<CounterpartCoverageResult, 'checks'> | null;
+  /** Lab run132 (run 134 item 2, plan.baseEvidence): the Story-base evidence of a row's case (core/pin-base-evidence.ts). */
+  baseOf?: ((item: ItemLike, ref: string) => BaseEvidenceLike | null) | null;
+  /** Lab run132 (old-PoS run 135 item K, plan.repinAllRows; default true): close the row patch over every row of the case. */
+  repinAllRows?: boolean }): PinDisputeRemedy | null {
+  const raw = pinDisputeRemedyRaw(args);
+  // Lab run132 (old-PoS run 135 item K): a ready row patch re-pins EVERY row of the item pinning the old value of the
+  // case, its re-pin stated (core/pin-repin-closure.ts), or no call is offered (the framework never emits a call its own
+  // pin_reversal_unstated gate refuses). An owner-filled template (`<the value ...>`) is not a ready call: kept as it is.
+  const rows = raw?.payload?.intentRows;
+  if (!raw || !Array.isArray(rows) || /"<[a-z][^"]*>"|<the [^<>]*>/i.test(JSON.stringify(rows))) return raw;
+  const closed = closeRepinPatch({ storyId: args.storyId, item: args.item as never, patch: rows as Array<Record<string, unknown>>, why: raw.why, repinAllRows: args.repinAllRows });
+  if (!closed) return null;
+  return closed === rows ? raw : { ...raw, payload: { ...raw.payload, intentRows: closed } };
+}
+
+function pinDisputeRemedyRaw(args: Parameters<typeof pinDisputeRemedy>[0]): PinDisputeRemedy | null {
   const { storyId, item, dispute } = args;
   const row = (item.verificationIntent?.[dispute.lane as (typeof VERIFICATION_LANES)[number]] ?? [])[dispute.index] as { desc?: string; derivation?: { requestQuote?: string } } | undefined;
   if (!row?.desc) return null;
@@ -156,6 +194,27 @@ export function pinDisputeRemedy(args: { storyId: string; item: ItemLike; disput
     return { ref: dispute.ref, kind: 'relax', payload: { storyId, itemId: item.id, intentRows: [patch], reason: `${streak}; the request states no text for this error, so the row pins only the error` },
       why: `${dispute.ref} pins the exact text \`${text.slice(0, 120)}\`, which the request does not state: relax it to \`${String(patch.desc).slice(0, 160)}\``};
   }
+  // Lab run132 (run 134 item 2, plan.baseEvidence): a value row whose case the Story base decides is re-pinned to the base
+  // value (or settled when it already pins it); an exclusion stays only where no base evidence exists.
+  const evidence = args.baseOf?.(item, dispute.ref) ?? null;
+  if (evidence && evidence.status === 'value') {
+    const literal = leadingLiteral(side) ?? side.trim();
+    const value = basePinnedForm(evidence.value, literal);
+    const key = `base|${item.id}|${caseSide(desc).replace(/\s+/g, '')}`;
+    if (sameValue(value, literal)) {
+      return { ref: dispute.ref, kind: 'settle', payload: null, key, dir: 'require',
+        why: `${dispute.ref} pins ${literal}, the value ${evidence.detail}: the row stands and the framework settles the gap (existing behaviour the request keeps is decided by the base)`,
+        note: `kept as is: it pins the Story base value (${evidence.detail})` };
+    }
+    const at = desc.lastIndexOf(literal);
+    const patched = at >= 0 && side.length !== desc.length ? `${desc.slice(0, at)}${value}${desc.slice(at + literal.length)}` : `${caseSide(desc)} -> ${value}`;
+    return { ref: dispute.ref, kind: 'base', key, dir: 'require',
+      payload: { storyId, itemId: item.id, intentRows: [{ ref: dispute.ref, desc: patched, derivation: { requestQuote: String(row.derivation?.requestQuote ?? ''),
+        computation: `re-pin: ${caseSide(desc)} was ${literal}, now ${value}: ${evidence.detail}; the request is silent on this existing behaviour, so the base decides` } }],
+        reason: `${streak}; re-pinned to the Story base value (plan.baseEvidence)` },
+      why: `${dispute.ref}'s case is existing behaviour the Story base decides (${evidence.detail}): re-pin it to ${value} instead of excluding it`,
+      note: `re-pinned to the Story base value ${value} (${evidence.detail}); judge it against the base, not the request's silence` };
+  }
   const entry = `${caseSide(desc).slice(0, 200)}: the request does not state the expected value for this case (${streak})`;
   const excluded = exclusionUserSeesRemedy(entry, item);
   if (excluded.contradictedBy !== 'title_or_files') {
@@ -187,8 +246,33 @@ export function pinDisputeOffered(root: string, storyId: string, verdictAt: stri
   if (!verdictAt) return null;
   try {
     const rows = readFileSync(journal(root, storyId), 'utf8').split('\n').flatMap(line => {
-      try { return [JSON.parse(line) as { verdictAt?: string; rows?: Array<{ ref: string; kind: string; note?: string }> }]; } catch { return []; }
-    }).filter(row => row.verdictAt === verdictAt);
+      try { return [JSON.parse(line) as { at?: string; verdictAt?: string; rows?: Array<{ ref: string; kind: string; note?: string }> }]; } catch { return []; }
+    }).filter(row => row.verdictAt === verdictAt && row.at !== 'pin_audit_offer');
     return rows.length ? rows.at(-1)!.rows ?? [] : null;
   } catch { return null; }
+}
+
+/** Lab run132: journal what the pin-audit correction step named and offered a call for on the verdict `verdictAt`. */
+export function recordPinAuditOffer(root: string, storyId: string, verdictAt: string, offer: PinAuditOffer): void {
+  try {
+    if (pinAuditOffer(root, storyId, verdictAt)) return;
+    mkdirSync(dirname(journal(root, storyId)), { recursive: true });
+    writeFileSync(journal(root, storyId), `${JSON.stringify({ schema: PIN_DISPUTE_SCHEMA, storyId, at: 'pin_audit_offer', checkedAt: new Date().toISOString(), verdictAt,
+      named: offer.named, offered: offer.offered })}\n`, { flag: 'a' });
+  } catch { /* evidence only */ }
+}
+
+/** Lab run132: the pin-audit offer journaled for the verdict `verdictAt` (the first one), or null. */
+export function pinAuditOffer(root: string, storyId: string, verdictAt: string): PinAuditOffer | null {
+  try {
+    for (const line of readFileSync(journal(root, storyId), 'utf8').split('\n')) {
+      try {
+        const row = JSON.parse(line) as { at?: string; verdictAt?: string; named?: unknown; offered?: unknown };
+        if (row.at === 'pin_audit_offer' && row.verdictAt === verdictAt && Array.isArray(row.named) && Array.isArray(row.offered)) {
+          return { named: row.named.map(String), offered: row.offered.map(String) };
+        }
+      } catch { /* a torn line */ }
+    }
+  } catch { /* no journal */ }
+  return null;
 }

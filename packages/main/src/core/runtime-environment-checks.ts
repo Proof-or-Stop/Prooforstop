@@ -385,7 +385,10 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Lab round-cut (2026-10-14): checklist_update refuses a whole-intent payload built from older rows (intentBasis, core/intent-basis.ts); repinned.
   // Lab initplan (2026-10-15): the derivation refusal names a row patch / the staged payload, a CJK refusal also lists the underived rows, an INIT intent edit reprints the PLAN pre-check; repinned.
   // Lab run95 (2026-10-16): a row patch names removed rows and index moves (intentRowPatchNote); an excludes entry its own userSees names gets the one command for both fields; repinned.
-  'packages/main/src/handlers/checklist.ts': 'd00218fb6fd10d6d44fb4c4ab2ec2b4676ea939fb5df467368b9eac10921e62a',
+  // Lab run132 (2026-10-22, run 134 item 2): pinReversalRemedy gets the Story-base evidence lookup (plan.baseEvidence); repinned.
+  // Lab run132 (2026-10-22, old-PoS run 135 item K): pin_reversal_unstated compares with every earlier pin of the case and
+  // the remedy re-pins every row / other items (plan.repinAllRows); repinned.
+  'packages/main/src/handlers/checklist.ts': '4bf20c5dca27d6bee20cd56f442dda4bee9653173cb85566793adbb827a8fa69',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 

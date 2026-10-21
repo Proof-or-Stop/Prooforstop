@@ -48,13 +48,15 @@ import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
-import { disputeConfirmOn, familyEvidenceOn, probeMatrixOn } from '../core/ab-variants.js';
+import { baseClaimEvidenceOn, baseEvidenceOn, disputeConfirmOn, familyEvidenceOn, probeMatrixOn } from '../core/ab-variants.js';
+import { BASE_EVIDENCE_LINE_FORM, REPAIR_BASE_CLAIM_UNPROVEN, repairBaseClaimProblem } from '../core/repair-report-lines.js';
 import { pinDisputeOffered } from '../core/pin-dispute.js';
 import { counterpartImplementerLines, planCounterpartCoverage, renderCounterpartBackedRows } from '../core/counterpart-coverage.js';
 import { renderSiblingParity } from '../core/sibling-parity.js';
 import { recordChainMechanismRequirement, regressionFamilyBrief, reviewHeadResolver, sameRoundDuplicateLines } from '../core/regression-family-brief.js';
 import { duplicateRootOf, findingDuplicateOf } from '../core/duplicate-finding-coverage.js';
 import { baseDisagreementActive, SCOPE_PLAN_BASE_DISAGREEMENT_CHECK } from '../core/base-disagreement.js';
+import { planPinAuditBase, renderPinAuditBaseRows } from '../core/pin-base-evidence.js';
 import { rejectedRepairCommits, renderRepairResolvedContext, renderResolvedReprobe } from '../core/resolved-finding-guard.js';
 import { exclusionRationaleCheckActive, SCOPE_PLAN_EXCLUSION_CHECK } from '../core/scope-exclusion-rationale.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -280,6 +282,14 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
   lines.push(...renderPinAudit(items, request.text));
   // Lab run102 (run 101 scope-plan #1): rows whose value the framework derives from the same receiver's base counterpart.
   lines.push(...(() => { try { return renderCounterpartBackedRows(planCounterpartCoverage(store, store.projectRoot, storyId, () => resolveGitCwd({ store, storyId, metadataRoot: store.projectRoot, projectRoot: store.projectRoot }))); } catch { return []; } })());
+  // Lab run132 (run 134 item 1, plan.baseEvidence): existing behaviour is checked on the base, and base-decided rows are named.
+  lines.push(...(() => {
+    try {
+      if (!baseEvidenceOn(loadConfig(store.projectRoot))) return [];
+      return ['Existing behaviour the request keeps (an unchanged operation, a two-part form next to a new three-part one): take its value from the Story base (a base test that states the case, the pin oracle below, or running the base), never from a hand computation; a pin-audit gap for such a case names the base evidence in its why.',
+        ...renderPinAuditBaseRows(planPinAuditBase(store, store.projectRoot, storyId, () => resolveGitCwd({ store, storyId, metadataRoot: store.projectRoot, projectRoot: store.projectRoot })))];
+    } catch { return []; }
+  })());
   // Old-PoS run 31 (core/pin-oracle.ts): the project-declared oracle for the examples the framework could not evaluate.
   lines.push(...renderPinOracleAudit(oracle));
   // Old-PoS run 31 (core/request-probes.ts): request-defined rows paired with the sentence that defines them.
@@ -598,6 +608,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('');
   }
 
+  /** Lab run132 (old-PoS run 134 item 3): whether the Story has a plan.md (the managed flow writes none). */
+  function storyPlanPresent(storyId: string): boolean {
+    try { return existsSync(store.storyFilePath(storyId, 'plan.md')); } catch { return true; }
+  }
+
   function buildInitReviewPrompt(args: {
     storyId: string;
     agentType?: string;
@@ -745,8 +760,12 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     // The verdict is required without an understanding snapshot (run 16), so it is read only when present.
     lines.push(`2. ${understandingPath} (if present)`);
     lines.push(`3. ${checklistPath}`);
-    lines.push(`4. ${planPath}`);
-    lines.push(`5. ${decisionPath} (if present)`);
+    // Lab run132 (old-PoS run 134 item 3): this flow writes no plan.md, and an unconditional "4. plan.md" made the reviewer
+    // raise an open question "PLAN artifact plan.md absent" (a blocker the owner cannot act on). Named only when present.
+    const planPresent = storyPlanPresent(args.storyId);
+    if (planPresent) lines.push(`4. ${planPath}`);
+    lines.push(`${planPresent ? 5 : 4}. ${decisionPath} (if present)`);
+    if (!planPresent) lines.push(`- This Story has no plan.md (the flow does not write one): its checklist is the plan. Do not raise its absence as a gap or an open question.`);
     lines.push('- Also read relatedDocs referenced by checklist items and any decisions/docs cited by the story artifacts.');
     // Lab initplan (A/B plan.reviewerPreload=on, core/scope-plan-preload.ts): the must-read files inline; off = nothing added.
     lines.push(...renderScopePlanPreload(store, root, args.storyId));
@@ -853,8 +872,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('');
     lines.push('Required reading:');
     lines.push(`1. ${storyDir}/background.md`);
-    lines.push(`2. ${storyDir}/plan.md`);
-    lines.push(`3. ${storyDir}/checklist.json`);
+    // Lab run132 (old-PoS run 134 item 3): plan.md only when the Story has one (this flow writes none).
+    if (storyPlanPresent(args.storyId)) {
+      lines.push(`2. ${storyDir}/plan.md`);
+      lines.push(`3. ${storyDir}/checklist.json`);
+    } else {
+      lines.push(`2. ${storyDir}/checklist.json (this Story has no plan.md: the checklist is the plan; its absence is no finding)`);
+    }
     lines.push('- Read the files and relatedDocs named by every checklist item, bounded by the current candidate-spec artifact.');
     if (routed) {
       lines.push(`- Candidate routing: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest} candidates=${routed.candidateSpecSet.join(', ') || '(none)'}`);
@@ -900,7 +924,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     ];
     appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/story`);
     lines.push('Role boundary: review only; do not change code, tests, checklist status, or commits.');
-    lines.push(`Required reading: ${store.storyDirRel()}/${args.storyId}/background.md, plan.md, checklist.json, and delivery-facing relatedDocs.`);
+    // Lab run132 (old-PoS run 134 item 3): plan.md only when the Story has one (this flow writes none).
+    lines.push(storyPlanPresent(args.storyId)
+      ? `Required reading: ${store.storyDirRel()}/${args.storyId}/background.md, plan.md, checklist.json, and delivery-facing relatedDocs.`
+      : `Required reading: ${store.storyDirRel()}/${args.storyId}/background.md, checklist.json (this Story has no plan.md: the checklist is the plan; its absence is no finding), and delivery-facing relatedDocs.`);
     lines.push('Formal native delivery evidence requires the registered host adapter to descriptor-inject the exact one-shot broker attestation for this dispatch. Alternatively, the controller may launch this required TEST reviewer through host_run --managedDispatch; its live one-shot invocation and terminal-sealed delivery output provide the managed authority. Without either authorized invocation, delivery_check_set fails closed.');
     lines.push('Finish by calling delivery_check_set with the complete promise and evidence mapping; dispatch output alone is not delivery evidence.');
     // Old-PoS run 34 (F8): the reviewer spent its first minute exploring framework state
@@ -1111,6 +1138,15 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         for (const row of finding.status === 'open' ? earlierFindingRepairReports(root, args.storyId, finding.id) : []) {
           const problem = branchTestProblem(managedRunFinalMessage(root, row.runId), recorded);
           if (problem) lines.push(`- Earlier repair run ${row.runId} did not report every branch: ${problem}. Test and report those branches now.`);
+        }
+      }
+      // Lab run132 (old-PoS run 135 item L, remediation.baseClaimEvidence): run 135 F-009 came from a repair report saying
+      // the empty-range alias "already matched the base" (it did not). A "matches the base" claim owes base evidence.
+      if (agentType === 'proof-or-stop-finding-repair' && (() => { try { return baseClaimEvidenceOn(loadConfig(root)); } catch { return true; } })()) {
+        lines.push(`- A report sentence saying a boundary case (empty, negative, out of range, zero, nil / null, reversed, omitted) already matches / is unchanged from the Story base owes one line per case: \`${BASE_EVIDENCE_LINE_FORM}\` from running it on the Story base below; without it the repair is not accepted [${REPAIR_BASE_CLAIM_UNPROVEN}].`);
+        for (const row of finding.status === 'open' ? earlierFindingRepairReports(root, args.storyId, finding.id) : []) {
+          const problem = repairBaseClaimProblem(managedRunFinalMessage(root, row.runId));
+          if (problem) lines.push(`- Earlier repair run ${row.runId} was not accepted: ${problem}. Probe those cases on the Story base before relying on them.`);
         }
       }
       const storyBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();

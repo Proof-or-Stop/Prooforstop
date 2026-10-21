@@ -62,6 +62,20 @@
  *   Lab run132 (behaviour in tasks/run132-fixes-smoke.ts B, end to end in NIC / NIC-F / NIC-OFF):
  *   init.reviewerCarryForward        default ON (`off` = rollback): a signed INIT reviewer PASS whose judged slice is
  *                                    unchanged is carried forward after a signed-input edit (only stale reviewers rerun)
+ *   Lab run132, runs 133/134 (behaviour in tasks/run133-fixes-smoke.ts C, tasks/run134-fixes-smoke.ts E / F):
+ *   review.stragglerVerdict          default ON (`off` = rollback): a review lane far behind its finished siblings is asked
+ *                                    for its verdict now in its own resumed session
+ *   plan.baseEvidence                default ON (`off` = rollback): a pin-audit value the Story base refutes is not offered;
+ *                                    dispute / reversal remedies re-pin an existing-behaviour case to the base value
+ *   remediation.baseClaimEvidence    default ON (`off` = rollback; run 135 L, tasks/run135-l-smoke.ts): a finding-repair
+ *                                    report claiming a boundary case matches the base owes a [base-evidence] line
+ *   Lab run132, run 135 (behaviour in tasks/run135-hi-smoke.ts H / I):
+ *   review.deltaSelectorRepair       default ON (`off` = rollback): a delta confirmation lane's generic [reverified]
+ *                                    selector is filled (named test / the framework's own re-run) or corrected once
+ *   remediation.duplicateReproAppend default ON (`off` = rollback): one lacks-repro duplicate refusal gets the repro
+ *                                    append step instead of its own managed repair
+ *   plan.repinAllRows                default ON (`off` = rollback): pin_reversal_unstated compares a pin with every earlier
+ *                                    pin of its case; framework re-pin remedies re-pin every row (and other items) of the case
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -133,7 +147,15 @@ await check('config: absent switches resolve to production values; malformed fai
     // Lab run131: the scope-gate settle, the finding-conflict settle and the intent-conflict guard are on (`off` = rollback).
     scopeGateSettle: 'on', conflictSettle: 'on', intentConflictGuard: 'on',
     // Lab run132: the INIT reviewer carry-forward is on (`off` = rollback).
-    reviewerCarryForward: 'on' });
+    reviewerCarryForward: 'on',
+    // Lab run132 (runs 133/134): the review straggler verdict and the Story-base pin evidence are on (`off` = rollback).
+    stragglerVerdict: 'on', baseEvidence: 'on',
+    // Lab run132 (L): a repair report's base-match claim owes a [base-evidence] line (`off` = rollback).
+    baseClaimEvidence: 'on',
+    // Lab run132 (run 135 H/I): the delta selector repair and the duplicate repro append are on (`off` = rollback).
+    deltaSelectorRepair: 'on', duplicateReproAppend: 'on',
+    // Lab run132 (run 135 item K): every-row re-pin and the all-earlier-pins gate are on (`off` = rollback).
+    repinAllRows: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -186,6 +208,24 @@ await check('config: absent switches resolve to production values; malformed fai
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'init.reviewerCarryForward': 'off' } }, 'lab run132: the rollback arm is recorded');
   const { reviewerCarryForwardOn } = await load('core/ab-variants.js');
   assert.equal(reviewerCarryForwardOn({ init: { reviewerCarryForward: 'maybe' } }), true, 'lab run132: malformed = on where consumed');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { stragglerVerdict: 'off' }, plan: { baseEvidence: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.stragglerVerdict': 'off', 'plan.baseEvidence': 'off' } }, 'lab run132 (runs 133/134): the rollback arms are recorded');
+  const { stragglerVerdictOn, baseEvidenceOn } = await load('core/ab-variants.js');
+  assert.equal(stragglerVerdictOn({ review: { stragglerVerdict: 'maybe' } }), true, 'lab run132 (run 133): malformed = on where consumed');
+  assert.equal(baseEvidenceOn({ plan: { baseEvidence: 'maybe' } }), true, 'lab run132 (run 134): malformed = on where consumed');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { baseClaimEvidence: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.baseClaimEvidence': 'off' } }, 'lab run132 (run 135 L): the rollback arm is recorded');
+  const { baseClaimEvidenceOn } = await load('core/ab-variants.js');
+  assert.equal(baseClaimEvidenceOn({ remediation: { baseClaimEvidence: 'maybe' } }), true, 'lab run132 (run 135 L): malformed = on where consumed');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { deltaSelectorRepair: 'off' }, remediation: { duplicateReproAppend: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.deltaSelectorRepair': 'off', 'remediation.duplicateReproAppend': 'off' } }, 'lab run132 (run 135): the rollback arms are recorded');
+  const { deltaSelectorRepairOn, duplicateReproAppendOn } = await load('core/ab-variants.js');
+  assert.equal(deltaSelectorRepairOn({ review: { deltaSelectorRepair: 'maybe' } }), true, 'lab run132 (run 135 H): malformed = on where consumed');
+  assert.equal(duplicateReproAppendOn({ remediation: { duplicateReproAppend: 'maybe' } }), true, 'lab run132 (run 135 I): malformed = on where consumed');
+  const { repinAllRowsOn } = await load('core/ab-variants.js');
+  assert.equal(repinAllRowsOn({ plan: { repinAllRows: 'maybe' } }), true, 'lab run132 (run 135 K): malformed = on where consumed');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { repinAllRows: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.repinAllRows': 'off' } }, 'lab run132 (run 135 K): the rollback arm is recorded');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

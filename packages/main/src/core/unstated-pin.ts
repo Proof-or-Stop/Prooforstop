@@ -28,7 +28,7 @@
  * the base, as request_pin_check and pin_base_form_check). A request-stated text is never listed.
  */
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { ChecklistItem } from './types.js';
 import type { StoryStore } from './store.js';
@@ -221,13 +221,9 @@ export function planUnstatedPins(store: Pick<StoryStore, 'readStory' | 'readChec
     const inputsDigest = createHash('sha256').update(JSON.stringify({ v: 1, base, requestText, changed, items: items.map(item => ({ id: item.id, status: item.status, intent: item.verificationIntent })) })).digest('hex');
     const path = evidencePath(root, storyId);
     const cached = memo.get(path);
+    // Security (lab run132 review): recomputed in this process (in-process memo only); the runtime file is a write-only
+    // journal and never read back: the owner can write it with a matching inputsDigest (computable from public inputs).
     if (cached?.inputsDigest === inputsDigest) return cached;
-    if (existsSync(path)) {
-      try {
-        const stored = JSON.parse(readFileSync(path, 'utf8')) as UnstatedPinEvidence;
-        if (stored.schema === UNSTATED_PIN_SCHEMA && stored.inputsDigest === inputsDigest) { memo.set(path, stored); return stored; }
-      } catch { /* recomputed below */ }
-    }
     const files = base ? readBaseSources(cwd, base) : null;
     const evidence: UnstatedPinEvidence = { schema: UNSTATED_PIN_SCHEMA, storyId, checkedAt: new Date().toISOString(), base, inputsDigest, scanned: files?.length ?? 0,
       pins: unstatedPins({ items, requestText, files, changedRefs }) };

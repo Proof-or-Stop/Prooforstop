@@ -89,7 +89,9 @@ function groupStore(): { root: string; store: StoryStore; storyId: string; findi
   store.writeReviewInventoryEpochs(storyId, data);
   store.writeDuplicateFindingCoverage(storyId, { schemaVersion: 'proof-or-stop.duplicate_finding_coverage.v1', receipts: [
     { findingId: `${storyId}:F-002`, canonicalFindingId: `${storyId}:F-001`, command: 'go test ./store -run X', selector: '--- PASS: X', exitCode: null, timedOut: false, selectorMatched: false,
-      passed: false, headHash: null, durationMs: 0, outputDigest: '', outputTail: '', executedAt: NOW, refusal: 'duplicate_coverage_lacks_repro' }] } as never);
+      // Lab run132 (old-PoS run 135 item I): a single lacks-repro refusal now gets the repro append step (run135-hi-smoke I2);
+      // a refusal of another kind keeps this route.
+      passed: false, headHash: null, durationMs: 0, outputDigest: '', outputTail: '', executedAt: NOW, refusal: 'duplicate_canonical_not_live' }] } as never);
   return { root, store, storyId, findings };
 }
 

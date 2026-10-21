@@ -80,7 +80,8 @@ import {
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
 import { isEvidenceChainFindingCategory } from '../core/evidence-chain-finding.js';
 import { evidenceChainNextActionForStory } from './evidence-chain.js';
-import { closedWithoutFix, findingDuplicateOf, duplicateCoverageSelectorProblem, duplicateRootOf, runDuplicateCoverage } from '../core/duplicate-finding-coverage.js';
+import { closedWithoutFix, duplicateCoverageReceipts, findingDuplicateOf, duplicateCoverageSelectorProblem, duplicateRootOf, runDuplicateCoverage } from '../core/duplicate-finding-coverage.js';
+import { duplicateReproAppendOn } from '../core/ab-variants.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { storyFindingRepairState } from './next-driver.js';
@@ -719,6 +720,13 @@ function storyChangedTestFiles(ctx: HandlerContext, storyId: string, gitCwd: str
   } catch { return []; }
 }
 
+/** Lab run132 (old-PoS run 135 item I): the lacks-repro refusal about to be recorded is the duplicate's first refusal (the append step follows). */
+function reproAppendFirst(root: string, earlier: readonly DuplicateCoverageReceipt[]): boolean {
+  let on = true;
+  try { on = duplicateReproAppendOn(loadConfig(root)); } catch { on = true; }
+  return on && !earlier.some(row => !row.passed);
+}
+
 /**
  * Run 17 (Q1): finding_resolve --duplicateOf. Closes a finding the REVIEW
  * inventory critic dispositioned `duplicate` of a canonical finding, with that
@@ -778,8 +786,11 @@ function closeDuplicateWithCoverageFor(ctx: HandlerContext, args: { storyId: str
     sourceText: coverageSourceText(cwd, command!.trim(), storyChangedTestFiles(ctx, args.storyId, cwd)) });
   if (repro.checked && repro.missing.length) {
     refuseRecorded(`the coverage \`${command!.trim()}\` does not exercise ${args.findingId}'s own repro (${repro.missing.map(row => `\`${row}\``).join(', ')} appears neither in the tests it runs nor in the command), `
-      + `so it cannot show ${args.duplicateOf}'s repair fixes ${args.findingId}'s case. The refusal is recorded: ${args.findingId} now gets its own managed repair `
-      + '(or add that repro to the covering test and close it again)', 'duplicate_coverage_lacks_repro');
+      + `so it cannot show ${args.duplicateOf}'s repair fixes ${args.findingId}'s case. The refusal is recorded: `
+      // Lab run132 (old-PoS run 135 item I, remediation.duplicateReproAppend): the first such refusal is answered by appending the repro.
+      + (reproAppendFirst(ctx.root, duplicateCoverageReceipts(store, args.storyId, args.findingId))
+        ? `next names the covering test: append that repro to it verbatim, commit it and run this call again (a second refusal gives ${args.findingId} its own managed repair)`
+        : `${args.findingId} now gets its own managed repair (or add that repro to the covering test and close it again)`), 'duplicate_coverage_lacks_repro');
   }
   const rootId = canonical!.resolutionType === 'duplicate' ? (duplicateRootOf(store, args.storyId, canonical!.id) ?? canonical!.id) : canonical!.id;
   const rootFinding = findings.find(row => row.id === rootId) ?? canonical!;

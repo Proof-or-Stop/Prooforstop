@@ -52,6 +52,7 @@
  * saved after that DEV entry is checked here.
  */
 import { openScopeGaps } from './pin-audit-correction.js';
+import { pinAuditBaseValues } from './pin-base-evidence.js';
 import { existsSync, readdirSync } from 'node:fs';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, WorkflowPolicy } from './types.js';
@@ -239,7 +240,7 @@ export function scopeVerdictReviewEntryFailure(
         + `Next: proof-or-stop story_advance '{"storyId":"${storyId}","phase":"PLAN"}' (then rerun the scope-plan reviewer)`;
     }
   }
-  const gaps = openScopeGaps(scope, store.readChecklist(storyId));
+  const gaps = openScopeGaps(scope, store.readChecklist(storyId), pinAuditBaseValues(store as never, root, storyId));
   if (gaps.length > 0) {
     return `Cannot enter REVIEW: the scope-plan reviewer verdict of ${scope.checkedAt} lists ${gaps.length} gap(s) [scope_gap]: `
       + `${gaps.slice(0, 4).map(gap => `"${gap.feature}"`).join(', ')}${gaps.length > 4 ? ` +${gaps.length - 4} more` : ''}. `
@@ -270,7 +271,7 @@ export function scopeVerdictGapEnforcementFailure(
   if (!pinAuditEnforced(root)) return null;
   const scope = store.readScopeCheck(storyId);
   if (!scope) return null;
-  const gaps = openScopeGaps(scope, store.readChecklist(storyId));
+  const gaps = openScopeGaps(scope, store.readChecklist(storyId), pinAuditBaseValues(store as never, root, storyId));
   if (gaps.length === 0) return null;
   return `Cannot enter DEV: the scope-plan reviewer verdict of ${scope.checkedAt} lists ${gaps.length} open gap(s) [scope_gap] (A/B switch plan.pinAuditEnforcement=on): `
     + `${gaps.slice(0, 4).map(gap => `"${gap.feature}"`).join(', ')}${gaps.length > 4 ? ` +${gaps.length - 4} more` : ''}. `

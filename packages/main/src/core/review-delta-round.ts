@@ -88,6 +88,7 @@ import { isCodeReviewLaneRun, isEarlierReviewRound } from './review-round-order.
 import type { StoryStore } from './store.js';
 import type { Finding, ReviewInventoryEpoch, ReviewInventoryReceipt, ReviewRun } from './types.js';
 import { isFrameworkSettled } from './finding-conflict-settle.js';
+import { fillReverifySelector, isGenericReverifySelector } from './delta-reverify-selector.js';
 
 export const DELTA_ROUND_SCHEMA = 'proof-or-stop.review-delta-round.v1' as const;
 export const DELTA_ROUND_GAP_EVENT = 'delta_round_confirmation_gap' as const;
@@ -636,6 +637,8 @@ export function renderDeltaConfirmationBlock(plan: DeltaRoundPlan, storyId: stri
     'Never pass what you did not check. Your final note MUST contain one line per item, exactly in these forms:',
     '  [checked] <item> :: <what you read or ran and what it showed>      for every concern:, file: and finding: item above',
     '  [reverified] <finding id> :: <exact command> :: <exact output line that shows its case passes>      for every resolved finding above',
+    // Lab run132 (old-PoS run 135 item H): run 135's lane wrote `:: PASS` for four findings and the round went to a full round.
+    '  The output line names the finding\'s own test, e.g. `--- PASS: <TestName>` (Go -v) or `<file>::<test> PASSED` (pytest -v); a bare `PASS`, `ok` or `passed` is refused.',
     '  [gap] <item> :: <why it was not checked>      for anything you could not check',
     'The framework re-runs every [reverified] command in the Story worktree (one executable with its arguments, no shell operators, e.g. `go test -v ./pkg -run TestX`) and requires exit 0 and that output line. A pass with any [gap] line, an item without its line, a file: item missing from your read manifest, or a re-run that fails is NOT a pass: the framework refuses it and this round falls back to a full review by every lane. Report every defect you find as a finding, as usual.',
     'Instructions:',
@@ -650,7 +653,6 @@ export function renderDeltaConfirmationBlock(plan: DeltaRoundPlan, storyId: stri
 
 const NOTE_MARKER = /\[(?:checked|reverified|gap)\]/g;
 const NOTE_SEGMENT = /^\[(checked|reverified|gap)\]\s+(\S+)(?:\s*::\s*([\s\S]*)|\s[\s\S]*)?$/;
-const GENERIC_SELECTOR = /^(?:ok|pass(?:ed)?|--- ?pass:?|pass:?|success|done|\d+ passing)$/i;
 
 /** An item token as a reviewer writes it: `quoted`, *bold*, or followed by a colon / full stop. */
 const cleanNoteItem = (item: string): string => item.replace(/^[`'"*(]+/, '').replace(/[`'"*),;:.]+$/, '');
@@ -687,7 +689,12 @@ export function checkDeltaConfirmationNote(args: {
   storyId: string;
   note: string;
   readManifest?: { filesReadFully?: readonly string[]; filesTriagedByName?: readonly string[] } | null;
-}): { missing: string[]; gaps: string[]; problems: string[]; reverify: Array<{ findingId: string; command: string; selector: string }> } {
+  /**
+   * Lab run132 (old-PoS run 135 item H, review.deltaSelectorRepair): fill a generic selector from the test the command
+   * names, else mark it for the framework's own re-run output (core/delta-reverify-selector.ts).
+   */
+  fillGeneric?: boolean;
+}): { missing: string[]; gaps: string[]; problems: string[]; reverify: Array<{ findingId: string; command: string; selector: string; selectorSource?: 'lane' | 'command' | 'rerun_output'; laneSelector?: string }> } {
   const { binding, storyId } = args;
   const checked = new Set<string>();
   const gaps: string[] = [];
@@ -717,7 +724,7 @@ export function checkDeltaConfirmationNote(args: {
     const path = item.slice('file:'.length);
     if (!read.has(path)) problems.push(`${item}: [checked] but ${path} is not in the read manifest`);
   }
-  const reverify: Array<{ findingId: string; command: string; selector: string }> = [];
+  const reverify: Array<{ findingId: string; command: string; selector: string; selectorSource?: 'lane' | 'command' | 'rerun_output'; laneSelector?: string }> = [];
   for (const findingId of binding.reverifyFindingIds) {
     const rest = reverified.get(findingId);
     if (rest === undefined) { problems.push(`${shortId(storyId, findingId)}: no [reverified] line (a resolved finding is re-verified by re-running its test)`); continue; }
@@ -725,7 +732,18 @@ export function checkDeltaConfirmationNote(args: {
     const command = parts[0] ?? '';
     const selector = cleanSelector(parts.slice(1).join('::'));
     if (!command || !selector) { problems.push(`${shortId(storyId, findingId)}: [reverified] needs ":: <command> :: <output line>"`); continue; }
-    if (selector.length < 6 || GENERIC_SELECTOR.test(selector)) { problems.push(`${shortId(storyId, findingId)}: selector "${selector}" is generic; name the test or the output line that shows the case passes`); continue; }
+    if (isGenericReverifySelector(selector)) {
+      // Lab run132 (old-PoS run 135 item H): filled from the test the command names, else from the framework's own re-run
+      // output (one test-named pass line); the re-run still requires exit 0 and that line.
+      if (args.fillGeneric) {
+        const filled = fillReverifySelector({ command });
+        reverify.push(filled ? { findingId, command, selector: filled.selector, selectorSource: filled.source, laneSelector: selector }
+          : { findingId, command, selector, selectorSource: 'rerun_output', laneSelector: selector });
+        continue;
+      }
+      problems.push(`${shortId(storyId, findingId)}: selector "${selector}" is generic; name the test or the output line that shows the case passes (e.g. \`--- PASS: <TestName>\`)`);
+      continue;
+    }
     reverify.push({ findingId, command, selector });
   }
   return { missing, gaps, problems, reverify };

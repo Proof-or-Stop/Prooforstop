@@ -29,6 +29,7 @@ import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
 import { shellQuote } from './shell-quote.js';
 import { rowPins } from './pin-amendment.js';
+import { closeRepinPatch } from './pin-repin-closure.js';
 
 export const INTENT_CONFLICT_OVERRULED = 'intent_conflict_overruled';
 const SCHEMA = 'proof-or-stop.intent-conflict-open.v1' as const;
@@ -151,7 +152,24 @@ export function intentConflictRowPatch(args: { row: IntentRow | undefined; confl
 }
 
 /** The ready intentRows of one item's conflicts, or null when any of them cannot be made ready (prose, userSees, no row). */
-export function intentConflictReadyRows(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[], requestText: string | null):
+export function intentConflictReadyRows(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[], requestText: string | null,
+  opts: { repinAllRows?: boolean } = {}): ReadyRows | null {
+  return closedReadyRows(item, intentConflictReadyRowsRaw(item, conflicts, requestText), 'the request sentence decides it', opts);
+}
+
+/**
+ * Lab run132 (old-PoS run 135 item K, plan.repinAllRows): a ready row patch re-pins EVERY row of the item pinning the
+ * old value of the case (core/pin-repin-closure.ts closeRepinPatch), so pin_reversal_unstated never refuses the call the
+ * framework emits; null (no call offered) when it cannot be made gate-clean.
+ */
+type ReadyRows = Array<{ ref: string; desc?: string; derivation?: { requestQuote: string; computation: string } } & Record<string, unknown>>;
+function closedReadyRows(item: ItemSlice | undefined, rows: ReadyRows | null, why: string, opts: { repinAllRows?: boolean }): ReadyRows | null {
+  if (!item || !rows?.length) return rows;
+  const closed = closeRepinPatch({ storyId: '', item: item as never, patch: rows, why, repinAllRows: opts.repinAllRows });
+  return closed ? closed as ReadyRows : null;
+}
+
+function intentConflictReadyRowsRaw(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[], requestText: string | null):
   Array<{ ref: string; desc: string; derivation: { requestQuote: string; computation: string } }> | null {
   if (!item || !conflicts.length) return null;
   const out = new Map<string, NonNullable<ReturnType<typeof intentConflictRowPatch>>>();
@@ -161,6 +179,64 @@ export function intentConflictReadyRows(item: ItemSlice | undefined, conflicts: 
     out.set(patch.ref, patch);
   }
   return [...out.values()];
+}
+
+/**
+ * Lab run132 (run133-analysis.md item 2 B, ~1.5 min at normal latency): a `[pin-doubt] <ref> | base prints: <text> |
+ * request: silent` line (run 133: `... got "{}" (type HASH)` against a row pinning `... got "{ }" (type HASH)`) states
+ * only the base side; the pinned side is the row's own expected text that is a variant of it (the same text but for its
+ * spacing, or a variant of one error text). That is ONE ready row patch to the base text, the re-pin stated with the
+ * implementer's report as its source; the request quote is kept (the request does not state the pinned text:
+ * pinDoubtVerdict). Null when a row states no such variant.
+ */
+export function pinDoubtReadyRows(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[], opts: { repinAllRows?: boolean } = {}): ReadyRows | null {
+  return closedReadyRows(item, pinDoubtReadyRowsRaw(item, conflicts), "the implementer's [pin-doubt] reports the Story base prints it, and where the request is silent the base decides", opts);
+}
+
+function pinDoubtReadyRowsRaw(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[]):
+  Array<{ ref: string; desc: string; derivation: { requestQuote: string; computation: string } }> | null {
+  if (!item || !conflicts.length) return null;
+  const out = new Map<string, { ref: string; desc: string; derivation: { requestQuote: string; computation: string } }>();
+  for (const conflict of conflicts) {
+    const row = rowAt(item.verificationIntent, conflict.intentRef);
+    const implied = conflictFieldLiteral(conflict.requestImplies) ?? (conflict.requestImplies?.trim() || null);
+    if (!row?.desc || !implied || !ROW_REF.test(conflict.intentRef)) return null;
+    const desc = String(row.desc);
+    const pair = sides(conflict);
+    const pinned = pair?.pinned ?? pinnedVariantOf(desc, implied);
+    if (!pinned) return null;
+    const patched = replaceLast(desc, pinned, implied);
+    if (!patched || patched === desc) return null;
+    const pins = rowPins(desc);
+    const caseText = pair?.caseText ?? pins.find(pin => squash(pin.valueText).includes(squash(pinned)) || squash(pinned).includes(squash(pin.valueText)))?.caseText ?? pins[0]?.caseText ?? conflict.intentRef;
+    out.set(conflict.intentRef, { ref: conflict.intentRef, desc: patched, derivation: { requestQuote: String(row.derivation?.requestQuote ?? ''),
+      computation: `re-pin: ${caseText} was ${pinned}, now ${implied}: the request does not state this text; the implementer's [pin-doubt]${conflict.runId ? ` (${conflict.runId})` : ''} reports the Story base prints ${implied}, and where the request is silent the base decides` } });
+  }
+  return [...out.values()];
+}
+
+/**
+ * The span of a row's expected side that a base text is a variant of: the same text but for spacing (`{ }` / `{}`), or a
+ * variant of one error text (textVariants); the expected side is the text after the desc's last arrow, without a
+ * trailing `(exact ...)` note.
+ */
+function pinnedVariantOf(desc: string, implied: string): string | null {
+  const arrows = [...desc.matchAll(/\s*(?:->|=>|→)\s*/g)];
+  const last = arrows.at(-1);
+  if (!last || last.index === undefined) return null;
+  const side = desc.slice(last.index + last[0].length).replace(/\s*\((?:exact|the whole)[^()]*\)\s*$/i, '').trim();
+  const candidates = [side, side.replace(/^`|`$/g, ''), side.replace(/^error:?\s*/i, '')].filter(Boolean);
+  for (const candidate of candidates) {
+    if (candidate === implied) return null;
+    if (squash(candidate) === squash(implied) || textVariants(candidate, implied)) return candidate;
+    // The base text inside a longer expected side (`error "<text>"`).
+    const at = squash(candidate).indexOf(squash(implied).slice(0, 12));
+    if (at >= 0 && squash(candidate).length > squash(implied).length) {
+      const tail = candidate.match(/["'`](.+)["'`]\s*$/)?.[1];
+      if (tail && tail !== implied && (squash(tail) === squash(implied) || textVariants(tail, implied))) return tail;
+    }
+  }
+  return null;
 }
 
 /** The request states the pinned value (its text names the case and the value, or the row's verbatim quote names the value). */

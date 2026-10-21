@@ -55,6 +55,7 @@ import { abVariantEvidenceOf, docDriftSettleOn, rowBudgetOn } from '../core/ab-v
 import { ROW_BUDGET_ADVISORY, recordRowBudgetEvidence } from '../core/plan-row-budget.js';
 import { COUNTERPART_COVERAGE_ADVISORY, counterpartSettledGaps, edgeLabel, planCounterpartCoverage, SCOPE_GAP_COUNTERPART_SETTLED } from '../core/counterpart-coverage.js';
 import { remedySettledRefsOf } from '../core/plan-remedy-cycle.js';
+import { planPinAuditBase, SCOPE_GAP_BASE_SETTLED } from '../core/pin-base-evidence.js';
 import { docDriftSettlement, plainScopeGapRemedy, SCOPE_GAP_DOC_DRIFT_SETTLED } from '../core/plan-gap-remedy.js';
 import { planScopeCheckRequirement, scopeVerdictChecklistChanged } from '../core/plan-scope-check-requirement.js';
 import { requiresFullVerificationIntent } from '../core/plan-pre-scope-blockers.js';
@@ -780,7 +781,19 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           // clears it (run 15). When the checklist changed after the verdict, the
           // only remaining action is the reviewer rerun.
           // Old-PoS run 31 (D8): a pin-audit gap whose requested value is the checklist's only change is closed deterministically.
-          const gaps = openScopeGaps(scopeData, cl);
+          // Lab run132 (run 134 item 1, plan.baseEvidence, core/pin-base-evidence.ts): a requested value the Story base
+          // refutes is decided by the base value (the pin stands, or the row states the base value): advisory, no rerun.
+          const baseAudit = (() => {
+            try { return planPinAuditBase(store, ctx.root, args.storyId, () => resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root })); } catch { return null; }
+          })();
+          const baseValues = new Map((baseAudit?.decisions ?? []).filter(row => row.decision !== 'keep' && row.value !== null).map(row => [row.feature, row.value!]));
+          const gaps = openScopeGaps(scopeData, cl, baseValues);
+          for (const decided of baseAudit?.decisions ?? []) {
+            if (decided.decision === 'keep' || gaps.some(gap => gap.feature === decided.feature)) continue;
+            issues.push({ type: SCOPE_GAP_BASE_SETTLED, severity: 'advisory',
+              message: `scope gap decided by the Story base [${SCOPE_GAP_BASE_SETTLED}]: "${decided.feature}": ${decided.why}. No reviewer rerun for it. `
+                + 'A request sentence that states the reviewer\'s value for this case outranks the base: quote it in the row\'s derivation and change the row.' });
+          }
           // Old-PoS run 40 (N3): the rerun is `next --run`'s step (it launches the reviewer once, on
           // the final checklist, and reruns story_review), not a host_run the owner types.
           const rerunScopeReviewer = `proof-or-stop next --storyId=${args.storyId} --run`;

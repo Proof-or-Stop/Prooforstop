@@ -273,6 +273,13 @@ export function regressionFamilyBrief(args: { findings: readonly Finding[]; stor
   return lines;
 }
 
+/** Lab run132 (run 135 I): whether review round `a` is strictly earlier than `b` (`r1` / `R4`; unparsable = not earlier). */
+function roundBefore(a: string | undefined, b: string | undefined): boolean {
+  const number = (round: string | undefined): number | null => { const match = String(round ?? '').match(/(\d+)\s*$/); return match ? Number(match[1]) : null; };
+  const left = number(a); const right = number(b);
+  return left !== null && right !== null ? left < right : false;
+}
+
 /**
  * Lab lean (run 106 F-016/F-017: a duplicate of the round's canonical got a second repair because the canonical's
  * test did not run its repro): the open same-round duplicates of `finding` (duplicateOf gives a finding's canonical
@@ -282,10 +289,13 @@ export function regressionFamilyBrief(args: { findings: readonly Finding[]; stor
 export function sameRoundDuplicateLines(args: { storyId: string; finding: Pick<Finding, 'id' | 'reviewRound'>; findings: ReadonlyArray<Pick<Finding, 'id' | 'desc' | 'status' | 'reviewRound'>>;
   duplicateOf: (findingId: string) => string | null }): string[] {
   const { storyId, finding } = args;
-  const dups = args.findings.filter(row => row.id !== finding.id && row.status === 'open' && row.reviewRound === finding.reviewRound && args.duplicateOf(row.id) === finding.id);
+  // Lab run132 (old-PoS run 135 item I): every open duplicate of the same or a later round (a later lane rerun's
+  // restatement too), not only the same round; an earlier-round duplicate keeps its own path (lean-pipeline F4).
+  const dups = args.findings.filter(row => row.id !== finding.id && row.status === 'open' && args.duplicateOf(row.id) === finding.id
+    && !roundBefore(row.reviewRound, finding.reviewRound));
   if (!dups.length) return [];
   return [
-    `Same-round duplicates of ${shortId(storyId, finding.id)} (the same defect reported again this round): make your regression test also run each repro below, so the framework closes each duplicate by running it against your fix instead of a second repair:`,
+    `Duplicates of ${shortId(storyId, finding.id)} (the same defect reported again): make your regression test also run each repro below, stated verbatim (the framework's duplicate coverage check looks for that exact text in the test it runs), so the framework closes each duplicate by running it against your fix instead of a second repair:`,
     ...dups.map(row => {
       const repros = findingRepros(row.desc).repros;
       return `- ${shortId(storyId, row.id)}: ${oneLine(row.desc, DESC_MAX)}${repros.length ? ` Repro: ${repros.map(repro => `\`${repro}\``).join(', ')}` : ''}`;

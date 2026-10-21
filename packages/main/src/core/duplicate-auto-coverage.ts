@@ -13,6 +13,13 @@
  * that states no repro, or whose repro no such test states, keeps the owner step.
  *
  * Detection-neutral: the same verification and refusal path; only who authors the coverage command.
+ *
+ * Lab run132 (bench-staging/oldpos/run133-analysis.md item 4 D, 16.8 min observed): when the framework cannot name the
+ * coverage, the owner step carried placeholders only, and run 133's owner spent 9 calls guessing where the findings,
+ * the canonical repair and its tests are. `duplicateCoverageSuggestion` prefills the call from the same facts: the Go
+ * test function the canonical's repair commit added or changed that shares most terms with the duplicate's text, its
+ * commit, and a resolution citing both. The framework still runs the coverage and refuses one
+ * that does not pass or does not run the duplicate's repro, exactly as for an owner-authored call.
  */
 import { execFileSync } from 'node:child_process';
 import { posix } from 'node:path';
@@ -26,7 +33,7 @@ function git(cwd: string, args: string[]): string | null {
 }
 
 /** Go test functions a commit added or changed (by the new-side lines of its diff), per test file. */
-function commitTestFunctions(gitCwd: string, commit: string): Array<{ file: string; name: string }> {
+export function commitTestFunctions(gitCwd: string, commit: string): Array<{ file: string; name: string }> {
   const files = (git(gitCwd, ['show', '--no-renames', '--name-only', '--format=', commit]) ?? '').split('\n').map(line => line.trim()).filter(path => path.endsWith('_test.go'));
   const out: Array<{ file: string; name: string }> = [];
   for (const file of files.slice(0, 20)) {
@@ -70,4 +77,33 @@ export function frameworkDuplicateCoverage(args: { gitCwd: string; finding: Pick
       resolution: `duplicate of ${short(args.canonical.id)}: its repair ${commit.slice(0, 12)} added or changed ${candidate.name} (${candidate.file}), which runs this finding's repro ${coverage.repros.map(repro => `\`${repro}\``).join(', ')} (coverage named by the framework)` };
   }
   return null;
+}
+
+export interface DuplicateCoverageSuggestion { command: string; selector: string; test: string; file: string; commit: string; others: string[]; resolution: string }
+
+/** Lab run132: lower-case terms of a text (identifiers and words of four letters or more). */
+const terms = (text: string): Set<string> => new Set((text.match(/[A-Za-z_][A-Za-z0-9_]{3,}/g) ?? []).map(term => term.toLowerCase()));
+
+/**
+ * Lab run132 (run 133 D): the prefilled coverage of a duplicate through its canonical's repair commit: the Go test
+ * function of that commit sharing most terms with the duplicate's text (the first one on a tie), or null (no repair
+ * commit, no Go test in it). `others` names the commit's other tests for the owner.
+ */
+export function duplicateCoverageSuggestion(args: { gitCwd: string; finding: Pick<Finding, 'id' | 'desc'>; canonical: Pick<Finding, 'id' | 'resolvedReason'> & { resolutionType?: Finding['resolutionType'] } }): DuplicateCoverageSuggestion | null {
+  const commit = repairCommitFromResolution(args.gitCwd, args.canonical);
+  if (!commit) return null;
+  const tests = commitTestFunctions(args.gitCwd, commit);
+  if (!tests.length) return null;
+  const want = terms(args.finding.desc ?? '');
+  const scored = tests.map(test => {
+    const current = git(args.gitCwd, ['show', `HEAD:${test.file}`]);
+    const body = current ? goTestBodies(current).get(test.name) ?? '' : '';
+    return { ...test, score: [...terms(`${test.name} ${body}`)].filter(term => want.has(term)).length };
+  });
+  const chosen = scored.reduce((best, test) => (test.score > best.score ? test : best), scored[0]!);
+  const dir = posix.dirname(chosen.file);
+  const short = (id: string): string => id.split(':').pop() ?? id;
+  return { command: `go test -v ${dir === '.' ? '.' : `./${dir}`} -run ^${chosen.name}$`, selector: `--- PASS: ${chosen.name}`, test: chosen.name, file: chosen.file, commit,
+    others: [...new Set(scored.map(test => test.name))].filter(name => name !== chosen.name),
+    resolution: `duplicate of ${short(args.canonical.id)}: its repair ${commit.slice(0, 12)} added or changed ${chosen.name} (${chosen.file}), which runs this finding's case` };
 }

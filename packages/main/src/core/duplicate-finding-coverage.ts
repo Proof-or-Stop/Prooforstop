@@ -185,6 +185,34 @@ export function duplicateCoverageReceipts(store: StoryStore, storyId: string, fi
  */
 export function duplicateResolveCandidate(store: StoryStore, storyId: string, finding: Pick<Finding, 'id' | 'status'>, findings: readonly Finding[]):
   { canonical: Finding; familyKey: string | null } | null {
+  const candidate = duplicateCanonicalFix(store, storyId, finding, findings);
+  if (!candidate || duplicateCoverageReceipts(store, storyId, finding.id).some(row => !row.passed)) return null;
+  return candidate;
+}
+
+/**
+ * Lab run132 (old-PoS run 135 item I, remediation.duplicateReproAppend): the one lacks-repro refusal of a duplicate's
+ * coverage that is answered by appending its repro to the covering test (the canonical's repair already passes it in
+ * run 135: the second managed repair found F-005 fixed), or null: no refusal yet, another kind of refusal (a failing
+ * run, a canonical fix that is not live) or a second lacks-repro refusal, which keep today's route (its own repair).
+ */
+export function reproAppendReceipt(receipts: readonly DuplicateCoverageReceipt[]): DuplicateCoverageReceipt | null {
+  const failing = receipts.filter(row => !row.passed);
+  return failing.length === 1 && failing[0]!.refusal === 'duplicate_coverage_lacks_repro' ? failing[0]! : null;
+}
+
+/** Lab run132 (run 135 I): a duplicate whose one coverage refusal was lacks-repro, with its resolved canonical fix. */
+export function duplicateReproAppendCandidate(store: StoryStore, storyId: string, finding: Pick<Finding, 'id' | 'status'>, findings: readonly Finding[]):
+  { canonical: Finding; familyKey: string | null; receipt: DuplicateCoverageReceipt } | null {
+  const receipt = reproAppendReceipt(duplicateCoverageReceipts(store, storyId, finding.id));
+  if (!receipt) return null;
+  const candidate = duplicateCanonicalFix(store, storyId, finding, findings);
+  return candidate && candidate.canonical.id === receipt.canonicalFindingId ? { ...candidate, receipt } : null;
+}
+
+/** An open duplicate's resolved canonical (or chain root) closed by a repair; coverage receipts not consulted. */
+function duplicateCanonicalFix(store: StoryStore, storyId: string, finding: Pick<Finding, 'id' | 'status'>, findings: readonly Finding[]):
+  { canonical: Finding; familyKey: string | null } | null {
   if (finding.status !== 'open') return null;
   const duplicate = findingDuplicateOf(store, storyId, finding.id);
   if (!duplicate) return null;
@@ -201,7 +229,6 @@ export function duplicateResolveCandidate(store: StoryStore, storyId: string, fi
   // A canonical closed without a repair (a pre-existing disposition, an accepted risk) has no fix that
   // could cover a duplicate: the duplicate takes its own route (its own repair, or its own disposition).
   if (closedWithoutFix(canonical)) return null;
-  if (duplicateCoverageReceipts(store, storyId, finding.id).some(row => !row.passed)) return null;
   return { canonical, familyKey: duplicate.familyKey };
 }
 
@@ -219,8 +246,13 @@ export function regressionOfResolvedFinding(storyId: string, finding: Pick<Findi
  * the coverage path: its coverage check was recorded failed or refused (the canonical's repair is not shown to fix it), or it is a
  * regression of a resolved finding. A duplicate whose coverage was never refused keeps its coverage path.
  */
-export function duplicateJoinsRepairGroup(store: StoryStore, storyId: string, finding: Pick<Finding, 'id' | 'desc'>, findings: readonly Finding[]): boolean {
-  return duplicateCoverageReceipts(store, storyId, finding.id).some(row => !row.passed) || regressionOfResolvedFinding(storyId, finding, findings);
+export function duplicateJoinsRepairGroup(store: StoryStore, storyId: string, finding: Pick<Finding, 'id' | 'desc'>, findings: readonly Finding[],
+  reproAppend = true): boolean {
+  if (regressionOfResolvedFinding(storyId, finding, findings)) return true;
+  const receipts = duplicateCoverageReceipts(store, storyId, finding.id);
+  if (!receipts.some(row => !row.passed)) return false;
+  // Lab run132 (old-PoS run 135 item I): one lacks-repro refusal is answered by the repro append step, not a managed repair.
+  return !(reproAppend && reproAppendReceipt(receipts));
 }
 
 /**
@@ -259,7 +291,9 @@ export function duplicateCoverageSelectorProblem(selector: string): string | nul
   return null;
 }
 
-export function runDuplicateCoverage(args: { projectRoot: string; cwd: string; command: string; selector: string; headHash: string | null; findingId: string; canonicalFindingId: string }): DuplicateCoverageReceipt {
+export function runDuplicateCoverage(args: { projectRoot: string; cwd: string; command: string; selector: string; headHash: string | null; findingId: string; canonicalFindingId: string;
+  /** Lab run132 (old-PoS run 135 item H): the selector taken from this run's own output (null = none: not matched). */
+  selectorFromOutput?: (output: string) => string | null }): DuplicateCoverageReceipt {
   const { executable, args: argv } = parseAllowlistedCommand(args.command);
   const timeoutMs = resolveEvidenceCommandTimeoutMs({ executable, args: argv }, loadConfig(args.projectRoot).validate?.evidenceCommandTimeoutOverrides);
   const started = Date.now();
@@ -270,12 +304,13 @@ export function runDuplicateCoverage(args: { projectRoot: string; cwd: string; c
   });
   const output = `${run.stdout ?? ''}${run.stderr ?? ''}`;
   const timedOut = (run.error as NodeJS.ErrnoException | undefined)?.code === 'ETIMEDOUT' || run.signal === 'SIGTERM';
-  const selectorMatched = output.includes(args.selector);
+  const chosen = args.selectorFromOutput ? args.selectorFromOutput(output) : args.selector;
+  const selectorMatched = chosen !== null && output.includes(chosen);
   return {
     findingId: args.findingId,
     canonicalFindingId: args.canonicalFindingId,
     command: args.command,
-    selector: args.selector,
+    selector: chosen ?? args.selector,
     exitCode: run.status,
     timedOut,
     selectorMatched,
