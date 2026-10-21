@@ -176,6 +176,18 @@
  *                              the framework (advisory scope_gap_doc_drift_settled; precedence request text > scope
  *                              boundary > reviewer opinion) instead of a blocker no row can answer (core/plan-gap-remedy.ts)
  *
+ * Lab run131 (bench-staging/oldpos/run131-analysis.md, run127-129-phase-cost.md). Three rollback switches whose production
+ * value is on (each changes a verdict; the rest of the lab is detection-neutral and has no switch):
+ *   remediation.scopeGateSettle 'on' (default) | 'off'  a reviewer "scope violation" finding against documentation files the
+ *                              deterministic scope gate admits (classifyScopePath: documentation-default / allowedModify, none
+ *                              protected or excluded) is closed once against the gate verdict (core/file-state-conflict.ts)
+ *   remediation.conflictSettle 'on' (default) | 'off'  a finding whose repair broke a resolved finding's covering test, on a
+ *                              case a current checklist row pins the way that test states, is closed once by the framework
+ *                              (precedence request text > base behaviour > reviewer opinion; core/finding-conflict-settle.ts)
+ *   plan.intentConflictGuard   'on' (default) | 'off'  a PLAN amend that re-asserts the pin an implementer's [intent-conflict]
+ *                              disputed is refused unless the request text states it or a base check confirms it, with one
+ *                              ready row patch to the implementer's value (core/intent-conflict-overrule.ts)
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -215,6 +227,9 @@ export const AB_VARIANT_FLAGS = {
   'remediation.fileStateSettle': ['on', 'off'],
   'review.driftBaseSymbol': ['off', 'on'],
   'plan.docDriftSettle': ['on', 'off'],
+  'remediation.scopeGateSettle': ['on', 'off'],
+  'remediation.conflictSettle': ['on', 'off'],
+  'plan.intentConflictGuard': ['on', 'off'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -222,10 +237,10 @@ export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[
 
 export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string; driftBaseSymbol?: string };
-  remediation?: { grouping?: string; thread?: string; familyEvidence?: string; fileStateSettle?: string };
+  remediation?: { grouping?: string; thread?: string; familyEvidence?: string; fileStateSettle?: string; scopeGateSettle?: string; conflictSettle?: string };
   scope?: { boundaryExcludes?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
-  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string; docDriftSettle?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string; docDriftSettle?: string; intentConflictGuard?: string };
   dev?: { probeEnforcement?: string; removedGuardScan?: string };
   pipeline?: { lean?: string };
 }
@@ -263,6 +278,9 @@ export interface AbVariants {
   fileStateSettle: AbVariantValue<'remediation.fileStateSettle'>;
   driftBaseSymbol: AbVariantValue<'review.driftBaseSymbol'>;
   docDriftSettle: AbVariantValue<'plan.docDriftSettle'>;
+  scopeGateSettle: AbVariantValue<'remediation.scopeGateSettle'>;
+  conflictSettle: AbVariantValue<'remediation.conflictSettle'>;
+  intentConflictGuard: AbVariantValue<'plan.intentConflictGuard'>;
 }
 
 export interface AbVariantEvidence {
@@ -352,6 +370,9 @@ export function resolveAbVariants(config: unknown): AbVariants {
     fileStateSettle: pick('remediation.fileStateSettle', section(config, 'remediation').fileStateSettle),
     driftBaseSymbol: pick('review.driftBaseSymbol', review.driftBaseSymbol),
     docDriftSettle: pick('plan.docDriftSettle', section(config, 'plan').docDriftSettle),
+    scopeGateSettle: pick('remediation.scopeGateSettle', section(config, 'remediation').scopeGateSettle),
+    conflictSettle: pick('remediation.conflictSettle', section(config, 'remediation').conflictSettle),
+    intentConflictGuard: pick('plan.intentConflictGuard', section(config, 'plan').intentConflictGuard),
   };
 }
 
@@ -390,6 +411,9 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.fileStateSettle !== 'on') flags['remediation.fileStateSettle'] = variants.fileStateSettle;
   if (variants.driftBaseSymbol !== 'off') flags['review.driftBaseSymbol'] = variants.driftBaseSymbol;
   if (variants.docDriftSettle !== 'on') flags['plan.docDriftSettle'] = variants.docDriftSettle;
+  if (variants.scopeGateSettle !== 'on') flags['remediation.scopeGateSettle'] = variants.scopeGateSettle;
+  if (variants.conflictSettle !== 'on') flags['remediation.conflictSettle'] = variants.conflictSettle;
+  if (variants.intentConflictGuard !== 'on') flags['plan.intentConflictGuard'] = variants.intentConflictGuard;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -403,7 +427,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle' | 'remediation.scopeGateSettle' | 'remediation.conflictSettle' | 'plan.intentConflictGuard'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -452,6 +476,12 @@ export const fileStateSettleOn = (config: unknown): boolean => catchEarlierPick(
 export const driftBaseSymbolOn = (config: unknown): boolean => catchEarlierPick(config, 'review.driftBaseSymbol') === 'on';
 /** Lab plan-deadend plan.docDriftSettle (default on; `off` = rollback): a pre-existing doc/code drift gap on an unrequested doc is settled by story_review (core/plan-gap-remedy.ts); malformed = on. */
 export const docDriftSettleOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.docDriftSettle') === 'on';
+/** Lab run131 remediation.scopeGateSettle (default on; `off` = rollback): a scope-violation finding against documentation the deterministic scope gate admits is settled (core/file-state-conflict.ts winner scope_gate); malformed = on. */
+export const scopeGateSettleOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.scopeGateSettle') === 'on';
+/** Lab run131 remediation.conflictSettle (default on; `off` = rollback): a finding conflict the checklist pin decides is settled once by the framework (core/finding-conflict-settle.ts); malformed = on. */
+export const conflictSettleOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.conflictSettle') === 'on';
+/** Lab run131 plan.intentConflictGuard (default on; `off` = rollback): an amend that re-asserts a pin an implementer's [intent-conflict] disputed needs the request text or a base check (core/intent-conflict-overrule.ts); malformed = on. */
+export const intentConflictGuardOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.intentConflictGuard') === 'on';
 /** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }

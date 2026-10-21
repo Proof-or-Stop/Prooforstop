@@ -107,6 +107,8 @@ import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-pr
 import { describePinBaseForm, pinBaseFormOfferDue, pinBaseFormRowPatch, pinDoubtVerdict, planPinBaseForm, recordPinBaseFormOffer, type PinBaseFormConflict } from '../core/pin-base-form.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { evaluateFileStateConflict } from './file-state-conflict.js';
+import { evaluateFindingConflictSettlement } from './finding-conflict-settle.js';
+import { FINDING_CONFLICT_SETTLED, FINDING_CONFLICT_PRECEDENCE, type ConflictSettlement } from '../core/finding-conflict-settle.js';
 import { FILE_STATE_CONFLICT, FILE_STATE_PRECEDENCE, type FileStateVerdict } from '../core/file-state-conflict.js';
 import { outOfScopePinTestProblem } from '../core/scope-pin-test.js';
 import { commitMessageNamesFinding, commitMessageNamesItem, implementationGroupingFiles, implementationGroupingStory, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup, storyItemGroup } from '../core/ab-dispatch-grouping.js';
@@ -1619,6 +1621,12 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
   for (const finding of candidates) {
     const conflict = findingConflictOf({ finding, findings: all, storyId, rejected, duplicateOf: id => findingDuplicateOf(store, storyId, id)?.canonicalFindingId ?? null });
     if (!conflict || args.repaired(finding)) continue;
+    // Lab run131 (runs 128 / 129): a conflict the checklist pin and the resolved finding's test already decide is
+    // settled once by the framework (core/finding-conflict-settle.ts), never another PLAN trip.
+    if (finding.status === 'open' && finding.evidenceState !== 'suspected' && conflict.resolvedId) {
+      const settlement = evaluateFindingConflictSettlement({ store: store as never, root, storyId, finding, findings: all, gitCwd, events });
+      if (settlement) return findingConflictSettleStep(base, finding, settlement);
+    }
     const pinned = Boolean(conflict.since) && items.some(item => {
       const before = committedIntentHashBefore(root, gitCwd, checklistPath, item.id, conflict.since);
       return before !== undefined && before !== intentMaterialHash(item);
@@ -1644,6 +1652,21 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
       + (rows.length ? `Rows that pin a listed case now: ${rows.join(' | ').slice(0, 600)}; a pin that changes one must state the re-pin (\`re-pin: <case> was <old>, now <new>\` in its derivation). ` : '')
       + `Return to PLAN and pin each case: checklist_update the item's verificationIntent with a row stating the expected outcome for that case and a derivation quoting the request sentence (or the base probe) that decides it; then next continues and the findings are repaired against the pin.`,
     'findingConflictOf (core/resolved-finding-guard.ts) + committed checklist intent since the conflict + rowsCitingCase');
+}
+
+/**
+ * Lab run131 (runs 128 / 129, core/finding-conflict-settle.ts): the losing side of a finding conflict the checklist pin
+ * and the resolved finding's covering test decide (precedence request text > base behaviour > reviewer opinion) is
+ * closed by ONE framework step; finding_resolve disposition=finding_conflict_settled recomputes the same decision and
+ * records it (resolutionType superseded, `[finding_conflict_settled]` reason, severity unchanged). Shared by the live and
+ * the reference driver (via findingConflictStep).
+ */
+export function findingConflictSettleStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>,
+  settlement: Pick<ConflictSettlement, 'winner' | 'reason' | 'cases'> & { settle: boolean }): NextStep {
+  return step(base, 'framework', FINDING_CONFLICT_SETTLED, { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
+    disposition: FINDING_CONFLICT_SETTLED, resolution: `none: the ${settlement.winner === 'request' ? 'request text' : 'checklist pin'} decides ${settlement.cases.map(row => `\`${row}\``).join(', ')}` } },
+  `Verified ${finding.severity ?? ''} finding ${finding.id} is the losing side of a finding conflict: ${settlement.reason} It is not repaired and the Story does not return to PLAN: the framework closes it once (${FINDING_CONFLICT_SETTLED}, precedence ${FINDING_CONFLICT_PRECEDENCE}); finding_resolve recomputes the decision and records it. \`proof-or-stop next --storyId=${base.storyId} --run\` records it and goes on.`,
+  'evaluateFindingConflictSettlement (core/finding-conflict-settle.ts) + findingConflictOf');
 }
 
 export function findingRepairReplanStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>, runIds: readonly string[],

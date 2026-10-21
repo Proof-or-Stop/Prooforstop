@@ -63,7 +63,7 @@ import type { ChecklistItem, DuplicateCoverageReceipt, Finding } from './types.j
 import { loadConfig } from './config.js';
 // Old-PoS run 68: leaf module (core/repair-value-change.ts uses them without this module's imports).
 import { isTestPath, normalizeProbe } from './probe-text.js';
-import { isFileStateSettled } from './file-state-conflict.js';
+import { isFrameworkSettled } from './finding-conflict-settle.js';
 import { commitsDiffText } from './commits-diff-text.js';
 export { isTestPath, normalizeProbe };
 import { parseAllowlistedCommand, resolveEvidenceCommandTimeoutMs, tokenizeCommandString } from './validation-executor.js';
@@ -172,7 +172,7 @@ export function repairCommitFromResolution(gitCwd: string, finding: Pick<Finding
   // A disposition without a repair (it names the Story base and the reviewed head as evidence) has no repair commit.
   if (finding.resolutionType === 'preexisting_out_of_scope' || finding.resolutionType === 'accepted_risk') return null;
   // Lab run110: a file-state settlement repaired nothing either.
-  if (isFileStateSettled({ status: 'resolved', resolutionType: finding.resolutionType, resolvedReason: finding.resolvedReason })) return null;
+  if (isFrameworkSettled({ status: 'resolved', resolutionType: finding.resolutionType, resolvedReason: finding.resolvedReason })) return null;
   for (const match of String(finding.resolvedReason ?? '').matchAll(/\b[0-9a-f]{7,40}\b/g)) {
     const sha = tryGit(gitCwd, ['rev-parse', '--verify', '--quiet', `${match[0]}^{commit}`])?.trim();
     if (sha && commitFiles(gitCwd, sha).length) return sha;
@@ -702,7 +702,7 @@ export function retiredGuards(findings: readonly Finding[], storyId: string): Se
 
 /** Resolved findings a guard applies to (fixed or duplicate; never a pre-existing disposition, never dismissed). */
 export function guardableResolved(findings: readonly Finding[]): Finding[] {
-  return findings.filter(row => row.status === 'resolved' && row.resolutionType !== 'preexisting_out_of_scope' && !isFileStateSettled(row));
+  return findings.filter(row => row.status === 'resolved' && row.resolutionType !== 'preexisting_out_of_scope' && !isFrameworkSettled(row));
 }
 
 export interface GuardFailure { guarded: Finding; guard: FindingGuard; result: GuardResult; blamed: Array<{ findingId: string; commit: string }> }
@@ -845,7 +845,9 @@ function sameCase(a: string, b: string): boolean {
 }
 const citedPaths = (row: Pick<Finding, 'files'>): Set<string> => new Set((row.files ?? []).map(path => path.replace(/:\d.*$/, '')));
 
-export interface FindingConflict { findingId: string; resolvedId: string | null; why: string; since: string }
+export interface FindingConflict { findingId: string; resolvedId: string | null; why: string; since: string;
+  /** Lab run131: which of the three shapes below (core/finding-conflict-settle.ts settles `rejected` / `same_case`). */
+  kind?: 'precedent' | 'rejected' | 'same_case' }
 
 /**
  * Old-PoS run 47 (12 rounds, one behaviour flipped between four policies): an
@@ -864,11 +866,11 @@ export function findingConflictOf(args: { finding: Finding; findings: readonly F
   const { finding, storyId } = args;
   const short = (id: string) => id.startsWith(`${storyId}:`) ? id.slice(storyId.length + 1) : id;
   if (/\[precedent-conflict\]/i.test(finding.desc ?? '')) {
-    return { findingId: finding.id, resolvedId: null, since: finding.createdAt ?? '', why: `${short(finding.id)} reports that two base precedents disagree on a case nothing pins` };
+    return { findingId: finding.id, resolvedId: null, kind: 'precedent', since: finding.createdAt ?? '', why: `${short(finding.id)} reports that two base precedents disagree on a case nothing pins` };
   }
   const rejected = (args.rejected.get(finding.id) ?? []).at(-1);
   if (rejected?.guardedFindingId) {
-    return { findingId: finding.id, resolvedId: rejected.guardedFindingId, since: rejected.at ?? finding.createdAt ?? '',
+    return { findingId: finding.id, resolvedId: rejected.guardedFindingId, kind: 'rejected', since: rejected.at ?? finding.createdAt ?? '',
       why: `the repair of ${short(finding.id)} (commit ${rejected.commit.slice(0, 12)}) was rejected: it broke resolved ${short(rejected.guardedFindingId)}'s covering verification, so the two demand opposite behaviour` };
   }
   const regressed = new Set(regressionTargets(finding.desc, storyId));
@@ -883,7 +885,7 @@ export function findingConflictOf(args: { finding: Finding; findings: readonly F
     if (mine.size && theirs.size && ![...mine].some(path => theirs.has(path))) continue;
     const shared = findingRepros(resolved.desc).repros.find(repro => repros.some(own => sameCase(own, repro)));
     if (shared) {
-      return { findingId: finding.id, resolvedId: resolved.id, since: finding.createdAt ?? '',
+      return { findingId: finding.id, resolvedId: resolved.id, kind: 'same_case', since: finding.createdAt ?? '',
         why: `${short(finding.id)} re-judges the case \`${shared}\` that resolved ${short(resolved.id)}'s repair settled, without reporting a regression of it` };
     }
   }

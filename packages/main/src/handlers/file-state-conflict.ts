@@ -2,13 +2,14 @@
  * Lab run110: the store-aware half of core/file-state-conflict.ts. Reads the Story's scope contract, scope boundary and
  * verbatim request, and returns the file-state verdict for one open finding (shared by next's framework step
  * `finding_file_state_settled`, finding_resolve disposition=file_state_conflict and the import-time closure, so the
- * three always agree). With remediation.fileStateSettle=off nothing is settled.
+ * three always agree). With remediation.fileStateSettle=off nothing is settled; with remediation.scopeGateSettle=off
+ * (lab run131) a scope finding against documentation the scope gate admits is not settled.
  */
 import type { HandlerContext } from './context.js';
 import type { StoryStore } from '../core/store.js';
 import type { Finding } from '../core/types.js';
 import { readStoryRequest } from '../core/story-request.js';
-import { fileStateSettleOn } from '../core/ab-variants.js';
+import { fileStateSettleOn, scopeGateSettleOn } from '../core/ab-variants.js';
 import { loadConfig } from '../core/config.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { FILE_STATE_CONFLICT, fileStateConflictOf, recordFileStateSettlement, type FileStateVerdict } from '../core/file-state-conflict.js';
@@ -20,7 +21,12 @@ export const FILE_STATE_CLOSED_EVENT = 'finding_file_state_settled' as const;
 /** The verdict for one finding, or null (switch off, no file-state demand the contract or the request decides). */
 export function evaluateFileStateConflict(args: { store: StoryStore; root: string; storyId: string; finding: Finding; findings?: readonly Finding[] }): FileStateVerdict | null {
   const { store, root, storyId, finding } = args;
-  try { if (!fileStateSettleOn(loadConfig(root))) return null; } catch { /* unreadable config: the production default (on) */ }
+  let scopeGateSettle = true;
+  try {
+    const config = loadConfig(root);
+    if (!fileStateSettleOn(config)) return null;
+    scopeGateSettle = scopeGateSettleOn(config);
+  } catch { /* unreadable config: the production default (on) */ }
   let contract;
   try { contract = store.readScopeContract(storyId); } catch { return null; }
   if (!contract) return null;
@@ -29,7 +35,7 @@ export function evaluateFileStateConflict(args: { store: StoryStore; root: strin
   const request = readStoryRequest(store, storyId);
   let findings = args.findings;
   if (!findings) { try { findings = store.readFindings(storyId).findings ?? []; } catch { findings = []; } }
-  return fileStateConflictOf({ finding, findings, contract, requestText: request.status === 'ok' ? request.text : null, boundaryExcluded });
+  return fileStateConflictOf({ finding, findings, contract, requestText: request.status === 'ok' ? request.text : null, boundaryExcluded, scopeGateSettle });
 }
 
 /** The audited resolve reason (the verdict's reason plus the follow-up). */
