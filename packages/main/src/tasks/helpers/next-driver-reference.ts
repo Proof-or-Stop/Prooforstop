@@ -226,7 +226,7 @@ import { evaluatePreexistingFinding } from '../../handlers/finding-preexisting.j
 import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairReplanStep, findingConflictStep, unacceptedRepairWhys, fileStateSettleStep } from '../../handlers/next-driver.js';
 import { evaluateFileStateConflict } from '../../handlers/file-state-conflict.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
-  runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
+  runsForTarget, targetRelaunchIsFramework, findingRepairRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
   groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, frameworkResolveStep, managedRunsWaitStep, adoptedAmendmentRun, intentAmendmentVerifyStep, guardRefusalSummary, storyReviewBlockersStep, openIntentConflicts, intentConflictStep, journalOpenIntentConflicts, laneRelaunchStep, nextStepCall, DONE_TERMINAL_STATEMENT, type NextStep } from '../../handlers/next-driver.js';
 import { scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../../core/scope-plan-deferral.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
@@ -554,7 +554,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         if (group.length > 1) return groupedFindingRepairStep(ctx.root, base, group, selection, bound, hostRuns);
         // Lab run89 (fix 2d, shared with the live driver): the one relaunch the route allows is a framework launch.
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
-          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && (targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })) || (route.kind === 'repair' && route.relaunch)),
+          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && (findingRepairRelaunchIsFramework({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, hostRuns, findingId: finding.id }) || (route.kind === 'repair' && route.relaunch)),
         `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).${route.kind === 'repair' && route.relaunch ? ' The relaunched run\'s prompt carries the earlier run\'s report; another run without an accepted repair returns the Story to PLAN.' : ''}`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState', route.kind === 'repair' && route.relaunch ? 'relaunch after a run without an accepted repair' : undefined);
       }

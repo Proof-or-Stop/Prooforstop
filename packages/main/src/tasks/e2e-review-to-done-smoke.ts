@@ -9775,13 +9775,13 @@ const NRR_FIXED = IMPL.replace('\tr := []rune(s)\n', '\tr := []rune(s)\n\tif len
  * NRR / NRR-OFF (run 137 F-006 -> F-008, fix M): the repair of an open finding breaks a resolved finding's covering
  * test. NRR: the worker re-runs that test before the run seals and hands the failure back to the SAME session, whose
  * resumed turn fixes it: finding_resolve accepts, no `[regression-of]` finding. NRR-OFF (remediation.regressionCheck=off,
- * the base behaviour): the run seals broken and finding_resolve's guard opens the regression finding.
+ * the base behaviour): the run seals broken and a later gate refuses it (here the evidence chain's pinned CHK-002 check).
  */
 function scenarioNRR(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NRR' | 'NRR-OFF'): Outcome {
   const on = tag === 'NRR';
   const name = on
     ? 'NRR lab run137 fix M: a repair that breaks a resolved finding\'s covering test is handed back to its own session before it seals (failing output in the resumed prompt); no regression finding'
-    : 'NRR-OFF lab run137 fix M control: remediation.regressionCheck=off: the broken repair seals and finding_resolve\'s guard opens the [regression-of] finding';
+    : 'NRR-OFF lab run137 fix M control: remediation.regressionCheck=off: the broken repair seals and a later gate refuses it outside its session (the evidence chain\'s pinned check or finding_resolve\'s guard)';
   const o = new Owner(tag, on ? 'B-137a' : 'B-137c', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true, ...(on ? {} : { config: { remediation: { regressionCheck: 'off' } } }) });
   const lines: string[] = [];
   const ask = askNextOf(o, tag, lines);

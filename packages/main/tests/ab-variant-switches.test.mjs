@@ -76,6 +76,14 @@
  *                                    append step instead of its own managed repair
  *   plan.repinAllRows                default ON (`off` = rollback): pin_reversal_unstated compares a pin with every earlier
  *                                    pin of its case; framework re-pin remedies re-pin every row (and other items) of the case
+ *   Lab run137 (behaviour in tasks/run137-fixes-smoke.ts, end to end in NRR / NRR-OFF / NCK / NCP / NCP-P / NCL / NCL-OFF):
+ *   remediation.regressionCheck      default ON (`off` = rollback): before a finding-repair run seals, the resolved findings'
+ *                                    covering tests and the changed packages' pinned checks are re-run in its session; a
+ *                                    changed shared helper owes one [caller-check] line per caller
+ *   remediation.conflictPin          default ON (`off` = rollback): a finding conflict no row pins is decided by the framework
+ *                                    from the request or the finding-stated Story base value (no PLAN trip)
+ *   review.classEnumeration          EXPERIMENTAL, default OFF (`on` = the detection A/B arm): concept and quality lanes get
+ *                                    the changed shared helpers with every caller
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -155,7 +163,10 @@ await check('config: absent switches resolve to production values; malformed fai
     // Lab run132 (run 135 H/I): the delta selector repair and the duplicate repro append are on (`off` = rollback).
     deltaSelectorRepair: 'on', duplicateReproAppend: 'on',
     // Lab run132 (run 135 item K): every-row re-pin and the all-earlier-pins gate are on (`off` = rollback).
-    repinAllRows: 'on' });
+    repinAllRows: 'on',
+    // Lab run137: the repair regression check and the framework conflict pin are on (`off` = rollback); the class
+    // enumeration is EXPERIMENTAL and off.
+    regressionCheck: 'on', conflictPin: 'on', classEnumeration: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -226,6 +237,12 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.equal(repinAllRowsOn({ plan: { repinAllRows: 'maybe' } }), true, 'lab run132 (run 135 K): malformed = on where consumed');
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { repinAllRows: 'off' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.repinAllRows': 'off' } }, 'lab run132 (run 135 K): the rollback arm is recorded');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { regressionCheck: 'off', conflictPin: 'off' }, review: { classEnumeration: 'on' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.regressionCheck': 'off', 'remediation.conflictPin': 'off', 'review.classEnumeration': 'on' } }, 'lab run137: the rollback arms and the experimental arm are recorded');
+  const { regressionCheckOn, conflictPinOn, classEnumerationOn } = await load('core/ab-variants.js');
+  assert.equal(regressionCheckOn({ remediation: { regressionCheck: 'maybe' } }), true, 'lab run137 (M): malformed = on where consumed');
+  assert.equal(conflictPinOn({ remediation: { conflictPin: 'maybe' } }), true, 'lab run137 (N): malformed = on where consumed');
+  assert.equal(classEnumerationOn({ review: { classEnumeration: 'maybe' } }), false, 'lab run137 (P): malformed = off where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

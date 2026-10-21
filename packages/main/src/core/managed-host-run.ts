@@ -2,7 +2,7 @@ import type { DeltaRoundRunBinding } from './review-delta-round.js';
 import { deltaReverifySelectorPrompt, fillReverifySelector, isGenericReverifySelector } from './delta-reverify-selector.js';
 import type { LaneMergeRunBinding } from './review-lane-merge.js';
 import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from './host-run-budget.js';
-import { baseClaimEvidenceOn, deltaSelectorRepairOn, dispatchTargetThreadFresh, resolveAbVariants, stragglerVerdictOn, type AbVariantEvidence } from './ab-variants.js';
+import { baseClaimEvidenceOn, deltaSelectorRepairOn, dispatchTargetThreadFresh, regressionCheckOn, resolveAbVariants, stragglerVerdictOn, type AbVariantEvidence } from './ab-variants.js';
 import { loadConfig } from './config.js';
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCriticCoverage, isManagedInventoryCriticEnvelopeValid, managedInventoryCriticCoverageViolations, type ManagedInventoryCritic, type ManagedInventoryCriticCoverage } from './managed-inventory-critic.js';
@@ -52,7 +52,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { basename, dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { homedir, hostname, tmpdir } from 'node:os';
 import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
 import { earlierCandidateLaneRuns } from './review-round-order.js';
@@ -87,7 +87,10 @@ import {
 } from './host-run.js';
 import { providerDiagnosticLineText } from './host-execution-readiness.js';
 import { createManagedRunDiagnostics } from './managed-run-diagnostics.js';
-import { finalMessageFromLiveOutput, readRepairReportRequirements, repairReportFollowUp } from './repair-report-lines.js';
+import { finalMessageFromLiveOutput, readRepairReportRequirements, repairReportFollowUp, type SharedHelperLike } from './repair-report-lines.js';
+import { MANAGED_REPAIR_REGRESSION_CHECK_MAX_ATTEMPTS, repairRegressionFailures, repairRegressionFollowUp } from './repair-regression-check.js';
+import { changedSharedHelpers } from './shared-helper-callers.js';
+import { pinOracleStoryBase } from './pin-oracle.js';
 import { MANAGED_SCOPE_CHECKED_WRITERS, MANAGED_WRITER_SCOPE_REPAIR_MAX_ATTEMPTS, managedWriterScopeBaseHead, managedWriterScopeRepairPrompt,
   managedWriterScopeViolations } from './managed-writer-scope.js';
 import type {
@@ -118,6 +121,7 @@ import { managedRunMaterialCommit } from './managed-run-commit.js';
 import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
   type ManagedSupervisionCode, type ManagedSupervisionDiagnostic } from './managed-run-progress.js';
 import { StoryStore } from './store.js';
+import type { ChecklistItem } from './types.js';
 import { initCheckSignatureIsValid } from './init-check-gate.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
 import { recomputeDeliveryCheckHash } from './delivery-check-signature.js';
@@ -683,6 +687,8 @@ interface ManagedHostRunSpec {
   reviewStragglerMs?: number;
   /** Lab run132 (run 135 L): a finding repair's "matches the base" claims owe base evidence (remediation.baseClaimEvidence); absent = off. */
   repairBaseClaims?: boolean;
+  /** Lab run137 (remediation.regressionCheck): the pre-seal repair regression check and the [caller-check] lines; absent = off. */
+  repairRegressionCheck?: boolean;
   /** Lab run132 (run 135 H): a delta confirmation lane's generic [reverified] selectors are corrected once (review.deltaSelectorRepair); absent = off. */
   deltaSelectorRepair?: boolean;
   /** Digest of normalized submit inputs, sealed by the owner's specDigest. */
@@ -3151,7 +3157,11 @@ export const MANAGED_PROVIDER_TRANSPORT_REASON = 'provider_transport_error:';
  */
 export const MANAGED_REVIEW_FINAL_RESULT_FAILED_REASON = 'managed_review_final_result_';
 
-const PROVIDER_TRANSPORT_PATTERN = /stream disconnected|error sending request|connection reset|econnreset|epipe|socket hang ?up|connection closed before message completed|transport error|broken pipe|delivery failed: (?:epipe|econnreset)/i;
+// Lab run137 (run 137 2373e8ff: a grouped finding repair died after 311 s on "Upstream request failed: [invalid_request_error]
+// The `reasoning_content` in the thinking mode must be passed back to the API", failureKind unknown): the thinking-mode
+// pass-back 400 is a transient provider error the bench adapter already retries for the owner
+// (bench-staging/oldpos/adapter/pos_adapters/provider_retry.py); a managed run that dies on it is a transport failure.
+const PROVIDER_TRANSPORT_PATTERN = /stream disconnected|error sending request|connection reset|econnreset|epipe|socket hang ?up|connection closed before message completed|transport error|broken pipe|delivery failed: (?:epipe|econnreset)|reasoning_(?:text|content).{0,300}?passed back/i;
 
 /** One stdout line's provider transport diagnostic (a Codex `error` / `turn.failed` event naming one), or null. */
 export function providerTransportDiagnosticLine(line: string): string | null {
@@ -3492,6 +3502,8 @@ export async function submitManagedHostRun(
   const reviewStragglerMs = args.profile === 'managed_reviewer' && args.storyId ? managedReviewStragglerFloorMs(args.environment ?? process.env, args.root) : 0;
   const repairBaseClaims = args.agentType === 'proof-or-stop-finding-repair' && Boolean(args.storyId)
     && (() => { try { return baseClaimEvidenceOn(loadConfig(args.root)); } catch { return true; } })();
+  const repairRegressionCheck = args.agentType === 'proof-or-stop-finding-repair' && Boolean(args.storyId)
+    && (() => { try { return regressionCheckOn(loadConfig(args.root)); } catch { return true; } })();
   const deltaSelectorRepair = args.profile === 'managed_reviewer' && args.reviewBinding?.deltaRound?.role === 'confirmation'
     && (() => { try { return deltaSelectorRepairOn(loadConfig(args.root)); } catch { return true; } })();
   const sharedCallQuota = captureHostRunBudgetEnvironment(process.env, args.environment ?? {});
@@ -3606,6 +3618,7 @@ export async function submitManagedHostRun(
     providerFirstItemMs,
     ...(reviewStragglerMs > 0 ? { reviewStragglerMs } : {}),
     ...(repairBaseClaims ? { repairBaseClaims } : {}),
+    ...(repairRegressionCheck ? { repairRegressionCheck } : {}),
     ...(deltaSelectorRepair ? { deltaSelectorRepair } : {}),
     ...(submissionDigest ? { submissionDigest } : {}),
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
@@ -4242,6 +4255,8 @@ export async function runManagedHostRunWorker(
     // Old-PoS run 29 REM2: the commit a managed writer starts on, for its end-of-run scope check.
     const writerScopeBase = spec.profile === 'managed_dispatch' && spec.storyId && MANAGED_SCOPE_CHECKED_WRITERS.includes(spec.agentType)
       ? managedWriterScopeBaseHead(spec.cwd) : null;
+    // Lab run137 (remediation.regressionCheck): the commit a finding repair starts on, for its pre-seal regression check.
+    const regressionLaunchHead = spec.repairRegressionCheck && spec.storyId ? managedWriterScopeBaseHead(spec.cwd) : null;
     // Lab run132 (MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY): while the first review turn runs, a lane far behind its
     // finished siblings is stopped and asked, in its own resumed session, for its verdict from what it has read. No
     // resumable session: it keeps running (journaled once; the check repeats, so a session recorded later still counts).
@@ -4765,13 +4780,90 @@ export async function runManagedHostRunWorker(
       // before the writer-scope check, so a test the follow-up commits is scope-checked like the repair's own.
       const reportTarget = spec.agentType === 'proof-or-stop-finding-repair' ? spec.managedDispatchTarget as { findingId?: string; groupFindingIds?: string[] } | null | undefined : null;
       const reportFindingIds = [...new Set([reportTarget?.findingId, ...(reportTarget?.groupFindingIds ?? [])].filter((id): id is string => typeof id === 'string' && id.length > 0))];
+      // Lab run137 (bench-staging/oldpos/run137-analysis.md fix M, remediation.regressionCheck): before the repair seals, the
+      // covering tests of the Story's resolved findings and the pinned checklist verifications of the packages it changed
+      // are re-run (a dry run of finding_resolve's guard: no verdict is journaled, finding_resolve stays the gate). A
+      // failure goes back to this same session with its output. Run 137's F-006 repair broke F-004's test; the guard found
+      // it only at finding_resolve and the Story went to PLAN (about 23 min). Runs before the report follow-up, so the
+      // report it asks for covers the fixed code.
+      const regressionStore = spec.repairRegressionCheck && spec.storyId ? new StoryStore(spec.root) : null;
+      const regressionBase = (() => {
+        if (!regressionStore || !spec.storyId) return null;
+        try { return pinOracleStoryBase(spec.cwd, (regressionStore.readStory(spec.storyId) as { integrationTarget?: { parentCommitAtCreation?: string } }).integrationTarget?.parentCommitAtCreation); } catch { return null; }
+      })();
+      for (let attempt = 1; regressionStore && regressionLaunchHead && reportFindingIds.length && spec.storyId && spec.host === 'codex'; attempt += 1) {
+        let check: ReturnType<typeof repairRegressionFailures> = { failures: [], changed: [] };
+        try {
+          const checklistRel = relative(spec.cwd, regressionStore.storyFilePath(spec.storyId, 'checklist.json'));
+          check = repairRegressionFailures({ projectRoot: spec.root, gitCwd: spec.cwd, storyId: spec.storyId, findings: regressionStore.readFindings(spec.storyId).findings ?? [],
+            items: regressionStore.readChecklist(spec.storyId).items, findingIds: reportFindingIds, launchHead: regressionLaunchHead,
+            events: (() => { try { return regressionStore.readProcessEvents(spec.storyId!) as Array<Record<string, unknown>>; } catch { return []; } })(), baseRef: regressionBase,
+            checklistAt: iso => {
+              try {
+                const sha = execFileSync('git', ['log', '-1', '--format=%H', `--before=${iso}`, '--', checklistRel], { cwd: spec.cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+                return sha ? (JSON.parse(execFileSync('git', ['show', `${sha}:${checklistRel}`], { cwd: spec.cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 })) as { items?: ChecklistItem[] }).items : undefined;
+              } catch { return undefined; }
+            } });
+        } catch { check = { failures: [], changed: [] }; }
+        const summary = check.failures.map(row => ({ kind: row.kind, id: row.id, command: row.command }));
+        if (attempt > 1) {
+          appendEvent(paths, {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'managed_repair_regression_check_outcome',
+            detail: { attempt: attempt - 1, outcome: check.failures.length ? 'still_failing' : 'passed', exitCode: result.exitCode, failures: summary },
+          });
+        }
+        if (!check.failures.length) break;
+        const resumeSessionId = attempt <= MANAGED_REPAIR_REGRESSION_CHECK_MAX_ATTEMPTS && result.replacementSafe
+          ? resumableManagedRunCodexSession(paths, codexHome)
+          : null;
+        if (resumeSessionId === null) {
+          appendEvent(paths, {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'managed_repair_regression_check_unavailable',
+            detail: { attempt, findingIds: reportFindingIds, failures: summary,
+              reason: attempt > MANAGED_REPAIR_REGRESSION_CHECK_MAX_ATTEMPTS ? 'attempts_exhausted' : !result.replacementSafe ? 'provider_not_replacement_safe' : 'session_not_resumable' },
+          });
+          break;
+        }
+        const prompt = repairRegressionFollowUp(check.failures, reportFindingIds);
+        const journaled = updateSnapshotAndAppendEvent(paths, current => ({
+          ...current, generation: current.generation + 1, providerClosedAt: null, supervisionDiagnostic: null,
+        }), {
+          schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+          type: 'managed_repair_regression_check',
+          detail: { attempt, maxAttempts: MANAGED_REPAIR_REGRESSION_CHECK_MAX_ATTEMPTS, findingIds: reportFindingIds, failures: summary, resumeSessionId, prompt: prompt.slice(0, 2000) },
+        });
+        if (!journaled) return readTerminal(paths)!;
+        const checkRefusal = await authorizeLaunch();
+        if (checkRefusal) {
+          if (checkRefusal === 'absolute_deadline_exceeded') {
+            deadlineTriggered = true;
+            return writeTerminal(paths, 'timed_out', checkRefusal, result.replacementSafe, result, now());
+          }
+          cancelTriggered = readCancelRequest(paths) !== null;
+          if (cancelTriggered) return writeTerminal(paths, 'cancelled', checkRefusal, result.replacementSafe, result, now());
+          break;
+        }
+        providerClosed = false;
+        result = null;
+        result = await launchProvider(prompt, resumeSessionId, Math.max(1, Math.min(spec.timeoutMs, Date.parse(spec.deadlineAt) - now())));
+        const checkExitTerminal = await settleProviderExit(result, 'managed_repair_regression_check_failed');
+        if (checkExitTerminal) return checkExitTerminal;
+      }
+      // Lab run137 (fix M, second half): the shared helpers this repair's own commits changed (several callers in the Story
+      // diff); the report owes one [caller-check] line per caller, asked for below in the same session.
+      const callerChecks: SharedHelperLike[] = (() => {
+        if (!regressionLaunchHead || !regressionBase) return [];
+        try { return changedSharedHelpers({ gitCwd: spec.cwd, from: regressionLaunchHead, to: 'HEAD', baseRef: regressionBase }); } catch { return []; }
+      })();
       for (let attempt = 1; reportFindingIds.length && spec.storyId && spec.host === 'codex'; attempt += 1) {
         const requirements = readRepairReportRequirements(spec.root, spec.storyId, reportFindingIds);
-        if (!requirements.matrices.length && !requirements.mechanisms.length && !spec.repairBaseClaims) break;
+        if (!requirements.matrices.length && !requirements.mechanisms.length && !spec.repairBaseClaims && !callerChecks.length) break;
         let report: string | null = null;
         try { report = finalMessageFromLiveOutput(readFileSync(paths.output, 'utf8')); } catch { report = null; }
         // Lab run132 (run 135 L): "matches the base" claims about boundary cases owe a [base-evidence] line.
-        const followUp = repairReportFollowUp({ report, ...requirements, baseClaims: spec.repairBaseClaims === true });
+        const followUp = repairReportFollowUp({ report, ...requirements, baseClaims: spec.repairBaseClaims === true, callerChecks });
         if (attempt > 1) {
           appendEvent(paths, {
             schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),

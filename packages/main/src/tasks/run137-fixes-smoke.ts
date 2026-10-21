@@ -269,7 +269,7 @@ await check('P1 review.classEnumeration: DEFAULT OFF (on = the experimental arm,
   const { resolveAbVariants, abVariantEvidence, AB_VARIANT_FLAGS } = await import('../core/ab-variants.js') as unknown as Record<string, Fn> & { AB_VARIANT_FLAGS: Record<string, readonly string[]> };
   assert.deepEqual(AB_VARIANT_FLAGS['review.classEnumeration'], ['off', 'on']);
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { classEnumeration: 'on' } })).flags, { 'review.classEnumeration': 'on' });
-  assert.deepEqual(abVariantEvidence(resolveAbVariants({})).flags, {});
+  assert.equal(abVariantEvidence(resolveAbVariants({})), undefined, 'the default (off) records nothing');
   const on = await load('../core/ab-variants.js', 'classEnumerationOn');
   assert.equal(on({}), false); assert.equal(on({ review: { classEnumeration: 'maybe' } }), false, 'malformed = off');
   const lane = await load('../core/managed-review-evidence.js', 'classEnumerationLane');

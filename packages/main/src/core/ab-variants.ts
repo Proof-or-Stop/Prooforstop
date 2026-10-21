@@ -208,6 +208,21 @@
  *                              its own repro gets the ready append step (repro into the canonical repair's test, the same
  *                              coverage call) instead of its own managed repair; a second refusal repairs it as before
  *
+ * Lab run137 (bench-staging/oldpos/run137-analysis.md; new-PoS ADR-056 / ADR-070 / ADR-071 direction):
+ *   remediation.regressionCheck 'on' (default) | 'off'  before a finding-repair run seals, the worker re-runs the covering
+ *                              tests of the Story's resolved findings and the pinned checklist verifications of the packages
+ *                              the repair changed; a failure goes back to the SAME session with its output, and a repair that
+ *                              changed a shared helper owes one [caller-check] line per caller (core/repair-regression-check.ts,
+ *                              core/shared-helper-callers.ts). finding_resolve's regression guard stays the gate
+ *   remediation.conflictPin    'on' (default) | 'off'  a finding conflict no checklist row pins is decided by the framework
+ *                              when the request or a finding-stated Story base value decides the case (precedence request >
+ *                              base > reviewer, journaled finding_conflict_framework_pin), without a PLAN trip; an undecidable
+ *                              one keeps finding_conflict_pin, whose PLAN trip writes the pin before any scope-plan rerun
+ *                              (core/finding-conflict-pin.ts)
+ *   review.classEnumeration    'off' (default) | 'on'  EXPERIMENTAL (needs a detection A/B): concept and quality lanes get the
+ *                              shared helpers the Story changed with every caller, to enumerate each altered behaviour per
+ *                              caller against the base (core/shared-helper-callers.ts renderSharedHelperCallers 'review')
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -257,14 +272,17 @@ export const AB_VARIANT_FLAGS = {
   'plan.repinAllRows': ['on', 'off'],
   'remediation.baseClaimEvidence': ['on', 'off'],
   'remediation.duplicateReproAppend': ['on', 'off'],
+  'remediation.regressionCheck': ['on', 'off'],
+  'remediation.conflictPin': ['on', 'off'],
+  'review.classEnumeration': ['off', 'on'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
 export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[F][number];
 
 export interface AbVariantConfigSlice {
-  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string; driftBaseSymbol?: string; stragglerVerdict?: string; deltaSelectorRepair?: string };
-  remediation?: { grouping?: string; thread?: string; familyEvidence?: string; fileStateSettle?: string; scopeGateSettle?: string; conflictSettle?: string; baseClaimEvidence?: string; duplicateReproAppend?: string };
+  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string; driftBaseSymbol?: string; stragglerVerdict?: string; deltaSelectorRepair?: string; classEnumeration?: string };
+  remediation?: { grouping?: string; thread?: string; familyEvidence?: string; fileStateSettle?: string; scopeGateSettle?: string; conflictSettle?: string; baseClaimEvidence?: string; duplicateReproAppend?: string; regressionCheck?: string; conflictPin?: string };
   scope?: { boundaryExcludes?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
   plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string; docDriftSettle?: string; intentConflictGuard?: string; baseEvidence?: string; repinAllRows?: string };
@@ -316,6 +334,9 @@ export interface AbVariants {
   repinAllRows: AbVariantValue<'plan.repinAllRows'>;
   baseClaimEvidence: AbVariantValue<'remediation.baseClaimEvidence'>;
   duplicateReproAppend: AbVariantValue<'remediation.duplicateReproAppend'>;
+  regressionCheck: AbVariantValue<'remediation.regressionCheck'>;
+  conflictPin: AbVariantValue<'remediation.conflictPin'>;
+  classEnumeration: AbVariantValue<'review.classEnumeration'>;
 }
 
 export interface AbVariantEvidence {
@@ -415,6 +436,9 @@ export function resolveAbVariants(config: unknown): AbVariants {
     repinAllRows: pick('plan.repinAllRows', section(config, 'plan').repinAllRows),
     baseClaimEvidence: pick('remediation.baseClaimEvidence', section(config, 'remediation').baseClaimEvidence),
     duplicateReproAppend: pick('remediation.duplicateReproAppend', section(config, 'remediation').duplicateReproAppend),
+    regressionCheck: pick('remediation.regressionCheck', section(config, 'remediation').regressionCheck),
+    conflictPin: pick('remediation.conflictPin', section(config, 'remediation').conflictPin),
+    classEnumeration: pick('review.classEnumeration', section(config, 'review').classEnumeration),
   };
 }
 
@@ -463,6 +487,9 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.repinAllRows !== 'on') flags['plan.repinAllRows'] = variants.repinAllRows;
   if (variants.baseClaimEvidence !== 'on') flags['remediation.baseClaimEvidence'] = variants.baseClaimEvidence;
   if (variants.duplicateReproAppend !== 'on') flags['remediation.duplicateReproAppend'] = variants.duplicateReproAppend;
+  if (variants.regressionCheck !== 'on') flags['remediation.regressionCheck'] = variants.regressionCheck;
+  if (variants.conflictPin !== 'on') flags['remediation.conflictPin'] = variants.conflictPin;
+  if (variants.classEnumeration !== 'off') flags['review.classEnumeration'] = variants.classEnumeration;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -476,7 +503,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle' | 'remediation.scopeGateSettle' | 'remediation.conflictSettle' | 'plan.intentConflictGuard' | 'init.reviewerCarryForward' | 'review.stragglerVerdict' | 'review.deltaSelectorRepair' | 'plan.baseEvidence' | 'remediation.baseClaimEvidence' | 'remediation.duplicateReproAppend' | 'plan.repinAllRows'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle' | 'remediation.scopeGateSettle' | 'remediation.conflictSettle' | 'plan.intentConflictGuard' | 'init.reviewerCarryForward' | 'review.stragglerVerdict' | 'review.deltaSelectorRepair' | 'plan.baseEvidence' | 'remediation.baseClaimEvidence' | 'remediation.duplicateReproAppend' | 'plan.repinAllRows' | 'remediation.regressionCheck' | 'remediation.conflictPin' | 'review.classEnumeration'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -546,6 +573,12 @@ export const baseClaimEvidenceOn = (config: unknown): boolean => catchEarlierPic
 
 /** Lab run132 (old-PoS run 135 item I) remediation.duplicateReproAppend (default on; `off` = rollback): one lacks-repro duplicate refusal gets the repro append step (core/duplicate-finding-coverage.ts reproAppendReceipt); malformed = on. */
 export const duplicateReproAppendOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.duplicateReproAppend') === 'on';
+/** Lab run137 remediation.regressionCheck (default on; `off` = rollback): the pre-seal repair regression check and the shared-helper [caller-check] lines (core/repair-regression-check.ts); malformed = on. */
+export const regressionCheckOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.regressionCheck') === 'on';
+/** Lab run137 remediation.conflictPin (default on; `off` = rollback): a finding conflict no row pins is decided by the framework from the request or a finding-stated base value (core/finding-conflict-pin.ts); malformed = on. */
+export const conflictPinOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.conflictPin') === 'on';
+/** EXPERIMENTAL lab run137 review.classEnumeration=on: concept and quality lanes enumerate every altered behaviour of a changed shared helper per caller (core/shared-helper-callers.ts); malformed = off. */
+export const classEnumerationOn = (config: unknown): boolean => catchEarlierPick(config, 'review.classEnumeration') === 'on';
 /** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }

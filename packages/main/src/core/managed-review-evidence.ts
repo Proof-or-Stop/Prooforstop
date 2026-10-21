@@ -1,5 +1,7 @@
 import { isManagedInventoryCriticEnvelopeValid, MANAGED_INVENTORY_CRITIC_PROTOCOL } from './managed-inventory-critic.js';
-import { resolveAbVariants, scopeGateSettleOn } from './ab-variants.js';
+import { classEnumerationOn, resolveAbVariants, scopeGateSettleOn } from './ab-variants.js';
+import { changedSharedHelpers, renderSharedHelperCallers } from './shared-helper-callers.js';
+import { pinOracleStoryBase } from './pin-oracle.js';
 import { isMissingReviewSnapshotError } from './review-metadata-surface.js';
 import { reportHealthIssue } from './health.js';
 import { isVerifiedReviewMaintenanceCommit } from './review-maintenance-lineage.js';
@@ -1043,6 +1045,32 @@ export function renderScopeAdmittedDocumentation(root: string, run: ReviewRun): 
   } catch { return []; }
 }
 
+/** Lab run137 (review.classEnumeration): the lanes that get the shared-helper caller enumeration. */
+export const CLASS_ENUMERATION_LANES: readonly string[] = ['proof-or-stop-review-concept', 'proof-or-stop-review-quality'];
+export const classEnumerationLane = (lane: string): boolean => CLASS_ENUMERATION_LANES.includes(lane);
+
+/**
+ * Lab run137 (bench-staging/oldpos/run137-analysis.md "Why the findings trickled in" 3, fix P; EXPERIMENTAL
+ * review.classEnumeration, default off until a detection A/B): run 137's F-004 repair changed a normalisation helper four
+ * read / write paths call, and the two-part path's change (F-006 / F-007) was found one round later. A concept or quality
+ * lane gets the helpers the Story diff changed that have several callers in it, with every call site, and is asked to
+ * check each altered behaviour per caller against the Story base, IN ADDITION to its own checks. New-PoS ADR-089 (a broad
+ * round-1 "probe the family" sentence) was reverted for narrowing the lanes without finding more; this block names
+ * concrete framework-computed call sites instead and adds no general instruction. Deterministic from the run's own
+ * reviewed head (the prompt digest is recomputed at import).
+ */
+export function renderClassEnumeration(root: string, run: ReviewRun): string[] {
+  if (!classEnumerationLane(run.lane) || run.reviewPurpose === 'inventory-completeness') return [];
+  try { if (!classEnumerationOn(loadConfig(root))) return []; } catch { return []; }
+  try {
+    const gitCwd = run.workspaceBinding?.signedWorkspaceRoot ?? root;
+    const story = new StoryStore(root).readStory(run.storyId) as { integrationTarget?: { parentCommitAtCreation?: string } };
+    const base = pinOracleStoryBase(gitCwd, story.integrationTarget?.parentCommitAtCreation);
+    if (!base || !run.headHash) return [];
+    return renderSharedHelperCallers(changedSharedHelpers({ gitCwd, from: base, to: run.headHash, baseRef: base }), 'review');
+  } catch { return []; }
+}
+
 /**
  * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §4; run 48 cycle C):
  * one pre-existing documentation defect was re-filed by four lanes in four
@@ -1116,7 +1144,8 @@ export function buildManagedReviewerPrompt(
   }));
   const lanePack = managedReviewLanePack(root, run);
   const rereview = renderManagedReviewerRereview(root, run, lanePack, deltaRound ?? null);
-  const dispositioned = [...renderDispositionedPreexistingSites(root, run), ...renderScopeExcludedDocumentation(root, run), ...renderScopeAdmittedDocumentation(root, run)];
+  const dispositioned = [...renderDispositionedPreexistingSites(root, run), ...renderScopeExcludedDocumentation(root, run), ...renderScopeAdmittedDocumentation(root, run),
+    ...renderClassEnumeration(root, run)];
   const merged = laneMerge?.role === 'merged' && isCodeReviewLaneRun(run)
     ? renderLaneMergeBlock(laneMerge.plan, laneMergeDimensionSections(root, (() => {
       try { const request = readStoryRequest(new StoryStore(root), run.storyId); return request.status === 'ok' ? request.text : ''; } catch { return ''; }
