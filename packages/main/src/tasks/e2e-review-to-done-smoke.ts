@@ -398,7 +398,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S|NSG|NSG-X|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S|NSG|NSG-X|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC|NIC-F|NIC-OFF]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -9610,7 +9610,8 @@ function scenarioNBP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const store = new StoryStore(o.worktree);
     store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'INIT' });
     const added = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:adversarial:+', desc: NBP_PINNED_ROW, type: 'logic', priority: 'must',
-      scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story', derivation: { requestQuote: 'A non-string operand keeps the existing operand error format.', computation: 'a list operand is not a string' } }],
+      scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story', derivation: { requestQuote: 'A non-string operand keeps the existing operand error format.', computation: 'a list operand is not a string' },
+      verification: { command: 'go test -v ./strs -run ^TestUpperList$', selector: '--- PASS: TestUpperList' } }],
       reason: 'adversarial operand row' }, { label: 'checklist_update CHK-001 (quoted operand pin)' });
     assert.match(added.out, /CHK-001:adversarial:0[^\n]*\[pin_base_print\]/, `[${tag}] the INIT pre-check lists the row: ${added.out.slice(-1500)}`);
     store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
@@ -9635,6 +9636,81 @@ function scenarioNBP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * NIC (run 132 I2): both INIT reviewers PASS, then a signed INIT input outside story-init's judged slice changes (the
+ * request is re-recorded); init-check.json no longer verifies [init_check_tampered]. NIC: only the product reviewer
+ * reruns, story-init's signed PASS is carried into the next signed record and INIT_CHECK is entered. NIC-F: the stale
+ * record was hand-edited (a reviewer row changed): nothing is carried, both rerun. NIC-OFF: init.reviewerCarryForward=off,
+ * both rerun (rollback).
+ */
+const NIC_REQUEST = ['Implement the string helpers documented in docs/types/string.md:', '', '- `strs.Upper(s)` returns the upper-case form of `s`.',
+  '- `strs.Reverse(s)` returns `s` with its runes in reverse order.', '- Both helpers must accept the empty string.', ''].join('\n');
+
+function scenarioNIC(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'on' | 'forged' | 'off'): Outcome {
+  const tag = variant === 'on' ? 'NIC' : variant === 'forged' ? 'NIC-F' : 'NIC-OFF';
+  const name = variant === 'on'
+    ? 'NIC lab run132 fix 2: after a request re-record (outside story-init\'s judged slice) only the product reviewer reruns; story-init\'s signed PASS is carried and INIT_CHECK is entered'
+    : variant === 'forged'
+      ? 'NIC-F lab run132 fix 2: a hand-edited stale init-check.json carries nothing; both INIT reviewers rerun'
+      : 'NIC-OFF lab run132 fix 2: init.reviewerCarryForward=off (rollback): both INIT reviewers rerun after the request re-record';
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true, ...(variant === 'off' ? { config: { init: { reviewerCarryForward: 'off' } } } : {}) });
+  const lines: string[] = [];
+  const launchesOf = (agentType: string) => managedPrompts(o, agentType).length;
+  /** next --run one step at a time until next proposes enter_init_check (not run), at most `limit` steps. */
+  const untilInitCheck = (limit: number): string[] => {
+    const ran: string[] = [];
+    for (let call = 0; call < limit; call += 1) {
+      const step = parseJson(o.cli('next', { storyId: o.storyId, json: true }, { label: 'next' }).stdout) as unknown as NextStepJson | null;
+      assert.ok(step, `[${tag}] next answered`);
+      // A --run step may also have entered INIT_CHECK itself (a launch, its wait and the gate step in one call).
+      if (step!.reason === 'enter_init_check' || step!.phase !== 'INIT') return ran;
+      ran.push(step!.reason);
+      const asked = o.cli('next', { storyId: o.storyId, run: true, json: true, maxSteps: 1 }, { label: `next --run (${step!.reason})` });
+      const stopped = parseJson(asked.stdout)?.stopped;
+      assert.ok(stopped === undefined || stopped === null || /^maxSteps=/.test(String(stopped)), `[${tag}] next --run stopped:\n${asked.out.slice(-1500)}`);
+    }
+    assert.fail(`[${tag}] INIT did not settle in ${limit} steps (ran: ${ran.join(' > ')})`);
+  };
+  try {
+    const first = o.cli('next', { json: true }, { label: 'next (no Story)' });
+    const template = parseJson(first.stdout) as unknown as NextStepJson | null;
+    const created = o.mustCli('story_create', fillStoryCreateTemplate(template!.cli!.payload), { label: 'story_create' });
+    o.storyId = created.stdout.match(/Story (B-[a-f0-9]+) created/)![1]!;
+    writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, o.storyId, o.scriptsDir, JSON.stringify({ findingRound1: false })] }));
+    untilInitCheck(12);
+    const store = new StoryStore(o.root);
+    assert.equal(store.readStory(o.storyId).phase, 'INIT', `[${tag}] both verdicts recorded, INIT_CHECK not entered yet`);
+    const before = store.readInitCheck(o.storyId)!;
+    const storyInitRow = (before.agentResults ?? []).find(row => row.agentId === 'proof-or-stop-review-story-init');
+    if (variant === 'on') assert.ok(storyInitRow?.judgedSliceHash, `[${tag}] the story-init row records its judged slice: ${JSON.stringify(before.agentResults).slice(0, 600)}`);
+    assert.deepEqual([launchesOf('proof-or-stop-review-story-init'), launchesOf('proof-or-stop-product-reviewer')], [1, 1], `[${tag}] one run of each reviewer`);
+    o.mustCli('story_request_set', { storyId: o.storyId, request: NIC_REQUEST, amendmentReason: 'The user clarified that both helpers must accept the empty string.' }, { label: 'story_request_set (clarified request)' });
+    if (variant === 'forged') {
+      const path = store.storyFilePath(o.storyId, 'init-check.json');
+      const data = JSON.parse(readFileSync(path, 'utf8')) as NonNullable<ReturnType<StoryStore['readInitCheck']>>;
+      data.agentResults = (data.agentResults ?? []).map(row => row.agentId === 'proof-or-stop-product-reviewer' ? { ...row, issues: [] } : { ...row, checkedAt: new Date().toISOString() });
+      writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
+    }
+    const stale = parseJson(o.cli('next', { storyId: o.storyId, json: true }, { label: 'next (request re-recorded)' }).stdout) as unknown as NextStepJson | null;
+    assert.equal(stale?.reason, 'init_review_launch', `[${tag}] ${stale?.reason}: ${stale?.why.slice(0, 300)}`);
+    lines.push(`after the request change: ${stale!.reason} (${stale!.parallel?.length ?? 1} launch${(stale!.parallel?.length ?? 1) > 1 ? 'es' : ''}): ${stale!.why.slice(0, 200)}`);
+    untilInitCheck(8);
+    const expected = variant === 'on' ? [1, 2] : [2, 2];
+    assert.deepEqual([launchesOf('proof-or-stop-review-story-init'), launchesOf('proof-or-stop-product-reviewer')], expected,
+      `[${tag}] reviewer runs (story-init, product) after the request change`);
+    const after = store.readInitCheck(o.storyId)!;
+    const carried = (after.agentResults ?? []).find(row => row.agentId === 'proof-or-stop-review-story-init');
+    if (variant === 'on') assert.equal(carried?.deliveryRunId, storyInitRow!.deliveryRunId, `[${tag}] story-init's signed PASS carried as recorded`);
+    else assert.notEqual(carried?.deliveryRunId, storyInitRow!.deliveryRunId, `[${tag}] story-init's verdict is a new run's`);
+    if (store.readStory(o.storyId).phase === 'INIT') o.mustCli('story_advance', { storyId: o.storyId, phase: 'INIT_CHECK' }, { label: 'story_advance INIT_CHECK' });
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /** Host runs on disk: review run binding, terminal reason, created / ended (ms). */
 function listHostRunsOnDisk(o: Owner): Array<{ runId: string; reviewRunId: string | null; reason: string; createdAt: number; endedAt: number }> {
   const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
@@ -9651,7 +9727,7 @@ function listHostRunsOnDisk(o: Owner): Array<{ runId: string; reviewRunId: strin
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?|NSG(?:-X)?|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?|NSG(?:-X)?|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC(?:-F|-OFF)?)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -9791,6 +9867,10 @@ async function main(): Promise<void> {
     if (only.includes('NUA')) outcomes.push(scenarioNUA(machine.env, steps));
     if (only.includes('NAB')) outcomes.push(scenarioNAB(machine.env, steps));
     if (only.includes('NBP')) outcomes.push(scenarioNBP(machine.env, steps));
+    // Lab run132 fix 2: a signed INIT PASS whose judged slice is unchanged is carried (NIC), never a hand-edited one (NIC-F), rollback (NIC-OFF).
+    if (only.includes('NIC')) outcomes.push(scenarioNIC(machine.env, steps, 'on'));
+    if (only.includes('NIC-F')) outcomes.push(scenarioNIC(machine.env, steps, 'forged'));
+    if (only.includes('NIC-OFF')) outcomes.push(scenarioNIC(machine.env, steps, 'off'));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
@@ -9814,7 +9894,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NSG', 'NSG-X', 'NIO', 'NFC', 'NPV', 'NMC', 'NDI', 'NSL', 'NUA', 'NAB', 'NBP', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NSG', 'NSG-X', 'NIO', 'NFC', 'NPV', 'NMC', 'NDI', 'NSL', 'NUA', 'NAB', 'NBP', 'NIC', 'NIC-F', 'NIC-OFF', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

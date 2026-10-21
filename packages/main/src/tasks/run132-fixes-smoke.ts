@@ -8,6 +8,10 @@
  *      naming the command that owns it (one ready Next when the value carries over); output flags stay accepted. The
  *      INIT blocker guidance names the exact command per cited input instead of "story_update / checklist_update /
  *      background".
+ *   B. INIT reviewer carry-forward (run 132 I2): a signed-input edit made init-check.json `_hash` mismatch and every INIT
+ *      reviewer reran. A record now states the inputs it was signed over (`_signedInputs`), so a stale record can still be
+ *      verified as one this tool signed; a reviewer PASS whose own judged slice is unchanged is carried (switch
+ *      init.reviewerCarryForward, default on). A hand-edited verdict or input never verifies. Harness NIC / NIC-F / NIC-OFF.
  *   C. Bare intent-conflict values (run 132 D1, ~1.0 min): an `[intent-conflict]` whose two values are unbackticked
  *      variants of one error text is read as two literals (ready amend patch, adoption), and a `re-pin:` clause in a
  *      row's computation (which keeps the old value by design) does not count as the row still stating the old pin.
@@ -112,6 +116,37 @@ await check('A5 the INIT blocker guidance names the exact command for each input
   assert.match(none, /background_set/);
   assert.match(none, /checklist_update/);
   assert.match(none, /story_update/);
+});
+
+// ---------------------------------------------------------------------------
+// B. INIT reviewer carry-forward
+
+await check('B1 switch init.reviewerCarryForward: default on, off = rollback, malformed = on', async () => {
+  const on = await load('../core/ab-variants.js', 'reviewerCarryForwardOn');
+  assert.equal(on({}), true);
+  assert.equal(on({ init: { reviewerCarryForward: 'off' } }), false);
+  assert.equal(on({ init: { reviewerCarryForward: 'x' } }), true);
+});
+
+await check('B2 a stale record verifies against the inputs it states; a hand-edited verdict, slice hash or input does not', async () => {
+  const verified = await load('../core/init-check-gate.js', 'initCheckSignedOverRecordedInputs');
+  const { signInitCheck, computeInitCheckVerdictHash } = await import('../core/init-check-gate.js');
+  const inputs = { backgroundHash: 'b'.repeat(64), title: 'Old title', description: 'Old description', checklistHash: 'c'.repeat(64), reviewRound: '' };
+  const record = { storyId: STORY, checkedAt: '2026-10-21T11:18:35Z', reviewRound: '', agentId: 'proof-or-stop-review-story-init', issues: [],
+    agentResults: [{ agentId: 'proof-or-stop-review-story-init', checkedAt: '2026-10-21T11:18:35Z', deliveryRunId: 'run-1', judgedSliceHash: 's'.repeat(64), issues: [] }],
+    _signedInputs: inputs, _hash: '' };
+  record._hash = signInitCheck(STORY, inputs.backgroundHash, inputs.title, inputs.description, inputs.checklistHash, inputs.reviewRound, computeInitCheckVerdictHash(record as never));
+  assert.equal(verified(STORY, record), true, 'signed by the tool over its recorded inputs');
+  const clone = () => JSON.parse(JSON.stringify(record)) as typeof record;
+  const issues = clone(); issues.agentResults[0]!.issues = [{ severity: 'low', desc: 'x' }] as never;
+  assert.equal(verified(STORY, issues), false, 'verdict edited');
+  const slice = clone(); slice.agentResults[0]!.judgedSliceHash = 't'.repeat(64);
+  assert.equal(verified(STORY, slice), false, 'slice hash edited');
+  const input = clone(); input._signedInputs.title = 'New title';
+  assert.equal(verified(STORY, input), false, 'recorded inputs edited');
+  const legacy = clone(); delete (legacy as Partial<typeof record>)._signedInputs;
+  assert.equal(verified(STORY, legacy), false, 'a legacy record (no recorded inputs) is never carried');
+  assert.equal(verified('B-0001', record), false, 'another Story');
 });
 
 // ---------------------------------------------------------------------------
