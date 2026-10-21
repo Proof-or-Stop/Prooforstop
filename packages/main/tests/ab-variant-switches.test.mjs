@@ -52,6 +52,13 @@
  *   Lab plan-deadend (behaviour in tasks/plan-deadend-smoke.ts D / S1, end to end in NPDE / NPDE-D):
  *   plan.docDriftSettle              default ON (`off` = rollback): a scope-plan gap that is pre-existing doc/code drift in a
  *                                    doc the request neither names nor asks to change (no item modifies it) is settled
+ *   Lab run131 (behaviour in tasks/run131-fixes-smoke.ts A / B / C, end to end in NSG / NIO / NFC):
+ *   remediation.scopeGateSettle      default ON (`off` = rollback): a "scope violation" finding against docs the scope gate
+ *                                    admits is closed once against the gate verdict
+ *   remediation.conflictSettle       default ON (`off` = rollback): a finding conflict the checklist pin and the resolved
+ *                                    finding's test decide is closed once by the framework
+ *   plan.intentConflictGuard         default ON (`off` = rollback): a PLAN amend re-asserting a disputed pin needs the
+ *                                    request text or a base check
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -119,7 +126,9 @@ await check('config: absent switches resolve to production values; malformed fai
     // symbol-based drift evidence is EXPERIMENTAL and off.
     boundaryExcludes: 'on', fileStateSettle: 'on', driftBaseSymbol: 'off',
     // Lab plan-deadend: a pre-existing doc/code drift gap on unrequested documentation is settled (`off` = rollback).
-    docDriftSettle: 'on' });
+    docDriftSettle: 'on',
+    // Lab run131: the scope-gate settle, the finding-conflict settle and the intent-conflict guard are on (`off` = rollback).
+    scopeGateSettle: 'on', conflictSettle: 'on', intentConflictGuard: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -159,6 +168,14 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.throws(() => resolveAbVariants({ plan: { docDriftSettle: 'maybe' } }), /invalid_ab_variant_config: plan\.docDriftSettle/);
   const { docDriftSettleOn } = await load('core/ab-variants.js');
   assert.equal(docDriftSettleOn({ plan: { docDriftSettle: 'maybe' } }), true, 'lab plan-deadend: malformed = on where consumed');
+  // Lab run131: each rollback arm is recorded; malformed = on where consumed.
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { scopeGateSettle: 'off', conflictSettle: 'off' }, plan: { intentConflictGuard: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.scopeGateSettle': 'off', 'remediation.conflictSettle': 'off', 'plan.intentConflictGuard': 'off' } }, 'lab run131: the rollback arms are recorded');
+  assert.throws(() => resolveAbVariants({ remediation: { conflictSettle: 'maybe' } }), /invalid_ab_variant_config: remediation\.conflictSettle/);
+  const { scopeGateSettleOn, conflictSettleOn, intentConflictGuardOn } = await load('core/ab-variants.js');
+  assert.equal(scopeGateSettleOn({ remediation: { scopeGateSettle: 'maybe' } }), true, 'lab run131: malformed = on where consumed');
+  assert.equal(conflictSettleOn({ remediation: { conflictSettle: 'maybe' } }), true, 'lab run131: malformed = on where consumed');
+  assert.equal(intentConflictGuardOn({ plan: { intentConflictGuard: 'maybe' } }), true, 'lab run131: malformed = on where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

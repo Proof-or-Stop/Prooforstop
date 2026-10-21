@@ -39,6 +39,7 @@ import type { ChecklistItem, Finding } from './types.js';
 import { digestCanonicalJson } from './digest.js';
 import { isStoryMetadataFile, isStoryMetadataFinding } from './metadata-finding-class.js';
 import { REPAIR_VALUE_CHANGED_EVENT, repairRowPatches, type RepairRowPatch, type RepairValueChange } from './repair-value-change.js';
+import { shellQuote } from './shell-quote.js';
 
 export type MetadataField = 'userSees' | 'verificationIntent';
 
@@ -545,4 +546,105 @@ export function routingUserSees(store: Pick<Store, 'readProcessEvents'>, storyId
     }
   }
   return text;
+}
+
+// ---------------------------------------------------------------------------
+// Lab run131 (run 131 PLAN-B: ~9 metadata_correction_unchanged + 6 metadata_correction_none refusals, ~5-6 min,
+// ~12M owner tokens): the framework writes the corrected text; a refusal names the exact one next command.
+
+/** `text` with every occurrence of `form` replaced by `to` (whitespace-insensitive); null when `form` is not there. */
+function replaceStated(text: string, form: string, to: string): string | null {
+  if (text.includes(form)) return text.split(form).join(to);
+  const pattern = new RegExp(form.trim().split(/\s+/).map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s*'), 'g');
+  return pattern.test(text) ? text.replace(pattern, () => to) : null;
+}
+
+/** The corrected text of the wrong literal: the value side of a statement replaced, or the literal itself. */
+function correctedLiteral(wrong: string, corrected: string): string {
+  if (/==|->|=>|→/.test(corrected) || !/(?:==|->|=>|→|=)/.test(wrong)) return corrected;
+  const at = Math.max(...['==', '->', '=>', '→', '='].map(op => wrong.lastIndexOf(op)));
+  const op = ['==', '->', '=>', '→', '='].find(candidate => wrong.slice(at).startsWith(candidate))!;
+  const lead = wrong.slice(0, at + op.length);
+  const gap = wrong.slice(at + op.length).match(/^\s*/)?.[0] ?? ' ';
+  return `${lead}${gap}${corrected}`;
+}
+
+/**
+ * The ready correction of one item: its intent rows (`intentRows`, desc and computation corrected) or its userSees, with
+ * the reviewer's value in place of the wrong literal; null when the reviewer gave no value, the literal is not stated, or
+ * the result would not clear the correction.
+ */
+export function metadataCorrectionReadyPatch(item: Pick<ChecklistItem, 'id' | 'userSees' | 'verificationIntent'> | undefined, correction: MetadataCorrection):
+  { userSees?: string; intentRows?: Array<{ ref: string; desc: string; derivation: { requestQuote: string; computation: string } }> } | null {
+  if (!item || !correction.wrongLiteral || !correction.correctedValue) return null;
+  const wrong = correction.wrongLiteral;
+  if (correction.field === 'userSees') {
+    const form = statedForm(item.userSees ?? '', wrong);
+    const fixed = form ? replaceStated(item.userSees ?? '', form, correctedLiteral(form, correction.correctedValue)) : null;
+    if (!fixed) return null;
+    const out = { userSees: fixed };
+    return metadataCorrectionCleared({ ...item, userSees: fixed }, correction) ? out : null;
+  }
+  const rows: Array<{ ref: string; desc: string; derivation: { requestQuote: string; computation: string } }> = [];
+  const clone = structuredClone({ verificationIntent: item.verificationIntent ?? null }) as { verificationIntent: Record<string, Array<{ desc?: string; derivation?: { requestQuote?: string; computation?: string } }>> | null };
+  for (const lane of LANES) {
+    (clone.verificationIntent?.[lane] ?? []).forEach((row, index) => {
+      const ref = `${item.id}:${lane}:${index}`;
+      if (correction.rowRefs.length && !correction.rowRefs.includes(ref)) return;
+      const desc = String(row.desc ?? '');
+      const computation = String(row.derivation?.computation ?? '');
+      const descForm = statedForm(desc, wrong);
+      const compForm = statedForm(computation, wrong);
+      if (!descForm && !compForm) return;
+      const newDesc = descForm ? replaceStated(desc, descForm, correctedLiteral(descForm, correction.correctedValue!)) ?? desc : desc;
+      let newComputation = compForm ? replaceStated(computation, compForm, correctedLiteral(compForm, correction.correctedValue!)) ?? computation : computation;
+      if (!statedForm(newComputation, correction.correctedValue!)) newComputation = `${newComputation.trim()}${newComputation.trim() ? '; ' : ''}metadata correction: the cited statement now states ${correction.correctedValue}`;
+      row.desc = newDesc;
+      row.derivation = { ...(row.derivation ?? {}), requestQuote: String(row.derivation?.requestQuote ?? ''), computation: newComputation };
+      rows.push({ ref, desc: newDesc, derivation: { requestQuote: String(row.derivation.requestQuote ?? ''), computation: newComputation } });
+    });
+  }
+  if (!rows.length) return null;
+  return metadataCorrectionCleared({ ...item, verificationIntent: clone.verificationIntent as never }, correction) ? { intentRows: rows } : null;
+}
+
+/** One ready checklist_update payload for an item's open corrections (rows of every correction merged), or null. */
+export function metadataCorrectionReadyPayload(storyId: string, item: Pick<ChecklistItem, 'id' | 'userSees' | 'verificationIntent'> | undefined,
+  corrections: readonly MetadataCorrection[], reason?: string): Record<string, unknown> | null {
+  if (!item) return null;
+  let current = structuredClone(item) as ChecklistItem;
+  const rows = new Map<string, { ref: string; desc: string; derivation: { requestQuote: string; computation: string } }>();
+  let userSees: string | undefined;
+  for (const correction of corrections.filter(row => row.itemId === item.id)) {
+    const patch = metadataCorrectionReadyPatch(current, correction);
+    if (!patch) return null;
+    if (patch.userSees !== undefined) { userSees = patch.userSees; current = { ...current, userSees }; }
+    for (const row of patch.intentRows ?? []) {
+      rows.set(row.ref, row);
+      const [, lane, index] = row.ref.split(':');
+      const target = (current.verificationIntent as unknown as Record<string, Array<Record<string, unknown>>> | undefined)?.[lane!]?.[Number(index)];
+      if (target) { target.desc = row.desc; target.derivation = row.derivation; }
+    }
+  }
+  if (!rows.size && userSees === undefined) return null;
+  return { storyId, itemId: item.id, ...(userSees !== undefined ? { userSees } : {}), ...(rows.size ? { intentRows: [...rows.values()] } : {}),
+    reason: reason ?? `Story-metadata correction: ${corrections.filter(row => row.itemId === item.id).map(row => `${row.wrongLiteral} -> ${row.correctedValue}`).join('; ').slice(0, 400)}`, metadataCorrection: true };
+}
+
+/** The Next of `[metadata_correction_unchanged]`: the ready rows of the item's corrections, else `next` (which names them). */
+export function metadataCorrectionUnchangedNext(args: { storyId: string; item: Pick<ChecklistItem, 'id' | 'userSees' | 'verificationIntent'> | undefined; corrections: readonly MetadataCorrection[] }): string {
+  const payload = metadataCorrectionReadyPayload(args.storyId, args.item, args.corrections);
+  return payload ? `Next: proof-or-stop checklist_update ${shellQuote(JSON.stringify(payload))}`
+    : `Next: proof-or-stop next --storyId=${args.storyId} (it names the wrong literal and the reviewer's value)`;
+}
+
+/**
+ * The Next of `[metadata_correction_none]` (no open correction names the item): in PLAN the same update without the
+ * correction flag (an ordinary PLAN edit); elsewhere `next`. The open corrections are named after it.
+ */
+export function metadataCorrectionNoneNext(args: { storyId: string; phase: string; args: Record<string, unknown>; open: readonly MetadataCorrection[] }): string {
+  const { metadataCorrection: _flag, ...rest } = args.args;
+  const named = args.open.length ? `\nOpen Story-metadata corrections (next routes them, one ready command each): ${args.open.slice(0, 6).map(describeMetadataCorrection).join(' | ')}` : '';
+  const next = args.phase === 'PLAN' ? `Next: proof-or-stop checklist_update ${shellQuote(JSON.stringify(rest))}` : `Next: proof-or-stop next --storyId=${args.storyId}`;
+  return `${next}${named}`;
 }

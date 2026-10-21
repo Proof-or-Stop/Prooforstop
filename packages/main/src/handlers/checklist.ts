@@ -1,6 +1,6 @@
 import { planIntentPrecheckWarnings } from '../core/plan-intent-precheck.js';
 import { intentBasisRefusal } from '../core/intent-basis.js';
-import { describeMetadataCorrection, literalOccurrences, METADATA_CORRECTION_APPLIED_EVENT, METADATA_CORRECTION_UNCHANGED, metadataCorrectionCleared, metadataFieldHash, metadataFieldText, openMetadataCorrections } from '../core/metadata-correction.js';
+import { describeMetadataCorrection, literalOccurrences, METADATA_CORRECTION_APPLIED_EVENT, METADATA_CORRECTION_UNCHANGED, metadataCorrectionCleared, metadataCorrectionNoneNext, metadataCorrectionUnchangedNext, metadataFieldHash, metadataFieldText, openMetadataCorrections } from '../core/metadata-correction.js';
 import { observedImplementationDigest, withVerificationCommitObservation, withVerificationCompletionObservation, withVerificationLaunchObservation, withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
 import { assertGitObservationInactive, observedGit, withGitTreeObservation, withoutGitObservation } from '../core/git-tree-observation.js';
 import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
@@ -73,7 +73,12 @@ import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
 import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { pendingPinnedVerificationIntents } from '../core/evidence-chain-check.js';
-import { keepDoneAfterPin, pinReversalRefusal, storyWasInDev, unstatedPinReversals } from '../core/pin-amendment.js';
+import { keepDoneAfterPin, pinReversalRefusal, pinReversalRemedy, storyWasInDev, unstatedPinReversals } from '../core/pin-amendment.js';
+import { intentConflictOverrule, openIntentConflictJournal, type JournaledIntentConflict } from '../core/intent-conflict-overrule.js';
+import { intentConflictGuardOn } from '../core/ab-variants.js';
+import { counterpartRowRoles, planCounterpartCoverage } from '../core/counterpart-coverage.js';
+import { planPinBaseForm } from '../core/pin-base-form.js';
+import { pinProbeMismatches } from '../core/plan-pin-probe.js';
 import {
   assertVerificationInputUnchanged,
   assertVerificationFreshnessUnchanged,
@@ -2574,6 +2579,21 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
   // so the storyDir-aware metadata exclusion loads config from the right place.
   const resolveStoryGitCwd = (storyId: string): string =>
     resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+  /**
+   * Lab run131 (core/intent-conflict-overrule.ts): a base check confirms the pin an [intent-conflict] disputed: the same
+   * receiver's counterpart backs the row (counterpart gate), or the project's base evaluator judged the Story's rows and
+   * found no base disagreement on it (core/plan-pin-probe.ts) while the base printer check raises none (core/pin-base-form.ts).
+   */
+  const intentPinBaseConfirmed = (storyId: string, conflict: JournaledIntentConflict): boolean => {
+    try {
+      const gitCwd = resolveStoryGitCwd(storyId);
+      const counterpart = planCounterpartCoverage(store, root, storyId, gitCwd);
+      if ((counterpartRowRoles(counterpart).get(conflict.intentRef) ?? []).some(role => role.role === 'backed')) return true;
+      if ((planPinBaseForm(store, root, storyId, gitCwd)?.conflicts ?? []).some(row => row.ref === conflict.intentRef)) return false;
+      const probe = pinProbeMismatches({ store, root, storyId, gitCwd });
+      return Boolean(probe.runner) && probe.judged > 0 && ![...probe.mismatches, ...(probe.newBehaviour ?? [])].some(row => row.ref === conflict.intentRef);
+    } catch { return false; }
+  };
   const causalPreflightFactsFor = (storyId: string, authoritativeCwd: string) =>
     (input: { command: string; cwd: string; timeoutMs?: number }): CausalPreflightFacts =>
       ctx.causalPreflightFacts?.(input) ?? probeCausalPreflightFacts({
@@ -3708,7 +3728,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           || (row.itemId !== args.itemId && row.wrongLiteral && literalOccurrences([item], row.wrongLiteral).length > 0))
         : [];
       if (args.metadataCorrection && metadataCorrections.length === 0) {
-        throw new Error(`checklist_update refused: no open Story-metadata correction names ${args.itemId} or a literal it states [metadata_correction_none]\nNext: proof-or-stop next --storyId=${args.storyId}`);
+        // Lab run131 (run 131 PLAN-B: 6 of these): the exact next command, never a bare `next` the owner answers with the same call.
+        const open = (() => { try { return openMetadataCorrections({ store: store as never, storyId: args.storyId, gitCwd: resolveStoryGitCwd(args.storyId) }); } catch { return []; } })();
+        throw new Error(`checklist_update refused: no open Story-metadata correction names ${args.itemId} or a literal it states [metadata_correction_none]. `
+          + `${story.phase === 'PLAN' ? 'An ordinary PLAN edit carries no correction flag: the same update without it is the next command.' : 'Nothing to correct here.'}\n`
+          + metadataCorrectionNoneNext({ storyId: args.storyId, phase: story.phase, args: (submittedPayload ?? args) as Record<string, unknown>, open }));
       }
       const metadataBefore = args.metadataCorrection ? structuredClone(item) : null;
       let ownerProposalApproved = false;
@@ -3749,11 +3773,34 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const beforeIntentRevision = structuredClone(item);
       // Old-PoS run 58 (core/pin-amendment.ts, E): after the Story has been in DEV, a pin that changes the
       // value an existing row pins for a case must state the re-pin (oracle order in the refusal).
+      // Lab run131 (core/intent-conflict-overrule.ts): an amend that keeps the pin an implementer's [intent-conflict]
+      // disputed needs the request text or a base check; else refused with the ready row patch.
+      if (story.phase === 'PLAN' && args.verificationIntent !== undefined && !args.metadataCorrection
+        && (() => { try { return intentConflictGuardOn(loadConfig(root)); } catch { return true; } })()) {
+        const journaled = openIntentConflictJournal(root, args.storyId).filter(row => row.itemId === args.itemId);
+        if (journaled.length) {
+          const request = readStoryRequest(store, args.storyId);
+          const overruled = intentConflictOverrule({ storyId: args.storyId, itemId: args.itemId, before: item as never, afterIntent: args.verificationIntent, conflicts: journaled,
+            requestText: request.status === 'ok' ? request.text : null, baseConfirms: conflict => intentPinBaseConfirmed(args.storyId, conflict) });
+          if (overruled) throw new Error(overruled.refusal);
+        }
+      }
       if (story.phase === 'PLAN' && args.verificationIntent !== undefined && !args.metadataCorrection) {
         let processEvents: Array<Record<string, unknown>> = [];
         try { processEvents = store.readProcessEvents(args.storyId) as Array<Record<string, unknown>>; } catch { processEvents = []; }
         if (storyWasInDev(story as never, processEvents)) {
-          const refusal = pinReversalRefusal({ storyId: args.storyId, itemId: args.itemId, reversals: unstatedPinReversals(item.verificationIntent, args.verificationIntent) });
+          const reversals = unstatedPinReversals(item.verificationIntent, args.verificationIntent);
+          // Lab run131 (run 131 PLAN-C): the remedy is decided at the FIRST reversal (oracle order, then the
+          // plan_pin_dispute remedy), and the refusal's ONE Next is the owner's update with it applied.
+          const remedy = reversals.length ? (() => {
+            try {
+              const request = readStoryRequest(store, args.storyId);
+              const counterpart = (() => { try { return planCounterpartCoverage(store, root, args.storyId, resolveStoryGitCwd(args.storyId)); } catch { return null; } })();
+              return pinReversalRemedy({ storyId: args.storyId, item: item as never, afterIntent: args.verificationIntent, reversals, requestText: request.status === 'ok' ? request.text : null,
+                counterpart, ownerArgs: args as unknown as Record<string, unknown> });
+            } catch { return null; }
+          })() : null;
+          const refusal = pinReversalRefusal({ storyId: args.storyId, itemId: args.itemId, reversals, remedy });
           if (refusal) throw new Error(refusal);
         }
       }
@@ -3866,8 +3913,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           }
         }
         if (unchanged.length) {
+          // Lab run131 (run 131 PLAN-B: ~9 of these): the Next is the framework's ready correction of this item's rows.
           throw new Error(`checklist_update refused: the cited Story-metadata text is unchanged or still states the wrong value: ${unchanged.join('; ')} [${METADATA_CORRECTION_UNCHANGED}]\n`
-            + `Next: proof-or-stop next --storyId=${args.storyId} (it names the wrong literal and the reviewer's value)`);
+            + metadataCorrectionUnchangedNext({ storyId: args.storyId, item: metadataBefore, corrections: metadataCorrections.filter(row => row.itemId === args.itemId) }));
         }
         results.push(`metadata correction verified (${metadataCorrections.map(row => `${row.itemId} ${row.field}`).join(', ')}); no repair, no review round`);
         // Old-PoS run 44: journal what changed, so lane evidence judged before this text-only
@@ -4181,8 +4229,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         : '';
       // Lab initplan (initplan-breakdown.md rank 4): an intent / userSees edit in INIT reprints the PLAN lints still due,
       // all at once (core/plan-lint-preview.ts), so the owner finishes them in the same authoring pass.
+      // Lab run131 (run 131 cycle 1: the base-form check first ran at 08:20, 100 min after the owner re-asserted a pin the
+      // implementer disputed): an intent edit in PLAN reprints them too, so a re-pin meets the base-form / counterpart /
+      // unstated-pin checks the moment it is written.
       const planPreCheck = (args.verificationIntent !== undefined || args.userSees !== undefined) && !args.metadataCorrection
-        ? (() => { try { return store.readStory(args.storyId).phase === 'INIT' ? planLintPreview({ store, root, storyId: args.storyId }) : null; } catch { return null; } })()
+        ? (() => { try { const phase = store.readStory(args.storyId).phase; return phase === 'INIT' || (phase === 'PLAN' && args.verificationIntent !== undefined) ? planLintPreview({ store, root, storyId: args.storyId }) : null; } catch { return null; } })()
         : null;
       // Lab run95 (core/scope-exclusion-rationale.ts exclusionUserSeesRemedy): an excludes entry the item's own userSees still
       // names is refused by the scope-plan exclusion check one rerun later (run 95); say so now, with ONE command that sets both.

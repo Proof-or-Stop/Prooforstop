@@ -1277,6 +1277,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     fullScanReason: z.string().optional().describe('Justified tool-driven broad-scan reason; passed to candidate_spec_route only when routing requires escalation.'),
     inventoryCritic: z.boolean().optional().describe('Prepare the inventory-completeness critic instead of lanes (one step, v4.1 N2): review_inventory_begin when the current round has no OPEN epoch, then, when review_inventory_status reports REVIEW_INVENTORY_CRITIC_INCOMPLETE, the critic dispatch (unless already bound) and its review_run_start, in-process with each handler\'s own gates. Launches no reviewer host.'),
+    lanes: z.array(z.string()).optional().describe('Lab run131: prepare only these launchable lanes (next relaunches a lane whose managed run failed auto-replaceably while its sibling lanes still run); a running sibling is never restarted. Refused when none of them is launchable.'),
     json: z.boolean().optional().describe('Output a JSON object with the same fields.'),
   }},
   // Lifecycle Readiness P7: reviewer_batch — read-only reviewer-launcher PLAN producer.

@@ -12,7 +12,7 @@ import { resolveManagedReviewIsolation } from './managed-review-lane-policy.js';
 import { createManagedReviewLane, managedReviewLaneEnvironment, verifyManagedReviewLane, type ManagedReviewLane } from './managed-review-lane.js';
 import { estimateManagedRunDuration, MANAGED_DURATION_ESTIMATE_POLICY, type ManagedRunDurationEstimate, type ManagedRunDurationSample } from './managed-run-duration-estimate.js';
 import { assessManagedBurn, managedBurnTokenLimit } from './managed-burn-guard.js';
-import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_PROVIDER_STALL_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY, MANAGED_REVIEW_TEMP_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY, MANAGED_PROVIDER_STALL_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY, MANAGED_REVIEW_TEMP_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import type { LiveProviderUsage } from './usage-ledger/dispatch-usage.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, ACCEPTANCE_REVIEW_PROFILE, ACCEPTANCE_REVIEW_LANE, assertAcceptanceReviewBinding, parseAcceptanceReviewFinal, type AcceptanceReviewBinding, type AcceptanceReviewFinal } from './acceptance-amendment-review.js';
 /**
@@ -82,6 +82,7 @@ import {
   type HostRunProcessCleanup,
   RESUMABLE_CODE_WRITER_ROLES,
   managedDispatchSaveCommand,
+  providerItemEventSeen,
 } from './host-run.js';
 import { providerDiagnosticLineText } from './host-execution-readiness.js';
 import { createManagedRunDiagnostics } from './managed-run-diagnostics.js';
@@ -675,6 +676,8 @@ interface ManagedHostRunSpec {
   burnTokenLimit?: number;
   /** Provider stdout stall window in ms (0 = off); absent on older specs (policy default). */
   providerStallMs?: number;
+  /** Lab run131: no-item stall window in ms (0 = off); absent on older specs (off). */
+  providerFirstItemMs?: number;
   /** Digest of normalized submit inputs, sealed by the owner's specDigest. */
   submissionDigest?: string;
   schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION;
@@ -3171,6 +3174,18 @@ export function managedProviderStallWindowMs(env: NodeJS.ProcessEnv): number {
   return Number(raw);
 }
 
+/** Lab run131: the no-item stall window in ms sealed at managed submit (MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY); 0 = the ordinary window only. */
+export function managedProviderFirstItemWindowMs(env: NodeJS.ProcessEnv): number {
+  const raw = env[MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY.environment];
+  if (raw === undefined || raw === '') return MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY.defaultWindowMs;
+  if (!/^(0|[1-9][0-9]*)$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
+    throw new Error(`${MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY.environment} must be a non-negative integer of milliseconds (0 = the ordinary stall window only)`);
+  }
+  return Number(raw);
+}
+
+export { providerItemEventSeen };
+
 /**
  * Work-product fingerprint of a provider cwd: HEAD, porcelain status and the
  * tracked diff against HEAD, outside the PoS runtime directory. Null when it cannot be observed (not a Git work
@@ -3379,6 +3394,7 @@ export async function submitManagedHostRun(
   const now = deps.now ?? Date.now;
   const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
   const providerStallMs = managedProviderStallWindowMs(args.environment ?? process.env);
+  const providerFirstItemMs = managedProviderFirstItemWindowMs(args.environment ?? process.env);
   const sharedCallQuota = captureHostRunBudgetEnvironment(process.env, args.environment ?? {});
   const createdMs = now();
   const createdAt = new Date(createdMs).toISOString();
@@ -3488,6 +3504,7 @@ export async function submitManagedHostRun(
     durationEstimate: captureManagedRunDurationEstimate(args, createdAt),
     burnTokenLimit,
     providerStallMs,
+    providerFirstItemMs,
     ...(submissionDigest ? { submissionDigest } : {}),
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
     runId,
@@ -3940,6 +3957,8 @@ export async function runManagedHostRunWorker(
     // window is sealed in the spec; the cwd work fingerprint taken before the
     // first launch decides whether a stalled run left any work product.
     const providerStallMs = spec.providerStallMs ?? MANAGED_PROVIDER_STALL_RUNTIME_POLICY.defaultWindowMs;
+    const providerFirstItemMs = providerStallMs > 0 ? (spec.providerFirstItemMs ?? 0) : 0;
+    let providerItemSeen = false;
     const launchWorkFingerprint = providerStallMs > 0 ? providerCwdWorkFingerprint(spec.cwd) : null;
     let lastProviderStdoutAt: number | null = null;
     let lastProviderStdoutEvent: string | null = null;
@@ -3956,6 +3975,7 @@ export async function runManagedHostRunWorker(
     };
     const noteProviderStdout = (text: string): void => {
       lastProviderStdoutAt = now();
+      if (!providerItemSeen && providerItemEventSeen(text)) providerItemSeen = true;
       const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
       for (let index = lines.length - 1; index >= 0; index -= 1) {
         try {
@@ -3981,8 +4001,13 @@ export async function runManagedHostRunWorker(
       const silenceS = (Math.max(0, now() - since) / 1000).toFixed(1);
       const after = lastProviderStdoutEvent ? `after ${lastProviderStdoutEvent}` : lastProviderStdoutAt ? 'after its last stdout' : 'since spawn';
       const workProduct = providerWorkProductPresent();
+      // Lab run131: killed by the no-item window (no item event since spawn).
+      const noItem = providerFirstItemMs > 0 && !providerItemSeen && providerSpawnedAtMs !== null && now() - providerSpawnedAtMs >= providerFirstItemMs - 50;
+      const what = noItem
+        ? `no provider item for ${(Math.max(0, now() - (providerSpawnedAtMs ?? now())) / 1000).toFixed(1)} s since spawn${lastProviderStdoutEvent ? ` (last stdout ${lastProviderStdoutEvent})` : ''} (no-item window ${Number((providerFirstItemMs / 1000).toFixed(1))} s`
+        : `no provider stdout for ${silenceS} s ${after} (stall window ${Number((providerStallMs / 1000).toFixed(1))} s`;
       return writeTerminal(paths, 'failed',
-        `${MANAGED_PROVIDER_STALLED_REASON}no provider stdout for ${silenceS} s ${after} (stall window ${Number((providerStallMs / 1000).toFixed(1))} s${workProduct ? '; work product present, not auto-replaced' : ''})`,
+        `${MANAGED_PROVIDER_STALLED_REASON}${what}${workProduct ? '; work product present, not auto-replaced' : ''})`,
         providerResult.replacementSafe && !workProduct, providerResult, now());
     };
     const codexHome = providerEnvironment.CODEX_HOME ?? process.env.CODEX_HOME ?? join(homedir(), '.codex');
@@ -4002,6 +4027,7 @@ export async function runManagedHostRunWorker(
         lane: spec.lane,
         timeoutMs: launchTimeoutMs,
         ...(providerStallMs > 0 ? { stallTimeoutMs: providerStallMs } : {}),
+        ...(providerFirstItemMs > 0 ? { firstItemTimeoutMs: providerFirstItemMs } : {}),
         signal: abort.signal,
         env: providerEnvironment,
         usageEnv: quotaEnvironment,

@@ -652,6 +652,18 @@ export const MANAGED_PROVIDER_STALL_RUNTIME_POLICY = {
   replacementSafety: 'reaped-group-and-cwd-head-and-worktree-unchanged',
 } as const;
 
+/**
+ * Lab run131 (bench-staging/oldpos/run131-analysis.md §5: quality RR-004 and concept RR-010 hung after `turn.started`
+ * and were killed only by the 300 s window, ~22 min on the critical path with the waits for their siblings): while a
+ * managed provider has printed no item event yet (core/host-run.ts providerItemEventSeen), the stall window is this
+ * budget counted from spawn. The measured maximum stdout gap (inter-event, incl. spawn -> first item) is 92.5 s, so
+ * 150 s keeps ~1.6x margin. 0 = the ordinary window only. Same terminal reason (provider_stalled), same auto-replacement.
+ */
+export const MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY = {
+  environment: 'PROOF_OR_STOP_MANAGED_PROVIDER_FIRST_ITEM_MS',
+  defaultWindowMs: 150_000,
+} as const;
+
 /** Single and aggregate observers share delivery acknowledgement semantics. */
 export const MANAGED_STATUS_OBSERVATION_POLICY = {
   observation: 'read-only',

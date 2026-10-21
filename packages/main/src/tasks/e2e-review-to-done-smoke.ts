@@ -938,6 +938,7 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   // (a merged session: its '### Dimension' sections; an ordinary lane: 1), so a round's wall shows whether
   // the sessions of a round overlap (parallel) or queue (serial).
   if (script.latency) {
+    if (script.latency.itemFirst) emit({ type: 'item.completed', item: { id: 'reasoning_0', type: 'reasoning', text: 'Reading the diff.' } });
     const sections = merged ? (input.slice(input.indexOf('--- BEGIN MERGED REVIEW DIMENSIONS')).match(/^### Dimension \\d+\\/\\d+: /gm) || []).length : 1;
     const ms = script.latency.baseMs + script.latency.perDimensionMs * Math.max(1, sections);
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
@@ -1882,7 +1883,9 @@ interface LeanScriptMode { escalate?: boolean }
  */
 interface LaneMergeMode { rounds: Array<{ findings: Array<Record<string, unknown>>; uncovered?: string[] }> }
 /** Lab lane-split: scripted model latency of one review session (fake provider sleeps base + per dimension). */
-interface LaneLatency { baseMs: number; perDimensionMs: number }
+interface LaneLatency { baseMs: number; perDimensionMs: number;
+  /** Lab run131 (NSL): print one reasoning item before the latency (a real session's first item arrives in seconds). */
+  itemFirst?: boolean }
 type DeltaNoteMode = 'full' | 'gap' | 'bad-rerun' | 'findings' | 'findings-flat' | 'findings-gap';
 type RecurringMode = 'site' | 'edited' | 'new-site';
 /** Old-PoS run 27 delivery overlap faults (scenarioNDL). */
@@ -2589,7 +2592,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           const script = laneScript(o.worktree, id, lane, reviewRunId, round === firstRound, mode);
           const roundIndex = [...new Set(new StoryStore(o.worktree).readReviewRuns(id).runs.map(row => row.reviewRound))].indexOf(round ?? '') + 1;
           const own = mode.laneLatencyFor?.[short(lane)];
-          const latency = own && roundIndex >= own.fromRound ? { baseMs: own.baseMs, perDimensionMs: own.perDimensionMs } : mode.laneLatency;
+          const latency = own && roundIndex >= own.fromRound ? { baseMs: own.baseMs, perDimensionMs: own.perDimensionMs, ...(own.itemFirst ? { itemFirst: true } : {}) } : mode.laneLatency;
           // Lab run131 (NSL): the lane's first run stalls before any item.
           const stall = mode.laneStall && short(lane) === mode.laneStall.lane && !stalledLanes.has(lane) ? mode.laneStall.ms : 0;
           if (stall) stalledLanes.add(lane);
@@ -9288,7 +9291,7 @@ function scenarioNIO(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     // The owner overrules with a bare re-assertion (run 131 06:40): refused, with the ready patch as the one Next.
     const item = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(row => row.id === 'CHK-001')!;
     const reasserted = JSON.parse(JSON.stringify(item.verificationIntent)) as { happy: Array<{ derivation?: { computation?: string } }> };
-    reasserted.happy[0]!.derivation = { ...reasserted.happy[0]!.derivation, computation: 'the pinned value stands: Upper keeps lower-case input' };
+    reasserted.happy[0]!.derivation = { ...reasserted.happy[0]!.derivation, computation: 'the pinned value stands: Upper keeps lower-case input, so Upper("ab") == "ab"' };
     const refused = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: reasserted, reason: 'The intent is right.', status: 'pending' }, { label: 'checklist_update CHK-001 (re-assert)' });
     assert.notEqual(refused.status, 0, `[${tag}] a bare re-assertion is refused`);
     assert.match(refused.out, /\[intent_conflict_overruled\]/, `[${tag}] refusal code:\n${refused.out.slice(-1200)}`);
@@ -9365,13 +9368,14 @@ function scenarioNPV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const store = new StoryStore(o.worktree);
     const cl = store.readChecklist(o.storyId);
     store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-002' ? { ...item, verificationIntent: { ...item.verificationIntent!,
-      edge: [{ ...item.verificationIntent!.happy[0]!, desc: '`Reverse("abc") -> "cba"`', derivation: { requestQuote: '`strs.Reverse(s)` returns `s` reversed by rune.', computation: 'three runes reversed' } }] } } : item) } as never);
+      edge: [{ ...item.verificationIntent!.happy[0]!, id: 'CHK-002:edge:0', desc: '`Reverse("abc") -> "cba"`', derivation: { requestQuote: '`strs.Reverse(s)` returns `s` reversed by rune.', computation: 'three runes reversed' } }] } } : item) } as never);
     commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} pinned edge row`);
     devSetup(o);
     o.mustCli('story_advance', { storyId: o.storyId, phase: 'PLAN' }, { label: 'story_advance PLAN (re-plan)' });
     const item = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(row => row.id === 'CHK-002')!;
-    const flipped = JSON.parse(JSON.stringify(item.verificationIntent)) as { edge: Array<{ desc: string }> };
+    const flipped = JSON.parse(JSON.stringify(item.verificationIntent)) as { edge: Array<{ desc: string; derivation?: { requestQuote?: string; computation?: string } }> };
     flipped.edge[0]!.desc = '`Reverse("abc") -> "cb"`';
+    flipped.edge[0]!.derivation = { ...flipped.edge[0]!.derivation, computation: 'the runes reversed, the first one dropped: "cb"' };
     const refused = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', verificationIntent: flipped, reason: 'Correct the pin.' }, { label: 'checklist_update CHK-002 (silent reversal)' });
     assert.notEqual(refused.status, 0, `[${tag}] a silent reversal is refused`);
     assert.match(refused.out, /\[pin_reversal_unstated\]/, `[${tag}] refusal code:\n${refused.out.slice(-1200)}`);
@@ -9419,7 +9423,7 @@ function scenarioNMC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const nextLine = unchanged.out.split('\n').find(row => row.startsWith('Next: ')) ?? '';
     assert.match(nextLine, /^Next: proof-or-stop checklist_update '/, `[${tag}] the refusal names the ready rows: ${nextLine}`);
     for (const call of calls) o.mustCli(call.command, call.payload, { label: `checklist_update ${String(call.payload.itemId)} (ready correction)` });
-    const none = o.cli('checklist_update', { storyId: o.storyId, itemId: item.id, userSees: item.userSees, metadataCorrection: true, reason: 'Again.' }, { label: 'checklist_update (nothing open)' });
+    const none = o.cli('checklist_update', { storyId: o.storyId, itemId: item.id, userSees: item.userSees, metadataCorrection: true, reason: 'Again: the same correction.' }, { label: 'checklist_update (nothing open)' });
     assert.match(none.out, /\[metadata_correction_none\]/, `[${tag}] refusal:\n${none.out.slice(-800)}`);
     assert.match(none.out.split('\n').find(row => row.startsWith('Next: ')) ?? '', /^Next: proof-or-stop (?:checklist_update '|next --storyId)/, `[${tag}] one exact next command`);
     o.cleanup();
@@ -9470,7 +9474,7 @@ function scenarioNSL(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     o.env.PROOF_OR_STOP_MANAGED_PROVIDER_FIRST_ITEM_MS = '3000';
     o.env.PROOF_OR_STOP_MANAGED_PROVIDER_STALL_MS = '60000';
     devSetup(o, true);
-    driveWithNext(o, { findingRound1: false, run: false, laneStall: { lane: 'quality', ms: 120_000 }, laneLatencyFor: { concept: { baseMs: 12_000, perDimensionMs: 0, fromRound: 1 }, 'test-coverage': { baseMs: 12_000, perDimensionMs: 0, fromRound: 1 } } }, lines,
+    driveWithNext(o, { findingRound1: false, run: false, laneStall: { lane: 'quality', ms: 120_000 }, laneLatencyFor: { concept: { baseMs: 12_000, perDimensionMs: 0, fromRound: 1, itemFirst: true }, 'test-coverage': { baseMs: 12_000, perDimensionMs: 0, fromRound: 1, itemFirst: true } } }, lines,
       next => { seen.push({ reason: next.reason, kind: next.kind, at: Date.now() }); });
     const store = new StoryStore(o.root);
     const runs = store.readReviewRuns(o.storyId).runs.filter(run => run.reviewPurpose !== 'inventory-completeness');

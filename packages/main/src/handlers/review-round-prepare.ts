@@ -43,6 +43,8 @@ export interface ReviewRoundPrepareArgs {
   storyId: string;
   fullScanReason?: string;
   inventoryCritic?: boolean;
+  /** Lab run131: prepare only these lanes (a failed lane relaunched while its siblings still run). */
+  lanes?: string[];
   json?: boolean;
 }
 
@@ -189,7 +191,12 @@ export function createReviewRoundPrepareHandlers(ctx: HandlerContext, lookup: Ha
 
     // Old-PoS run 34 (§4 sink 1d): historically slowest lanes first (the 8 s stagger then
     // delays the fastest lanes, not the round's long pole); next launches them in this order.
-    const lanes = orderLanesForLaunch([...new Set([...report.executionPlan.launchableLanes, ...waveLanes])]);
+    // Lab run131: `lanes` restricts the preparation to the named lanes (never a running sibling).
+    const wanted = args.lanes?.length ? new Set(args.lanes) : null;
+    const lanes = orderLanesForLaunch([...new Set([...report.executionPlan.launchableLanes, ...waveLanes])]).filter(lane => !wanted || wanted.has(lane));
+    if (wanted && !lanes.length) {
+      throw new Error(`review_round_prepare: none of the named lanes (${[...wanted].join(', ')}) is launchable now (reviewer_batch launchableLanes: ${report.executionPlan.launchableLanes.join(', ') || 'none'})\nNext: proof-or-stop next --storyId=${storyId}`);
+    }
     for (const lane of lanes) {
       await step(`dispatch(${lane})`, () => handler('dispatch')({ storyId, agentType: lane, summary: true }));
       const output = String(await step(`review_run_start(${lane})`,
