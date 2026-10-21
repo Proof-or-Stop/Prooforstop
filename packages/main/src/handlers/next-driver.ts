@@ -1766,7 +1766,7 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
     if (finding.status === 'open' && finding.evidenceState !== 'suspected' && conflict.resolvedId) {
       const settlement = evaluateFindingConflictSettlement({ store: store as never, root, storyId, finding, findings: all, gitCwd, events });
       if (settlement) return findingConflictSettleStep(base, finding, settlement);
-      // Lab run137 (fix N): no row pins the case and the request / the finding's stated Story base value (base evaluator confirmed) decides it for
+      // Lab run137 (fix N): no row pins the case and the request / the finding's stated Story base value (stated by a base-commit test) decides it for
       // this finding: it is repaired against the framework pin (its prompt states it), no PLAN trip.
       if (evaluateFrameworkConflictPin({ store: store as never, root, storyId, finding, findings: all, gitCwd, events })?.pin.side === 'finding') continue;
     }

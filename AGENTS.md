@@ -840,7 +840,7 @@ findings' repros instead of trusting `resolved`. A finding that contradicts a
 resolved finding's repair (a `[precedent-conflict]`, a guard-rejected repair, or
 the same case re-judged) goes to the owner's PLAN pin (`finding_conflict_pin`),
 not to repair, unless a row already pins the case (lab run131) or the request /
-the finding's stated Story base value, confirmed by the Story's base evaluator, decides it
+the finding's stated Story base value, stated by a test at the Story base commit, decides it
 (lab run137 framework pin). A repair that deletes a test it added, or a test running the
 finding's repro, is not a repair: a failing test it wrote is a product defect.
 The scope-plan reviewer (A/B `plan.baseDisagreement`, default on) probes the
@@ -1107,8 +1107,8 @@ detection-positive) and `remediation.conflictPin` (N); one EXPERIMENTAL switch d
   ends its report with one `[caller-check] <caller> -> <helper>: <input> base=<result> HEAD=<result> unchanged | changed:
   <reason>` line per caller (asked for in the same session when missing).
 - A finding conflict no checklist row pins is decided by the framework when the request, or the finding's stated Story
-  base value confirmed by running the Story's declared base evaluator, decides it (no PLAN trip; the finding's text
-  alone never does): the winner is repaired against `Framework pin (finding_conflict_framework_pin)`,
+  base value that a test at the Story base commit states, decides it (no PLAN trip; the finding's text, a test committed
+  after the base and a probe of the finding's expression never do): the winner is repaired against `Framework pin (finding_conflict_framework_pin)`,
   the loser is closed by `finding_conflict_settled`. Otherwise `finding_conflict_pin` stays, and the pin is the FIRST
   PLAN step.
 - After a grouped repair run dies without a commit naming a finding, that finding's own relaunch is a framework step.
