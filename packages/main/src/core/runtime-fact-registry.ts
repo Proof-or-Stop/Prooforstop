@@ -664,6 +664,26 @@ export const MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY = {
   defaultWindowMs: 150_000,
 } as const;
 
+/**
+ * Lab run132 (bench-staging/oldpos/run133-analysis.md item 3 C, new-PoS ADR-041 direction): a review lane far behind its
+ * round. Once every sibling lane of the round is terminal (completed), a lane whose provider has run longer than
+ * max(floor, factor x the median sibling duration) is stopped and resumed in its own Codex session with a prompt that
+ * forbids further commands and asks for its verdict from what it has read; the verdict is imported like any other.
+ * Measured on 9 four-lane rounds of runs 127-133 (provider spawn -> terminal): the slowest lane was at most 1.66x the
+ * median of its siblings and at most 7.3 min, except run 133's concept lane (13.0 min, 3.1x: items kept arriving, so no
+ * stall window fired). factor 2 and a floor of 8 min (> 7.3) leave every ordinary round alone and stop run 133's
+ * straggler at 8.4 min. Sealed at submit; the environment overrides the floor (milliseconds, 0 = off) and
+ * review.stragglerVerdict=off turns it off. No resumable session: the run keeps waiting. A failed resume is an
+ * auto-replaceable failure (the lane reruns from zero).
+ */
+export const MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY = {
+  environment: 'PROOF_OR_STOP_MANAGED_REVIEW_STRAGGLER_MS',
+  defaultFloorMs: 480_000,
+  factor: 2,
+  pollIntervalMs: 10_000,
+  terminalReasonPrefix: 'review_straggler_verdict_failed',
+} as const;
+
 /** Single and aggregate observers share delivery acknowledgement semantics. */
 export const MANAGED_STATUS_OBSERVATION_POLICY = {
   observation: 'read-only',

@@ -1,7 +1,7 @@
 import type { DeltaRoundRunBinding } from './review-delta-round.js';
 import type { LaneMergeRunBinding } from './review-lane-merge.js';
 import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from './host-run-budget.js';
-import { dispatchTargetThreadFresh, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
+import { baseClaimEvidenceOn, dispatchTargetThreadFresh, resolveAbVariants, stragglerVerdictOn, type AbVariantEvidence } from './ab-variants.js';
 import { loadConfig } from './config.js';
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCriticCoverage, isManagedInventoryCriticEnvelopeValid, managedInventoryCriticCoverageViolations, type ManagedInventoryCritic, type ManagedInventoryCriticCoverage } from './managed-inventory-critic.js';
@@ -12,7 +12,7 @@ import { resolveManagedReviewIsolation } from './managed-review-lane-policy.js';
 import { createManagedReviewLane, managedReviewLaneEnvironment, verifyManagedReviewLane, type ManagedReviewLane } from './managed-review-lane.js';
 import { estimateManagedRunDuration, MANAGED_DURATION_ESTIMATE_POLICY, type ManagedRunDurationEstimate, type ManagedRunDurationSample } from './managed-run-duration-estimate.js';
 import { assessManagedBurn, managedBurnTokenLimit } from './managed-burn-guard.js';
-import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY, MANAGED_PROVIDER_STALL_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY, MANAGED_REVIEW_TEMP_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY, MANAGED_PROVIDER_STALL_RUNTIME_POLICY, MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY, MANAGED_REVIEW_TEMP_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import type { LiveProviderUsage } from './usage-ledger/dispatch-usage.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, ACCEPTANCE_REVIEW_PROFILE, ACCEPTANCE_REVIEW_LANE, assertAcceptanceReviewBinding, parseAcceptanceReviewFinal, type AcceptanceReviewBinding, type AcceptanceReviewFinal } from './acceptance-amendment-review.js';
 /**
@@ -678,6 +678,10 @@ interface ManagedHostRunSpec {
   providerStallMs?: number;
   /** Lab run131: no-item stall window in ms (0 = off); absent on older specs (off). */
   providerFirstItemMs?: number;
+  /** Lab run132: review straggler floor in ms (0 = off; MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY); absent on older specs (off). */
+  reviewStragglerMs?: number;
+  /** Lab run132 (run 135 L): a finding repair's "matches the base" claims owe base evidence (remediation.baseClaimEvidence); absent = off. */
+  repairBaseClaims?: boolean;
   /** Digest of normalized submit inputs, sealed by the owner's specDigest. */
   submissionDigest?: string;
   schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION;
@@ -814,6 +818,8 @@ export interface ManagedHostRunWorkerDeps {
   now?: () => number;
   heartbeatMs?: number;
   cancelPollMs?: number;
+  /** Lab run132: review straggler poll interval (MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY.pollIntervalMs). */
+  stragglerPollMs?: number;
   /** Test seam for the immutable proposal pre-read → write race. */
   afterManagedReviewProposalPreRead?: (args: { root: string; runId: string; hasValidProposal: boolean }) => void;
   /** Test seam after exact managed-dispatch output bytes validate, before terminal sealing. */
@@ -3124,7 +3130,7 @@ export function isAutoReplaceableManagedLaunchFailure(run: { state: string; repl
   return run.state === 'failed' && run.replacementSafe === true
     && (reason.startsWith(MANAGED_SUPERVISOR_NOT_READY_REASON) || reason.startsWith(MANAGED_PROVIDER_STALLED_REASON)
       || reason.startsWith(MANAGED_PROVIDER_TRANSPORT_REASON) || reason.startsWith(MANAGED_REVIEW_FINAL_RESULT_FAILED_REASON)
-      || reason.startsWith(MANAGED_DISPATCH_BINDING_STALE_REASON)
+      || reason.startsWith(MANAGED_DISPATCH_BINDING_STALE_REASON) || reason.startsWith(MANAGED_REVIEW_STRAGGLER_FAILED_REASON)
       || (saveReviewer && (reason === MANAGED_DISPATCH_OUTPUT_MISSING_REASON || reason.startsWith(`${MANAGED_DISPATCH_SAVE_REFUSED_REASON}:`))));
 }
 
@@ -3185,6 +3191,87 @@ export function managedProviderFirstItemWindowMs(env: NodeJS.ProcessEnv): number
 }
 
 export { providerItemEventSeen };
+
+/** Lab run132: terminal reason prefix of a straggler review lane whose verdict-now resume failed (auto-replaceable). */
+export const MANAGED_REVIEW_STRAGGLER_FAILED_REASON = `${MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY.terminalReasonPrefix}:`;
+
+/**
+ * Lab run132 (MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY): the straggler floor sealed into a managed review spec: the
+ * environment override (milliseconds, 0 = off), else the policy floor; 0 when review.stragglerVerdict=off.
+ */
+export function managedReviewStragglerFloorMs(env: NodeJS.ProcessEnv, root?: string): number {
+  if (root) { try { if (!stragglerVerdictOn(loadConfig(root))) return 0; } catch { /* malformed config: the switch's default */ } }
+  const raw = env[MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY.environment];
+  if (raw === undefined || raw === '') return MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY.defaultFloorMs;
+  if (!/^(0|[1-9][0-9]*)$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
+    throw new Error(`${MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY.environment} must be a non-negative integer of milliseconds (0 = no straggler budget)`);
+  }
+  return Number(raw);
+}
+
+export interface ReviewStragglerDecision { due: boolean; elapsedMs: number; medianMs: number | null; thresholdMs: number | null; siblings: number; why: string }
+
+/**
+ * Lab run132: whether a review lane that has run `elapsedMs` is a straggler of its round: every sibling lane is terminal,
+ * at least one completed, and the lane is past max(floor, factor x the median completed sibling duration).
+ */
+export function reviewStragglerDecision(args: { elapsedMs: number; siblings: ReadonlyArray<{ terminal: boolean; completed: boolean; durationMs: number | null }>;
+  floorMs: number; factor?: number }): ReviewStragglerDecision {
+  const base = { elapsedMs: args.elapsedMs, siblings: args.siblings.length };
+  if (args.floorMs <= 0 || !args.siblings.length) return { ...base, due: false, medianMs: null, thresholdMs: null, why: args.floorMs <= 0 ? 'off' : 'no sibling lanes' };
+  if (args.siblings.some(row => !row.terminal)) return { ...base, due: false, medianMs: null, thresholdMs: null, why: 'a sibling lane still runs' };
+  const durations = args.siblings.filter(row => row.completed && typeof row.durationMs === 'number' && row.durationMs >= 0).map(row => row.durationMs!).sort((a, b) => a - b);
+  if (!durations.length) return { ...base, due: false, medianMs: null, thresholdMs: null, why: 'no completed sibling lane' };
+  const mid = Math.floor(durations.length / 2);
+  const medianMs = durations.length % 2 ? durations[mid]! : (durations[mid - 1]! + durations[mid]!) / 2;
+  const thresholdMs = Math.max(args.floorMs, (args.factor ?? MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY.factor) * medianMs);
+  const due = args.elapsedMs > thresholdMs;
+  return { ...base, due, medianMs, thresholdMs, why: due ? 'past the straggler budget' : 'within the straggler budget' };
+}
+
+/** Lab run132: the resumed turn of a straggler review lane (no further commands; the verdict from what it has read). */
+export function managedReviewVerdictNowPrompt(decision: Pick<ReviewStragglerDecision, 'elapsedMs' | 'medianMs' | 'siblings'>): string {
+  const minutes = (ms: number | null): string => (ms === null ? '?' : (ms / 60_000).toFixed(1));
+  return [
+    `Proof-or-Stop stopped this review after ${minutes(decision.elapsedMs)} min: all ${decision.siblings} other lane(s) of this round finished (median ${minutes(decision.medianMs)} min).`,
+    'Do not run any more commands or tools. Give your verdict now from what you have already read in this session.',
+    'Report every finding you have established, with the evidence you saw; name in the note what you did not get to check. Do not report a finding you have not verified.',
+    `Emit, as your final message, only the final JSON object (schemaVersion "${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION}") your review instructions define, with its readManifest and readLog as they stand. Output no other text and no Markdown fence.`,
+  ].join('\n');
+}
+
+/** Lab run132: the other lanes of a managed review run's round, from review-runs.json and their managed runs (cheap). */
+function reviewLaneSiblings(spec: Pick<ManagedHostRunSpec, 'root' | 'storyId' | 'reviewRunId' | 'lane' | 'runId'>): Array<{ terminal: boolean; completed: boolean; durationMs: number | null }> {
+  if (!spec.storyId || !spec.reviewRunId) return [];
+  const runs = new StoryStore(spec.root).readReviewRuns(spec.storyId).runs;
+  const mine = runs.find(run => run.reviewRunId === spec.reviewRunId);
+  // The inventory critic runs after the lanes, alone: it has no siblings to be measured against.
+  if (!mine || mine.reviewPurpose === 'inventory-completeness') return [];
+  const round = runs.filter(run => run.reviewRound === mine.reviewRound && run.reviewPurpose !== 'inventory-completeness' && run.lane !== mine.lane);
+  const latest = [...new Set(round.map(run => run.lane))].map(lane => round.filter(run => run.lane === lane).at(-1)!.reviewRunId);
+  const runsRoot = managedHostRunsRoot(spec.root);
+  const byReviewRun = new Map<string, string>();
+  for (const runId of existsSync(runsRoot) ? readdirSync(runsRoot) : []) {
+    if (runId === spec.runId) continue;
+    try {
+      const other = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { storyId?: string; reviewRunId?: string };
+      if (other.storyId === spec.storyId && other.reviewRunId && latest.includes(other.reviewRunId)) byReviewRun.set(other.reviewRunId, runId);
+    } catch { /* not a readable managed run */ }
+  }
+  return latest.map(reviewRunId => {
+    const runId = byReviewRun.get(reviewRunId);
+    if (!runId) return { terminal: false, completed: false, durationMs: null };
+    try {
+      const terminal = JSON.parse(readFileSync(join(runsRoot, runId, 'terminal.json'), 'utf8')) as { state?: string; terminalAt?: string };
+      const spawned = readFileSync(join(runsRoot, runId, 'events.jsonl'), 'utf8').split('\n').map(line => { try { return JSON.parse(line) as { type?: string; at?: string }; } catch { return null; } })
+        .find(event => event?.type === 'provider_spawned')?.at;
+      const durationMs = spawned && terminal.terminalAt ? Date.parse(terminal.terminalAt) - Date.parse(spawned) : null;
+      return { terminal: true, completed: terminal.state === 'completed', durationMs: Number.isFinite(durationMs) ? durationMs : null };
+    } catch {
+      return { terminal: false, completed: false, durationMs: null };
+    }
+  });
+}
 
 /**
  * Work-product fingerprint of a provider cwd: HEAD, porcelain status and the
@@ -3395,6 +3482,9 @@ export async function submitManagedHostRun(
   const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
   const providerStallMs = managedProviderStallWindowMs(args.environment ?? process.env);
   const providerFirstItemMs = managedProviderFirstItemWindowMs(args.environment ?? process.env);
+  const reviewStragglerMs = args.profile === 'managed_reviewer' && args.storyId ? managedReviewStragglerFloorMs(args.environment ?? process.env, args.root) : 0;
+  const repairBaseClaims = args.agentType === 'proof-or-stop-finding-repair' && Boolean(args.storyId)
+    && (() => { try { return baseClaimEvidenceOn(loadConfig(args.root)); } catch { return true; } })();
   const sharedCallQuota = captureHostRunBudgetEnvironment(process.env, args.environment ?? {});
   const createdMs = now();
   const createdAt = new Date(createdMs).toISOString();
@@ -3505,6 +3595,8 @@ export async function submitManagedHostRun(
     burnTokenLimit,
     providerStallMs,
     providerFirstItemMs,
+    ...(reviewStragglerMs > 0 ? { reviewStragglerMs } : {}),
+    ...(repairBaseClaims ? { repairBaseClaims } : {}),
     ...(submissionDigest ? { submissionDigest } : {}),
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
     runId,
@@ -4011,7 +4103,7 @@ export async function runManagedHostRunWorker(
         providerResult.replacementSafe && !workProduct, providerResult, now());
     };
     const codexHome = providerEnvironment.CODEX_HOME ?? process.env.CODEX_HOME ?? join(homedir(), '.codex');
-    const launchProvider = (launchPrompt: string, resumeSessionId: string | null, launchTimeoutMs: number) => runHostRun(
+    const launchProvider = (launchPrompt: string, resumeSessionId: string | null, launchTimeoutMs: number, signal: AbortSignal = abort.signal) => runHostRun(
       {
         host: spec.host,
         model: spec.model ?? null,
@@ -4028,7 +4120,7 @@ export async function runManagedHostRunWorker(
         timeoutMs: launchTimeoutMs,
         ...(providerStallMs > 0 ? { stallTimeoutMs: providerStallMs } : {}),
         ...(providerFirstItemMs > 0 ? { firstItemTimeoutMs: providerFirstItemMs } : {}),
-        signal: abort.signal,
+        signal,
         env: providerEnvironment,
         usageEnv: quotaEnvironment,
         ...(spec.profile === 'cross_host_review_codex'
@@ -4140,7 +4232,42 @@ export async function runManagedHostRunWorker(
     // Old-PoS run 29 REM2: the commit a managed writer starts on, for its end-of-run scope check.
     const writerScopeBase = spec.profile === 'managed_dispatch' && spec.storyId && MANAGED_SCOPE_CHECKED_WRITERS.includes(spec.agentType)
       ? managedWriterScopeBaseHead(spec.cwd) : null;
-    result = await launchProvider(promptText, managedResumeSessionForSpec(spec, codexHome), Math.min(spec.timeoutMs, remainingMs));
+    // Lab run132 (MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY): while the first review turn runs, a lane far behind its
+    // finished siblings is stopped and asked, in its own resumed session, for its verdict from what it has read. No
+    // resumable session: it keeps running (journaled once; the check repeats, so a session recorded later still counts).
+    const stragglerFloorMs = spec.profile === 'managed_reviewer' && spec.host === 'codex' && spec.storyId && spec.reviewRunId ? spec.reviewStragglerMs ?? 0 : 0;
+    const stragglerAbort = stragglerFloorMs > 0 ? new AbortController() : null;
+    let straggler: { decision: ReviewStragglerDecision; resumeSessionId: string } | null = null;
+    let stragglerChecked = false;
+    let stragglerUnavailableJournaled = false;
+    const stragglerPoll = stragglerAbort ? setInterval(() => {
+      if (stragglerChecked || providerClosed || abort.signal.aborted || providerSpawnedAtMs === null) return;
+      try {
+        const decision = reviewStragglerDecision({ elapsedMs: now() - providerSpawnedAtMs, siblings: reviewLaneSiblings(spec), floorMs: stragglerFloorMs });
+        if (!decision.due) return;
+        const resumeSessionId = resumableManagedRunCodexSession(paths, codexHome);
+        if (!resumeSessionId) {
+          // Not resumable (yet): journaled once, polled again (a session recorded later is still stopped).
+          if (stragglerUnavailableJournaled) return;
+          stragglerUnavailableJournaled = true;
+          appendEvent(paths, { schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'review_straggler_verdict_unavailable', detail: { ...decision, reason: 'session_not_resumable', threadId: (() => { try { return recordedCodexThreadId(dirname(paths.output)); } catch { return null; } })(), codexHome } });
+          return;
+        }
+        stragglerChecked = true;
+        straggler = { decision, resumeSessionId };
+        appendEvent(paths, { schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+          type: 'review_straggler_verdict_now', detail: { ...decision, resumeSessionId } });
+        stragglerAbort.abort(new Error('review_straggler_verdict_now'));
+      } catch { /* diagnostic only: the lane keeps running */ }
+    }, boundedPositiveMs(deps.stragglerPollMs, MANAGED_REVIEW_STRAGGLER_RUNTIME_POLICY.pollIntervalMs, 60_000)) : null;
+    stragglerPoll?.unref?.();
+    try {
+      result = await launchProvider(promptText, managedResumeSessionForSpec(spec, codexHome), Math.min(spec.timeoutMs, remainingMs),
+        stragglerAbort ? AbortSignal.any([abort.signal, stragglerAbort.signal]) : abort.signal);
+    } finally {
+      if (stragglerPoll) clearInterval(stragglerPoll);
+    }
     // Every provider exit, including a format-repair turn, passes the same
     // post-exit authority checks before any final result is parsed or sealed.
     // Returns the sealed terminal when the exit itself decides the run.
@@ -4258,6 +4385,30 @@ export async function runManagedHostRunWorker(
       }
       return null;
     };
+    const stopped = straggler as { decision: ReviewStragglerDecision; resumeSessionId: string } | null;
+    if (stopped && result.terminalReason === 'aborted' && !abort.signal.aborted && !cancelTriggered && !deadlineTriggered && !readCancelRequest(paths)) {
+      const journaled = updateSnapshotAndAppendEvent(paths, current => ({
+        ...current, generation: current.generation + 1, providerClosedAt: null, supervisionDiagnostic: null,
+      }), {
+        schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+        type: 'review_straggler_verdict_resume', detail: { resumeSessionId: stopped.resumeSessionId, elapsedMs: stopped.decision.elapsedMs, thresholdMs: stopped.decision.thresholdMs },
+      });
+      if (!journaled) return readTerminal(paths)!;
+      const resumeRefusal = await authorizeLaunch();
+      if (resumeRefusal) {
+        if (resumeRefusal === 'absolute_deadline_exceeded') {
+          deadlineTriggered = true;
+          return writeTerminal(paths, 'timed_out', resumeRefusal, result.replacementSafe, result, now());
+        }
+        cancelTriggered = readCancelRequest(paths) !== null;
+        return writeTerminal(paths, cancelTriggered ? 'cancelled' : 'failed', cancelTriggered ? resumeRefusal : `${MANAGED_REVIEW_STRAGGLER_FAILED_REASON} ${resumeRefusal}`, result.replacementSafe, result, now());
+      }
+      providerClosed = false;
+      result = null;
+      result = await launchProvider(managedReviewVerdictNowPrompt(stopped.decision), stopped.resumeSessionId, Math.max(1, Math.min(spec.timeoutMs, Date.parse(spec.deadlineAt) - now())));
+      const resumeExitTerminal = await settleProviderExit(result, `${MANAGED_REVIEW_STRAGGLER_FAILED_REASON} the verdict-now resume exited ${result.exitCode}`);
+      if (resumeExitTerminal) return resumeExitTerminal;
+    }
     const exitTerminal = await settleProviderExit(result);
     if (exitTerminal) return exitTerminal;
     if (spec.profile === ACCEPTANCE_REVIEW_PROFILE) {
@@ -4523,10 +4674,11 @@ export async function runManagedHostRunWorker(
       const reportFindingIds = [...new Set([reportTarget?.findingId, ...(reportTarget?.groupFindingIds ?? [])].filter((id): id is string => typeof id === 'string' && id.length > 0))];
       for (let attempt = 1; reportFindingIds.length && spec.storyId && spec.host === 'codex'; attempt += 1) {
         const requirements = readRepairReportRequirements(spec.root, spec.storyId, reportFindingIds);
-        if (!requirements.matrices.length && !requirements.mechanisms.length) break;
+        if (!requirements.matrices.length && !requirements.mechanisms.length && !spec.repairBaseClaims) break;
         let report: string | null = null;
         try { report = finalMessageFromLiveOutput(readFileSync(paths.output, 'utf8')); } catch { report = null; }
-        const followUp = repairReportFollowUp({ report, ...requirements });
+        // Lab run132 (run 135 L): "matches the base" claims about boundary cases owe a [base-evidence] line.
+        const followUp = repairReportFollowUp({ report, ...requirements, baseClaims: spec.repairBaseClaims === true });
         if (attempt > 1) {
           appendEvent(paths, {
             schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),

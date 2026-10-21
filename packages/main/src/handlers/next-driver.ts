@@ -65,7 +65,7 @@ import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_R
 import { requestPinFindings, requestPinOfferDue, recordRequestPinOffer, GAP_ROW_QUOTE_RULE } from '../core/request-pin-audit.js';
 import { changedIntentRowRefs, FRAMEWORK_SOURCE_RULE } from '../core/scope-plan-rerun-context.js';
 import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate, duplicateJoinsRepairGroup } from '../core/duplicate-finding-coverage.js';
-import { findingConflictOf, findingRepros, isReproCommand, rejectedRepairCommits, repairTestIntegrityProblem, rowsCitingCase } from '../core/resolved-finding-guard.js';
+import { findingConflictOf, findingRepros, isReproCommand, rejectedRepairCommits, repairCommitFromResolution, repairTestIntegrityProblem, rowsCitingCase } from '../core/resolved-finding-guard.js';
 import { StoryStore } from '../core/store.js';
 import {
   currentOpenReviewInventory,
@@ -110,7 +110,7 @@ import { describePinBasePrint, PIN_BASE_PRINT, pinBasePrintOfferDue, pinBasePrin
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { evaluateFileStateConflict } from './file-state-conflict.js';
 import { evaluateFindingConflictSettlement } from './finding-conflict-settle.js';
-import { intentConflictAdopted, intentConflictPair, intentConflictReadyRows, recordOpenIntentConflicts, type JournaledIntentConflict } from '../core/intent-conflict-overrule.js';
+import { intentConflictAdopted, intentConflictPair, intentConflictReadyRows, pinDoubtReadyRows, recordOpenIntentConflicts, type JournaledIntentConflict } from '../core/intent-conflict-overrule.js';
 import { FINDING_CONFLICT_SETTLED, FINDING_CONFLICT_PRECEDENCE, type ConflictSettlement } from '../core/finding-conflict-settle.js';
 import { FILE_STATE_CONFLICT, FILE_STATE_PRECEDENCE, type FileStateVerdict } from '../core/file-state-conflict.js';
 import { outOfScopePinTestProblem } from '../core/scope-pin-test.js';
@@ -125,13 +125,14 @@ import { conflictPinnedForm, conflictPinnedFragment, MASKED_LITERAL, maskLiteral
 import { readStoryRequest } from '../core/story-request.js';
 import { intentSemantics } from '../core/verification-intent-amendment.js';
 import { isMetadataTargetFinding, literalOccurrences, metadataCorrectionReadyPayload, openMetadataCorrections, statedForm, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
-import { openPinAuditGaps } from '../core/pin-audit-correction.js';
+import { openPinAuditGaps, parsePinAuditGap, pinAuditRowPatch, pinAuditSweepRows } from '../core/pin-audit-correction.js';
+import { pinAuditBaseValues, planPinAuditBase, storyBaseEvidenceLookup, SCOPE_GAP_BASE_SETTLED, type PinAuditBaseEvidence } from '../core/pin-base-evidence.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
 import { baseErrorDecorationOf, describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
 import { COUNTERPART_COVERAGE_MISSING, counterpartBackedRefs, counterpartCaseKey, counterpartNextPayload, counterpartRule, counterpartSettledGaps, describeCounterpartRefusal, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { exactErrorPinOfferDue, exactWholeErrorPins, recordExactErrorPinOffer } from '../core/exact-error-pin-lint.js';
 import { describeUnstatedPin, planUnstatedPins, recordUnstatedPinOffer, unstatedPinOfferDue, unstatedPinRowPatch } from '../core/unstated-pin.js';
-import { disputedRows, pinDisputeRemedy, recordPinDispute, scopeVerdictHistory, type PinDisputeRemedy } from '../core/pin-dispute.js';
+import { disputedRows, pinAuditOffer, pinDisputeRemedy, recordPinAuditOffer, recordPinDispute, scopeVerdictHistory, type PinDisputeRemedy } from '../core/pin-dispute.js';
 import { planRemedyConflict, recordPlanRemedy, recordRemedySettlement, remedySettledRefsOf } from '../core/plan-remedy-cycle.js';
 import { initReviewDeferredToPlan, planReviewMergeActive } from '../core/plan-review-merge.js';
 import { intentRowCount, recordRowBudgetOffer, ROW_BUDGET_GUIDANCE, rowBudgetExtras, rowBudgetOfferDue, rowBudgetTrimPayloads } from '../core/plan-row-budget.js';
@@ -146,7 +147,7 @@ import { storyReviewRoundStale } from '../core/story-review-staleness.js';
 import { orderLanesForLaunch } from '../core/review-lane-launch-order.js';
 import { intentBasisDigest } from '../core/intent-basis.js';
 import { describeRemovedGuard, openRemovedGuardGap, removedGuardRelaunchPending, type RemovedGuard } from '../core/removed-guard-scan.js';
-import { frameworkDuplicateCoverage, type FrameworkDuplicateCoverage } from '../core/duplicate-auto-coverage.js';
+import { duplicateCoverageSuggestion, frameworkDuplicateCoverage, type FrameworkDuplicateCoverage } from '../core/duplicate-auto-coverage.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
@@ -908,6 +909,15 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
       `Pin doubt (${listed}). The request does not state the pinned value and the Story base renders it differently (its own printer tests), so the base form decides: the framework applies the row patch (base form, the row's request quote, the base sample in the computation) and returns ${itemId} to pending, so DEV implements it against the base form instead of a mechanism for the pin.`,
       'openIntentConflicts ([pin-doubt], pinDoubtVerdict + planPinBaseForm, core/pin-base-form.ts)');
     }
+    // Lab run132 (run 133 B): a pin doubt stating the literal the base prints is ONE ready row patch to that literal.
+    const doubtRows = mine.every(row => row.conflict.pinDoubt) ? pinDoubtReadyRows(items?.find(row => row.id === itemId) as never, mine.map(journaledConflict)) : null;
+    if (doubtRows?.length) {
+      return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload: { storyId: base.storyId, itemId, intentRows: doubtRows,
+        reason: `pin doubt: ${doubtRows.map(row => row.ref).join(', ')} re-pinned to the output the implementer reports the Story base prints (the request does not state the pinned text)`, status: 'pending' } },
+      `Pin doubt (${listed}). The request does not state the pinned value and the implementer reports the Story base output: the framework wrote the row patch to that output (the re-pin stated, the row's request quote kept); status pending makes DEV implement the item again. `
+        + 'Run it if the reported base output is right; if a request sentence states the pinned value, keep the row and quote that sentence as its derivation.requestQuote instead. Then continue PLAN with next.',
+      'openIntentConflicts ([pin-doubt], pinDoubtVerdict) + pinDoubtReadyRows (core/intent-conflict-overrule.ts)');
+    }
     if (mine.every(row => row.conflict.pinDoubt)) {
       const payload = { storyId: base.storyId, itemId,
         intentRows: mine.map(row => ({ ref: row.conflict.intentRef, desc: `<${row.conflict.intentRef} re-derived: the Story base output the implementer reported (${row.conflict.requestImplies ?? 'see its report'}), or the pinned value with the request sentence that states it>`,
@@ -970,9 +980,12 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
     return batchStep(base, 'intent_conflict_amend', calls, `${why}${pinned && sweep.length ? ` ${sweepWhy(pinned, sweep)}` : ''}${siblingWhy}`,
       `${source} + literalOccurrences (sweep) + conflictSiblingRows`);
   }
-  if (confirmed(conflicts)) {
+  // Lab run132 (run 133 B): pin doubts whose rows have a ready patch to the reported base output take the same hop.
+  const readyDoubts = conflicts.length > 0 && conflicts.every(row => row.conflict.pinDoubt) && [...new Set(conflicts.map(row => row.itemId))]
+    .every(itemId => Boolean(pinDoubtReadyRows(items?.find(row => row.id === itemId) as never, conflicts.filter(row => row.itemId === itemId).map(journaledConflict))?.length));
+  if (confirmed(conflicts) || readyDoubts) {
     return step(base, 'framework', 'pin_doubt_plan', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
-      `Pin doubt (${listed}). The pinned value is not stated by the request and the Story base renders it differently, so the row is re-derived to the base form before anything is built for it. Intents are frozen in DEV: DEV->PLAN now (framework step); in PLAN the framework applies the row patch and DEV implements the item again.`,
+      `Pin doubt (${listed}). The pinned value is not stated by the request and the Story base renders it differently, so the row is re-derived to the base form before anything is built for it. Intents are frozen in DEV: DEV->PLAN now (framework step); in PLAN ${confirmed(conflicts) ? 'the framework applies the row patch' : 'next gives the ready row patch to the base output the implementer reports'} and DEV implements the item again.`,
       'openIntentConflicts ([pin-doubt], pinDoubtVerdict + planPinBaseForm, core/pin-base-form.ts)');
   }
   const siblings = items ? conflictSiblingRows(items, conflicts) : [];
@@ -1088,45 +1101,105 @@ export function metadataCorrectionStep(base: { storyId: string; phase: string },
 
 /**
  * Old-PoS run 31 (D8): the scope-plan verdict's pin-audit gaps on an unchanged
- * checklist, as ONE checklist_update of the first gap's item (the pinned value,
- * the request's value, every other occurrence of the pinned literal). After
- * exactly these corrections the verdict needs no rerun (openScopeGaps).
+ * checklist. After exactly these corrections the verdict needs no rerun
+ * (openScopeGaps). Lab run132 (run133-analysis.md item 1 A): ONE ready
+ * row-level checklist_update per gap item (pinAuditRowPatch: the value side and
+ * the computation state the requested value), not a placeholder for the first
+ * gap's item only; the sweep lists rows of the gap row's role only, ready where
+ * they state the same case. The offer is journaled for the dispute count.
  */
 export function pinAuditCorrectionStep(base: { storyId: string; phase: string }, store: Pick<HandlerContext['store'], 'readScopeCheck' | 'readChecklist'>,
-  settled: ReadonlySet<string> = new Set()): NextStep | null {
+  settled: ReadonlySet<string> = new Set(), root?: string, baseEvidence: Pick<PinAuditBaseEvidence, 'decisions'> | null = null): NextStep | null {
   const scope = store.readScopeCheck(base.storyId);
   if (!scope) return null;
   const items = store.readChecklist(base.storyId).items;
+  // Lab run132 (run 134 item 1, plan.baseEvidence): a requested value the Story base refutes is never offered: the base
+  // value decides (settle: the pin stands; correct: the row states the base value instead of the reviewer's).
+  const decisions = new Map((baseEvidence?.decisions ?? []).filter(row => row.decision !== 'keep' && row.value !== null).map(row => [row.feature, row]));
+  const baseValues = new Map([...decisions].map(([feature, row]) => [feature, row.value!]));
   // Lab run102: a gap the framework settled (a counterpart-backed row) is never turned into the reviewer's value (run 101's flip).
-  const gaps = openPinAuditGaps(scope, { items }).filter(gap => !settled.has(gap.feature));
+  const gaps = openPinAuditGaps(scope, { items }, baseValues).filter(gap => !settled.has(gap.feature) && items.some(item => item.id === gap.itemId))
+    .map(gap => (decisions.get(gap.feature)?.decision === 'correct' ? { ...gap, requestValue: decisions.get(gap.feature)!.value! } : gap));
+  const refuted = [...decisions.values()];
   if (!gaps.length) return null;
-  const first = gaps[0]!;
-  const item = items.find(row => row.id === first.itemId);
-  if (!item) return null;
-  const sweep = literalOccurrences(items, first.pinned).filter(row => !(row.itemId === first.itemId && row.field === 'verificationIntent'));
-  const ownUserSees = sweep.some(row => row.itemId === first.itemId && row.field === 'userSees');
-  const payload: Record<string, unknown> = { storyId: base.storyId, itemId: first.itemId,
-    verificationIntent: `<complete ${first.itemId} verificationIntent JSON with ${first.ref} stating ${first.requestValue} instead of ${first.pinned}>`,
-    ...(ownUserSees ? { userSees: `<${first.itemId} userSees with ${first.pinned} corrected to ${first.requestValue}>` } : {}) };
-  const others = sweep.filter(row => row.itemId !== first.itemId);
-  const why = `The scope-plan pin audit found wrong pinned values: ${gaps.map(gap => `${gap.ref} pins ${gap.pinned}; the request gives ${gap.requestValue}`).join(' | ')}. `
-    + `Apply the value the verdict requests in ${first.ref}${sweep.length ? ` and every other occurrence of ${first.pinned} (${sweep.map(row => row.ref).join(', ')})` : ''}. `
+  const cited = new Set(gaps.map(gap => gap.ref));
+  const patches = new Map<string, Array<{ ref: string; desc: string; derivation?: Record<string, unknown> }>>();
+  const unpatched = new Set<string>();
+  const add = (itemId: string, patch: { ref: string; desc: string; derivation?: Record<string, unknown> }): void => {
+    const rows = patches.get(itemId) ?? [];
+    if (!rows.some(row => row.ref === patch.ref)) patches.set(itemId, [...rows, patch]);
+  };
+  for (const gap of gaps) {
+    const patch = pinAuditRowPatch(items.find(item => item.id === gap.itemId), gap);
+    if (patch) add(gap.itemId, patch); else unpatched.add(gap.itemId);
+  }
+  const swept: string[] = [];
+  const named = new Set<string>();
+  for (const gap of gaps) {
+    const sweep = pinAuditSweepRows(items, gap, cited);
+    for (const row of sweep.ready) { add(row.itemId, row.patch); swept.push(row.ref); }
+    for (const ref of sweep.named) named.add(ref);
+  }
+  const userSees = [...new Set(gaps.flatMap(gap => literalOccurrences(items, gap.pinned).filter(row => row.field === 'userSees').map(row => row.ref)))];
+  const calls = [...new Set([...gaps.map(gap => gap.itemId), ...patches.keys()])].map(itemId => {
+    const payload: Record<string, unknown> = unpatched.has(itemId)
+      ? { storyId: base.storyId, itemId, verificationIntent: `<complete ${itemId} verificationIntent JSON with ${gaps.filter(gap => gap.itemId === itemId).map(gap => `${gap.ref} stating ${gap.requestValue} instead of ${gap.pinned}`).join('; ')}>` }
+      : { storyId: base.storyId, itemId, intentRows: patches.get(itemId)!, reason: `pin-audit correction: ${patches.get(itemId)!.map(row => row.ref).join(', ')} state the value the scope-plan verdict requests` };
+    return nextStepCall('pin_audit_correction', { command: 'checklist_update', payload });
+  });
+  if (root && scope.checkedAt) {
+    // Every pin-audit gap of the verdict counts as named: one this step gives no call (its row no longer states the
+    // pinned value) was not offered a correction, so it does not count toward a dispute streak.
+    const auditRefs = (scope.features ?? []).filter(feature => feature.status === 'gap' && !settled.has(feature.feature))
+      .map(feature => parsePinAuditGap(feature.feature)?.ref).filter((ref): ref is string => Boolean(ref));
+    recordPinAuditOffer(root, base.storyId, scope.checkedAt, { named: [...new Set(auditRefs)], offered: [...gaps.map(gap => gap.ref), ...swept] });
+  }
+  const baseWhy = refuted.length ? `The Story base decided ${refuted.length} of the reviewer's value(s) (plan.baseEvidence): ${refuted.map(row => `${row.ref}: ${row.why}`).join(' | ')}. ` : '';
+  const why = `The scope-plan pin audit found wrong pinned values: ${gaps.map(gap => `${gap.ref} pins ${gap.pinned}; ${decisions.get(gap.feature) ? 'the Story base gives' : 'the request gives'} ${gap.requestValue}`).join(' | ')}. ${baseWhy}`
+    + `The framework wrote one row patch per item (${calls.length} call${calls.length === 1 ? '' : 's'}): each cited row states the requested value on its value side and in its computation${swept.length ? `, as do ${swept.join(', ')} (the same case)` : ''}; run ${calls.length === 1 ? 'it' : 'them all'}. `
+    + (named.size ? `${[...named].join(', ')} also state${named.size === 1 ? 's' : ''} a pinned value as the result of another case of the same kind: correct one only if it states the same wrong result. ` : '')
+    + (userSees.length ? `${userSees.join(', ')} also state${userSees.length === 1 ? 's' : ''} a pinned value: correct it in its own update if it states the same result. ` : '')
     + 'A checklist whose only changes since the verdict are these requested values is checked deterministically: no scope-plan rerun. Any other change reruns the reviewer.';
-  const calls = [nextStepCall('pin_audit_correction', { command: 'checklist_update', payload }),
-    ...sweepCalls(base, others, 'pin_audit_correction', first.pinned)];
   return calls.length === 1
-    ? step(base, 'agent', 'pin_audit_correction', calls[0]!.cli, why, 'openPinAuditGaps (core/pin-audit-correction.ts) + literalOccurrences', { placeholders: placeholderPaths(payload) })
-    : batchStep(base, 'pin_audit_correction', calls, why, 'openPinAuditGaps (core/pin-audit-correction.ts) + literalOccurrences');
+    ? step(base, 'agent', 'pin_audit_correction', calls[0]!.cli, why, 'openPinAuditGaps + pinAuditRowPatch (core/pin-audit-correction.ts)', calls[0]!.placeholders ? { placeholders: calls[0]!.placeholders } : {})
+    : batchStep(base, 'pin_audit_correction', calls, why, 'openPinAuditGaps + pinAuditRowPatch + pinAuditSweepRows (core/pin-audit-correction.ts)');
+}
+
+/** Lab run132 (run 133 D): what a duplicate step states about each duplicate, and its prefilled coverage. */
+export interface DuplicateStepContext { gitCwd: string; findings: readonly Finding[]; findingsPath: string }
+
+/** Lab run132: the first sentence of a finding's text and the first file:line it cites. */
+function findingGist(finding: Pick<Finding, 'desc' | 'files'> | undefined): string {
+  const desc = String(finding?.desc ?? '').replace(/\s+/g, ' ').trim();
+  const sentence = (desc.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? desc).slice(0, 220);
+  const at = desc.match(/[\w./-]+\.[A-Za-z]+:\d+(?:-\d+)?/)?.[0] ?? finding?.files?.[0] ?? null;
+  return `"${sentence}"${at && !sentence.includes(at) ? ` (${at})` : ''}`;
 }
 
 /** Old-PoS run 31 (D6): several duplicates of resolved canonicals closed in ONE step (each keeps its own coverage run). */
-export function duplicateResolveBatchStep(base: { storyId: string; phase: string }, rows: ReadonlyArray<{ finding: { id: string; severity: string }; canonical: { id: string }; familyKey: string | null }>): NextStep {
-  const steps = rows.map(row => duplicateFindingResolveStep(base, row.finding, row.canonical, row.familyKey));
+export function duplicateResolveBatchStep(base: { storyId: string; phase: string }, rows: ReadonlyArray<{ finding: { id: string; severity: string }; canonical: { id: string }; familyKey: string | null }>,
+  context?: DuplicateStepContext): NextStep {
+  const steps = rows.map(row => duplicateFindingResolveStep(base, row.finding, row.canonical, row.familyKey, context));
   const calls = steps.map(single => ({ ...nextStepCall('finding_duplicate_resolve', single.cli!), ...(single.placeholderHints ? { placeholderHints: single.placeholderHints } : {}) }));
+  const ready = calls.filter(call => !call.placeholders?.length).length;
   return batchStep(base, 'finding_duplicate_resolve_batch', calls,
     `Verified findings ${rows.map(row => `${row.finding.id} (duplicate of ${row.canonical.id})`).join(', ')} are duplicates of repaired, resolved findings: close them in ONE turn, one finding_resolve each. `
-      + 'Each coverage.command runs that finding\'s own case and coverage.selector is the line its passing output prints; the framework runs each, and a failing one is refused and gets its own repair.',
-    'unclosedBlockingFindings + duplicateResolveCandidate (batched)');
+      + 'Each coverage.command runs that finding\'s own case and coverage.selector is the line its passing output prints; the framework runs each, and a failing one is refused and gets its own repair.'
+      + (context ? ` ${duplicateContextWhy(rows, context)}${ready ? ` ${ready === calls.length ? 'Every call is' : `${ready} of the calls are`} prefilled with the canonical repair's test that shares most terms with the duplicate: check it runs that finding's case, then run ${ready === calls.length ? 'them' : 'those'}.` : ''}` : ''),
+    'unclosedBlockingFindings + duplicateResolveCandidate (batched) + duplicateCoverageSuggestion (core/duplicate-auto-coverage.ts)');
+}
+
+/** Lab run132 (run 133 D): per duplicate its gist, the canonical's repair commit and tests, and where the findings are. */
+function duplicateContextWhy(rows: ReadonlyArray<{ finding: { id: string }; canonical: { id: string } }>, context: DuplicateStepContext): string {
+  const lines = rows.map(row => {
+    const finding = context.findings.find(other => other.id === row.finding.id);
+    const canonical = context.findings.find(other => other.id === row.canonical.id);
+    const suggestion = finding && canonical ? duplicateCoverageSuggestion({ gitCwd: context.gitCwd, finding, canonical }) : null;
+    const commit = suggestion?.commit ?? (canonical ? repairCommitFromResolution(context.gitCwd, canonical) : null);
+    return `${row.finding.id}: ${findingGist(finding)}; ${row.canonical.id}: ${findingGist(canonical)}, repaired by ${commit ? commit.slice(0, 12) : 'its resolution'}`
+      + (suggestion ? ` (tests: ${[suggestion.test, ...suggestion.others].join(', ')})` : '');
+  });
+  return `${lines.join(' | ')}. The findings are in ${context.findingsPath}.`;
 }
 
 /** A stored finding whose cited defect lies only in Story metadata, once its correction cleared: resolved without a repair. */
@@ -2265,12 +2338,14 @@ export function pinDisputeStep(base: { storyId: string; phase: string }, store: 
     const counterpart = planCounterpartCoverage(store, root, base.storyId, gitCwd);
     const items = store.readChecklist(base.storyId).items;
     const settled = new Set([...counterpartBackedRefs(counterpart).keys(), ...remedySettledRefsOf(root, base.storyId, counterpart, items).keys()]);
-    const disputes = disputedRows(history).filter(dispute => !settled.has(dispute.ref));
+    const disputes = disputedRows(history, verdictAt => pinAuditOffer(root, base.storyId, verdictAt)).filter(dispute => !settled.has(dispute.ref));
     if (!disputes.length) return null;
     const request = readStoryRequest(store, base.storyId);
+    // Lab run132 (run 134 item 2, plan.baseEvidence): an existing-behaviour case is re-pinned to the base value, not excluded.
+    const baseOf = storyBaseEvidenceLookup(store, root, base.storyId, gitCwd);
     let remedies = disputes.flatMap(dispute => {
       const item = items.find(row => row.id === dispute.itemId);
-      const remedy = item ? pinDisputeRemedy({ storyId: base.storyId, item: item as never, dispute, requestText: request.status === 'ok' ? request.text : null, counterpart }) : null;
+      const remedy = item ? pinDisputeRemedy({ storyId: base.storyId, item: item as never, dispute, requestText: request.status === 'ok' ? request.text : null, counterpart, baseOf: baseOf as never }) : null;
       return remedy ? [remedy] : [];
     });
     if (!remedies.length) return null;
@@ -2450,7 +2525,20 @@ export function removedGuardStep(base: { storyId: string; phase: string }, gap: 
   'scanRemovedGuards (core/removed-guard-scan.ts, dev.removedGuardScan=on)');
 }
 
-export function duplicateFindingResolveStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string }, canonical: { id: string }, familyKey: string | null): NextStep {
+export function duplicateFindingResolveStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string }, canonical: { id: string }, familyKey: string | null,
+  context?: DuplicateStepContext): NextStep {
+  // Lab run132 (run 133 D): prefilled from the canonical's repair commit when it has a Go test (the framework still runs it).
+  const full = context?.findings.find(row => row.id === finding.id);
+  const canonicalFull = context?.findings.find(row => row.id === canonical.id);
+  const suggestion = context && full && canonicalFull ? duplicateCoverageSuggestion({ gitCwd: context.gitCwd, finding: full, canonical: canonicalFull }) : null;
+  if (suggestion) {
+    return step(base, 'agent', 'finding_duplicate_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id, duplicateOf: canonical.id,
+      coverage: { command: suggestion.command, selector: suggestion.selector }, resolution: suggestion.resolution } },
+    `Verified ${finding.severity} finding ${finding.id} is a duplicate of ${canonical.id}${familyKey ? ` (family ${familyKey})` : ''}, which was repaired and resolved. ${duplicateContextWhy([{ finding, canonical }], context!)} `
+      + `The call is prefilled with ${suggestion.test}, the test of ${canonical.id}'s repair that shares most terms with ${finding.id}: check it runs ${finding.id}'s own case (else name the test that does), then run it. `
+      + `The framework runs it; exit 0 with the selector closes ${finding.id}, anything else is refused and ${finding.id} gets its own managed repair.`,
+    'unclosedBlockingFindings + findingDuplicateOf + duplicateCoverageSuggestion (core/duplicate-auto-coverage.ts)');
+  }
   const next = step(base, 'agent', 'finding_duplicate_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id, duplicateOf: canonical.id,
     coverage: { command: DUPLICATE_COVERAGE_COMMAND_PLACEHOLDER, selector: DUPLICATE_COVERAGE_SELECTOR_PLACEHOLDER }, resolution: DUPLICATE_RESOLUTION_PLACEHOLDER } },
   `Verified ${finding.severity} finding ${finding.id} is a duplicate (critic, or a lane rerun's restatement) of ${canonical.id}${familyKey ? ` (family ${familyKey})` : ''}, which was repaired and resolved. `
@@ -2795,7 +2883,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 
   /** Lab plan-deadend: whether the current scope-plan verdict raises a row the previous verdict raised too (no side effect). */
   function pinDisputePending(storyId: string): boolean {
-    try { return disputedRows(scopeVerdictHistory({ store: ctx.store as never, storyId, gitCwd: gitCwdOf(storyId) })).length > 0; } catch { return false; }
+    try { return disputedRows(scopeVerdictHistory({ store: ctx.store as never, storyId, gitCwd: gitCwdOf(storyId) }), verdictAt => pinAuditOffer(ctx.root, storyId, verdictAt)).length > 0; } catch { return false; }
   }
 
   /** The timestamp of the Story's latest story_review round, or null. */
@@ -2913,7 +3001,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // Lab run95 (fix 1c): a row the reviewer raised in consecutive verdicts gets the framework's remedy, not another value swap.
       const dispute = pinDisputeStep(base, ctx.store, ctx.root, gitCwdOf(storyId), currentStoryReviewBlockers(storyId));
       if (dispute) return dispute;
-      const pinAudit = pinAuditCorrectionStep(base, ctx.store, settledScopeGapFeatures(ctx.store, ctx.root, storyId, gitCwdOf(storyId)));
+      const pinAudit = pinAuditCorrectionStep(base, ctx.store, settledScopeGapFeatures(ctx.store, ctx.root, storyId, gitCwdOf(storyId)), ctx.root,
+        planPinAuditBase(ctx.store, ctx.root, storyId, () => gitCwdOf(storyId)));
       if (pinAudit) return pinAudit;
     }
     // Old-PoS run 32 (3c): a row the base cannot parse outside the new syntax is
@@ -3337,8 +3426,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
             const coverage = canonical ? frameworkDuplicateCoverage({ gitCwd: gitCwdOf(storyId), finding: row.finding, canonical }) : null;
             if (coverage) return frameworkDuplicateResolveStep(base, row.finding, row.canonical, row.familyKey, coverage);
           }
-          if (batch.length > 1) return duplicateResolveBatchStep(base, batch);
-          return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
+          const duplicateContext = { gitCwd: gitCwdOf(storyId), findings: allFindings, findingsPath: relative(ctx.root, ctx.store.storyFilePath(storyId, 'findings.json')) || 'findings.json' };
+          if (batch.length > 1) return duplicateResolveBatchStep(base, batch, duplicateContext);
+          return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey, duplicateContext);
         }
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
         const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');

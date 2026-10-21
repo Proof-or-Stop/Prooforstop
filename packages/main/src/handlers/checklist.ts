@@ -74,6 +74,7 @@ import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verifi
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { pendingPinnedVerificationIntents } from '../core/evidence-chain-check.js';
 import { keepDoneAfterPin, pinReversalRefusal, pinReversalRemedy, storyWasInDev, unstatedPinReversals } from '../core/pin-amendment.js';
+import { storyBaseEvidenceLookup } from '../core/pin-base-evidence.js';
 import { intentConflictOverrule, openIntentConflictJournal, type JournaledIntentConflict } from '../core/intent-conflict-overrule.js';
 import { intentConflictGuardOn } from '../core/ab-variants.js';
 import { counterpartRowRoles, planCounterpartCoverage } from '../core/counterpart-coverage.js';
@@ -3796,8 +3797,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             try {
               const request = readStoryRequest(store, args.storyId);
               const counterpart = (() => { try { return planCounterpartCoverage(store, root, args.storyId, resolveStoryGitCwd(args.storyId)); } catch { return null; } })();
+              // Lab run132 (run 134 item 2, plan.baseEvidence): the Story base decides an existing-behaviour case before any exclusion.
+              const baseOf = (() => { try { return storyBaseEvidenceLookup(store, root, args.storyId, resolveStoryGitCwd(args.storyId)); } catch { return null; } })();
               return pinReversalRemedy({ storyId: args.storyId, item: item as never, afterIntent: args.verificationIntent, reversals, requestText: request.status === 'ok' ? request.text : null,
-                counterpart, ownerArgs: args as unknown as Record<string, unknown> });
+                counterpart, ownerArgs: args as unknown as Record<string, unknown>, baseOf: baseOf as never });
             } catch { return null; }
           })() : null;
           const refusal = pinReversalRefusal({ storyId: args.storyId, itemId: args.itemId, reversals, remedy });

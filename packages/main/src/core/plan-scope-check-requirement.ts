@@ -23,7 +23,8 @@
  * (the managed reviewer launch step), so the three cannot drift.
  */
 import { checklistChangeIsExcludesOnly, contradictedExclusions, exclusionRationaleCheckActive, excludesProofGap } from './scope-exclusion-rationale.js';
-import { openScopeGaps } from './pin-audit-correction.js';
+import { openScopeGaps, pinAuditGapsPending } from './pin-audit-correction.js';
+import { pinAuditBaseValues } from './pin-base-evidence.js';
 import { existsSync } from 'node:fs';
 import type { StoryStore } from './store.js';
 import type { ChecklistData, ScopeCheckData, StoryInfo, WorkflowPolicy } from './types.js';
@@ -135,15 +136,19 @@ export function scopePlanRerunReason(
   const scope = store.readScopeCheck(story.storyId);
   if (!scope) return null;
   // Old-PoS run 31 (D8): pin-audit gaps whose requested values are the only change are checked deterministically.
-  const gaps = openScopeGaps(scope, store.readChecklist(story.storyId)).length;
-  if (gaps > 0 && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId))) {
+  // Lab run132 (run 134, plan.baseEvidence): a requested value the Story base refutes is decided by the base value.
+  const baseValues = root ? pinAuditBaseValues(store as never, root, story.storyId) : new Map<string, string>();
+  const gaps = openScopeGaps(scope, store.readChecklist(story.storyId), baseValues).length;
+  // Lab run132 (run 133): some pin-audit corrections applied, the rest still uncorrected pin-audit rows: the next
+  // correction step, not a rerun.
+  if (gaps > 0 && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId)) && !pinAuditGapsPending(scope, store.readChecklist(story.storyId), baseValues)) {
     // Old-PoS runs 61 / 63 (core/scope-exclusion-rationale.ts): only `excludes` changed and every open gap is one an
     // excludes entry cannot close (precedent conflict, or a behaviour an item changes): the reviewer would judge the
     // same content and re-raise the same rows (3-6 identical rounds). story_review keeps the covering-row Next; the
     // checks below (contradicted exclusions, review round) still apply.
     const checklist = store.readChecklist(story.storyId);
     const excludesProof = Boolean(root) && checklistChangeIsExcludesOnly(scope, checklist)
-      && openScopeGaps(scope, checklist).every(gap => excludesProofGap(root!, gap.feature ?? '', checklist.items));
+      && openScopeGaps(scope, checklist, baseValues).every(gap => excludesProofGap(root!, gap.feature ?? '', checklist.items));
     if (!excludesProof) return `the verdict of ${scope.checkedAt} lists ${gaps} gap(s) and the checklist changed since that verdict`;
   }
   // Old-PoS run 43 (core/scope-exclusion-rationale.ts): an exclusion story_review rejects is judged again once the checklist changed.

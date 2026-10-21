@@ -97,12 +97,58 @@ export function mechanismLineProblem(report: string | null | undefined, requirem
 }
 
 /**
+ * Lab run132 (old-PoS run 135 item L, new-PoS ADR-056 / ADR-070 direction; switch `remediation.baseClaimEvidence`,
+ * default on, `off` = rollback). Run 135 F-009: F-008's repair report said the empty-range alias "already matched the
+ * base"; nobody checked, the claim was wrong and the next round found F-009. A report sentence that says a boundary
+ * case (empty, negative, out of range, zero, nil / null / none, reversed, omitted / missing, overflow) behaves as on the
+ * Story base (already matches / is unchanged / same as / identical to / consistent with / preserved ... base) owes base
+ * evidence: a `[base-evidence] <case> :: <command run on the Story base> -> <output>` line naming the same case class.
+ * Asked for once in the same session (`repairReportFollowUp`); a repair whose report still claims it without evidence
+ * is not accepted (handlers/next-driver.ts repairRunTestProblem, `[repair_base_claim_unproven]`). Detection-positive:
+ * an unverified "unchanged" claim gets probed instead of trusted.
+ */
+export const BASE_EVIDENCE_LINE_FORM = '[base-evidence] <case> :: <command run on the Story base> -> <output>';
+export const REPAIR_BASE_CLAIM_UNPROVEN = 'repair_base_claim_unproven';
+const BOUNDARY_CLASS = /\b(empty|negative|out[- ]of[- ](?:range|bounds?)|zero|nil|null|none|reversed|omitted|missing|overflow(?:s|ing)?)\b/gi;
+const BASE_CLAIM = new RegExp([
+  String.raw`\b(?:already\s+(?:match(?:es|ed)?|behave[sd]?|work(?:s|ed)?|handle[sd]?|return(?:s|ed)?|did|does)|(?:is|are|was|were|stays?|remains?)\s+unchanged|unchanged\s+(?:from|vs\.?|versus|against)|same\s+as|identical\s+to|consistent\s+with|match(?:es|ed)?|preserv(?:es|ed)|as\s+(?:on|in|at))\b[^.;!?\n]{0,80}\b(?:story[- ])?base\b`,
+  String.raw`\b(?:story[- ])?base(?:\s+(?:behaviou?r|revision|commit|code))?\b[^.;!?\n]{0,40}\b(?:unchanged|preserved|kept|already)\b`,
+].join('|'), 'i');
+const classOf = (word: string): string => word.toLowerCase().replace(/[- ]/g, '').replace(/bounds?$/, 'range').replace(/^overflow.*/, 'overflow');
+
+/** The report sentences claiming base behaviour for a boundary case without a `[base-evidence]` line of that case class. */
+export function unprovenBaseClaims(report: string | null | undefined): string[] {
+  if (!report) return [];
+  const lines = report.split('\n');
+  const evidence = lines.filter(line => /\[base-evidence\]/i.test(line) && /::/.test(line) && /->/.test(line));
+  const proven = new Set(evidence.flatMap(line => [...line.matchAll(BOUNDARY_CLASS)].map(match => classOf(match[1]!))));
+  const out: string[] = [];
+  for (const line of lines) {
+    if (/\[base-evidence\]/i.test(line)) continue;
+    for (const sentence of line.split(/(?<=[.;!?])\s+/)) {
+      if (!BASE_CLAIM.test(sentence)) continue;
+      const classes = [...sentence.matchAll(BOUNDARY_CLASS)].map(match => classOf(match[1]!));
+      if (classes.length && classes.some(name => !proven.has(name))) out.push(sentence.trim().slice(0, 240));
+    }
+  }
+  return [...new Set(out)];
+}
+
+/**
  * The follow-up prompt for a finding repair whose final report misses required lines: ONE resumed turn of the same
  * session that asks for exactly those lines (the commit stays; nothing else is redone). Null when nothing is missing.
  */
 export function repairReportFollowUp(args: { report: string | null | undefined; matrices: ReadonlyArray<{ findingId: string; matrix: MatrixLike }>;
-  mechanisms: readonly MechanismRequirement[] }): string | null {
+  mechanisms: readonly MechanismRequirement[];
+  /** Lab run132 (run 135 L, remediation.baseClaimEvidence): ask for the base evidence of "matches the base" claims. */
+  baseClaims?: boolean }): string | null {
   const parts: string[] = [];
+  const claims = args.baseClaims ? unprovenBaseClaims(args.report) : [];
+  if (claims.length) {
+    parts.push(`- Your report claims base behaviour for a boundary case without base evidence: ${claims.map(claim => `"${claim}"`).join('; ')}. Run that case on the Story base (a detached temporary worktree of the base commit) and add one line per case:`,
+      `  ${BASE_EVIDENCE_LINE_FORM}`,
+      '  If the base gives a different result than your repaired code, the claim was wrong: fix the repair (one new commit, with a test of that case) and correct the sentence.');
+  }
   for (const { findingId, matrix } of args.matrices) {
     const missing = missingBranchOperands(args.report, matrix);
     if (!missing.length) continue;

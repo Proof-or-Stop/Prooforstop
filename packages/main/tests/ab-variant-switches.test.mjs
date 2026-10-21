@@ -62,6 +62,11 @@
  *   Lab run132 (behaviour in tasks/run132-fixes-smoke.ts B, end to end in NIC / NIC-F / NIC-OFF):
  *   init.reviewerCarryForward        default ON (`off` = rollback): a signed INIT reviewer PASS whose judged slice is
  *                                    unchanged is carried forward after a signed-input edit (only stale reviewers rerun)
+ *   Lab run132, runs 133/134 (behaviour in tasks/run133-fixes-smoke.ts C, tasks/run134-fixes-smoke.ts E / F):
+ *   review.stragglerVerdict          default ON (`off` = rollback): a review lane far behind its finished siblings is asked
+ *                                    for its verdict now in its own resumed session
+ *   plan.baseEvidence                default ON (`off` = rollback): a pin-audit value the Story base refutes is not offered;
+ *                                    dispute / reversal remedies re-pin an existing-behaviour case to the base value
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -133,7 +138,9 @@ await check('config: absent switches resolve to production values; malformed fai
     // Lab run131: the scope-gate settle, the finding-conflict settle and the intent-conflict guard are on (`off` = rollback).
     scopeGateSettle: 'on', conflictSettle: 'on', intentConflictGuard: 'on',
     // Lab run132: the INIT reviewer carry-forward is on (`off` = rollback).
-    reviewerCarryForward: 'on' });
+    reviewerCarryForward: 'on',
+    // Lab run132 (runs 133/134): the review straggler verdict and the Story-base pin evidence are on (`off` = rollback).
+    stragglerVerdict: 'on', baseEvidence: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -186,6 +193,11 @@ await check('config: absent switches resolve to production values; malformed fai
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'init.reviewerCarryForward': 'off' } }, 'lab run132: the rollback arm is recorded');
   const { reviewerCarryForwardOn } = await load('core/ab-variants.js');
   assert.equal(reviewerCarryForwardOn({ init: { reviewerCarryForward: 'maybe' } }), true, 'lab run132: malformed = on where consumed');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { stragglerVerdict: 'off' }, plan: { baseEvidence: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.stragglerVerdict': 'off', 'plan.baseEvidence': 'off' } }, 'lab run132 (runs 133/134): the rollback arms are recorded');
+  const { stragglerVerdictOn, baseEvidenceOn } = await load('core/ab-variants.js');
+  assert.equal(stragglerVerdictOn({ review: { stragglerVerdict: 'maybe' } }), true, 'lab run132 (run 133): malformed = on where consumed');
+  assert.equal(baseEvidenceOn({ plan: { baseEvidence: 'maybe' } }), true, 'lab run132 (run 134): malformed = on where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

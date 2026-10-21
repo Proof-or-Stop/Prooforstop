@@ -23,7 +23,12 @@
  *                   slot_quoting  a `%s`-like slot pinned as a quoted value the row's case quotes, where every base test
  *                                 instance of the same format whose input quotes the slot value prints it the other way
  *                                 (bare, or the reverse): the base form follows the instances;
- *                   unverified    a quoted slot value no base instance decides (advisory only: no patch; probe it).
+ *                   unverified    a quoted slot value no base instance decides (advisory only: no patch; probe it);
+ *                   empty_collection  lab run132 (run133-analysis.md item 2 B: an empty hash pinned `{ }`, the base prints
+ *                                 `{}`): an expected side with an empty bracket pair spaced inside (`{ }`, `[ ]`, `( )`)
+ *                                 where the base sources write that opener and closer as their own literals (`"{"`,
+ *                                 `"}"`) and never a spaced form: the base prints the empty group compact. Any pinned
+ *                                 output row, not only messages of a base format; a request stating the spaced form decides.
  *   skipped         a pin the request states verbatim, or instantiating a request template that quotes a placeholder
  *                   itself; a format a request span rewrites (it shares the format's longest fixed part but is no
  *                   instance of it). A request template that keeps the format (run 132: `... <inspect> on ARRAY`) names
@@ -65,7 +70,7 @@ export interface SourceText { path: string; text: string }
 
 export interface PinBasePrintConflict {
   itemId: string; ref: string; desc: string; caseText: string; pinned: string;
-  kind: 'fixed_text' | 'quoted_verb' | 'slot_quoting' | 'unverified';
+  kind: 'fixed_text' | 'quoted_verb' | 'slot_quoting' | 'unverified' | 'empty_collection';
   /** The pin re-rendered the way the base prints it; null for an advisory. */
   baseForm: string | null;
   /** The base format string and where it is. */
@@ -180,8 +185,61 @@ function candidates(items: readonly ItemLike[], requestText: string | null) {
   return { rows: out, spans };
 }
 
+/** Lab run132: an empty bracket pair spaced inside. */
+const SPACED_EMPTY = /\{\s+\}|\[\s+\]|\(\s+\)/g;
+const PAIRS = [['{', '}'], ['[', ']'], ['(', ')']] as const;
+
+/**
+ * Lab run132 (run 133 B): the bracket pairs the base prints compact when empty: its non-test sources write the opener and
+ * the closer as literals of their own and no literal writes that pair spaced (`"{ "`, `" }"`, `"{ }"`). Opener -> where.
+ */
+function compactEmptyPairs(files: readonly SourceText[]): Map<string, string> {
+  const literals = stringLiterals(files, false);
+  const out = new Map<string, string>();
+  for (const [open, close] of PAIRS) {
+    const opener = literals.find(literal => literal.text === open);
+    if (!opener || !literals.some(literal => literal.text === close)) continue;
+    const spaced = literals.some(literal => literal.text.length <= 40 && (literal.text.includes(`${open} `) || literal.text.includes(` ${close}`) || new RegExp(`\\${open}\\s+\\${close}`).test(literal.text)));
+    if (!spaced) out.set(open, `${opener.path}:${opener.line}`);
+  }
+  return out;
+}
+
+/** `text` with every spaced empty pair the base prints compact written compact; unchanged when none. */
+function compactEmpty(text: string, compact: ReadonlyMap<string, string>): string {
+  return text.replace(SPACED_EMPTY, group => (compact.has(group[0]!) ? `${group[0]}${group.at(-1)}` : group));
+}
+
 /** Rows whose pinned message the Story base prints differently (and advisories for quoted slot values nothing decides). */
 export function pinBasePrintConflicts(args: { items: readonly ItemLike[]; requestText: string | null; files: readonly SourceText[] }): PinBasePrintConflict[] {
+  const conflicts = formatConflicts(args);
+  // Lab run132 (run 133 B): an empty group pinned spaced, where the base prints it compact.
+  const compact = compactEmptyPairs(args.files);
+  if (!compact.size) return conflicts;
+  const request = args.requestText ?? '';
+  const spacedIn = (text: string): string[] => (text.match(SPACED_EMPTY) ?? []).filter(group => compact.has(group[0]!) && !request.includes(group));
+  const out = conflicts.map(conflict => (conflict.baseForm && spacedIn(conflict.baseForm).length ? { ...conflict, baseForm: compactEmpty(conflict.baseForm, compact) } : conflict));
+  const listed = new Set(out.map(conflict => conflict.ref));
+  for (const item of args.items) {
+    if (item.status === 'withdrawn') continue;
+    for (const { ref, row } of rowsOf(item)) {
+      const desc = String(row.desc ?? '');
+      const side = expectedSide(desc);
+      if (listed.has(ref) || side.length === desc.length) continue;
+      const groups = spacedIn(side);
+      if (!groups.length) continue;
+      const pinned = side.trim();
+      const open = groups[0]![0]!;
+      out.push({ itemId: item.id, ref, desc, caseText: caseSide(desc), pinned, kind: 'empty_collection', baseForm: compactEmpty(pinned, compact),
+        format: `"${open}" ... "${PAIRS.find(pair => pair[0] === open)![1]}"`, at: compact.get(open)!, sample: null, sampleText: null,
+        requestQuote: row.derivation?.requestQuote?.trim() || (args.requestText ? closestRequestSentence(desc, args.requestText) : null) || null });
+    }
+  }
+  return out;
+}
+
+/** The format-string conflicts (see the module comment): fixed_text, quoted_verb, slot_quoting, unverified. */
+function formatConflicts(args: { items: readonly ItemLike[]; requestText: string | null; files: readonly SourceText[] }): PinBasePrintConflict[] {
   const { rows, spans } = candidates(args.items, args.requestText);
   if (!rows.length) return [];
   // A format the request rewrites (a request span with its longest fixed part that is no instance of it, placeholders
@@ -245,6 +303,12 @@ export function pinBasePrintRowPatch(conflict: PinBasePrintConflict, row?: Inten
   const desc = String(row?.desc ?? conflict.desc);
   const at = desc.lastIndexOf(conflict.pinned);
   const patched = at >= 0 ? `${desc.slice(0, at)}${conflict.baseForm}${desc.slice(at + conflict.pinned.length)}` : `${conflict.caseText} -> ${conflict.baseForm}`;
+  if (conflict.kind === 'empty_collection') {
+    return { ref: conflict.ref, desc: patched, derivation: {
+      requestQuote: String(row?.derivation?.requestQuote ?? conflict.requestQuote ?? '').trim(),
+      computation: `re-pin: ${conflict.caseText} was ${conflict.pinned}, now ${conflict.baseForm}: the request does not state the spaced form; the Story base writes the brackets as their own literals (${conflict.format}, ${conflict.at}) and never spaced, so it prints the empty group compact`,
+    } };
+  }
   const why = conflict.kind === 'fixed_text' ? 'whose quotes are fixed text'
     : conflict.kind === 'quoted_verb' ? 'whose %q slot prints the value quoted'
       : `and its base test instance ${conflict.sampleText ? `\`${conflict.sampleText}\` ` : ''}(${conflict.sample}) prints a quoted input value that way`;
@@ -256,6 +320,9 @@ export function pinBasePrintRowPatch(conflict: PinBasePrintConflict, row?: Inten
 
 /** One line per listed row for a step / pre-check text. */
 export function describePinBasePrint(conflict: PinBasePrintConflict): string {
+  if (conflict.kind === 'empty_collection') {
+    return `${conflict.ref} pins \`${conflict.pinned}\` with a spaced empty group; the Story base writes ${conflict.format} as their own literals (${conflict.at}) and never spaced: base form \`${conflict.baseForm}\``;
+  }
   return conflict.baseForm
     ? `${conflict.ref} pins \`${conflict.pinned}\`; the Story base prints it with \`${conflict.format}\` (${conflict.at})${conflict.sample ? `, as its test instance ${conflict.sample} shows` : ''}: base form \`${conflict.baseForm}\``
     : `${conflict.ref} pins \`${conflict.pinned}\` with a quoted value in a slot of the Story base format \`${conflict.format}\` (${conflict.at}); no Story base instance shows how that slot prints a quoted input: probe the base before DEV builds it`;
@@ -276,11 +343,12 @@ export function planPinBasePrint(store: Pick<StoryStore, 'readStory' | 'readChec
     const request = requestOverride === undefined ? readStoryRequest(store as never, storyId) : null;
     const requestText = requestOverride !== undefined ? requestOverride : request?.status === 'ok' ? request.text : null;
     const empty = (): PinBasePrintEvidence => ({ schema: PIN_BASE_PRINT_SCHEMA, storyId, checkedAt: new Date().toISOString(), base: null, inputsDigest: '', scanned: 0, conflicts: [] });
-    if (!candidates(items, requestText).rows.length) return empty();
+    // Lab run132: a spaced empty group in any expected side is a candidate too (empty_collection).
+    if (!candidates(items, requestText).rows.length && !items.some(item => rowsOf(item).some(({ row }) => (expectedSide(String(row.desc ?? '')).match(SPACED_EMPTY) ?? []).length))) return empty();
     const cwd = typeof gitCwd === 'function' ? gitCwd() : gitCwd;
     const story = store.readStory(storyId) as { integrationTarget?: { parentCommitAtCreation?: string } };
     const base = pinOracleStoryBase(cwd, story.integrationTarget?.parentCommitAtCreation);
-    const inputsDigest = createHash('sha256').update(JSON.stringify({ v: 1, base, requestText, items: items.map(item => ({ id: item.id, status: item.status, intent: item.verificationIntent })) })).digest('hex');
+    const inputsDigest = createHash('sha256').update(JSON.stringify({ v: 2, base, requestText, items: items.map(item => ({ id: item.id, status: item.status, intent: item.verificationIntent })) })).digest('hex');
     const path = evidencePath(root, storyId);
     const cached = memo.get(path);
     if (cached?.inputsDigest === inputsDigest) return cached;

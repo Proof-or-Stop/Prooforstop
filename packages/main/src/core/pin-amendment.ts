@@ -26,9 +26,10 @@
  */
 import type { ChecklistItem, VerificationIntent } from './types.js';
 import { goSelectedTests, normalizeProbe, runCommand } from './resolved-finding-guard.js';
-import { pinDisputeRemedy } from './pin-dispute.js';
+import { pinDisputeRemedy, type BaseEvidenceLike } from './pin-dispute.js';
 import { counterpartRowRoles, type CounterpartCoverageResult } from './counterpart-coverage.js';
 import { shellQuote } from './shell-quote.js';
+import { leadingLiteral, sameValue } from './pin-audit-correction.js';
 
 export const PIN_REVERSAL_UNSTATED = 'pin_reversal_unstated';
 const LANES = ['happy', 'edge', 'adversarial'] as const;
@@ -36,7 +37,13 @@ type Row = { desc?: string; derivation?: { requestQuote?: string; computation?: 
 
 const rowsOf = (intent: VerificationIntent | undefined): Row[] => LANES.flatMap(lane => ((intent as unknown as Record<string, Row[] | undefined>)?.[lane] ?? []));
 
-/** The `<case> -> <value>` pairs a row states (each backticked span, else the desc), case and value normalized. */
+/**
+ * The `<case> -> <value>` pairs a row states (each backticked span, else the desc), case and value normalized. Lab run132
+ * (old-PoS run 134: `[0,1,2,3][1:2] -> [1] preserves existing two-part ... behavior` vs `-> [2] preserves ...`): a value
+ * side that starts with a literal (a quoted string, a bracket group, a number) followed by prose is that literal, so a
+ * re-pin clause naming the old literal states the reversal, and a row whose literal is unchanged (only its prose
+ * changed) reverses nothing.
+ */
 export function rowPins(desc: string): Array<{ caseKey: string; caseText: string; value: string; valueText: string }> {
   const spans = [...desc.matchAll(/`([^`]+)`/g)].map(match => match[1]!);
   const out: Array<{ caseKey: string; caseText: string; value: string; valueText: string }> = [];
@@ -44,7 +51,9 @@ export function rowPins(desc: string): Array<{ caseKey: string; caseText: string
     const arrow = text.match(/\s*(?:->|→|=>)\s*/);
     if (!arrow || arrow.index === undefined || arrow.index === 0) continue;
     const caseText = text.slice(0, arrow.index).trim();
-    const valueText = text.slice(arrow.index + arrow[0].length).trim();
+    const sideText = text.slice(arrow.index + arrow[0].length).trim();
+    const literal = leadingLiteral(sideText);
+    const valueText = literal && /^\s+[A-Za-z(]/.test(sideText.slice(literal.length)) ? literal : sideText;
     const caseKey = normalizeProbe(caseText);
     const value = normalizeProbe(valueText);
     if (caseKey.length >= 3 && value) out.push({ caseKey, caseText, value, valueText });
@@ -90,7 +99,7 @@ export const PIN_ORACLE_ORDER = 'Oracle order: a request sentence decides; else 
  *                the re-pin stated.
  * Every remedy passes unstatedPinReversals against the stored rows. Null when no row of a reversal is found.
  */
-export interface PinReversalRemedy { kind: 'repin' | 'keep' | 'counterpart' | 'relax' | 'exclude'; why: string; payload: Record<string, unknown> }
+export interface PinReversalRemedy { kind: 'repin' | 'keep' | 'counterpart' | 'relax' | 'exclude' | 'base'; why: string; payload: Record<string, unknown> }
 
 type IntentRow = Row & Record<string, unknown>;
 type ItemLike = Pick<ChecklistItem, 'id' | 'title' | 'userSees' | 'status' | 'excludes'> & { verificationIntent?: VerificationIntent | unknown; files?: { modify?: readonly string[]; create?: readonly string[] } };
@@ -118,7 +127,9 @@ const withRepin = (row: IntentRow, reversal: PinReversal, why: string, now = rev
     computation: `${String(row.derivation?.computation ?? '').trim()}${row.derivation?.computation ? '; ' : ''}re-pin: ${reversal.caseText} was ${reversal.oldValue}, now ${now}: ${why}` } });
 
 export function pinReversalRemedy(args: { storyId: string; item: ItemLike; afterIntent: unknown; reversals: readonly PinReversal[]; requestText: string | null;
-  counterpart?: Pick<CounterpartCoverageResult, 'checks'> | null; ownerArgs?: Record<string, unknown> }): PinReversalRemedy | null {
+  counterpart?: Pick<CounterpartCoverageResult, 'checks'> | null; ownerArgs?: Record<string, unknown>;
+  /** Lab run132 (run 134 item 2, plan.baseEvidence): the Story-base evidence of a row's case (core/pin-base-evidence.ts). */
+  baseOf?: ((item: ItemLike, ref: string) => BaseEvidenceLike | null) | null }): PinReversalRemedy | null {
   if (!args.reversals.length) return null;
   const next = structuredClone(args.afterIntent ?? {}) as Record<string, IntentRow[] | undefined>;
   const kinds: PinReversalRemedy['kind'][] = [];
@@ -151,6 +162,26 @@ export function pinReversalRemedy(args: { storyId: string; item: ItemLike; after
       const patched: IntentRow = { ...target.row, desc: role.repin.desc, derivation: { requestQuote: String(target.row.derivation?.requestQuote ?? earlier.row.derivation?.requestQuote ?? ''), computation: role.repin.computation } };
       rows[target.index] = normalizeProbe(value) === normalizeProbe(reversal.oldValue) ? patched : withRepin(patched, reversal, `the same receiver's counterpart ${role.counterpart} gives it`, value);
       kinds.push('counterpart'); whys.push(`\`${reversal.caseText}\`: the request is silent; the same receiver's counterpart ${role.counterpart} decides it`);
+      continue;
+    }
+    // Lab run132 (run 134 item 2, plan.baseEvidence): the request and the counterpart are silent; the Story base decides
+    // an existing-behaviour case (the new pin stands with the re-pin stated, the old one is kept, or the base value).
+    const evidence = args.baseOf?.(args.item, earlierRef) ?? null;
+    if (evidence && evidence.status === 'value') {
+      if (sameValue(evidence.value, reversal.newValue)) {
+        rows[target.index] = withRepin(target.row, reversal, evidence.detail);
+        kinds.push('base'); whys.push(`\`${reversal.caseText}\`: the request is silent and ${evidence.detail}: the new pin stands with the re-pin stated`);
+        continue;
+      }
+      if (sameValue(evidence.value, reversal.oldValue)) {
+        rows[target.index] = { ...target.row, desc: earlier.row.desc, ...(earlier.row.derivation ? { derivation: earlier.row.derivation } : {}) };
+        kinds.push('keep'); whys.push(`\`${reversal.caseText}\`: the request is silent and ${evidence.detail}: the earlier pin is kept`);
+        continue;
+      }
+      const at = String(target.row.desc ?? '').lastIndexOf(reversal.newValue);
+      const based: IntentRow = at >= 0 ? { ...target.row, desc: `${String(target.row.desc).slice(0, at)}${evidence.value.trim()}${String(target.row.desc).slice(at + reversal.newValue.length)}` } : target.row;
+      rows[target.index] = withRepin(based, reversal, evidence.detail, evidence.value.trim());
+      kinds.push('base'); whys.push(`\`${reversal.caseText}\`: the request is silent and ${evidence.detail}: the row states the base value`);
       continue;
     }
     const dispute = pinDisputeRemedy({ storyId: args.storyId, item: args.item as never, requestText: args.requestText, counterpart: args.counterpart ?? null,

@@ -163,6 +163,60 @@ export function intentConflictReadyRows(item: ItemSlice | undefined, conflicts: 
   return [...out.values()];
 }
 
+/**
+ * Lab run132 (run133-analysis.md item 2 B, ~1.5 min at normal latency): a `[pin-doubt] <ref> | base prints: <text> |
+ * request: silent` line (run 133: `... got "{}" (type HASH)` against a row pinning `... got "{ }" (type HASH)`) states
+ * only the base side; the pinned side is the row's own expected text that is a variant of it (the same text but for its
+ * spacing, or a variant of one error text). That is ONE ready row patch to the base text, the re-pin stated with the
+ * implementer's report as its source; the request quote is kept (the request does not state the pinned text:
+ * pinDoubtVerdict). Null when a row states no such variant.
+ */
+export function pinDoubtReadyRows(item: ItemSlice | undefined, conflicts: readonly JournaledIntentConflict[]):
+  Array<{ ref: string; desc: string; derivation: { requestQuote: string; computation: string } }> | null {
+  if (!item || !conflicts.length) return null;
+  const out = new Map<string, { ref: string; desc: string; derivation: { requestQuote: string; computation: string } }>();
+  for (const conflict of conflicts) {
+    const row = rowAt(item.verificationIntent, conflict.intentRef);
+    const implied = conflictFieldLiteral(conflict.requestImplies) ?? (conflict.requestImplies?.trim() || null);
+    if (!row?.desc || !implied || !ROW_REF.test(conflict.intentRef)) return null;
+    const desc = String(row.desc);
+    const pair = sides(conflict);
+    const pinned = pair?.pinned ?? pinnedVariantOf(desc, implied);
+    if (!pinned) return null;
+    const patched = replaceLast(desc, pinned, implied);
+    if (!patched || patched === desc) return null;
+    const pins = rowPins(desc);
+    const caseText = pair?.caseText ?? pins.find(pin => squash(pin.valueText).includes(squash(pinned)) || squash(pinned).includes(squash(pin.valueText)))?.caseText ?? pins[0]?.caseText ?? conflict.intentRef;
+    out.set(conflict.intentRef, { ref: conflict.intentRef, desc: patched, derivation: { requestQuote: String(row.derivation?.requestQuote ?? ''),
+      computation: `re-pin: ${caseText} was ${pinned}, now ${implied}: the request does not state this text; the implementer's [pin-doubt]${conflict.runId ? ` (${conflict.runId})` : ''} reports the Story base prints ${implied}, and where the request is silent the base decides` } });
+  }
+  return [...out.values()];
+}
+
+/**
+ * The span of a row's expected side that a base text is a variant of: the same text but for spacing (`{ }` / `{}`), or a
+ * variant of one error text (textVariants); the expected side is the text after the desc's last arrow, without a
+ * trailing `(exact ...)` note.
+ */
+function pinnedVariantOf(desc: string, implied: string): string | null {
+  const arrows = [...desc.matchAll(/\s*(?:->|=>|→)\s*/g)];
+  const last = arrows.at(-1);
+  if (!last || last.index === undefined) return null;
+  const side = desc.slice(last.index + last[0].length).replace(/\s*\((?:exact|the whole)[^()]*\)\s*$/i, '').trim();
+  const candidates = [side, side.replace(/^`|`$/g, ''), side.replace(/^error:?\s*/i, '')].filter(Boolean);
+  for (const candidate of candidates) {
+    if (candidate === implied) return null;
+    if (squash(candidate) === squash(implied) || textVariants(candidate, implied)) return candidate;
+    // The base text inside a longer expected side (`error "<text>"`).
+    const at = squash(candidate).indexOf(squash(implied).slice(0, 12));
+    if (at >= 0 && squash(candidate).length > squash(implied).length) {
+      const tail = candidate.match(/["'`](.+)["'`]\s*$/)?.[1];
+      if (tail && tail !== implied && (squash(tail) === squash(implied) || textVariants(tail, implied))) return tail;
+    }
+  }
+  return null;
+}
+
 /** The request states the pinned value (its text names the case and the value, or the row's verbatim quote names the value). */
 function requestStatesPin(requestText: string | null, pair: NonNullable<ReturnType<typeof sides>>, row: IntentRow | undefined): boolean {
   if (!requestText) return false;
