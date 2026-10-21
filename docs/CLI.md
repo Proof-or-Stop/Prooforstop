@@ -2221,8 +2221,9 @@ to the model. Seven detection-neutral fixes, each a cross-task mechanism:
   lanes printed `turn.started` and then nothing until the 300-s stall window. A managed run that prints no provider item
   event (`item.*`, `turn.completed` / `turn.failed`, `error`) within `PROOF_OR_STOP_MANAGED_PROVIDER_FIRST_ITEM_MS`
   (default 150000; sealed in the spec at submit; 0 = off) is now `provider_stalled` ("no provider item for N s since
-  spawn"). It is auto-replaceable under the same rules as before. The window comes from the measured maximum stdout gap
-  of 92.5 s; the ordinary 300-s window still applies after the first item. `next` relaunches an auto-replaceable failed
+  spawn"). It is auto-replaceable under the same rules as before. Measured spawn to first stdout is at most 15.7 s and the
+  largest stdout gap 92.5 s, so spawn to first item stays under ~110 s; the ordinary 300-s window still applies after
+  the first item. `next` relaunches an auto-replaceable failed
   lane (`targetRelaunchIsFramework`, at most 3 per target) as a framework `review_round_prepare {lanes: [...]}` step
   while its sibling lanes still run (`laneRelaunchStep`, in both the live and the reference driver). Before, it waited
   for the whole round. `review_round_prepare` accepts `lanes` (only those lanes; a running sibling is never restarted).

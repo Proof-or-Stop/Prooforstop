@@ -656,8 +656,8 @@ export const MANAGED_PROVIDER_STALL_RUNTIME_POLICY = {
  * Lab run131 (bench-staging/oldpos/run131-analysis.md §5: quality RR-004 and concept RR-010 hung after `turn.started`
  * and were killed only by the 300 s window, ~22 min on the critical path with the waits for their siblings): while a
  * managed provider has printed no item event yet (core/host-run.ts providerItemEventSeen), the stall window is this
- * budget counted from spawn. The measured maximum stdout gap (inter-event, incl. spawn -> first item) is 92.5 s, so
- * 150 s keeps ~1.6x margin. 0 = the ordinary window only. Same terminal reason (provider_stalled), same auto-replacement.
+ * budget counted from spawn. Measured on 388 managed Codex runs: spawn -> first stdout at most 15.7 s, the largest stdout
+ * gap (turn.started -> first item included) 92.5 s, so spawn -> first item stays under ~110 s and 150 s keeps ~1.4x margin. 0 = the ordinary window only. Same terminal reason (provider_stalled), same auto-replacement.
  */
 export const MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY = {
   environment: 'PROOF_OR_STOP_MANAGED_PROVIDER_FIRST_ITEM_MS',

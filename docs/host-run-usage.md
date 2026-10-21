@@ -211,7 +211,18 @@ deadline). The window is sealed into the spec at submit from
 off). 300 s is about 3x the largest gap measured on 388 managed Codex runs
 (21,545 stdout gaps, reasoning turns and tool commands included: p50 1.2 s,
 p99 22.7 s, p99.9 43.2 s, max 92.5 s); raise it for projects whose tool commands
-run silent for minutes. The stalled run is `replacementSafe=true` only when the
+run silent for minutes. Since lab run131 (old-PoS run 131: two review lanes
+printed `turn.started` and then nothing until the 300 s window) a shorter
+no-item window applies until the provider prints its first item event
+(`item.*`, `turn.completed` / `turn.failed`, `error`; `thread.started` and
+`turn.started` do not count): `PROOF_OR_STOP_MANAGED_PROVIDER_FIRST_ITEM_MS`
+(`MANAGED_PROVIDER_FIRST_ITEM_RUNTIME_POLICY`, default 150 s counted from spawn,
+sealed into the spec; `0` = the ordinary window only). The measured spawn to
+first stdout is at most 15.7 s and the largest gap 92.5 s, so the spawn to first
+item stays under ~110 s. Expiry is the same `provider_stalled` failure (`no
+provider item for <N> s since spawn ... (no-item window <W> s`), and `next`
+relaunches an auto-replaceable review lane at once while its sibling lanes still
+run (`review_round_prepare {lanes}`). The stalled run is `replacementSafe=true` only when the
 group was reaped and the provider left no work product: its cwd HEAD, porcelain
 status and tracked diff (outside `.proof-or-stop/runtime`) equal the
 fingerprint taken before launch, and for a managed dispatch no role output was
