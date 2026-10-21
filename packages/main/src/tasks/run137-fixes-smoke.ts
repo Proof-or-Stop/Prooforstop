@@ -216,9 +216,12 @@ await check('N1 the Story base values a finding states are read per case (base a
   assert.deepEqual(stated(N_G.desc), []);
 });
 
-await check('N2 the framework pin decides by precedence: the finding demanding the stated base value wins (story_base); a request sentence stating the case decides first; no stated value: no pin', async () => {
+/** The Story base evaluator agreeing with N_F's stated base values (a probe that ran). */
+const N_BASE = (expr: string): string | null => expr.startsWith('Slice') ? 'bcd' : expr.startsWith('From') ? 'abcd' : null;
+
+await check('N2 the framework pin decides by precedence: the finding demanding the stated base value the base probe confirms wins (story_base); a request sentence stating the case decides first; no stated value: no pin', async () => {
   const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
-  const won = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- Existing Slice and From behaviour stays the same.\n' });
+  const won = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- Existing Slice and From behaviour stays the same.\n', baseProbe: N_BASE });
   assert.equal(won?.side, 'finding', JSON.stringify(won));
   assert.equal(won.source, 'story_base');
   assert.deepEqual(won.cases, [{ expr: 'Slice("abcd", 1, 99)', value: 'bcd' }, { expr: 'From("abcd", 99)', value: 'abcd' }]);
@@ -229,10 +232,21 @@ await check('N2 the framework pin decides by precedence: the finding demanding t
   assert.equal(pin({ finding: N_F, resolved: N_G, conflict: { ...N_CONFLICT, kind: 'precedent' }, requestText: '' }), null, 'a precedent conflict is never the framework\'s');
 });
 
-await check('N3 a base probe that disagrees with the finding-stated base value leaves the case to the PLAN pin (a probe can only refute)', async () => {
+await check('N5 security: a finding-stated base value alone never becomes a framework pin: no probe, a probe that cannot run, throws, or confirms only some cases: no pin (the request alone still decides)', async () => {
   const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: (expr: string) => expr.startsWith('Slice') ? 'bc' : null }), null);
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: (expr: string) => expr.startsWith('Slice') ? 'bcd' : null })?.side, 'finding');
+  const request = 'Add Step.\n\n- Existing Slice and From behaviour stays the same.\n';
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request }), null, 'no base evaluator: the finding text is not evidence');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseProbe: () => null }), null, 'the probe cannot run');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseProbe: () => { throw new Error('boom'); } }), null, 'the probe throws');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseProbe: (expr: string) => expr.startsWith('Slice') ? 'bcd' : null }), null, 'one case unconfirmed');
+  const quoted = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- `Slice("abcd", 1, 99)` returns `bcd`.\n' });
+  assert.equal(quoted?.source, 'request', `a request-quoted value needs no probe: ${JSON.stringify(quoted)}`);
+});
+
+await check('N3 a base probe that disagrees with the finding-stated base value leaves the case to the PLAN pin; one that ran and printed every stated value confirms it', async () => {
+  const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: (expr: string) => expr.startsWith('Slice') ? 'bc' : N_BASE(expr) }), null);
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseProbe: N_BASE })?.side, 'finding');
 });
 
 await check('N4 remediation.conflictPin: default on, `off` recorded as the rollback arm', async () => {
