@@ -14,14 +14,15 @@
  *   - the request: a request line naming a case's expression with a value decides it (the side that demands that value
  *     wins, source `request`);
  *   - else the Story base value the open finding states for each case (statedBaseCases: "on the base `E` returns `V`",
- *     "`E` returns `V` on base but `W` on HEAD", "Base: `E` -> `V`"): the finding demands the base behaviour and the
- *     resolved finding's test pins something else, so the finding wins (source `story_base`). A base probe (the Story's
- *     declared evaluator) can only refute a stated value: a disagreeing probe leaves the case to the PLAN pin; a probe
- *     that cannot run accepts the statement (the finding passed the review's evidence check);
+ *     "`E` returns `V` on base but `W` on HEAD", "Base: `E` -> `V`"), CONFIRMED by the Story's declared base evaluator:
+ *     the probe ran and printed the stated value for every case. Then the finding demands the base behaviour and the
+ *     resolved finding's test pins something else, so the finding wins (source `story_base`). The finding's statement
+ *     alone is never evidence (security review of this lab: a reviewer-authored claim must not become a framework pin):
+ *     no evaluator, a probe that cannot run or throws, or one that disagrees leaves the case to the PLAN pin;
  *   - else (no stated base value, a `[precedent-conflict]`, a request value matching neither side) null: the PLAN pin
  *     stays (finding_conflict_pin), and that PLAN trip writes the pin before any scope-plan rerun (handlers/next-driver.ts).
- * Pure: the decision is recomputed from the finding text, the request and the base on every call (no runtime file is
- * read back); the settle step journals it as evidence only. Switch remediation.conflictPin (default on; off = rollback).
+ * Pure: the decision is recomputed from the finding text, the request and the base probe on every call (no runtime file
+ * is read back; the caller's probe runs in a fresh private base tree, handlers/finding-conflict-settle.ts); the settle step journals it as evidence only. Switch remediation.conflictPin (default on; off = rollback).
  */
 import { normalizeProbe } from './probe-text.js';
 
@@ -32,6 +33,8 @@ export interface FrameworkConflictPin {
   /** `finding`: the open finding's demand wins (the resolved finding's test is wrong for the cases); `resolved`: it loses. */
   side: 'finding' | 'resolved';
   source: 'request' | 'story_base';
+  /** What decided it: a request line quoting the value, or the Story base evaluator run on every case (never finding text). */
+  confirmedBy: 'request' | 'base_probe';
   /** Each decided case and the value the framework pins for it. */
   cases: Array<{ expr: string; value: string }>;
   reason: string;
@@ -107,18 +110,20 @@ export function frameworkConflictPin(args: { finding: { id: string; desc?: strin
     if (sides.size !== 1 || sides.has('neither')) return null;
     const side = [...sides][0] as 'finding' | 'resolved';
     const list = stated.map(({ row, value }) => `\`${row.expr}\` -> \`${value}\``).join(', ');
-    return { side, source: 'request', cases: stated.map(({ row, value }) => ({ expr: row.expr, value })),
+    return { side, source: 'request', confirmedBy: 'request', cases: stated.map(({ row, value }) => ({ expr: row.expr, value })),
       reason: `the request states ${list}, which ${side === 'finding' ? `open ${f} demands; resolved ${g}'s covering test states otherwise` : `resolved ${g}'s repair keeps; open ${f} demands otherwise`}` };
   }
-  // 2. The Story base: the finding states the base value of each case; a base probe can only refute it.
+  // 2. The Story base: the finding states the base value of each case, and the base evaluator must have run and printed
+  // it for every case (fail closed: no probe, an unrunnable or throwing one, or a disagreement leaves it to PLAN).
+  if (!args.baseProbe) return null;
   for (const row of cases) {
     let probed: string | null = null;
-    try { probed = args.baseProbe ? args.baseProbe(row.expr) : null; } catch { probed = null; }
-    if (probed !== null && !sameValue(probed, row.base)) return null;
+    try { probed = args.baseProbe(row.expr); } catch { probed = null; }
+    if (probed === null || !sameValue(probed, row.base)) return null;
   }
   const list = cases.map(row => `\`${row.expr}\` -> \`${row.base}\``).join(', ');
-  return { side: 'finding', source: 'story_base', cases: cases.map(row => ({ expr: row.expr, value: row.base })),
-    reason: `the request is silent on ${cases.length > 1 ? 'these cases' : 'this case'} and open ${f} states the Story base behaviour (${list}); resolved ${g}'s covering test pins a value the request does not ask for, so the base behaviour stands` };
+  return { side: 'finding', source: 'story_base', confirmedBy: 'base_probe', cases: cases.map(row => ({ expr: row.expr, value: row.base })),
+    reason: `the request is silent on ${cases.length > 1 ? 'these cases' : 'this case'} and open ${f} states the Story base behaviour (${list}); the Story base evaluator prints the same; resolved ${g}'s covering test pins a value the request does not ask for, so the base behaviour stands` };
 }
 
 /** The repair prompt block of a finding whose conflict the framework pinned on its side (the repair keeps the pinned values). */

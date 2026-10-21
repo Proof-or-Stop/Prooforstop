@@ -16,7 +16,7 @@
  *   - a later finding re-judging the same case against the same resolved finding (kind `same_case`) is settled by that
  *     record while the pin still agrees; a re-pin to F's side (pins disagree) reopens the question as before.
  * Not settled (today's route stands): a `[precedent-conflict]` finding, a case no row pins (lab run137: the framework pin
- * of core/finding-conflict-pin.ts decides it when the request or F's stated Story base value does; else one
+ * of core/finding-conflict-pin.ts decides it when the request or F's stated Story base value, confirmed by the base evaluator, does; else one
  * finding_conflict_pin), a pin that disagrees with G's test (the guard excuses the repair; F is repaired against the pin).
  * Rollback: remediation.conflictSettle=off.
  */

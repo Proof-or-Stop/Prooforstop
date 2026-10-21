@@ -6,7 +6,8 @@
  * agree). With remediation.conflictSettle=off nothing is settled by the checklist pin.
  *
  * Lab run137 (fix N, core/finding-conflict-pin.ts, remediation.conflictPin): a conflict no checklist row pins is decided
- * by the framework pin when the request or the open finding's stated Story base value decides it (evaluateFrameworkConflictPin):
+ * by the framework pin when the request, or the open finding's stated Story base value confirmed by a fresh run of the
+ * Story's base evaluator (freshBaseProbe), decides it (evaluateFrameworkConflictPin):
  *   - the open finding wins (`story_base` / `request`): it is repaired against the pin (no PLAN trip), and the framework's
  *     own `[regression-of G]` finding that blames its rejected repair is the losing side: settled here;
  *   - the resolved finding wins (`request`): the open finding is settled here.
@@ -21,8 +22,11 @@ import { findingDuplicateOf } from '../core/duplicate-finding-coverage.js';
 import { findingConflictOf, findingGuard, findingRepros, guardStatesPins, isReproCommand, regressionTargets, rejectedRepairCommits, repairCommitFromResolution, rowsCitingCase } from '../core/resolved-finding-guard.js';
 import { conflictSettlements, findingConflictSettlement, FINDING_CONFLICT_PRECEDENCE, FINDING_CONFLICT_REASON_PREFIX, type ConflictSettlement } from '../core/finding-conflict-settle.js';
 import { frameworkConflictPin, type FrameworkConflictPin } from '../core/finding-conflict-pin.js';
-import { baseEvaluator } from '../core/plan-pin-probe.js';
-import { evaluateInTree, probeProgram } from '../core/request-probes.js';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pinOracleStoryBase, prepareArchivedTree, readBasePinOracle } from '../core/pin-oracle.js';
+import { evaluateInTree, normalizeProbeValue, probeProgram, readBaseProbeRunner, type ProbeRunnerConfig } from '../core/request-probes.js';
 
 /** The settlement for one open finding, or null (switch off, no conflict, or not the framework's to decide). */
 export function evaluateFindingConflictSettlement(args: { store: StoryStore; root: string; storyId: string; finding: Finding; findings?: readonly Finding[];
@@ -73,7 +77,8 @@ function frameworkPinSettlement(loser: Pick<Finding, 'id'>, resolved: Pick<Findi
 /**
  * Lab run137: the framework pin of one open finding's conflict with a resolved finding that no current checklist row pins
  * (a row that pins it decides instead), or null (switch off, no such conflict, or not determinable: the PLAN pin stays).
- * The base probe is the Story's declared evaluator (core/plan-pin-probe.ts baseEvaluator); it can only refute a stated value.
+ * The base probe is the Story's declared evaluator run in a fresh private tree (freshBaseProbe); a stated base value counts
+ * only when it ran and printed that value for every case.
  */
 export function evaluateFrameworkConflictPin(args: { store: StoryStore; root: string; storyId: string; finding: Finding; findings?: readonly Finding[];
   gitCwd?: string; events?: ReadonlyArray<Record<string, unknown>> }): { pin: FrameworkConflictPin; resolved: Finding } | null {
@@ -93,20 +98,14 @@ export function evaluateFrameworkConflictPin(args: { store: StoryStore; root: st
     if (repros.length && rowsCitingCase(items, repros).length) return null;
     const request = readStoryRequest(store, storyId);
     const gitCwd = args.gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
-    let probe: ((expr: string) => string | null) | undefined;
-    const pin = frameworkConflictPin({ finding, resolved, conflict, requestText: request.status === 'ok' ? request.text : null,
-      baseProbe: expr => {
-        if (probe === undefined) {
-          const evaluator = (() => { try { return baseEvaluator(store, root, storyId, gitCwd); } catch { return null; } })();
-          probe = !evaluator ? () => null : (input: string) => {
-            const config = evaluator.kind === 'pinOracle' ? { ...evaluator.config, skipPattern: undefined } : evaluator.config;
-            const program = probeProgram(config, [], input);
-            const observed = evaluateInTree({ config, env: evaluator.env }, evaluator.tree, [program]).get(program);
-            return observed?.status === 'value' ? observed.text : null;
-          };
-        }
-        return probe(expr);
-      } });
+    const base = freshBaseProbe(store, storyId, gitCwd);
+    let pin: FrameworkConflictPin | null;
+    try {
+      pin = frameworkConflictPin({ finding, resolved, conflict, requestText: request.status === 'ok' ? request.text : null,
+        ...(base ? { baseProbe: base.probe } : {}) });
+    } finally {
+      base?.dispose();
+    }
     if (!pin) return null;
     // A case a current row pins is the row's to decide (lab run131 settle / the repair against the row).
     if (rowsCitingCase(items, pin.cases.map(row => row.expr)).length) return null;
@@ -134,8 +133,69 @@ function regressionOfFrameworkPin(args: { store: StoryStore; root: string; story
     if (!owner) continue;
     const framework = evaluateFrameworkConflictPin({ ...args, finding: owner, findings });
     if (framework?.pin.side !== 'finding' || !targets.includes(framework.resolved.id)) continue;
+    // Security review: a framework guard finding is settled only on a request-quoted value or the Story base evaluator's
+    // own output, never on what the finding (a reviewer) wrote.
+    if (framework.pin.confirmedBy !== 'request' && framework.pin.confirmedBy !== 'base_probe') continue;
     return frameworkPinSettlement(finding, framework.resolved, framework.pin,
       `${short(finding.id)} reports that the repair of ${short(owner.id)} broke resolved ${short(framework.resolved.id)}'s covering test`);
   }
   return null;
+}
+
+/** Per-process memo of fresh base-probe results (base commit + evaluator config + expression); never persisted. */
+const freshProbeResults = new Map<string, string | null>();
+
+/**
+ * Lab run137 (security review of fix N): the Story's declared base evaluator, read from the base commit itself (`git
+ * show <base>:proof-or-stop.config.json`, probeRunner else pinOracle), run in a FRESH private base tree (git archive into a
+ * new temporary directory, removed by dispose). The shared runtime trees and their results.json caches under
+ * `.proof-or-stop/runtime/` are owner-writable and are not used for this decision. A probeRunner's declared self-test
+ * must pass first. Null when the project declares no evaluator. The tree is built on the first probe only.
+ */
+export function freshBaseProbe(store: Pick<StoryStore, 'readStory'>, storyId: string, gitCwd: string): { probe: (expr: string) => string | null; dispose: () => void } | null {
+  let base: string | null = null;
+  let declared: { config: ProbeRunnerConfig; env: Record<string, string>; kind: 'probeRunner' | 'pinOracle' } | null = null;
+  try {
+    const story = store.readStory(storyId) as { integrationTarget?: { parentCommitAtCreation?: string } };
+    base = pinOracleStoryBase(gitCwd, story.integrationTarget?.parentCommitAtCreation);
+    if (!base) return null;
+    const runner = readBaseProbeRunner(gitCwd, base);
+    const oracle = runner ? null : readBasePinOracle(gitCwd, base);
+    declared = runner ? { config: runner.config, env: runner.env, kind: 'probeRunner' }
+      // A pinOracle's skipPattern marks errors as unrunnable for its own value oracle; here an error is an error.
+      : oracle ? { config: { ...oracle.config, skipPattern: undefined } as ProbeRunnerConfig, env: oracle.env, kind: 'pinOracle' } : null;
+  } catch { return null; }
+  if (!base || !declared) return null;
+  const evaluator = declared;
+  const key = `${base}|${JSON.stringify(evaluator.config)}`;
+  let dir: string | null = null;
+  let tree: string | null | undefined;
+  const treeOf = (): string | null => {
+    if (tree !== undefined) return tree;
+    try {
+      dir = mkdtempSync(join(tmpdir(), 'pos-conflict-pin-'));
+      tree = prepareArchivedTree(join(dir, 'base'), gitCwd, base!, evaluator.config.setup, evaluator.config.timeoutMs, evaluator.env);
+      const selfTest = evaluator.kind === 'probeRunner' ? evaluator.config.selfTest : undefined;
+      if (tree && selfTest && typeof selfTest.input === 'string' && typeof selfTest.output === 'string') {
+        const program = probeProgram(evaluator.config, [], selfTest.input);
+        const result = evaluateInTree({ config: evaluator.config, env: evaluator.env }, tree, [program]).get(program);
+        if (!result || result.status !== 'value' || normalizeProbeValue(result.text) !== normalizeProbeValue(selfTest.output)) tree = null;
+      }
+    } catch { tree = null; }
+    return tree ?? null;
+  };
+  return {
+    probe: expr => {
+      const memo = `${key}|${expr}`;
+      if (freshProbeResults.has(memo)) return freshProbeResults.get(memo)!;
+      const at = treeOf();
+      if (!at) return null;
+      const program = probeProgram(evaluator.config, [], expr);
+      const observed = evaluateInTree({ config: evaluator.config, env: evaluator.env }, at, [program]).get(program);
+      const value = observed?.status === 'value' ? observed.text : null;
+      freshProbeResults.set(memo, value);
+      return value;
+    },
+    dispose: () => { if (dir) { try { rmSync(dir, { recursive: true, force: true }); } catch { /* best effort */ } } },
+  };
 }

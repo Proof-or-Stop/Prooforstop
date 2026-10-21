@@ -1755,7 +1755,8 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
     const conflict = findingConflictOf({ finding, findings: all, storyId, rejected, duplicateOf: id => findingDuplicateOf(store, storyId, id)?.canonicalFindingId ?? null });
     // Lab run137 (fix N, remediation.conflictPin): the framework's `[regression-of G]` finding that blames a repair the
     // framework pin upholds is the losing side, settled once (run 137 F-008: a repair that only added tests, 99 s).
-    if (!conflict && !args.repaired(finding) && finding.status === 'open' && finding.evidenceState !== 'suspected' && regressionTargets(finding.desc, storyId).length) {
+    // Cheap checks first: repaired() reads the host runs and git (next-driver-cost budget).
+    if (!conflict && finding.status === 'open' && finding.evidenceState !== 'suspected' && regressionTargets(finding.desc, storyId).length && !args.repaired(finding)) {
       const settlement = evaluateFindingConflictSettlement({ store: store as never, root, storyId, finding, findings: all, gitCwd, events });
       if (settlement) return findingConflictSettleStep(base, finding, settlement);
     }
@@ -1765,7 +1766,7 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
     if (finding.status === 'open' && finding.evidenceState !== 'suspected' && conflict.resolvedId) {
       const settlement = evaluateFindingConflictSettlement({ store: store as never, root, storyId, finding, findings: all, gitCwd, events });
       if (settlement) return findingConflictSettleStep(base, finding, settlement);
-      // Lab run137 (fix N): no row pins the case and the request / the finding's stated Story base value decides it for
+      // Lab run137 (fix N): no row pins the case and the request / the finding's stated Story base value (base evaluator confirmed) decides it for
       // this finding: it is repaired against the framework pin (its prompt states it), no PLAN trip.
       if (evaluateFrameworkConflictPin({ store: store as never, root, storyId, finding, findings: all, gitCwd, events })?.pin.side === 'finding') continue;
     }

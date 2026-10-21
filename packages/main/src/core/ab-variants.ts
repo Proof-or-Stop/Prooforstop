@@ -215,7 +215,7 @@
  *                              changed a shared helper owes one [caller-check] line per caller (core/repair-regression-check.ts,
  *                              core/shared-helper-callers.ts). finding_resolve's regression guard stays the gate
  *   remediation.conflictPin    'on' (default) | 'off'  a finding conflict no checklist row pins is decided by the framework
- *                              when the request or a finding-stated Story base value decides the case (precedence request >
+ *                              when the request or a finding-stated Story base value the base evaluator confirms decides the case (precedence request >
  *                              base > reviewer, journaled finding_conflict_framework_pin), without a PLAN trip; an undecidable
  *                              one keeps finding_conflict_pin, whose PLAN trip writes the pin before any scope-plan rerun
  *                              (core/finding-conflict-pin.ts)
@@ -575,7 +575,7 @@ export const baseClaimEvidenceOn = (config: unknown): boolean => catchEarlierPic
 export const duplicateReproAppendOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.duplicateReproAppend') === 'on';
 /** Lab run137 remediation.regressionCheck (default on; `off` = rollback): the pre-seal repair regression check and the shared-helper [caller-check] lines (core/repair-regression-check.ts); malformed = on. */
 export const regressionCheckOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.regressionCheck') === 'on';
-/** Lab run137 remediation.conflictPin (default on; `off` = rollback): a finding conflict no row pins is decided by the framework from the request or a finding-stated base value (core/finding-conflict-pin.ts); malformed = on. */
+/** Lab run137 remediation.conflictPin (default on; `off` = rollback): a finding conflict no row pins is decided by the framework from the request or a finding-stated base value the base evaluator confirms (core/finding-conflict-pin.ts); malformed = on. */
 export const conflictPinOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.conflictPin') === 'on';
 /** EXPERIMENTAL lab run137 review.classEnumeration=on: concept and quality lanes enumerate every altered behaviour of a changed shared helper per caller (core/shared-helper-callers.ts); malformed = off. */
 export const classEnumerationOn = (config: unknown): boolean => catchEarlierPick(config, 'review.classEnumeration') === 'on';

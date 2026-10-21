@@ -2,7 +2,7 @@
 /**
  * Lab run137 (old-PoS run 137, bench-staging/oldpos/run137-analysis.md; new-PoS ADR-056 / ADR-070 / ADR-071 / ADR-082
  * direction): unit level, made-up `clip` helpers only (no benchmark-task material). The lifecycle shapes are harness
- * NRR / NRR-OFF / NCK / NCP / NCP-P / NGX / NCL / NCL-OFF in tasks/e2e-review-to-done-smoke.ts.
+ * NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-P / NGX / NCL / NCL-OFF in tasks/e2e-review-to-done-smoke.ts.
  *
  *   M. Repair regression check (switch remediation.regressionCheck, default on): before a finding-repair run seals, the
  *      covering tests of the Story's resolved findings and the pinned checklist verifications of the changed packages
@@ -10,7 +10,8 @@
  *      with the failing output. A repair that changed a shared helper (a function with several call sites in the Story
  *      diff) owes one `[caller-check]` line per caller (base vs HEAD), asked for in the same session.
  *   N. Conflict pin without a PLAN trip (switch remediation.conflictPin, default on): a finding conflict no row pins is
- *      decided by the framework when the request or a finding-stated Story base value decides the case.
+ *      decided by the framework when the request or a finding-stated Story base value the base evaluator confirms (it
+ *      ran and printed it; never the finding text alone: N5) decides the case.
  *   O. A failed grouped repair (no commit naming a member) is split: the per-finding relaunch is a framework step; the
  *      thinking-mode pass-back 400 that killed run 137's grouped run is a classified provider transport error.
  *   P. R1 class enumeration (switch review.classEnumeration, DEFAULT OFF: needs a detection A/B): concept and quality

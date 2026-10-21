@@ -76,7 +76,7 @@
  *                                    append step instead of its own managed repair
  *   plan.repinAllRows                default ON (`off` = rollback): pin_reversal_unstated compares a pin with every earlier
  *                                    pin of its case; framework re-pin remedies re-pin every row (and other items) of the case
- *   Lab run137 (behaviour in tasks/run137-fixes-smoke.ts, end to end in NRR / NRR-OFF / NCK / NCP / NCP-P / NCL / NCL-OFF):
+ *   Lab run137 (behaviour in tasks/run137-fixes-smoke.ts, end to end in NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-P / NCL / NCL-OFF):
  *   remediation.regressionCheck      default ON (`off` = rollback): before a finding-repair run seals, the resolved findings'
  *                                    covering tests and the changed packages' pinned checks are re-run in its session; a
  *                                    changed shared helper owes one [caller-check] line per caller
