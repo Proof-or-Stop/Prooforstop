@@ -2208,15 +2208,21 @@ switches default on (`remediation.regressionCheck`, `remediation.conflictPin`) a
       base commit) ran and printed that value for every case. The finding's own statement is never evidence: no
       evaluator, a probe that cannot run or throws, or a disagreeing one leaves the case to PLAN. The probe runs in a
       fresh private `git archive` tree of the base (never the shared runtime tree or its results cache, which the
-      owner can write), memoized per process (`freshBaseProbe`).
+      owner can write), memoized per process (`freshBaseProbe`). Only a case expression that cannot print its own
+      claim is run (`probeExprTrust`): one that appears verbatim in a trusted source (the request, a checklist row, or
+      the resolved finding's covering test files at its recorded repair commit, read from git), or ONE plain expression
+      (one line, string contents as data, no `;` `&` `|` `=` backtick braces or top-level comma, no print / exit /
+      process / require / import-like identifier, every call to a function a trusted source calls). A crafted case such
+      as `print("[0]"); x` or `"" && E` is never probed: no pin.
     - else (no stated base value, a `[precedent-conflict]`, a request value neither side demands) the PLAN pin stays.
 
     The open finding that wins is repaired in DEV against the pin: its repair prompt carries `Framework pin
     (finding_conflict_framework_pin, ...)` with each case and value, and it updates the resolved finding's test rows that
     state otherwise. The framework's own `[regression-of G]` finding that blames that finding's rejected repair (linked
     by the guard's rejected-repair record, never by prose alone) is the losing side, closed by the framework step
-    `finding_conflict_settled` (winner `story_base` / `request`), only on a request-quoted value or the base evaluator's
-    own output (`confirmedBy`). A resolved finding that wins by the request closes the
+    `finding_conflict_settled` (winner `story_base` / `request`), only when the pin's positive confirmation record covers
+    every case (`frameworkPinConfirmed`: the request lines' values, or what the base evaluator printed for each trusted
+    expression). A resolved finding that wins by the request closes the
     open one the same way. Nothing is written to the checklist (intent is frozen outside PLAN), so no scope-plan verdict
     can go stale over it.
   - **Undecidable:** `finding_conflict_pin` stays, and the PLAN trip's FIRST step is the pin (`finding_conflict_pin`,
@@ -2246,12 +2252,14 @@ switches default on (`remediation.regressionCheck`, `remediation.conflictPin`) a
   concrete framework-computed call sites instead and adds no general instruction. It is computed from the run's
   reviewed head, so the prompt digest recomputes at import. It needs a detection A/B before adoption.
 
-Tests: `node packages/main/dist/tasks/run137-fixes-smoke.js` has 16 checks (M1-M7, N1-N5, O1-O2, P1-P2); all fail on base
-3230a0165b. N5 is the security review's fail-closed check (no probe, an unrunnable, throwing or partial probe: no pin; a
-request-quoted value still decides); it failed on the first fix commit. Harness `e2e-review-to-done-smoke.js NRR NRR-OFF
-NCK NCP NCP-F NCP-P NGX NCL NCL-OFF`: NRR, NCK, NCP, NCP-P, NGX and NCL FAIL on the base and PASS after the fix; NCP-F
-(the same conflict without a base evaluator: no framework pin, the `[regression-of]` finding stays open, a forced settle
-is refused) failed on the first fix commit and passes now; the controls NRR-OFF (switch off: the broken repair seals and
+Tests: `node packages/main/dist/tasks/run137-fixes-smoke.js` has 17 checks (M1-M7, N1-N6, O1-O2, P1-P2); all fail on base
+3230a0165b. N5 and N6 are the security reviews' fail-closed checks (N5: no probe, an unrunnable, throwing or partial
+probe: no pin, a request-quoted value still decides; N6: a crafted case expression is never probed); each failed on the
+fix commit before it. Harness `e2e-review-to-done-smoke.js NRR NRR-OFF NCK NCP NCP-F NCP-X NCP-P NGX NCL NCL-OFF`: NRR,
+NCK, NCP, NCP-P, NGX and NCL FAIL on the base and PASS after the fix; the security controls NCP-F (the same conflict
+without a base evaluator) and NCP-X (an eval-style evaluator and the self-confirming case `"" && Reverse("ab")`) expect
+no framework pin, the `[regression-of]` finding open and a forced settle refused; each failed on the fix commit before
+it and passes now; the controls NRR-OFF (switch off: the broken repair seals and
 a later gate refuses it) and NCL-OFF (default off: no lane carries the block) pass on both.
 
 ### Old-PoS runs 133-135: pin-audit corrections per item and checked against the base, a review straggler budget, base evidence for "unchanged" repair claims (lab `codex/lab-run132`, continued)
@@ -3431,7 +3439,7 @@ Bench arms (adapter `AB_FLAGS` + `test_run137_switches_reach_the_pos_config`):
 - `'{"remediation.conflictPin":"off"}'`
 - `'{"review.classEnumeration":"on"}'`
 
-Tests: `run137-fixes-smoke`, harness NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-P / NGX / NCL / NCL-OFF, and `npm run
+Tests: `run137-fixes-smoke`, harness NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-X / NCP-P / NGX / NCL / NCL-OFF, and `npm run
 test:ab-variant-switches`.
 
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.

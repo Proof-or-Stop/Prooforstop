@@ -398,7 +398,7 @@
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S|NSG|NSG-X|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC|NIC-F|NIC-OFF|NRR|NRR-OFF|NCK|NCP|NCP-F|NCP-P|NGX|NCL|NCL-OFF]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP|NIP-M|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG|LN|NLN|NLN-OFF|NLN-E|NLN-DF|NLN-I|NLN-X|NPDE|NPDE-D|NPDE-S|NSG|NSG-X|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC|NIC-F|NIC-OFF|NRR|NRR-OFF|NCK|NCP|NCP-F|NCP-X|NCP-P|NGX|NCL|NCL-OFF]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -9736,7 +9736,7 @@ function listHostRunsOnDisk(o: Owner): Array<{ runId: string; reviewRunId: strin
 // Lab run137 (bench-staging/oldpos/run137-analysis.md): NRR / NRR-OFF (a repair that breaks a resolved finding's test is
 // handed back to its own session before it seals), NCK (a repair in a shared helper owes one [caller-check] line per
 // caller), NCP (a finding conflict no row pins, decided by the finding-stated Story base value without a PLAN trip),
-// NCP-F (the security control: no evaluator, no framework pin), NCP-P (an undeterminable one: the PLAN trip pins first), NGX (a failed grouped repair splits as a framework step),
+// NCP-F / NCP-X (the security controls: no evaluator, a self-confirming case: no framework pin), NCP-P (an undeterminable one: the PLAN trip pins first), NGX (a failed grouped repair splits as a framework step),
 // NCL / NCL-OFF (EXPERIMENTAL review.classEnumeration). Synthetic `strs` helpers only.
 
 /** A shared helper (made-up): clamp, called by Head and Tail, all added by the Story. */
@@ -9911,10 +9911,11 @@ const NCP_EVAL = [
  * NCP (run 137 F-004 vs F-006, fix N): no row pins the case; the finding states the Story base value, which the project's
  * declared base evaluator confirms (it ran and printed it); the request is silent. NCP-F (security control): the same
  * conflict without an evaluator: the finding's own statement is no evidence, so the PLAN pin stays and the framework
- * regression finding is not settled.
+ * regression finding is not settled. NCP-X (security control): an eval-style evaluator and a finding whose stated case
+ * `"" && Reverse("ab")` prints the claimed value on any base: the expression is not trusted, so it is never probed.
  */
-function scenarioNCP(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP' | 'NCP-F' = 'NCP'): Outcome {
-  if (tag === 'NCP-F') return scenarioNCPF(machineEnv, steps);
+function scenarioNCP(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP' | 'NCP-F' | 'NCP-X' = 'NCP'): Outcome {
+  if (tag !== 'NCP') return scenarioNCPF(machineEnv, steps, tag);
   const name = 'NCP lab run137 fix N: a finding conflict no row pins, decided by the finding-stated Story base value the base evaluator confirms: the framework regression finding is settled and the finding is repaired against the framework pin, no PLAN trip';
   const o = new Owner(tag, 'B-137d', machineEnv, steps, false, { trackedGateFailureCounts: true, config: { pinOracle: NPO_ORACLE }, baseFiles: { 'tools/strs-eval.js': NCP_EVAL } });
   const lines: string[] = [];
@@ -9951,15 +9952,27 @@ function scenarioNCP(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP' | 
   }
 }
 
-function scenarioNCPF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
-  const tag = 'NCP-F';
-  const name = 'NCP-F lab run137 fix N security control: without a base evaluator the finding-stated base value is no evidence: no framework pin, the [regression-of] finding is not settled, finding_conflict_pin stays';
-  const o = new Owner(tag, 'B-137i', machineEnv, steps, false, { trackedGateFailureCounts: true });
+/** NCP-X's evaluator evaluates the program as an expression (a base Reverse in scope): a crafted case can print anything. */
+const NCPX_EVAL = [
+  "const src = require('fs').readFileSync(process.argv[2], 'utf8').trim();",
+  'const Reverse = s => [...s].reverse().join("");',
+  'console.log(JSON.stringify(eval(src)));',
+  '',
+].join('\n');
+/** A self-confirming case: `"" && Reverse("ab")` prints `""` on any base, whatever Reverse("ab") gives. */
+const NCPX_F = 'strs/strs.go:9 Reverse of a two-rune string now returns the error marker. On the base `"" && Reverse("ab")` returns `` (the empty string); HEAD returns `error`.';
+
+function scenarioNCPF(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP-F' | 'NCP-X' = 'NCP-F'): Outcome {
+  const name = tag === 'NCP-F'
+    ? 'NCP-F lab run137 fix N security control: without a base evaluator the finding-stated base value is no evidence: no framework pin, the [regression-of] finding is not settled, finding_conflict_pin stays'
+    : 'NCP-X lab run137 fix N security control: a finding-authored case expression that confirms itself on the base evaluator (`"" && Reverse("ab")`) is never probed: no framework pin, no settle';
+  const o = new Owner(tag, tag === 'NCP-F' ? 'B-137i' : 'B-137j', machineEnv, steps, false, { trackedGateFailureCounts: true,
+    ...(tag === 'NCP-X' ? { config: { pinOracle: NPO_ORACLE }, baseFiles: { 'tools/strs-eval.js': NCPX_EVAL } } : {}) });
   const lines: string[] = [];
   const ask = askNextOf(o, tag, lines);
   try {
     devSetup(o);
-    seedConflict(o, NCP_F, true);
+    seedConflict(o, tag === 'NCP-F' ? NCP_F : NCPX_F, true);
     const next = ask('next (conflict, no evaluator)');
     assert.notEqual(next.reason, 'finding_conflict_settled', `[${tag}] never settled from the finding text alone: ${next.why.slice(0, 300)}`);
     assert.equal(next.reason, 'finding_conflict_pin', `[${tag}] the PLAN pin stays: ${next.reason}: ${next.why.slice(0, 300)}`);
@@ -10072,7 +10085,7 @@ function scenarioNCL(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCL' | 
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?|NSG(?:-X)?|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC(?:-F|-OFF)?|NRR(?:-OFF)?|NCK|NCP(?:-[PF])?|NGX|NCL(?:-OFF)?)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIP(?:-M)?|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NRF|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NRC(?:-ADV)?|NRM|NRD|NPB|NPD|NTS|NFR|NRX|NUP|NPR(?:-C)?|NPXF|NC[DES]|NFS(?:-S)?|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM|NLN(?:-OFF|-E|-DF|-I|-X)?|LN|NPDE(?:-D|-S)?|NSG(?:-X)?|NIO|NFC|NPV|NMC|NDI|NSL|NUA|NAB|NBP|NIC(?:-F|-OFF)?|NRR(?:-OFF)?|NCK|NCP(?:-[PFX])?|NGX|NCL(?:-OFF)?)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -10222,6 +10235,7 @@ async function main(): Promise<void> {
     if (only.includes('NCK')) outcomes.push(scenarioNCK(machine.env, steps));
     if (only.includes('NCP')) outcomes.push(scenarioNCP(machine.env, steps));
     if (only.includes('NCP-F')) outcomes.push(scenarioNCP(machine.env, steps, 'NCP-F'));
+    if (only.includes('NCP-X')) outcomes.push(scenarioNCP(machine.env, steps, 'NCP-X'));
     if (only.includes('NCP-P')) outcomes.push(scenarioNCPP(machine.env, steps));
     if (only.includes('NGX')) outcomes.push(scenarioNGX(machine.env, steps));
     for (const token of ['NCL', 'NCL-OFF'] as const) if (only.includes(token)) outcomes.push(scenarioNCL(machine.env, steps, token));
@@ -10248,7 +10262,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NSG', 'NSG-X', 'NIO', 'NFC', 'NPV', 'NMC', 'NDI', 'NSL', 'NUA', 'NAB', 'NBP', 'NIC', 'NIC-F', 'NIC-OFF', 'NRR', 'NRR-OFF', 'NCK', 'NCP', 'NCP-F', 'NCP-P', 'NGX', 'NCL', 'NCL-OFF', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIP', 'NIP-M', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NRF', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NRC', 'NRC-ADV', 'NRM', 'NRD', 'NPB', 'NPD', 'NTS', 'NFR', 'NRX', 'NUP', 'NPR', 'NPR-C', 'NPXF', 'NFS', 'NFS-S', 'NPDE', 'NPDE-D', 'NPDE-S', 'NSG', 'NSG-X', 'NIO', 'NFC', 'NPV', 'NMC', 'NDI', 'NSL', 'NUA', 'NAB', 'NBP', 'NIC', 'NIC-F', 'NIC-OFF', 'NRR', 'NRR-OFF', 'NCK', 'NCP', 'NCP-F', 'NCP-X', 'NCP-P', 'NGX', 'NCL', 'NCL-OFF', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM|^NLN/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
