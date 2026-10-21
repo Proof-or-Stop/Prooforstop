@@ -1,6 +1,6 @@
 /**
  * Lab run137 (bench-staging/oldpos/run137-analysis.md "Framework waste", fix N): a finding conflict no checklist row pins,
- * decided by the framework without a PLAN trip.
+ * decided by the framework without a PLAN trip, ONLY from sources the framework trusts.
  *
  * Run 137: the repair of F-006 ("two-part oversized bounds now clamp; on the base `[0,1,2,3,4][1e20:]` returns
  * `[0, 1, 2, 3, 4]`, HEAD returns `[]`") broke resolved F-004's covering test, which locked the clamped values. No row
@@ -10,21 +10,22 @@
  * same"); then an implementer rerun, a second F-006 repair and an F-008 repair that only added tests: about 23 min.
  *
  * frameworkConflictPin decides such a conflict by the same precedence as finding_conflict_settled (request text > Story
- * base > reviewer opinion), from inputs the framework reads itself:
- *   - the request: a request line naming a case's expression with a value decides it (the side that demands that value
- *     wins, source `request`);
- *   - else the Story base value the open finding states for each case (statedBaseCases: "on the base `E` returns `V`",
- *     "`E` returns `V` on base but `W` on HEAD", "Base: `E` -> `V`"), CONFIRMED by the Story's declared base evaluator:
- *     the probe ran and printed the stated value for every case. Then the finding demands the base behaviour and the
- *     resolved finding's test pins something else, so the finding wins (source `story_base`). The finding's statement
- *     alone is never evidence (security review of this lab: a reviewer-authored claim must not become a framework pin):
- *     no evaluator, a probe that cannot run or throws, or one that disagrees leaves the case to the PLAN pin. Only a
- *     trusted case expression is ever run (probeExprTrust: verbatim in a trusted source, or one plain expression), so a
- *     crafted case cannot print its own claim; the pin carries a positive confirmation record (frameworkPinConfirmed);
- *   - else (no stated base value, a `[precedent-conflict]`, a request value matching neither side) null: the PLAN pin
- *     stays (finding_conflict_pin), and that PLAN trip writes the pin before any scope-plan rerun (handlers/next-driver.ts).
- * Pure: the decision is recomputed from the finding text, the request and the base probe on every call (no runtime file
- * is read back; the caller's probe runs in a fresh private base tree, handlers/finding-conflict-settle.ts); the settle step journals it as evidence only. Switch remediation.conflictPin (default on; off = rollback).
+ * base > reviewer opinion), for the cases the open finding names (statedBaseCases: "on the base `E` returns `V`", "`E`
+ * returns `V` on base but `W` on HEAD", "Base: `E` -> `V`"), and only from:
+ *   - the request: a request line quoting the case's expression with its value (a whole backticked span, `E` -> `V` or
+ *     `E` then `V`; the side that demands that value wins, source `request`);
+ *   - else a test that exists at the Story BASE commit (the framework-known base SHA, read from git; never a file an agent
+ *     committed, never a commit named in finding or resolution prose) on whose line the case's expression appears as a
+ *     whole token-bounded expression together with the stated base value as a literal: the finding demands the base
+ *     behaviour and the resolved finding's test pins something else, so the finding wins (source `story_base`).
+ * Nothing a finding wrote is evidence, and no finding-authored expression is executed (security reviews of this lab: a
+ * base probe of a finding's expression could print the finding's own claim; a substring or lexical sanitizer was
+ * bypassable). Anything else (no request value, no base test stating every case, a `[precedent-conflict]`) is null: the
+ * PLAN pin stays (finding_conflict_pin), and that PLAN trip writes the pin before any scope-plan rerun
+ * (handlers/next-driver.ts planConflictPinStep). The pin carries the positive record of each case's source
+ * (frameworkPinConfirmed re-checks it). Pure: recomputed from the request and the base tests on every call (no runtime
+ * file is read back); the settle step journals it as evidence only. Switch remediation.conflictPin (default on; off =
+ * rollback).
  */
 import { normalizeProbe } from './probe-text.js';
 
@@ -36,12 +37,11 @@ export interface FrameworkConflictPin {
   side: 'finding' | 'resolved';
   source: 'request' | 'story_base';
   /**
-   * The positive record of what decided it (never finding text): the request lines' values, or, per case, what the Story
-   * base evaluator printed for an expression a trusted source names (`source`) or the strict grammar admits (`grammar`).
-   * frameworkPinConfirmed re-checks it against `cases` before anything is settled.
+   * The positive record of what decided each case (never finding text): the request's own value, or the Story base test
+   * line (file, line, text at the base commit) that states it. frameworkPinConfirmed re-checks it against `cases`.
    */
   confirmation: { kind: 'request'; cases: Array<{ expr: string; value: string }> }
-    | { kind: 'base_probe'; cases: Array<{ expr: string; printed: string; trustedBy: ProbeExprTrust }> };
+    | { kind: 'base_test'; cases: Array<{ expr: string; value: string; file: string; line: number; text: string }> };
   /** Each decided case and the value the framework pins for it. */
   cases: Array<{ expr: string; value: string }>;
   reason: string;
@@ -95,88 +95,60 @@ export function requestStatedValue(requestText: string | null | undefined, expr:
 
 const short = (id: string): string => id.replace(/^[^:]+:(?=F-)/, '');
 
-export type ProbeExprTrust = 'source' | 'grammar';
+/** A test line at the Story base (`git grep` at the base commit, test paths only). */
+export interface BaseTestLine { file: string; line: number; text: string }
 
-/** Identifiers a probed case may never name (output, control flow, process, module and shell access). */
-const PROBE_BANNED = /(?<![\w$])(?:print|println|printf|sprintf|puts|echo|exit|quit|die|panic|abort|process|require|import|eval|exec|system|spawn|popen|subprocess|os|fmt|console|log|open|write|read|sh|bash|globalThis|global|window|Deno|Bun|Function|setTimeout|__\w*)(?![\w$])/i;
-
-/** The expression with string literal contents blanked (they are data, not code); null when a literal is unterminated. */
-function blankStrings(expr: string): string | null {
-  let out = '';
-  let quote: string | null = null;
-  for (let index = 0; index < expr.length; index += 1) {
-    const char = expr[index]!;
-    if (quote) {
-      if (char === '\\') { index += 1; continue; }
-      if (char === quote) { quote = null; out += char; }
-      continue;
-    }
-    if (char === '"' || char === "'") { quote = char; out += char; continue; }
-    out += char;
-  }
-  return quote ? null : out;
-}
-
-const flatText = (text: string): string => text.replace(/\s+/g, ' ').trim();
+const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
- * Whether a finding-authored case expression may be probed on the Story base (security review of this lab: a crafted
- * expression such as `print("[0]"); x` or `"" && E` would make the evaluator print the finding's own claim):
- *   - `source`: it appears verbatim (whitespace-normalized, one line) in a trusted source: the request, a checklist row,
- *     or the resolved finding's covering test file at its recorded repair commit;
- *   - `grammar`: ONE plain expression: one line, at most 240 characters, string contents treated as data; no `;`, `&`,
- *     `|`, `=`, backtick, braces, top-level comma, or banned identifier (print / exit / process / require / import ...);
- *     balanced brackets; and every call (`name(`) is to a function a trusted source calls the same way. With no trusted
- *     source nothing is callable.
- * Anything else: null (no framework pin; the PLAN pin decides).
+ * Whether a base test line states `expr` -> `value`: the expression occurs as a whole token-bounded expression (see
+ * below), and, with that occurrence removed, the line holds the value as a literal: a quoted string (`""` for the empty
+ * value) or the bare value token-bounded.
  */
-export function probeExprTrust(expr: string, trustedTexts: readonly string[]): ProbeExprTrust | null {
-  if (!expr || /[\r\n]/.test(expr) || expr.length > 240) return null;
-  const flat = flatText(expr);
-  if (trustedTexts.some(text => flatText(text).includes(flat))) return 'source';
-  const code = blankStrings(expr);
-  if (code === null || /[;&|=`{}]|\$\(/.test(code) || PROBE_BANNED.test(code)) return null;
-  let depth = 0;
-  for (const char of code) {
-    if ('([' .includes(char)) depth += 1;
-    else if (')]'.includes(char)) { depth -= 1; if (depth < 0) return null; }
-    else if (char === ',' && depth === 0) return null;
+export function baseTestStatesCase(text: string, expr: string, value: string): boolean {
+  const e = expr.trim();
+  if (!e || e.length > 240 || /[\r\n]/.test(text)) return false;
+  let from = 0;
+  for (let at = text.indexOf(e, from); at >= 0; at = text.indexOf(e, from)) {
+    from = at + 1;
+    const before = at > 0 ? text[at - 1]! : '';
+    const after = text[at + e.length] ?? '';
+    // Token-bounded: no identifier character or `.` before it; nothing after it that extends the expression (an identifier
+    // character, `.`, `(` or `[`: a chained call or index is another expression).
+    if ((before && /[\w$.]/.test(before)) || (after && /[\w$.([]/.test(after))) continue;
+    const rest = `${text.slice(0, at)} ${text.slice(at + e.length)}`;
+    const v = norm(value);
+    const quoted = [`"${v}"`, `'${v}'`, `\`${v}\``].some(literal => rest.includes(literal));
+    const bare = v.length > 0 && new RegExp(`(?<![\\w$.])${escapeRegExp(v)}(?![\\w$])`).test(rest);
+    if (quoted || bare) return true;
   }
-  if (depth !== 0) return null;
-  for (const call of code.matchAll(/([A-Za-z_$][\w$]*)\s*\(/g)) {
-    const name = call[1]!;
-    if (!trustedTexts.some(text => new RegExp(`(?<![\\w$])${name.replace(/\$/g, '\\$')}\\s*\\(`).test(text))) return null;
-  }
-  return 'grammar';
+  return false;
 }
 
-/** probeExprTrust as a yes / no. */
-export const trustedProbeExpr = (expr: string, trustedTexts: readonly string[]): boolean => probeExprTrust(expr, trustedTexts) !== null;
-
-/** Whether a pin carries a positive confirmation of every case it decides (re-checked before anything is settled). */
+/** Whether a pin carries a positive record of every case it decides (re-checked before anything is settled). */
 export function frameworkPinConfirmed(pin: FrameworkConflictPin): boolean {
   if (!pin.cases.length) return false;
-  if (pin.source === 'request') return pin.confirmation.kind === 'request'
-    && pin.cases.every(row => (pin.confirmation as { cases: Array<{ expr: string; value: string }> }).cases.some(seen => seen.expr === row.expr && sameValue(seen.value, row.value)));
-  return pin.confirmation.kind === 'base_probe'
-    && pin.cases.every(row => (pin.confirmation as { cases: Array<{ expr: string; printed: string; trustedBy: ProbeExprTrust }> }).cases
-      .some(seen => seen.expr === row.expr && (seen.trustedBy === 'source' || seen.trustedBy === 'grammar') && sameValue(seen.printed, row.value)));
+  const confirmation = pin.confirmation;
+  if (pin.source === 'request') return confirmation.kind === 'request'
+    && pin.cases.every(row => confirmation.cases.some(seen => seen.expr === row.expr && sameValue(seen.value, row.value)));
+  return confirmation.kind === 'base_test'
+    && pin.cases.every(row => confirmation.cases.some(seen => seen.expr === row.expr && sameValue(seen.value, row.value) && baseTestStatesCase(seen.text, seen.expr, seen.value)));
 }
 
 /**
  * The framework's pin for a finding conflict no checklist row pins, or null when it is not the framework's to decide
- * (see the module comment). `baseProbe(expr)` returns the Story base's printed value, or null when it cannot run.
+ * (see the module comment). `baseTests(expr)` returns the Story base commit's test lines naming `expr` (handlers:
+ * `git grep` at the base SHA); absent = no base test.
  */
 export function frameworkConflictPin(args: { finding: { id: string; desc?: string }; resolved: { id: string; desc?: string };
-  conflict: { kind?: string; resolvedId?: string | null }; requestText: string | null | undefined; baseProbe?: (expr: string) => string | null;
-  /** Trusted sources a probed expression must appear in, or whose calls it may use (probeExprTrust). */
-  trustedTexts?: readonly string[] }): FrameworkConflictPin | null {
+  conflict: { kind?: string; resolvedId?: string | null }; requestText: string | null | undefined;
+  baseTests?: (expr: string) => readonly BaseTestLine[] }): FrameworkConflictPin | null {
   if (args.conflict.kind === 'precedent' || !args.conflict.resolvedId || /\[precedent-conflict\]/i.test(args.finding.desc ?? '')) return null;
   const cases = statedBaseCases(args.finding.desc).filter(row => row.head === undefined || !sameValue(row.head, row.base));
   if (!cases.length) return null;
   const f = short(args.finding.id);
   const g = short(args.resolved.id);
-  // 1. The request decides a case it states (precedence: request text first).
+  // 1. The request decides a case it quotes (precedence: request text first).
   const stated = cases.flatMap(row => {
     const value = requestStatedValue(args.requestText, row.expr);
     return value === null ? [] : [{ row, value }];
@@ -191,23 +163,20 @@ export function frameworkConflictPin(args: { finding: { id: string; desc?: strin
     return { side, source: 'request', confirmation: { kind: 'request', cases: decided }, cases: decided,
       reason: `the request states ${list}, which ${side === 'finding' ? `open ${f} demands; resolved ${g}'s covering test states otherwise` : `resolved ${g}'s repair keeps; open ${f} demands otherwise`}` };
   }
-  // 2. The Story base: the finding states the base value of each case, and the base evaluator must have run and printed
-  // it for every case (fail closed: no probe, an unrunnable or throwing one, or a disagreement leaves it to PLAN).
-  // Only an expression a trusted source names, or a plain one (probeExprTrust), is ever run: a finding-authored case could
-  // otherwise print its own claim.
-  if (!args.baseProbe) return null;
-  const probed: Array<{ expr: string; printed: string; trustedBy: ProbeExprTrust }> = [];
+  // 2. The Story base: a test at the base commit states every case with the base value the finding demands. The finding's
+  // statement only names the cases; it is never evidence, and nothing it wrote is executed.
+  if (!args.baseTests) return null;
+  const confirmed: Array<{ expr: string; value: string; file: string; line: number; text: string }> = [];
   for (const row of cases) {
-    const trustedBy = probeExprTrust(row.expr, args.trustedTexts ?? []);
-    if (!trustedBy) return null;
-    let printed: string | null = null;
-    try { printed = args.baseProbe(row.expr); } catch { printed = null; }
-    if (printed === null || !sameValue(printed, row.base)) return null;
-    probed.push({ expr: row.expr, printed, trustedBy });
+    let lines: readonly BaseTestLine[] = [];
+    try { lines = args.baseTests(row.expr); } catch { lines = []; }
+    const hit = lines.find(line => baseTestStatesCase(line.text, row.expr, row.base));
+    if (!hit) return null;
+    confirmed.push({ expr: row.expr, value: row.base, file: hit.file, line: hit.line, text: hit.text });
   }
-  const list = cases.map(row => `\`${row.expr}\` -> \`${row.base}\``).join(', ');
-  return { side: 'finding', source: 'story_base', confirmation: { kind: 'base_probe', cases: probed }, cases: cases.map(row => ({ expr: row.expr, value: row.base })),
-    reason: `the request is silent on ${cases.length > 1 ? 'these cases' : 'this case'} and open ${f} states the Story base behaviour (${list}); the Story base evaluator prints the same; resolved ${g}'s covering test pins a value the request does not ask for, so the base behaviour stands` };
+  const list = confirmed.map(row => `\`${row.expr}\` -> \`${row.value}\` (${row.file}:${row.line} at the Story base)`).join(', ');
+  return { side: 'finding', source: 'story_base', confirmation: { kind: 'base_test', cases: confirmed }, cases: cases.map(row => ({ expr: row.expr, value: row.base })),
+    reason: `the request is silent on ${cases.length > 1 ? 'these cases' : 'this case'} and a test of the Story base states the base behaviour open ${f} demands (${list}); resolved ${g}'s covering test pins a value the request does not ask for, so the base behaviour stands` };
 }
 
 /** The repair prompt block of a finding whose conflict the framework pinned on its side (the repair keeps the pinned values). */

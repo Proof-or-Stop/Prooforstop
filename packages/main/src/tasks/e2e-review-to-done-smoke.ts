@@ -9898,26 +9898,20 @@ function seedConflict(o: Owner, fDesc: string, withRegression: boolean): void {
   commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} guard rejected F-002's repair`);
 }
 
-/** The project's declared base evaluator (pinOracle) for NCP: Reverse at the Story base, by rune. */
-const NCP_EVAL = [
-  "const src = require('fs').readFileSync(process.argv[2], 'utf8').trim();",
-  'const call = src.match(/^Reverse\\((".*")\\)$/);',
-  "if (!call) { console.error('undefined: ' + src); process.exit(1); }",
-  'console.log(JSON.stringify([...JSON.parse(call[1])].reverse().join("")));',
-  '',
-].join('\n');
+/** A test that exists at the Story BASE commit stating the case (build-ignored: text only, never compiled). */
+const NCP_BASE_TEST = '//go:build ignore\n\npackage strs\n\nimport "testing"\n\nfunc TestReverseEmptyBase(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("base: the empty string reverses to itself")\n\t}\n}\n';
 
 /**
- * NCP (run 137 F-004 vs F-006, fix N): no row pins the case; the finding states the Story base value, which the project's
- * declared base evaluator confirms (it ran and printed it); the request is silent. NCP-F (security control): the same
- * conflict without an evaluator: the finding's own statement is no evidence, so the PLAN pin stays and the framework
- * regression finding is not settled. NCP-X (security control): an eval-style evaluator and a finding whose stated case
- * `"" && Reverse("ab")` prints the claimed value on any base: the expression is not trusted, so it is never probed.
+ * NCP (run 137 F-004 vs F-006, fix N): no row pins the case; the request is silent; a test at the Story BASE commit states
+ * the base value the finding demands. NCP-F (security control): no base test, and the same statement in a test an agent
+ * committed after the base: the PLAN pin stays and the framework regression finding is not settled. NCP-X (security
+ * control): an eval-style evaluator and a finding whose stated case `"" && Reverse("ab")` would print the claimed value:
+ * nothing a finding wrote is executed or trusted.
  */
 function scenarioNCP(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP' | 'NCP-F' | 'NCP-X' = 'NCP'): Outcome {
   if (tag !== 'NCP') return scenarioNCPF(machineEnv, steps, tag);
-  const name = 'NCP lab run137 fix N: a finding conflict no row pins, decided by the finding-stated Story base value the base evaluator confirms: the framework regression finding is settled and the finding is repaired against the framework pin, no PLAN trip';
-  const o = new Owner(tag, 'B-137d', machineEnv, steps, false, { trackedGateFailureCounts: true, config: { pinOracle: NPO_ORACLE }, baseFiles: { 'tools/strs-eval.js': NCP_EVAL } });
+  const name = 'NCP lab run137 fix N: a finding conflict no row pins, decided by a test at the Story base commit stating the base value the finding demands: the framework regression finding is settled and the finding is repaired against the framework pin, no PLAN trip';
+  const o = new Owner(tag, 'B-137d', machineEnv, steps, false, { trackedGateFailureCounts: true, baseFiles: { 'strs/base_cases_test.go': NCP_BASE_TEST } });
   const lines: string[] = [];
   const ask = askNextOf(o, tag, lines);
   const seen: string[] = [];
@@ -9964,14 +9958,20 @@ const NCPX_F = 'strs/strs.go:9 Reverse of a two-rune string now returns the erro
 
 function scenarioNCPF(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP-F' | 'NCP-X' = 'NCP-F'): Outcome {
   const name = tag === 'NCP-F'
-    ? 'NCP-F lab run137 fix N security control: without a base evaluator the finding-stated base value is no evidence: no framework pin, the [regression-of] finding is not settled, finding_conflict_pin stays'
-    : 'NCP-X lab run137 fix N security control: a finding-authored case expression that confirms itself on the base evaluator (`"" && Reverse("ab")`) is never probed: no framework pin, no settle';
+    ? 'NCP-F lab run137 fix N security control: the finding-stated base value, repeated by a test an agent committed after the base, is no evidence: no framework pin, the [regression-of] finding is not settled, finding_conflict_pin stays'
+    : 'NCP-X lab run137 fix N security control: a finding-authored case expression that would confirm itself on an eval-style base evaluator (`"" && Reverse("ab")`) is never executed: no framework pin, no settle';
   const o = new Owner(tag, tag === 'NCP-F' ? 'B-137i' : 'B-137j', machineEnv, steps, false, { trackedGateFailureCounts: true,
     ...(tag === 'NCP-X' ? { config: { pinOracle: NPO_ORACLE }, baseFiles: { 'tools/strs-eval.js': NCPX_EVAL } } : {}) });
   const lines: string[] = [];
   const ask = askNextOf(o, tag, lines);
   try {
     devSetup(o);
+    if (tag === 'NCP-F') {
+      // The claim, committed by an agent after the base (and named by no base commit): never a source.
+      write(o.worktree, 'strs/claim_test.go', NCP_BASE_TEST.replace('TestReverseEmptyBase', 'TestReverseEmptyClaim'));
+      git(o.worktree, ['add', 'strs/claim_test.go']);
+      git(o.worktree, ['-c', `user.name=${FINDING_REPAIR}`, 'commit', '-qm', `${o.storyId} F-002: the empty string reverses to itself`]);
+    }
     seedConflict(o, tag === 'NCP-F' ? NCP_F : NCPX_F, true);
     const next = ask('next (conflict, no evaluator)');
     assert.notEqual(next.reason, 'finding_conflict_settled', `[${tag}] never settled from the finding text alone: ${next.why.slice(0, 300)}`);
