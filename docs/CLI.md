@@ -2502,8 +2502,9 @@ Six new switches, all default on with `off` as the recorded rollback: `review.st
     request-literal sources are unchanged.
   - **Lost coverage (open, by design):** table-driven base tests (`{"<case>", <value>}` rows) no longer decide. Only
     the declared evaluator or a request literal can settle those cases. No harness scenario relied on base_test
-    evidence: the harness Story bases hold no single-case test the matcher reads, and NP / NSR / NPR / NPR-C / NCD /
-    NCE / NCS / NPDE / NPDE-D / NPDE-S pass unchanged.
+    evidence: the harness Story bases hold no single-case test the matcher reads. NP / NSR / NPR / NPR-C / NCD / NCE /
+    NCS / NPDE / NPDE-D / NPDE-S pass unchanged, and so do NBP / NCC / NPD / NCP-N, whose Story bases hold test
+    files.
   - **Limit:** `F` may be any function of the case alone. For example, a lexer's token count would read as the
     case's value.
 
