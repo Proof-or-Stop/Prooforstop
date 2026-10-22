@@ -119,6 +119,80 @@ await check('E4 a third base value: the correction offers the BASE value, not th
   assert.match(out.why, /Story base/);
 });
 
+// Security review (lab pin-base-assert): the base_test line matcher took any string literal equal to the case followed by
+// a value literal. Base evidence REFUTES a reviewer's correction, so a line that names the case and the pinned value but
+// denies it (negated / conditional-failure asserts), states the value outside the expected position, comments, or a
+// literal that is only part of the subject must never decide.
+const ROW_TEST = (text: string) => ({ path: 'lang/slice_test.go', text });
+const NOT_EVIDENCE: Record<string, string> = {
+  'Go assert.NotEqual(t, case, pinned)': '\tassert.NotEqual(t, "[0,1,2,3][1:2]", "[1]")\n',
+  'Python assertNotEqual(case, pinned)': '        self.assertNotEqual("[0,1,2,3][1:2]", "[1]")\n',
+  'Go if case == pinned { t.Fatal }': '\tif "[0,1,2,3][1:2]" == "[1]" { t.Fatal("must not give [1]") }\n',
+  'JS expect(case).not.toEqual(pinned)': '  expect("[0,1,2,3][1:2]", "[1]").not.toEqual(true)\n',
+  'a comment naming the old value': '\t// "[0,1,2,3][1:2]" -> "[1]" was the old, wrong result\n',
+  'a commented-out row': '\t// {"[0,1,2,3][1:2]", "[1]"},\n',
+  'a three-column row (pinned not in the expected column)': '\t{"[0,1,2,3][1:2]", "[1]", "[2]"},\n',
+  'a negation flag column': '\t{"[0,1,2,3][1:2]", "[1]", false},\n',
+  'a row of a not-want table': 'var notWant = []struct{ in, notWant string }{\n\t{"[0,1,2,3][1:2]", "[1]"},\n}\n',
+  'a row with a doubting trailing comment': '\t{"[0,1,2,3][1:2]", "[1]"}, // wrong, should be [2]\n',
+  'Python implicit concatenation (the case is only part of the subject)': '    ("[0,1,2,3][1:2]" "[0]", "[1]"),\n',
+  'a parser table row (the printed input, not a value)': '\t{"[0,1,2,3][1:2]", "[0, 1, 2, 3][1:2]"},\n',
+};
+
+await check('E8 security: a negated / conditional-failure assert, the value outside the expected position, a comment or a partial subject never refutes a correction', async () => {
+  const decide = await load('../core/pin-base-evidence.js', 'pinAuditBaseDecisions');
+  const items = judged();
+  const scope = await scopeOf(items, [GAP]);
+  const wrong: string[] = [];
+  for (const [label, text] of Object.entries(NOT_EVIDENCE)) {
+    const decision = decide(ctxOf({ tests: [ROW_TEST(text)] }), items, scope.features)[0];
+    if (decision?.decision !== 'keep' || decision.evidence) wrong.push(`${label}: ${decision?.decision} (${decision?.why?.slice(0, 80)})`);
+  }
+  // A third-value line of the same shapes must not re-pin the row either (decision correct).
+  const third = judged({ ...ROW, desc: '[0,1,2,3][1:2] -> [7]' });
+  const thirdScope = await scopeOf(third, ['pin-audit CHK-001:edge:0: pins [0,1,2,3][1:2] -> [7]; request gives [2] because ranges include the end']);
+  for (const [label, text] of Object.entries(NOT_EVIDENCE)) {
+    const decision = decide(ctxOf({ tests: [ROW_TEST(text)] }), third, thirdScope.features)[0];
+    if (decision?.decision !== 'keep') wrong.push(`third value, ${label}: ${decision?.decision} ${decision?.value}`);
+  }
+  assert.deepEqual(wrong, [], wrong.join(' ;; '));
+});
+
+await check('E9 security: whitespace inside a string literal of the case is significant (len("a b") is not len("ab")); a negated line naming the case vetoes a positive row', async () => {
+  const decide = await load('../core/pin-base-evidence.js', 'pinAuditBaseDecisions');
+  const items = judged({ desc: 'len("a b") -> 3', derivation: { requestQuote: 'existing len is unchanged', computation: 'three characters' } });
+  const scope = await scopeOf(items, ['pin-audit CHK-001:edge:0: pins len("a b") -> 3; request gives 4 because it counts bytes']);
+  const squashed = decide(ctxOf({ tests: [ROW_TEST('\t{`len("ab")`, 3},\n')] }), items, scope.features)[0];
+  assert.equal(squashed?.decision, 'keep', `a different string literal is another case: ${JSON.stringify(squashed)?.slice(0, 300)}`);
+  const base = judged();
+  const baseScope = await scopeOf(base, [GAP]);
+  const vetoed = decide(ctxOf({ tests: [BASE_TEST('[1]'), ROW_TEST('\tassert.NotEqual(t, "[0,1,2,3][1:2]", "[1]")\n')] }), base, baseScope.features)[0];
+  assert.equal(vetoed?.decision, 'keep', `a base that also denies the value does not decide: ${JSON.stringify(vetoed)?.slice(0, 300)}`);
+});
+
+await check('E10 the strict positive shapes still decide (Go / JS / Python table rows, keyed rows, a Go composite, a map entry; spacing outside literals is free)', async () => {
+  const decide = await load('../core/pin-base-evidence.js', 'pinAuditBaseDecisions');
+  const items = judged();
+  const scope = await scopeOf(items, [GAP]);
+  const positive: Record<string, string> = {
+    'Go table row': '\t{"[0,1,2,3][1:2]", "[1]"},\n',
+    'Go table row, spaced case': '\t{"[0, 1, 2, 3][1:2]", "[1]"},\n',
+    'Go composite value': '\t{"[0,1,2,3][1:2]", []int{1}},\n',
+    'Go keyed row': '\t{input: "[0,1,2,3][1:2]", expected: "[1]"},\n',
+    'JS array row': '  ["[0,1,2,3][1:2]", "[1]"],\n',
+    'JS keyed row': '  { input: "[0,1,2,3][1:2]", want: "[1]" },\n',
+    'Python tuple row': '    ("[0,1,2,3][1:2]", "[1]"),\n',
+    'Python keyed dict row': '    {"input": "[0,1,2,3][1:2]", "expected": "[1]"},\n',
+    'map entry': '    "[0,1,2,3][1:2]": "[1]",\n',
+  };
+  const missed: string[] = [];
+  for (const [label, text] of Object.entries(positive)) {
+    const decision = decide(ctxOf({ tests: [ROW_TEST(`var tests = []struct{ input, expected string }{\n${text}}\n`)] }), items, scope.features)[0];
+    if (decision?.decision !== 'settle' || decision.evidence?.source !== 'base_test') missed.push(`${label}: ${decision?.decision} (${decision?.why?.slice(0, 80)})`);
+  }
+  assert.deepEqual(missed, [], missed.join(' ;; '));
+});
+
 // ---------------------------------------------------------------------------
 // F. Existing-behaviour remedies re-pin to the base instead of excluding
 
