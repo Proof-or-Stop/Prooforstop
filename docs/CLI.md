@@ -2329,8 +2329,14 @@ Six new switches, all default on with `off` as the recorded rollback: `review.st
   - **Evidence for the row's case, first decisive source wins:**
     1. a request literal example (`<input> -> <output>`), which outranks the base;
     2. the project's declared evaluator (`probeRunner`, else `pinOracle`), run on a `git archive` of the Story base;
-    3. base test sources that state the case as a string literal followed by one value literal on the same line, where
-       every such line agrees.
+    3. base test sources that state the case in a strict positive row, where every line naming the case agrees
+       (`strictPositiveValue`; see "Security: base_test reads strict positive rows only" below):
+       - a whole-line two-element table row `{"<case>", <value>}`, `["<case>", <value>]` or `("<case>", <value>)`;
+       - a keyed row `{input: "<case>", expected: <value>}` (Go, JS, or a Python dict);
+       - a map entry `"<case>": <value>`.
+
+       The row sits in a table literal whose header denies nothing. The value is one literal: a quoted string, a
+       bracket group, a number, or a Go composite `[]T{...}`.
   - **Decisions:**
     - `settle`: the evidence gives the pinned value. The gap closes with the row unchanged: `openScopeGaps`
       `baseValues`, and story_review lists it as advisory `[scope_gap_base_settled]`.
@@ -2342,7 +2348,8 @@ Six new switches, all default on with `off` as the recorded rollback: `review.st
     and it names the base-decided rows.
   - **Journal:** decisions are written (write-only) to `runtime/pin-audit-base/<storyId>.json` and recomputed in every
     process (see Security below).
-  - **Limit:** without a declared evaluator, only request literals and base tests stating the exact case decide. Run
+  - **Limit:** without a declared evaluator, only request literals and base tests stating the exact case in a strict
+    positive row decide. Run
     134's control arm declared no evaluator, and no base test states `[0,1,2,3][1:2]`, so on run 134 the gap stays a
     correction.
 - **F. Existing-behaviour cases are re-pinned to the base, not excluded (run 134 item 2; `core/pin-dispute.ts`
@@ -2454,12 +2461,40 @@ Six new switches, all default on with `off` as the recorded rollback: `review.st
   - **Accepted:** two offer journals stay readable, because forging them only removes a framework offer and does not
     bypass a gate: `pin_base_print`'s "offered once" and the pin-audit offer journal, where a forged entry gives at
     most the pre-lab dispute count.
+- **Security: base_test reads strict positive rows only (lab `codex/lab-pin-base-assert`).**
+  - **Flaw:** the matcher behind E evidence source 3 took any string literal equal to the case, followed on the same line by one
+    value literal (after an optional `,` `:` `=>` `->` `==`). Base evidence refutes a reviewer's correction, so the
+    following lines settled the pin or re-pinned the row to an unrelated value:
+    - negated or conditional-failure asserts: `assert.NotEqual(t, "<case>", "<v>")`, `assertNotEqual`,
+      `if "<case>" == "<v>" { t.Fatal }`, `.not.`;
+    - comment lines and commented-out rows;
+    - three-column and flag-column rows, and a `notWant` table;
+    - a keyed Python dict row, where the key `"expected"` was read as the value;
+    - Python implicit concatenation, where the case is only part of the subject;
+    - a parser row, where the value is the printed input;
+    - a case that differs only in whitespace inside a string literal (`len("a b")` matched `len("ab")`).
+
+    Base test files come from the Story base, which the owner cannot write. But the owner picks the row's case and
+    the reviewer the value, so a pair can match such a line by coincidence or on purpose. The sibling matcher in
+    `finding-conflict-pin.ts` was removed for the same reason (run 137, security review 4).
+  - **Fix (fail closed):** only the strict shapes in E source 3 give a value. The case must match a whole string
+    literal, and whitespace is free only outside its own string literals. If any other non-comment base test line
+    names the case, the base tests do not decide and the correction stays offered. This covers a negated assert,
+    the value in another column, a partial subject, a row outside a table literal, and a table header with a denying
+    word (`not`, `invalid`, `bad`, `fail`, `unexpected`, `wrong`, `xfail`, ...). A parser row (the value is the case
+    re-rendered) is skipped.
+  - **Effect on detection:** neutral or positive. Base tests now refute fewer corrections, and the evaluator and
+    request-literal sources are unchanged.
+  - **Limit:** a positive two-column row in another function's table still reads as the case's value.
 
 Tests (RED on the commit before each change, GREEN after; made-up rows only):
 
 - `run133-fixes-smoke`: A1-A5, B1-B3, C1-C3, D1-D2.
-- `run134-fixes-smoke`: E1-E7, F1-F3, G1. E6 checks that a forged journal with a matching digest is ignored by a fresh
-  process; E7 checks that no gate module trusts a stored digest.
+- `run134-fixes-smoke`: E1-E10, F1-F3, G1. E6 checks that a forged journal with a matching digest is ignored by a fresh
+  process; E7 checks that no gate module trusts a stored digest. E8-E10 cover the base_test security fix: twelve
+  negated, misplaced, commented or partial-subject lines never refute or re-pin (E8); whitespace inside the case's
+  string literals counts, and a negated line vetoes a positive row (E9); the strict Go / JS / Python shapes still
+  decide (E10).
 - `review-straggler-smoke`: a fake codex driven through the real runner, cases S1-S5. S1 is the stop plus resumed
   verdict, S4 the not-resumable case, S5 a forged sibling.
 - `run135-hi-smoke`: H1-H7 (H3b: forged recorded output is ignored) and I1-I3.
