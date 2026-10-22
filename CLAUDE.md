@@ -730,7 +730,7 @@ see story/B-9975
   - (B) 只写 base 打印值的 `[pin-doubt]` 给现成行补丁。新增 PLAN lint `empty_collection`。
   - (C) `review.stragglerVerdict`：兄弟 lane 全部结束后，超过 max(8 min, 2×兄弟中位数) 的 review lane 在自己的会话内被要求立即给出结论；会话尚不可恢复时记一次日志并继续轮询；兄弟只认框架封存的 managed run。
   - (D) duplicate 步骤写明各 finding 摘要、canonical 的修复提交与测试，并预填 coverage。
-  - (E) `plan.baseEvidence`（`core/pin-base-evidence.ts`）：pin-audit 请求值先查 Story base（request 字面例子 > 声明的求值器 > 写明该 case 的 base 测试）。base 否定则不提供该纠正（settle，story_review 记 `[scope_gap_base_settled]`）；base 给出第三个值则改为 base 值；无证据时照旧。
+  - (E) `plan.baseEvidence`（`core/pin-base-evidence.ts`）：pin-audit 请求值先查 Story base（request 字面例子 > 声明的求值器 > 以严格正向行写明该 case 的 base 测试：两列表格行 / 带 input-expected 键的行 / map 项，表头不含否定词；任何其他提到该 case 的非注释行（否定断言、值在别的列、部分主体）都使 base 测试不作判定）。base 否定则不提供该纠正（settle，story_review 记 `[scope_gap_base_settled]`）；base 给出第三个值则改为 base 值；无证据时照旧。
   - (F) dispute / pin-reversal 补救：base 能决定的既有行为 case 改钉到 base 值，不再排除；只有无 base 证据时才排除。
   - (G) scope-plan / story / delivery prompt 只在 Story 有 plan.md 时才列出它（run 134 的「plan.md absent」OQ）。
   - (H) `review.deltaSelectorRepair`：delta 确认 lane 的 prompt 写明 `[reverified]` 必须是带测试名的行；遇到通用 selector（`PASS`）时，命令只点名一个测试就由它补全，否则在该 lane 自己的会话内纠正一次，再否则用框架重跑输出中唯一一行带测试名的 pass 行；都不成才升级为完整轮次。不读 runtime 文件。
