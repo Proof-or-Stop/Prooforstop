@@ -2,7 +2,7 @@
 /**
  * Lab run137 (old-PoS run 137, bench-staging/oldpos/run137-analysis.md; new-PoS ADR-056 / ADR-070 / ADR-071 / ADR-082
  * direction): unit level, made-up `clip` helpers only (no benchmark-task material). The lifecycle shapes are harness
- * NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-X / NCP-P / NGX / NCL / NCL-OFF in tasks/e2e-review-to-done-smoke.ts.
+ * NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-X / NCP-N / NCP-P / NGX / NCL / NCL-OFF in tasks/e2e-review-to-done-smoke.ts.
  *
  *   M. Repair regression check (switch remediation.regressionCheck, default on): before a finding-repair run seals, the
  *      covering tests of the Story's resolved findings and the pinned checklist verifications of the changed packages
@@ -10,8 +10,8 @@
  *      with the failing output. A repair that changed a shared helper (a function with several call sites in the Story
  *      diff) owes one `[caller-check]` line per caller (base vs HEAD), asked for in the same session.
  *   N. Conflict pin without a PLAN trip (switch remediation.conflictPin, default on): a finding conflict no row pins is
- *      decided by the framework only when the request quotes the case's value or a test at the Story base commit states
- *      it (never the finding text, never an executed finding expression: N5 / N6).
+ *      decided by the framework only when the request quotes the case's value verbatim (never the finding text, never a
+ *      base test line, never an executed finding expression: N3 / N5 / N6); else the PLAN trip writes the pin first.
  *   O. A failed grouped repair (no commit naming a member) is split: the per-finding relaunch is a framework step; the
  *      thinking-mode pass-back 400 that killed run 137's grouped run is a classified provider transport error.
  *   P. R1 class enumeration (switch review.classEnumeration, DEFAULT OFF: needs a detection A/B): concept and quality
@@ -217,70 +217,68 @@ await check('N1 the Story base values a finding states are read per case (base a
   assert.deepEqual(stated(N_G.desc), []);
 });
 
-/** Test lines at the Story base stating N_F's cases with their base values (what `git grep` at the base SHA returns). */
+/** Test lines at the Story base naming N_F's cases (what `git grep` at the base SHA would return): never a pin source. */
 const N_BASE_TESTS: Record<string, Array<{ file: string; line: number; text: string }>> = {
   'Slice("abcd", 1, 99)': [{ file: 'clip/clip_test.go', line: 7, text: '\tif got := Slice("abcd", 1, 99); got != "bcd" {' }],
   'From("abcd", 99)': [{ file: 'clip/clip_test.go', line: 12, text: '\tif From("abcd", 99) != "abcd" {' }],
 };
 const N_BASE = (expr: string) => N_BASE_TESTS[expr] ?? [];
+/** Security review 4: negated asserts and the value in a non-expected position (they name E and V on one line, but deny it). */
+const N_NEGATED_TESTS: Record<string, Array<{ file: string; line: number; text: string }>> = {
+  'Slice("abcd", 1, 99)': [{ file: 'clip/clip_test.go', line: 7, text: '\tif Slice("abcd", 1, 99) == "bcd" { t.Fatal("must not keep bcd") }' }],
+  'From("abcd", 99)': [{ file: 'clip/clip_test.go', line: 12, text: '\tassert.NotEqual(t, "abcd", From("abcd", 99))' }],
+};
+const N_NEGATED = (expr: string) => N_NEGATED_TESTS[expr] ?? [];
+const N_SILENT = 'Add Step.\n\n- Existing Slice and From behaviour stays the same.\n';
 
-await check('N2 the framework pin decides by precedence: a request line quoting the case decides first; else a test at the Story base stating every case with the base value the finding demands (story_base); no stated value: no pin', async () => {
+await check('N2 the framework pin decides only from a verbatim request-quoted value (request > reviewer): the request\'s value picks the side; a silent request is the PLAN pin\'s, even with base tests naming the cases; no stated value or a precedent conflict: no pin', async () => {
   const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
-  const won = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- Existing Slice and From behaviour stays the same.\n', baseTests: N_BASE });
+  const won = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- `Slice("abcd", 1, 99)` returns `bcd`.\n- `From("abcd", 99)` returns `abcd`.\n' });
   assert.equal(won?.side, 'finding', JSON.stringify(won));
-  assert.equal(won.source, 'story_base');
+  assert.equal(won.source, 'request');
   assert.deepEqual(won.cases, [{ expr: 'Slice("abcd", 1, 99)', value: 'bcd' }, { expr: 'From("abcd", 99)', value: 'abcd' }]);
-  assert.deepEqual(won.confirmation.cases.map((row: { file: string; line: number }) => `${row.file}:${row.line}`), ['clip/clip_test.go:7', 'clip/clip_test.go:12']);
-  const request = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- `Slice("abcd", 1, 99)` returns `` (an oversized end is empty).\n', baseTests: N_BASE });
+  const request = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- `Slice("abcd", 1, 99)` returns `` (an oversized end is empty).\n' });
   assert.equal(request?.side, 'resolved', `the request states the HEAD value: the finding loses (${JSON.stringify(request)})`);
   assert.equal(request.source, 'request');
-  assert.equal(pin({ finding: { ...N_F, desc: 'clip/clip.go:16 Slice clamps an oversized end; it should not.' }, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseTests: N_BASE }), null, 'undeterminable: the PLAN pin stays');
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: { ...N_CONFLICT, kind: 'precedent' }, requestText: '', baseTests: N_BASE }), null, 'a precedent conflict is never the framework\'s');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: N_SILENT, baseTests: N_BASE }), null, 'a silent request: the PLAN pin, whatever a base test says');
+  assert.equal(pin({ finding: { ...N_F, desc: 'clip/clip.go:16 Slice clamps an oversized end; it should not.' }, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.' }), null, 'undeterminable: the PLAN pin stays');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: { ...N_CONFLICT, kind: 'precedent' }, requestText: '- `Slice("abcd", 1, 99)` returns `bcd`.' }), null, 'a precedent conflict is never the framework\'s');
 });
 
-await check('N5 security: the finding\'s own statement is never evidence: no base test, a base test stating another value, or one stating only some cases: no pin (a request-quoted value still decides)', async () => {
+await check('N3 security review 4: a negated base assert (`== V { t.Fatal }`, NotEqual) or the value in a non-expected position is no statement: the PLAN pin; and no base-test tier exists to misread one', async () => {
   const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
-  const request = 'Add Step.\n\n- Existing Slice and From behaviour stays the same.\n';
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request }), null, 'no base test source');
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseTests: () => [] }), null, 'no base test names the cases');
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseTests: (expr: string) => expr.startsWith('Slice') ? [{ file: 'clip/clip_test.go', line: 7, text: '\tif Slice("abcd", 1, 99) != "bc" {' }] : N_BASE(expr) }), null, 'another base value');
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: request, baseTests: (expr: string) => expr.startsWith('Slice') ? N_BASE(expr) : [] }), null, 'one case unconfirmed');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: N_SILENT, baseTests: N_NEGATED }), null, 'negated asserts never confirm');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseTests: N_BASE }), null, 'nor do affirmative ones: no base-test tier');
+  const pinModule = await import('../core/finding-conflict-pin.js') as Record<string, unknown>;
+  const settleModule = await import('../handlers/finding-conflict-settle.js') as Record<string, unknown>;
+  assert.equal(pinModule.baseTestStatesCase, undefined, 'no line matcher');
+  assert.equal(settleModule.storyBaseTestLines, undefined, 'no base test reader');
+});
+
+await check('N5 security: the finding\'s own statement is never evidence: a request silent on the cases gives no pin (no source but the request exists); a request-quoted value decides', async () => {
+  const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: N_SILENT }), null, 'silent request');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: null }), null, 'no request');
+  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\nSlice("abcd", 1, 99) returns bcd.\n' }), null, 'an unquoted mention is not a stated value');
   const quoted = pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.\n\n- `Slice("abcd", 1, 99)` returns `bcd`.\n' });
-  assert.equal(quoted?.source, 'request', `a request-quoted value needs no base test: ${JSON.stringify(quoted)}`);
+  assert.equal(quoted?.source, 'request', `a request-quoted value decides: ${JSON.stringify(quoted)}`);
+  assert.deepEqual(quoted.cases, [{ expr: 'Slice("abcd", 1, 99)', value: 'bcd' }], 'only the cases the request quotes');
 });
 
-await check('N6 security (the three attack shapes route to PLAN): a substring / chained match is no base statement; a crafted case expression is never executed (no probe input exists); only the Story BASE commit\'s tests are read (an agent-committed test or a prose-named commit is not); a forged confirmation record is rejected', async () => {
+await check('N6 security: a crafted case expression is never executed (no probe input exists); a confirmation record other than the request\'s own values is rejected', async () => {
   const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
-  const states = await load('../core/finding-conflict-pin.js', 'baseTestStatesCase');
   const confirmed = await load('../core/finding-conflict-pin.js', 'frameworkPinConfirmed');
-  const baseLines = await load('../handlers/finding-conflict-settle.js', 'storyBaseTestLines');
   const module = await import('../core/finding-conflict-pin.js') as Record<string, unknown>;
   assert.equal(module.probeExprTrust, undefined, 'no expression sanitizer tier');
-  // (a) Token-bounded whole expression, not a substring of the line.
-  assert.equal(states('\tif Reverse("") != "" {', 'e("")', ''), false, 'a substring of another call');
-  assert.equal(states('\tif Slice("abcd", 1, 99).Len() != 3 {', 'Slice("abcd", 1, 99)', '3'), false, 'a chained expression');
-  assert.equal(states('\tif Slice("abcd", 1, 99) != "bcd" {', 'Slice("abcd", 1, 99)', 'bcd'), true);
-  assert.equal(states('\tif Reverse("") != "" {', 'Reverse("")', ''), true, 'the empty value as a literal');
   const crafted = (expr: string) => ({ ...N_F, desc: `clip/clip.go:16 Slice clamps. On the base \`${expr}\` returns \`bcd\`; HEAD returns \`\`.` });
   for (const expr of ['print("[0]"); x', '"bcd" || Slice("abcd", 1, 99)', 'e("abcd", 1, 99)']) {
-    assert.equal(pin({ finding: crafted(expr), resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseTests: N_BASE, baseProbe: () => 'bcd' }), null, `no pin from ${expr}`);
+    assert.equal(pin({ finding: crafted(expr), resolved: N_G, conflict: N_CONFLICT, requestText: N_SILENT, baseTests: N_BASE, baseProbe: () => 'bcd' }), null, `no pin from ${expr}`);
   }
-  // (c) Only the base commit: a test the Story (an agent) committed later is not read.
-  const fx = clipRepo(false);
-  try {
-    assert.deepEqual(baseLines(fx.root, fx.base, 'Slice("abcd", -1, 2)'), [], 'nothing at the base');
-    assert.equal(baseLines(fx.root, fx.story, 'Slice("abcd", -1, 2)').length, 1, 'the same call at the Story commit is found there (the reader honours the SHA)');
-    assert.deepEqual(baseLines(fx.root, 'HEAD', 'Slice("abcd", -1, 2)'), [], 'a symbolic ref is not a base SHA');
-  } finally { rmSync(fx.root, { recursive: true, force: true }); }
-  const forged = { side: 'finding', source: 'story_base', cases: [{ expr: 'Slice("abcd", 1, 99)', value: 'bcd' }], reason: 'x',
-    confirmation: { kind: 'base_test', cases: [{ expr: 'Slice("abcd", 1, 99)', value: 'bcd', file: 'clip/clip_test.go', line: 1, text: 'the finding says so' }] } };
-  assert.equal(confirmed(forged), false, 'a record whose line does not state the case');
-});
-
-await check('N3 a base test stating another value than the finding demands leaves the case to the PLAN pin; one stating every case confirms it', async () => {
-  const pin = await load('../core/finding-conflict-pin.js', 'frameworkConflictPin');
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseTests: (expr: string) => expr.startsWith('Slice') ? [{ file: 'clip/clip_test.go', line: 7, text: 'if Slice("abcd", 1, 99) != "bc" {' }] : N_BASE(expr) }), null);
-  assert.equal(pin({ finding: N_F, resolved: N_G, conflict: N_CONFLICT, requestText: 'Add Step.', baseTests: N_BASE })?.side, 'finding');
+  const cases = [{ expr: 'Slice("abcd", 1, 99)', value: 'bcd' }];
+  assert.equal(confirmed({ side: 'finding', source: 'story_base', cases, reason: 'x',
+    confirmation: { kind: 'base_test', cases: [{ ...cases[0], file: 'clip/clip_test.go', line: 7, text: '\tif Slice("abcd", 1, 99) != "bcd" {' }] } }), false, 'a base-test record is no confirmation');
+  assert.equal(confirmed({ side: 'finding', source: 'request', cases, reason: 'x', confirmation: { kind: 'request', cases: [] } }), false, 'a request record missing the case');
+  assert.equal(confirmed({ side: 'finding', source: 'request', cases, reason: 'x', confirmation: { kind: 'request', cases } }), true);
 });
 
 await check('N4 remediation.conflictPin: default on, `off` recorded as the rollback arm', async () => {

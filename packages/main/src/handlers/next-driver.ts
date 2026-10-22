@@ -1766,7 +1766,7 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
     if (finding.status === 'open' && finding.evidenceState !== 'suspected' && conflict.resolvedId) {
       const settlement = evaluateFindingConflictSettlement({ store: store as never, root, storyId, finding, findings: all, gitCwd, events });
       if (settlement) return findingConflictSettleStep(base, finding, settlement);
-      // Lab run137 (fix N): no row pins the case and the request / the finding's stated Story base value (stated by a base-commit test) decides it for
+      // Lab run137 (fix N): no row pins the case and a request line quoting the case's value decides it for
       // this finding: it is repaired against the framework pin (its prompt states it), no PLAN trip.
       if (evaluateFrameworkConflictPin({ store: store as never, root, storyId, finding, findings: all, gitCwd, events })?.pin.side === 'finding') continue;
     }
@@ -1807,7 +1807,7 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
 export function findingConflictSettleStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>,
   settlement: Pick<ConflictSettlement, 'winner' | 'reason' | 'cases'> & { settle: boolean }): NextStep {
   return step(base, 'framework', FINDING_CONFLICT_SETTLED, { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
-    disposition: FINDING_CONFLICT_SETTLED, resolution: `none: the ${settlement.winner === 'request' ? 'request text' : settlement.winner === 'story_base' ? 'Story base (framework pin)' : 'checklist pin'} decides ${settlement.cases.map(row => `\`${row}\``).join(', ')}` } },
+    disposition: FINDING_CONFLICT_SETTLED, resolution: `none: the ${settlement.winner === 'request' ? 'request text' : 'checklist pin'} decides ${settlement.cases.map(row => `\`${row}\``).join(', ')}` } },
   `Verified ${finding.severity ?? ''} finding ${finding.id} is the losing side of a finding conflict: ${settlement.reason} It is not repaired and the Story does not return to PLAN: the framework closes it once (${FINDING_CONFLICT_SETTLED}, precedence ${FINDING_CONFLICT_PRECEDENCE}); finding_resolve recomputes the decision and records it. \`proof-or-stop next --storyId=${base.storyId} --run\` records it and goes on.`,
   'evaluateFindingConflictSettlement (core/finding-conflict-settle.ts) + findingConflictOf');
 }

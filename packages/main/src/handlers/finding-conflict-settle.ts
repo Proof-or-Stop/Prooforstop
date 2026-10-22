@@ -6,9 +6,8 @@
  * agree). With remediation.conflictSettle=off nothing is settled by the checklist pin.
  *
  * Lab run137 (fix N, core/finding-conflict-pin.ts, remediation.conflictPin): a conflict no checklist row pins is decided
- * by the framework pin only when the request quotes the case's value, or a test at the Story base commit states it
- * (storyBaseTestLines; evaluateFrameworkConflictPin):
- *   - the open finding wins (`story_base` / `request`): it is repaired against the pin (no PLAN trip), and the framework's
+ * by the framework pin only when the request quotes the case's value verbatim (evaluateFrameworkConflictPin):
+ *   - the open finding wins (`request`): it is repaired against the pin (no PLAN trip), and the framework's
  *     own `[regression-of G]` finding that blames its rejected repair is the losing side: settled here;
  *   - the resolved finding wins (`request`): the open finding is settled here.
  */
@@ -21,10 +20,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { findingDuplicateOf } from '../core/duplicate-finding-coverage.js';
 import { findingConflictOf, findingGuard, findingRepros, guardStatesPins, isReproCommand, regressionTargets, rejectedRepairCommits, repairCommitFromResolution, rowsCitingCase } from '../core/resolved-finding-guard.js';
 import { conflictSettlements, findingConflictSettlement, FINDING_CONFLICT_PRECEDENCE, FINDING_CONFLICT_REASON_PREFIX, type ConflictSettlement } from '../core/finding-conflict-settle.js';
-import { frameworkConflictPin, frameworkPinConfirmed, type BaseTestLine, type FrameworkConflictPin } from '../core/finding-conflict-pin.js';
-import { isTestPath } from '../core/probe-text.js';
-import { execFileSync } from 'node:child_process';
-import { pinOracleStoryBase } from '../core/pin-oracle.js';
+import { frameworkConflictPin, frameworkPinConfirmed, type FrameworkConflictPin } from '../core/finding-conflict-pin.js';
 
 /** The settlement for one open finding, or null (switch off, no conflict, or not the framework's to decide). */
 export function evaluateFindingConflictSettlement(args: { store: StoryStore; root: string; storyId: string; finding: Finding; findings?: readonly Finding[];
@@ -75,8 +71,8 @@ function frameworkPinSettlement(loser: Pick<Finding, 'id'>, resolved: Pick<Findi
 /**
  * Lab run137: the framework pin of one open finding's conflict with a resolved finding that no current checklist row pins
  * (a row that pins it decides instead), or null (switch off, no such conflict, or not determinable: the PLAN pin stays).
- * Only the request and the Story base commit's own tests decide (security reviews: no finding-authored expression is
- * executed, and no agent-committed file or prose-named commit is a source).
+ * Only a request-quoted value decides (security reviews: no finding-authored expression is executed or matched against
+ * project files; base-test lines were dropped as a source because a negated assert names the same expression and value).
  */
 export function evaluateFrameworkConflictPin(args: { store: StoryStore; root: string; storyId: string; finding: Finding; findings?: readonly Finding[];
   gitCwd?: string; events?: ReadonlyArray<Record<string, unknown>> }): { pin: FrameworkConflictPin; resolved: Finding } | null {
@@ -95,11 +91,7 @@ export function evaluateFrameworkConflictPin(args: { store: StoryStore; root: st
     const repros = findingRepros(finding.desc).repros.filter(repro => !isReproCommand(repro));
     if (repros.length && rowsCitingCase(items, repros).length) return null;
     const request = readStoryRequest(store, storyId);
-    const gitCwd = args.gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
-    const requestText = request.status === 'ok' ? request.text : null;
-    const baseSha = (() => { try { return pinOracleStoryBase(gitCwd, (store.readStory(storyId) as { integrationTarget?: { parentCommitAtCreation?: string } }).integrationTarget?.parentCommitAtCreation); } catch { return null; } })();
-    const pin = frameworkConflictPin({ finding, resolved, conflict, requestText,
-      ...(baseSha ? { baseTests: (expr: string) => storyBaseTestLines(gitCwd, baseSha, expr) } : {}) });
+    const pin = frameworkConflictPin({ finding, resolved, conflict, requestText: request.status === 'ok' ? request.text : null });
     // Security review: nothing is decided without a positive record of every case.
     if (!pin || !frameworkPinConfirmed(pin)) return null;
     // A case a current row pins is the row's to decide (lab run131 settle / the repair against the row).
@@ -128,32 +120,11 @@ function regressionOfFrameworkPin(args: { store: StoryStore; root: string; story
     if (!owner) continue;
     const framework = evaluateFrameworkConflictPin({ ...args, finding: owner, findings });
     if (framework?.pin.side !== 'finding' || !targets.includes(framework.resolved.id)) continue;
-    // Security review: a framework guard finding is settled only on a positive record from the two trusted sources (a
-    // request-quoted value, or a test at the Story base commit), never on what the finding (a reviewer) wrote.
+    // Security review: a framework guard finding is settled only on a positive record from the request (its quoted
+    // values), never on what the finding (a reviewer) wrote.
     if (!frameworkPinConfirmed(framework.pin)) continue;
     return frameworkPinSettlement(finding, framework.resolved, framework.pin,
       `${short(finding.id)} reports that the repair of ${short(owner.id)} broke resolved ${short(framework.resolved.id)}'s covering test`);
   }
   return null;
-}
-
-/**
- * Lab run137 (security review 3 of fix N): the Story BASE commit's test lines that contain `expr` verbatim (`git grep -F`
- * at the base SHA, test paths only, at most 50 lines). The base SHA is the Story's recorded integration base; files an
- * agent committed later and commits named in prose are never read.
- */
-export function storyBaseTestLines(gitCwd: string, baseSha: string, expr: string): BaseTestLine[] {
-  if (!/^[0-9a-f]{40}$/.test(baseSha) || !expr.trim() || /[\r\n]/.test(expr)) return [];
-  let out = '';
-  try {
-    out = execFileSync('git', ['grep', '-n', '-I', '-F', '--no-color', '-e', expr.trim(), baseSha, '--'], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 });
-  } catch { return []; }
-  const rows: BaseTestLine[] = [];
-  for (const raw of out.split('\n')) {
-    const match = raw.match(/^[0-9a-f]{40}:(.+?):(\d+):(.*)$/);
-    if (!match || !isTestPath(match[1]!)) continue;
-    rows.push({ file: match[1]!, line: Number(match[2]), text: match[3]! });
-    if (rows.length >= 50) break;
-  }
-  return rows;
 }

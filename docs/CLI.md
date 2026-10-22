@@ -1269,7 +1269,7 @@ Decision table (first matching row wins):
 | DEV, no finding-repair in flight, an open verified blocking finding that is the losing side of a file-state conflict (lab run110, `remediation.fileStateSettle`, default on): every file its remedy must change is a documentation file the scope contract excludes (the scope boundary's "changes to docs" mapped to explicitExcludes) and the request does not ask to change it, or it is a scope finding that keeps unchanged a file the request asks to change, or (lab run131, `remediation.scopeGateSettle`, winner `scope_gate`) a scope-violation finding against documentation files the deterministic scope gate admits (`documentation-default` / `allowedModify`, nothing protected or excluded) (a lane finding of that kind is closed at import already) | `finding_file_state_settled`: `finding_resolve` with `disposition: file_state_conflict` and a framework-written follow-up (precedence request text > scope boundary > reviewer opinion; `resolutionType: superseded`, reason `[file_state_conflict] ...`, severity unchanged); never a repair | framework | `evaluateFileStateConflict` (core/file-state-conflict.ts, handlers/file-state-conflict.ts) |
 | DEV, a verified blocking finding open, not repaired, whose bound managed repair runs ended without an accepted repair `REPAIR_NO_COMMIT_REPLAN_AFTER` (2) times since the Story last entered PLAN (old-PoS run 30; an accepted repair = a material commit that the test-integrity and resolved-finding guards accept; lab run89: the why names each run's reason, and a missing report line never counts, see "Old-PoS runs 88 / 89") | `finding_repair_replan`: `story_advance --phase=PLAN` (read the runs' reports, amend the scope or intent the repair needs; DEV then repairs it again, the count restarting at PLAN) | agent | `managedFindingRepairState.noCommitRuns` (with `why`) + `findingRepairRoute` |
 | DEV, no finding-repair in flight, an open verified blocking finding whose repair was rejected for breaking a resolved finding's covering test (`findingConflictOf` kind `rejected`), on a case a current checklist row pins the way that test states (`guardStatesPins` agrees), or a later finding re-judging a case such a settlement journaled (lab run131, `remediation.conflictSettle`, default on) | `finding_conflict_settled`: `finding_resolve` with `disposition: finding_conflict_settled` (precedence request text > base behaviour > reviewer opinion; winner `request` / `checklist_pin`; `resolutionType: superseded`, reason `[finding_conflict_settled] ...`, severity unchanged; pair journaled in `runtime/finding-conflict`); never a repair, never a PLAN trip | framework | `evaluateFindingConflictSettlement` (core/finding-conflict-settle.ts, handlers/finding-conflict-settle.ts) |
-| DEV, no finding-repair in flight, a finding conflict (`findingConflictOf` kind `rejected` / `same_case`) on a case NO current checklist row pins, which the request (a request line naming the case's expression with a value) or the open finding's stated Story base value ("on the base E returns V") stated by a test at the Story BASE commit (read with git at the base SHA; finding text and agent-committed tests are never evidence) decides (lab run137, `remediation.conflictPin`, default on); or the framework `[regression-of G]` finding that blames the rejected repair of a finding the framework pin upholds | the loser closes by `finding_conflict_settled` (`finding_resolve --disposition=finding_conflict_settled`, winner `request` / `story_base`, reason `[finding_conflict_settled] ... decided once by the framework pin`); the winner gets its managed repair in DEV with `Framework pin (finding_conflict_framework_pin, ...)` in its prompt; no PLAN trip, no checklist write | framework | `evaluateFrameworkConflictPin` / `frameworkConflictPin` (handlers/finding-conflict-settle.ts, core/finding-conflict-pin.ts) |
+| DEV, no finding-repair in flight, a finding conflict (`findingConflictOf` kind `rejected` / `same_case`) on a case NO current checklist row pins, which the request decides (a request line quoting the case's expression with its value; the side that demands that value wins; finding text, base tests and probes of a finding's expression are never evidence) (lab run137, `remediation.conflictPin`, default on); or the framework `[regression-of G]` finding that blames the rejected repair of a finding the framework pin upholds | the loser closes by `finding_conflict_settled` (`finding_resolve --disposition=finding_conflict_settled`, winner `request`, reason `[finding_conflict_settled] ... decided once by the framework pin`); the winner gets its managed repair in DEV with `Framework pin (finding_conflict_framework_pin, ...)` in its prompt; no PLAN trip, no checklist write | framework | `evaluateFrameworkConflictPin` / `frameworkConflictPin` (handlers/finding-conflict-settle.ts, core/finding-conflict-pin.ts) |
 | PLAN, an open finding conflict `findingConflictStep` still sends to `finding_conflict_pin` (the framework pin could not decide it; lab run137, `remediation.conflictPin`, default on) | `finding_conflict_pin`: ONE `checklist_update` row per case (expected outcome, derivation quoting the request sentence or the Story base probe), the FIRST PLAN step after a metadata correction: before the dev-memory ack, the scope-plan rerun, the PLAN lints and DEV entry | agent | `planConflictPinStep` (handlers/next-driver.ts) |
 | DEV, an open verified blocking finding (no managed repair in flight) is a finding conflict that the checklist does not pin yet (old-PoS run 47: one behaviour flipped between four policies over 12 rounds): it is marked `[precedent-conflict]`, a repair of it was rejected because it broke a resolved finding's covering verification, or it re-judges the case (repro) a resolved finding's repair settled on a shared cited file without reporting a regression of it (`findingConflictOf`, core/resolved-finding-guard.ts). Pinned = some item's intent (verificationIntent / userSees) differs from its committed state when the conflict became known, or (old-PoS run 58) a current checklist row already states the finding's repro case (the row decides). Since lab `codex/lab-run58-fixes` an open SUSPECTED `[precedent-conflict]` finding is a candidate too (no extra round), and every unpinned conflict, duplicate filings of one case included, is listed in ONE step | `finding_conflict_pin`: `story_advance --phase=PLAN` (pin each listed case with a covering intent row and a derivation quoting the request or the base probe); the why gives the oracle order (request sentence; else the SAME receiver's pre-existing counterpart; another receiver's same operation only secondary) and the rows that pin a listed case now (changing one needs a stated re-pin, see "Run-58 guard, pin and conflict fixes"); afterwards the findings are repaired against the pin and the repair prompt says the pin decides | agent | `findingConflictStep` (handlers/next-driver.ts) |
 | DEV, the next open verified blocking finding is a duplicate (several such duplicates: ONE `finding_duplicate_resolve_batch` step, one `finding_resolve` call each with its own coverage run, old-PoS run 31 D6; a critic `duplicate`; an open finding of a superseded lane run that the rerun of its lane re-reported: shared cited file or none, same claim by the critic restatement rule; or, old-PoS run 29, a finding of a review run that started after an earlier finding was recorded and names its id or restates its claim on a shared file, `restatedEarlierFindingOf`) whose canonical finding is repaired and resolved, with no repair of its own and no failed coverage run (lab run58-fixes: a canonical closed without a repair, `preexisting_out_of_scope` or `accepted_risk`, is no duplicate target, `closedWithoutFix`: such a finding takes its own route; run 17; a duplicate whose canonical finding is still open waits, the canonical one goes first; since old-PoS run 44, a duplicate of a duplicate closes against the resolved ROOT of its chain in the same batch, `duplicateRootOf`, and `finding_resolve` accepts that root as `duplicateOf`; run 44 closed 8 restatements as a chain, one owner turn per link; a cycle has no root) | `finding_duplicate_resolve`: `finding_resolve` with `duplicateOf`, `coverage.command`, `coverage.selector`, `resolution` (see below) | agent | `findingDuplicateOf` (critic receipts, else `supersededRestatementOf`, else `restatedEarlierFindingOf`) + `duplicateResolveCandidate` (core/duplicate-finding-coverage.ts) |
@@ -2199,28 +2199,30 @@ switches default on (`remediation.regressionCheck`, `remediation.conflictPin`) a
     second wrote six rows whose derivations were exactly F-006's stated base values (the request only says existing
     two-part ranges "stay the same"). Then an implementer rerun, a second F-006 repair and an F-008 repair that only added
     tests.
-  - **Now:** when no current row pins the case, the framework decides it by the same precedence (request text > Story
-    base > reviewer opinion), recomputed on every call:
-    - a request line naming the case's expression with a value decides it (source `request`);
-    - else the Story base value the open finding states per case (`on the base \`E\` returns \`V\``, `\`E\` returns
-      \`V\` on base but \`W\` on HEAD`, `Base: \`E\` -> \`V\``): the finding demands the base behaviour, so it wins
-      (source `story_base`), but only when a test that exists at the Story BASE commit states it: a line of a test file
-      at the framework-known base SHA (read with `git grep` at that SHA; never a runtime tree, never a file an agent
-      committed, never a commit named in finding or resolution prose) on which the case's expression appears as a whole
-      token-bounded expression (not a substring, not followed by `.` `(` `[`) together with the stated base value as a
-      literal, for every case. The finding's own statement is never evidence, and no finding-authored expression is ever
-      executed (the security reviews of this lab: a base probe of the finding's expression could print the finding's
-      own claim, and a lexical sanitizer of the expression was bypassable). A base test that states another value, or
-      none, leaves the case to PLAN.
-    - else (no stated base value, a `[precedent-conflict]`, a request value neither side demands) the PLAN pin stays.
+  - **Now:** when no current row pins the case, the framework decides it ONLY from the request, recomputed on every
+    call:
+    - for the cases the open finding states (`on the base \`E\` returns \`V\``, `\`E\` returns \`V\` on base but
+      \`W\` on HEAD`, `Base: \`E\` -> \`V\``), a request line quoting the case's expression with its value (a whole
+      backticked span: `` `E` -> `V` `` or `` `E` `` then `` `V` ``) decides it: the side that demands that value wins
+      (source `request`);
+    - else (the request is silent on the cases, a request value neither side demands, no stated base value, a
+      `[precedent-conflict]`) the PLAN pin stays.
+
+    No other source decides. The finding's own statement is never evidence, and no finding-authored expression is
+    executed or matched against project files. The security reviews of this lab removed three earlier tiers: a probe of
+    the finding's expression with the Story's base evaluator could print the finding's own claim; a lexical sanitizer
+    of that expression was bypassable; and a Story-base test line containing the expression and the value also matches
+    a negated assert (`if E == V { t.Fatal(...) }`, `NotEqual`) or the value in a non-expected position. An assertion
+    parser was not worth building: run 137 could not have used the base tiers anyway (F-006's case is the finding's own
+    expression, and no base test states it), so its saving is the pin-first PLAN trip below (about 340 s, trip 1), not
+    the whole ~23 min.
 
     The open finding that wins is repaired in DEV against the pin: its repair prompt carries `Framework pin
     (finding_conflict_framework_pin, ...)` with each case and value, and it updates the resolved finding's test rows that
     state otherwise. The framework's own `[regression-of G]` finding that blames that finding's rejected repair (linked
     by the guard's rejected-repair record, never by prose alone) is the losing side, closed by the framework step
-    `finding_conflict_settled` (winner `story_base` / `request`), only when the pin's positive confirmation record covers
-    every case (`frameworkPinConfirmed`: the request lines' values, or the base test line, file and text, stating each
-    case). A resolved finding that wins by the request closes the
+    `finding_conflict_settled` (winner `request`), only when the pin's positive confirmation record covers every case
+    (`frameworkPinConfirmed`: the request lines' own values). A resolved finding that wins by the request closes the
     open one the same way. Nothing is written to the checklist (intent is frozen outside PLAN), so no scope-plan verdict
     can go stale over it.
   - **Undecidable:** `finding_conflict_pin` stays, and the PLAN trip's FIRST step is the pin (`finding_conflict_pin`,
@@ -2251,15 +2253,16 @@ switches default on (`remediation.regressionCheck`, `remediation.conflictPin`) a
   reviewed head, so the prompt digest recomputes at import. It needs a detection A/B before adoption.
 
 Tests: `node packages/main/dist/tasks/run137-fixes-smoke.js` has 17 checks (M1-M7, N1-N6, O1-O2, P1-P2); all fail on base
-3230a0165b. N5 and N6 are the security reviews' fail-closed checks (N5: no base test, a test committed after the base, or
-a base test stating only some cases: no pin, a request-quoted value still decides; N6: a substring or chained match is
-no base statement, a crafted case expression is never executed, only the base commit's test files count); each failed
-on the fix commit before it. Harness `e2e-review-to-done-smoke.js NRR NRR-OFF NCK NCP NCP-F NCP-X NCP-P NGX NCL NCL-OFF`: NRR,
-NCK, NCP, NCP-P, NGX and NCL FAIL on the base and PASS after the fix; the security controls NCP-F (the same conflict, its
-base value repeated only by a test an agent committed after the base) and NCP-X (the self-confirming case
-`"" && Reverse("ab")`, which an eval-style evaluator would confirm) expect
-no framework pin, the `[regression-of]` finding open and a forced settle refused; each failed on the fix commit before
-it and passes now; the controls NRR-OFF (switch off: the broken repair seals and
+3230a0165b. N3, N5 and N6 are the security reviews' fail-closed checks (N3: a negated base assert, or any base test line,
+gives no pin and no base-test tier exists; N5: a request silent on the cases or an unquoted mention gives no pin, a
+request-quoted value decides; N6: a crafted case expression is never executed, a confirmation record other than the
+request's own values is rejected); each failed on the fix commit before it. Harness `e2e-review-to-done-smoke.js NRR
+NRR-OFF NCK NCP NCP-F NCP-X NCP-N NCP-P NGX NCL NCL-OFF`: NRR, NCK, NCP (decided by a request-quoted value), NCP-P, NGX
+and NCL FAIL on the base and PASS after the fix; the security controls NCP-F (a silent request, the finding's base value
+repeated only by a test an agent committed after the base), NCP-X (the self-confirming case `"" && Reverse("ab")`, which
+an eval-style evaluator would confirm) and NCP-N (a silent request, a test at the Story base commit naming the case and
+the value in a negated assert) expect no framework pin, the `[regression-of]` finding open and a forced settle refused;
+each failed on the fix commit before it and passes now; the controls NRR-OFF (switch off: the broken repair seals and
 a later gate refuses it) and NCL-OFF (default off: no lane carries the block) pass on both.
 
 ### Old-PoS runs 133-135: pin-audit corrections per item and checked against the base, a review straggler budget, base evidence for "unchanged" repair claims (lab `codex/lab-run132`, continued)
@@ -2596,7 +2599,7 @@ to the model. Seven detection-neutral fixes, each a cross-task mechanism:
   same resolved finding (kind `same_case`) is settled by that record while the pin still agrees.
   `isFrameworkSettled` keeps the closed finding out of the guard, out of conflict partners, out of delta re-verify and
   out of duplicate coverage. An unpinned case goes to ONE `finding_conflict_pin` unless the lab run137 framework pin
-  (request, or a finding-stated Story base value a test at the Story base commit states, `remediation.conflictPin`) decides it. A pin that disagrees with the
+  (a request line quoting the case's value, `remediation.conflictPin`) decides it. A pin that disagrees with the
   test still lets the guard excuse the repair.
 - **4. The pin-dispute remedy comes with the first `pin_reversal_unstated` (run 131 PLAN-C, ~10-12 min;
   `core/pin-amendment.ts` `pinReversalRemedy`).** The refusal decides the remedy at once, in oracle order, and makes it
@@ -3439,7 +3442,7 @@ Bench arms (adapter `AB_FLAGS` + `test_run137_switches_reach_the_pos_config`):
 - `'{"remediation.conflictPin":"off"}'`
 - `'{"review.classEnumeration":"on"}'`
 
-Tests: `run137-fixes-smoke`, harness NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-X / NCP-P / NGX / NCL / NCL-OFF, and `npm run
+Tests: `run137-fixes-smoke`, harness NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-X / NCP-N / NCP-P / NGX / NCL / NCL-OFF, and `npm run
 test:ab-variant-switches`.
 
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.

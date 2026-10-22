@@ -51,8 +51,8 @@ type IntentRow = { desc?: string; derivation?: { requestQuote?: string; computat
 interface ItemSlice { id: string; verificationIntent?: Partial<Record<'happy' | 'edge' | 'adversarial', IntentRow[]>> }
 export interface SettledCase { resolvedId: string; cases: string[]; winner: string }
 
-/** Lab run137: `story_base` = the framework pin's Story base side (core/finding-conflict-pin.ts, no checklist row pins the case). */
-export interface ConflictSettlement { settle: true; winner: 'request' | 'checklist_pin' | 'story_base'; reason: string; cases: string[]; resolvedId: string }
+/** Lab run137: the framework pin (core/finding-conflict-pin.ts, no checklist row pins the case) settles only with winner `request`. */
+export interface ConflictSettlement { settle: true; winner: 'request' | 'checklist_pin'; reason: string; cases: string[]; resolvedId: string }
 
 const short = (id: string): string => id.replace(/^[^:]+:/, '');
 const flat = (text: string): string => text.replace(/\s+/g, ' ').trim().toLowerCase();
