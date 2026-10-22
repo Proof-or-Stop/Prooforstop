@@ -54,7 +54,8 @@ const scopeOf = async (items: unknown[], features: string[]) => ({ checkedAt: '2
 const ROW: Row = { desc: '[0,1,2,3][1:2] -> [1]', derivation: { requestQuote: 'existing two-part ranges are unchanged', computation: 'the two-part range [1:2] selects index 1: [1]' } };
 const judged = (row: Row = ROW) => [item('CHK-001', { edge: [row] })];
 const GAP = 'pin-audit CHK-001:edge:0: pins [0,1,2,3][1:2] -> [1]; request gives [2] because ranges include the end';
-const BASE_TEST = (value: string) => ({ path: 'lang/slice_test.go', text: `var cases = []struct{ in, want string }{\n\t{"[0,1,2,3][1:2]", "${value}"},\n\t{"[0,1,2,3][0:1]", "[0]"},\n}\n` });
+// A single-line strict positive assertion (lab pin-base-assert: table rows never decide; their polarity is the loop's).
+const BASE_TEST = (value: string) => ({ path: 'lang/slice_test.go', text: `func TestSlice(t *testing.T) {\n\tassert.Equal(t, "${value}", testEval("[0,1,2,3][1:2]"))\n\tassert.Equal(t, "[0]", testEval("[0,1,2,3][0:1]"))\n}\n` });
 const ctxOf = (opts: { request?: string | null; tests?: Array<{ path: string; text: string }> } = {}) => ({
   requestText: opts.request ?? 'Add a three-part slice form [a:b:c]. Existing two-part ranges are unchanged.',
   evaluator: () => null,
@@ -119,77 +120,93 @@ await check('E4 a third base value: the correction offers the BASE value, not th
   assert.match(out.why, /Story base/);
 });
 
-// Security review (lab pin-base-assert): the base_test line matcher took any string literal equal to the case followed by
-// a value literal. Base evidence REFUTES a reviewer's correction, so a line that names the case and the pinned value but
-// denies it (negated / conditional-failure asserts), states the value outside the expected position, comments, or a
-// literal that is only part of the subject must never decide.
+// Security reviews (lab pin-base-assert): base evidence REFUTES a reviewer's correction, so a base test decides only from
+// a single-line strict positive assertion (the case the whole subject, the value in the expected position, directly in a
+// test function's body). A negated / conditional-failure assert, a value elsewhere, a comment, a partial subject, any
+// table row (its polarity is decided by the loop that consumes it), a multi-line assertion or an assertion under a
+// skip / expected-failure / raises / Panics context never decides.
 const ROW_TEST = (text: string) => ({ path: 'lang/slice_test.go', text });
-/** Inside a positive table (a header that denies nothing), so each line is judged by its own shape. */
-const IN_TABLE = (text: string) => ROW_TEST(/notWant/.test(text) ? text : `var tests = []struct{ input, expected string }{\n${text}}\n`);
+/** A body line inside a plain Go test function; a whole file (a `func` / `def` / `var` / `cases` text) as given. */
+const IN_TEST = (text: string) => ROW_TEST(/^(?:func |def |var |cases|class |it\.|@|describe)/m.test(text) ? text : `func TestSlice(t *testing.T) {\n${text}}\n`);
 const NOT_EVIDENCE: Record<string, string> = {
-  'Go assert.NotEqual(t, case, pinned)': '\tassert.NotEqual(t, "[0,1,2,3][1:2]", "[1]")\n',
-  'Python assertNotEqual(case, pinned)': '        self.assertNotEqual("[0,1,2,3][1:2]", "[1]")\n',
+  'Go assert.NotEqual': '\tassert.NotEqual(t, "[1]", testEval("[0,1,2,3][1:2]"))\n',
+  'Python assertNotEqual': 'def test_slice(self):\n    self.assertNotEqual(evaluate("[0,1,2,3][1:2]"), "[1]")\n',
+  'Go if eval(case) == pinned { t.Fatal }': '\tif testEval("[0,1,2,3][1:2]") == "[1]" { t.Fatal("must not give [1]") }\n',
   'Go if case == pinned { t.Fatal }': '\tif "[0,1,2,3][1:2]" == "[1]" { t.Fatal("must not give [1]") }\n',
-  'JS expect(case).not.toEqual(pinned)': '  expect("[0,1,2,3][1:2]", "[1]").not.toEqual(true)\n',
+  'JS expect(...).not.toEqual': 'it("slices", () => {\n  expect(run("[0,1,2,3][1:2]")).not.toEqual("[1]");\n});\n',
   'a comment naming the old value': '\t// "[0,1,2,3][1:2]" -> "[1]" was the old, wrong result\n',
-  'a commented-out row': '\t// {"[0,1,2,3][1:2]", "[1]"},\n',
-  'a three-column row (pinned not in the expected column)': '\t{"[0,1,2,3][1:2]", "[1]", "[2]"},\n',
-  'a negation flag column': '\t{"[0,1,2,3][1:2]", "[1]", false},\n',
-  'a row of a not-want table': 'var notWant = []struct{ in, notWant string }{\n\t{"[0,1,2,3][1:2]", "[1]"},\n}\n',
-  'a row with a doubting trailing comment': '\t{"[0,1,2,3][1:2]", "[1]"}, // wrong, should be [2]\n',
-  'Python implicit concatenation (the case is only part of the subject)': '    ("[0,1,2,3][1:2]" "[0]", "[1]"),\n',
-  'a parser table row (the printed input, not a value)': '\t{"[0,1,2,3][1:2]", "[0, 1, 2, 3][1:2]"},\n',
+  'a commented-out assertion': '\t// assert.Equal(t, "[1]", testEval("[0,1,2,3][1:2]"))\n',
+  'the subject in the expected position': '\tassert.Equal(t, testEval("[0,1,2,3][1:2]"), "[1]")\n',
+  'a second argument next to the case': '\tassert.Equal(t, "[1]", testEval("[0,1,2,3][1:2]", "[2]"))\n',
+  'a partial subject (concatenation)': '\tassert.Equal(t, "[1]", testEval("[0,1,2,3][1:2]" + "[0]"))\n',
+  'Python implicit concatenation': 'def test_slice():\n    assert evaluate("[0,1,2,3][1:2]" "[0]") == "[1]"\n',
+  'a parser assertion (the printed input)': '\tassert.Equal(t, "[0, 1, 2, 3][1:2]", parse("[0,1,2,3][1:2]"))\n',
+  'a multi-line assertion': '\tassert.Equal(t, "[1]",\n\t\ttestEval("[0,1,2,3][1:2]"))\n',
+  'a positive-looking table row': 'var tests = []struct{ input, expected string }{\n\t{"[0,1,2,3][1:2]", "[1]"},\n}\n',
+  'a keyed table row': 'var tests = []struct{ input, expected string }{\n\t{input: "[0,1,2,3][1:2]", expected: "[1]"},\n}\n',
+  'a Python dict table row': 'cases = [\n    {"input": "[0,1,2,3][1:2]", "expected": "[1]"},\n]\n',
+  'a map entry': 'cases = {\n    "[0,1,2,3][1:2]": "[1]",\n}\n',
+  'a quoted-key denying table ("invalid": [)': 'cases = {\n    "valid": [],\n    "invalid": [\n        ("[0,1,2,3][1:2]", "[1]"),\n    ],\n}\n',
+  'a wantErr table': 'var errTests = []struct{ input, wantErr string }{\n\t{"[0,1,2,3][1:2]", "[1]"},\n}\n',
+  'rows consumed by if got == tc.want { t.Fatal }': 'var tests = []struct{ input, want string }{\n\t{"[0,1,2,3][1:2]", "[1]"},\n}\n\nfunc TestNever(t *testing.T) {\n\tfor _, tc := range tests {\n\t\tif got := testEval(tc.input); got == tc.want {\n\t\t\tt.Fatalf("%s must not give %s", tc.input, got)\n\t\t}\n\t}\n}\n',
+  'under assert.Panics': 'func TestSlice(t *testing.T) {\n\tassert.Panics(t, func() {\n\t\tassert.Equal(t, "[1]", testEval("[0,1,2,3][1:2]"))\n\t})\n}\n',
+  'under pytest.raises(AssertionError)': 'def test_slice():\n    with pytest.raises(AssertionError):\n        assert evaluate("[0,1,2,3][1:2]") == "[1]"\n',
+  'under @pytest.mark.xfail': '@pytest.mark.xfail(reason="known bug")\ndef test_slice():\n    assert evaluate("[0,1,2,3][1:2]") == "[1]"\n',
+  'under it.skip': 'it.skip("slices", () => {\n  expect(run("[0,1,2,3][1:2]")).toBe("[1]");\n});\n',
+  'after t.Skip': 'func TestSlice(t *testing.T) {\n\tt.Skip("broken on purpose")\n\tassert.Equal(t, "[1]", testEval("[0,1,2,3][1:2]"))\n}\n',
+  'inside an if block': 'func TestSlice(t *testing.T) {\n\tif legacyRanges {\n\t\tassert.Equal(t, "[1]", testEval("[0,1,2,3][1:2]"))\n\t}\n}\n',
 };
 
-await check('E8 security: a negated / conditional-failure assert, the value outside the expected position, a comment or a partial subject never refutes a correction', async () => {
+await check('E8 security: a negated / conditional-failure assert, a value elsewhere, a comment, a partial subject, any table row, a multi-line assertion or a skip / raises / Panics context never refutes or re-pins a correction', async () => {
   const decide = await load('../core/pin-base-evidence.js', 'pinAuditBaseDecisions');
   const items = judged();
   const scope = await scopeOf(items, [GAP]);
   const wrong: string[] = [];
   for (const [label, text] of Object.entries(NOT_EVIDENCE)) {
-    const decision = decide(ctxOf({ tests: [IN_TABLE(text)] }), items, scope.features)[0];
+    const decision = decide(ctxOf({ tests: [IN_TEST(text)] }), items, scope.features)[0];
     if (decision?.decision !== 'keep' || decision.evidence) wrong.push(`${label}: ${decision?.decision} (${decision?.why?.slice(0, 80)})`);
   }
   // A third-value line of the same shapes must not re-pin the row either (decision correct).
   const third = judged({ ...ROW, desc: '[0,1,2,3][1:2] -> [7]' });
   const thirdScope = await scopeOf(third, ['pin-audit CHK-001:edge:0: pins [0,1,2,3][1:2] -> [7]; request gives [2] because ranges include the end']);
   for (const [label, text] of Object.entries(NOT_EVIDENCE)) {
-    const decision = decide(ctxOf({ tests: [IN_TABLE(text)] }), third, thirdScope.features)[0];
+    const decision = decide(ctxOf({ tests: [IN_TEST(text)] }), third, thirdScope.features)[0];
     if (decision?.decision !== 'keep') wrong.push(`third value, ${label}: ${decision?.decision} ${decision?.value}`);
   }
   assert.deepEqual(wrong, [], wrong.join(' ;; '));
 });
 
-await check('E9 security: whitespace inside a string literal of the case is significant (len("a b") is not len("ab")); a negated line naming the case vetoes a positive row', async () => {
+await check('E9 security: whitespace inside a string literal of the case is significant (len("a b") is not len("ab")); any other line naming the case (a negated assert, a table row) vetoes a positive assertion', async () => {
   const decide = await load('../core/pin-base-evidence.js', 'pinAuditBaseDecisions');
   const items = judged({ desc: 'len("a b") -> 3', derivation: { requestQuote: 'existing len is unchanged', computation: 'three characters' } });
   const scope = await scopeOf(items, ['pin-audit CHK-001:edge:0: pins len("a b") -> 3; request gives 4 because it counts bytes']);
-  const squashed = decide(ctxOf({ tests: [ROW_TEST('\t{`len("ab")`, 3},\n')] }), items, scope.features)[0];
+  const squashed = decide(ctxOf({ tests: [IN_TEST('\tassert.Equal(t, 3, testEval(`len("ab")`))\n')] }), items, scope.features)[0];
   assert.equal(squashed?.decision, 'keep', `a different string literal is another case: ${JSON.stringify(squashed)?.slice(0, 300)}`);
   const base = judged();
   const baseScope = await scopeOf(base, [GAP]);
-  const vetoed = decide(ctxOf({ tests: [BASE_TEST('[1]'), ROW_TEST('\tassert.NotEqual(t, "[0,1,2,3][1:2]", "[1]")\n')] }), base, baseScope.features)[0];
-  assert.equal(vetoed?.decision, 'keep', `a base that also denies the value does not decide: ${JSON.stringify(vetoed)?.slice(0, 300)}`);
+  for (const other of ['\tassert.NotEqual(t, "[1]", testEval("[0,1,2,3][1:2]"))\n', 'var tests = []struct{ input, want string }{\n\t{"[0,1,2,3][1:2]", "[1]"},\n}\n']) {
+    const vetoed = decide(ctxOf({ tests: [BASE_TEST('[1]'), { ...IN_TEST(other), path: 'lang/other_test.go' }] }), base, baseScope.features)[0];
+    assert.equal(vetoed?.decision, 'keep', `another line naming the case: the base tests do not decide: ${JSON.stringify(vetoed)?.slice(0, 300)}`);
+  }
 });
 
-await check('E10 the strict positive shapes still decide (Go / JS / Python table rows, keyed rows, a Go composite, a map entry; spacing outside literals is free)', async () => {
+await check('E10 the strict single-line positive assertions decide (Go testify, Python assert / assertEqual, JS expect / node assert; a Go composite value; spacing outside literals is free)', async () => {
   const decide = await load('../core/pin-base-evidence.js', 'pinAuditBaseDecisions');
   const items = judged();
   const scope = await scopeOf(items, [GAP]);
   const positive: Record<string, string> = {
-    'Go table row': '\t{"[0,1,2,3][1:2]", "[1]"},\n',
-    'Go table row, spaced case': '\t{"[0, 1, 2, 3][1:2]", "[1]"},\n',
-    'Go composite value': '\t{"[0,1,2,3][1:2]", []int{1}},\n',
-    'Go keyed row': '\t{input: "[0,1,2,3][1:2]", expected: "[1]"},\n',
-    'JS array row': '  ["[0,1,2,3][1:2]", "[1]"],\n',
-    'JS keyed row': '  { input: "[0,1,2,3][1:2]", want: "[1]" },\n',
-    'Python tuple row': '    ("[0,1,2,3][1:2]", "[1]"),\n',
-    'Python keyed dict row': '    {"input": "[0,1,2,3][1:2]", "expected": "[1]"},\n',
-    'map entry': '    "[0,1,2,3][1:2]": "[1]",\n',
+    'Go assert.Equal': 'func TestSlice(t *testing.T) {\n\tassert.Equal(t, "[1]", testEval("[0,1,2,3][1:2]"))\n}\n',
+    'Go require.Equal, spaced case': 'func TestSlice(t *testing.T) {\n\trequire.Equal(t, "[1]", testEval("[0, 1, 2, 3][1:2]"))\n}\n',
+    'Go composite value': 'func TestSlice(t *testing.T) {\n\tassert.Equal(t, []int{1}, testEval("[0,1,2,3][1:2]"))\n}\n',
+    'Python assert ==': 'def test_slice():\n    assert evaluate("[0,1,2,3][1:2]") == "[1]"\n',
+    'Python unittest assertEqual': 'class SliceTest(unittest.TestCase):\n    def test_slice(self):\n        self.assertEqual(evaluate("[0,1,2,3][1:2]"), "[1]")\n',
+    'JS expect().toBe': 'it("slices", () => {\n  expect(run("[0,1,2,3][1:2]")).toBe("[1]");\n});\n',
+    'JS expect().toEqual': 'test("slices", async () => {\n  expect(run(\'[0,1,2,3][1:2]\')).toEqual("[1]");\n});\n',
+    'node assert.strictEqual': 'test("slices", () => {\n  assert.strictEqual(run("[0,1,2,3][1:2]"), "[1]");\n});\n',
   };
   const missed: string[] = [];
   for (const [label, text] of Object.entries(positive)) {
-    const decision = decide(ctxOf({ tests: [ROW_TEST(`var tests = []struct{ input, expected string }{\n${text}}\n`)] }), items, scope.features)[0];
+    const decision = decide(ctxOf({ tests: [ROW_TEST(text)] }), items, scope.features)[0];
     if (decision?.decision !== 'settle' || decision.evidence?.source !== 'base_test') missed.push(`${label}: ${decision?.decision} (${decision?.why?.slice(0, 80)})`);
   }
   assert.deepEqual(missed, [], missed.join(' ;; '));
