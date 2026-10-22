@@ -11,21 +11,18 @@
  *
  * frameworkConflictPin decides such a conflict by the same precedence as finding_conflict_settled (request text > Story
  * base > reviewer opinion), for the cases the open finding names (statedBaseCases: "on the base `E` returns `V`", "`E`
- * returns `V` on base but `W` on HEAD", "Base: `E` -> `V`"), and only from:
- *   - the request: a request line quoting the case's expression with its value (a whole backticked span, `E` -> `V` or
- *     `E` then `V`; the side that demands that value wins, source `request`);
- *   - else a test that exists at the Story BASE commit (the framework-known base SHA, read from git; never a file an agent
- *     committed, never a commit named in finding or resolution prose) on whose line the case's expression appears as a
- *     whole token-bounded expression together with the stated base value as a literal: the finding demands the base
- *     behaviour and the resolved finding's test pins something else, so the finding wins (source `story_base`).
- * Nothing a finding wrote is evidence, and no finding-authored expression is executed (security reviews of this lab: a
- * base probe of a finding's expression could print the finding's own claim; a substring or lexical sanitizer was
- * bypassable). Anything else (no request value, no base test stating every case, a `[precedent-conflict]`) is null: the
- * PLAN pin stays (finding_conflict_pin), and that PLAN trip writes the pin before any scope-plan rerun
- * (handlers/next-driver.ts planConflictPinStep). The pin carries the positive record of each case's source
- * (frameworkPinConfirmed re-checks it). Pure: recomputed from the request and the base tests on every call (no runtime
- * file is read back); the settle step journals it as evidence only. Switch remediation.conflictPin (default on; off =
- * rollback).
+ * returns `V` on base but `W` on HEAD", "Base: `E` -> `V`"), and ONLY from the request: a request line quoting the case's
+ * expression with its value (a whole backticked span, `E` -> `V` or `E` then `V`); the side that demands that value wins
+ * (source `request`). Nothing a finding wrote is evidence, and no finding-authored expression is executed or matched
+ * against project files. Security reviews of this lab removed every other tier: a base probe of a finding's expression
+ * could print the finding's own claim; a lexical sanitizer of the expression was bypassable; and a Story-base test line
+ * that merely contains the expression and the value also matches a negated assert (`== V { t.Fatal }`, `NotEqual`) or the
+ * value in a non-expected position. Run 137 could not have used those tiers anyway (F-006's case is the finding's own
+ * expression). Anything else (no request value, a request value neither side demands, a `[precedent-conflict]`) is null:
+ * the PLAN pin stays (finding_conflict_pin), and that PLAN trip writes the pin before any scope-plan rerun
+ * (handlers/next-driver.ts planConflictPinStep). The pin carries the request's own values as its confirmation record
+ * (frameworkPinConfirmed re-checks it). Pure: recomputed from the request on every call (no runtime file is read back);
+ * the settle step journals it as evidence only. Switch remediation.conflictPin (default on; off = rollback).
  */
 import { normalizeProbe } from './probe-text.js';
 
@@ -35,13 +32,9 @@ export interface StatedBaseCase { expr: string; base: string; head?: string }
 export interface FrameworkConflictPin {
   /** `finding`: the open finding's demand wins (the resolved finding's test is wrong for the cases); `resolved`: it loses. */
   side: 'finding' | 'resolved';
-  source: 'request' | 'story_base';
-  /**
-   * The positive record of what decided each case (never finding text): the request's own value, or the Story base test
-   * line (file, line, text at the base commit) that states it. frameworkPinConfirmed re-checks it against `cases`.
-   */
-  confirmation: { kind: 'request'; cases: Array<{ expr: string; value: string }> }
-    | { kind: 'base_test'; cases: Array<{ expr: string; value: string; file: string; line: number; text: string }> };
+  source: 'request';
+  /** The positive record of what decided each case (never finding text): the request's own value. frameworkPinConfirmed re-checks it. */
+  confirmation: { kind: 'request'; cases: Array<{ expr: string; value: string }> };
   /** Each decided case and the value the framework pins for it. */
   cases: Array<{ expr: string; value: string }>;
   reason: string;
@@ -95,60 +88,26 @@ export function requestStatedValue(requestText: string | null | undefined, expr:
 
 const short = (id: string): string => id.replace(/^[^:]+:(?=F-)/, '');
 
-/** A test line at the Story base (`git grep` at the base commit, test paths only). */
-export interface BaseTestLine { file: string; line: number; text: string }
-
-const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-/**
- * Whether a base test line states `expr` -> `value`: the expression occurs as a whole token-bounded expression (see
- * below), and, with that occurrence removed, the line holds the value as a literal: a quoted string (`""` for the empty
- * value) or the bare value token-bounded.
- */
-export function baseTestStatesCase(text: string, expr: string, value: string): boolean {
-  const e = expr.trim();
-  if (!e || e.length > 240 || /[\r\n]/.test(text)) return false;
-  let from = 0;
-  for (let at = text.indexOf(e, from); at >= 0; at = text.indexOf(e, from)) {
-    from = at + 1;
-    const before = at > 0 ? text[at - 1]! : '';
-    const after = text[at + e.length] ?? '';
-    // Token-bounded: no identifier character or `.` before it; nothing after it that extends the expression (an identifier
-    // character, `.`, `(` or `[`: a chained call or index is another expression).
-    if ((before && /[\w$.]/.test(before)) || (after && /[\w$.([]/.test(after))) continue;
-    const rest = `${text.slice(0, at)} ${text.slice(at + e.length)}`;
-    const v = norm(value);
-    const quoted = [`"${v}"`, `'${v}'`, `\`${v}\``].some(literal => rest.includes(literal));
-    const bare = v.length > 0 && new RegExp(`(?<![\\w$.])${escapeRegExp(v)}(?![\\w$])`).test(rest);
-    if (quoted || bare) return true;
-  }
-  return false;
-}
-
 /** Whether a pin carries a positive record of every case it decides (re-checked before anything is settled). */
 export function frameworkPinConfirmed(pin: FrameworkConflictPin): boolean {
   if (!pin.cases.length) return false;
   const confirmation = pin.confirmation;
-  if (pin.source === 'request') return confirmation.kind === 'request'
+  return pin.source === 'request' && confirmation?.kind === 'request'
     && pin.cases.every(row => confirmation.cases.some(seen => seen.expr === row.expr && sameValue(seen.value, row.value)));
-  return confirmation.kind === 'base_test'
-    && pin.cases.every(row => confirmation.cases.some(seen => seen.expr === row.expr && sameValue(seen.value, row.value) && baseTestStatesCase(seen.text, seen.expr, seen.value)));
 }
 
 /**
  * The framework's pin for a finding conflict no checklist row pins, or null when it is not the framework's to decide
- * (see the module comment). `baseTests(expr)` returns the Story base commit's test lines naming `expr` (handlers:
- * `git grep` at the base SHA); absent = no base test.
+ * (see the module comment): only a request-quoted value decides.
  */
 export function frameworkConflictPin(args: { finding: { id: string; desc?: string }; resolved: { id: string; desc?: string };
-  conflict: { kind?: string; resolvedId?: string | null }; requestText: string | null | undefined;
-  baseTests?: (expr: string) => readonly BaseTestLine[] }): FrameworkConflictPin | null {
+  conflict: { kind?: string; resolvedId?: string | null }; requestText: string | null | undefined }): FrameworkConflictPin | null {
   if (args.conflict.kind === 'precedent' || !args.conflict.resolvedId || /\[precedent-conflict\]/i.test(args.finding.desc ?? '')) return null;
   const cases = statedBaseCases(args.finding.desc).filter(row => row.head === undefined || !sameValue(row.head, row.base));
   if (!cases.length) return null;
   const f = short(args.finding.id);
   const g = short(args.resolved.id);
-  // 1. The request decides a case it quotes (precedence: request text first).
+  // The request decides the cases it quotes (precedence: request text first); a silent request is the PLAN pin's.
   const stated = cases.flatMap(row => {
     const value = requestStatedValue(args.requestText, row.expr);
     return value === null ? [] : [{ row, value }];
@@ -163,20 +122,7 @@ export function frameworkConflictPin(args: { finding: { id: string; desc?: strin
     return { side, source: 'request', confirmation: { kind: 'request', cases: decided }, cases: decided,
       reason: `the request states ${list}, which ${side === 'finding' ? `open ${f} demands; resolved ${g}'s covering test states otherwise` : `resolved ${g}'s repair keeps; open ${f} demands otherwise`}` };
   }
-  // 2. The Story base: a test at the base commit states every case with the base value the finding demands. The finding's
-  // statement only names the cases; it is never evidence, and nothing it wrote is executed.
-  if (!args.baseTests) return null;
-  const confirmed: Array<{ expr: string; value: string; file: string; line: number; text: string }> = [];
-  for (const row of cases) {
-    let lines: readonly BaseTestLine[] = [];
-    try { lines = args.baseTests(row.expr); } catch { lines = []; }
-    const hit = lines.find(line => baseTestStatesCase(line.text, row.expr, row.base));
-    if (!hit) return null;
-    confirmed.push({ expr: row.expr, value: row.base, file: hit.file, line: hit.line, text: hit.text });
-  }
-  const list = confirmed.map(row => `\`${row.expr}\` -> \`${row.value}\` (${row.file}:${row.line} at the Story base)`).join(', ');
-  return { side: 'finding', source: 'story_base', confirmation: { kind: 'base_test', cases: confirmed }, cases: cases.map(row => ({ expr: row.expr, value: row.base })),
-    reason: `the request is silent on ${cases.length > 1 ? 'these cases' : 'this case'} and a test of the Story base states the base behaviour open ${f} demands (${list}); resolved ${g}'s covering test pins a value the request does not ask for, so the base behaviour stands` };
+  return null;
 }
 
 /** The repair prompt block of a finding whose conflict the framework pinned on its side (the repair keeps the pinned values). */
