@@ -13,9 +13,15 @@
  *                    core/plan-pin-probe.ts baseEvaluator) runs the row's case (its statements and subject,
  *                    core/request-probes.ts itemProbeCases) on a `git archive` of the Story base. A value or an error
  *                    is evidence; a case the base cannot run (new syntax, unbound name, timeout) is none;
- *   base_test        a base test source states the case as a string literal followed, on the same line, by one value
- *                    literal (a quoted string, a bracket group, a number, a Go composite `[]T{...}`), and every such line
- *                    states the same value (table tests: `{"<case>", <value>}`). Read cases only (no statements).
+ *   base_test        base test sources state the case positively, and every line naming it agrees (read cases only, no
+ *                    statements). Strict shapes only (lab pin-base-assert security review, `strictPositiveValue`): a
+ *                    whole-line table row `{"<case>", <value>}` / `[...]` / `(...)` of exactly two elements, a keyed row
+ *                    `{input: "<case>", expected: <value>}`, or a map entry `"<case>": <value>`, inside a table literal
+ *                    whose header denies nothing (`notWant`, `invalid`, `bad`, ...); the value one literal (a quoted
+ *                    string, a bracket group, a number, a Go composite `[]T{...}`). The case matches as a whole string
+ *                    literal, whitespace free only outside its own string literals. Any other non-comment line naming the
+ *                    case (a negated or conditional-failure assert, the value in another column, a partial subject)
+ *                    means the base tests do not decide; a parser row (the value is the case re-rendered) is skipped.
  * Nothing else is evidence: the framework never derives a value by hand, and no evidence means no decision.
  *
  * Pin audit (`pinAuditBaseDecisions`): for each pin-audit gap of the current scope-plan verdict:
@@ -36,8 +42,9 @@
  *
  * Detection-neutral by construction: a correction is dropped only when base evidence positively contradicts it, and a
  * request sentence stating the reviewer's value always wins. Limits: without a declared evaluator only request literals
- * and base tests that state the exact case decide (run 134's control arm declared none, and no base test states
- * `[0,1,2,3][1:2]`); an error text is compared by containment only.
+ * and base tests that state the exact case in a strict positive row decide (run 134's control arm declared none, and no
+ * base test states `[0,1,2,3][1:2]`); an error text is compared by containment only; a positive two-column row of
+ * another function's table (not a parser row of the case) still reads as that case's value.
  */
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -87,39 +94,170 @@ export function rowCase(item: Pick<ChecklistItem, 'id' | 'verificationIntent'>, 
   return only.unbound || only.dropped.length ? null : only;
 }
 
-/** A Go composite `[]T{a, b}` as a group `[a, b]`; any other literal unchanged. */
-function asGroup(literal: string): string {
-  return /^\{/.test(literal) ? `[${literal.slice(1, -1)}]` : literal;
-}
+// ---------------------------------------------------------------------------
+// base_test: strict positive assertion shapes only (lab pin-base-assert security review)
+//
+// Base evidence REFUTES a reviewer's correction, so a base test line decides only in a shape that positively states the
+// case with its expected value. Before, any string literal equal to the case followed by one value literal decided, and
+// a negated assert (`assert.NotEqual(t, "<case>", "<v>")`, `assertNotEqual`, `if "<case>" == "<v>" { t.Fatal }`,
+// `.not.`), a comment, a three-column / flag-column row, a not-want table, a keyed dict row (the key `"expected"` read as
+// the value), Python implicit concatenation and a parser table row (the printed input) all refuted or re-pinned the row;
+// whitespace inside a string literal of the case was dropped too (`len("a b")` matched `len("ab")`).
 
-/** The one value literal a base test line states right after the case literal at `after`, or null. */
-function valueAfter(line: string, after: number): string | null {
-  const rest = line.slice(after).replace(/^\s*(?:,|:|=>|->|==)?\s*/, '');
-  const composite = rest.match(/^\[\](?:[\w.*]+)\s*(?=\{)/);
-  if (composite) {
-    const group = leadingLiteral(rest.slice(composite[0].length));
-    return group ? asGroup(group) : null;
+const STRING_LITERAL = /"((?:[^"\\\n]|\\.)*)"|'((?:[^'\\\n]|\\.)*)'|`([^`\n]*)`/g;
+const INPUT_KEYS = new Set(['input', 'in', 'code', 'src', 'source', 'expr', 'expression', 'program', 'given', 'text']);
+const EXPECTED_KEYS = new Set(['want', 'wanted', 'expected', 'expect', 'expectedoutput', 'wantoutput', 'output', 'out', 'result']);
+/** A negated or conditional-failure assertion (string literals blanked first, so a case's own text never counts). */
+const NEGATED = /!=|\bnot\b|\.not\b|Not(?=[A-Z_(]|\b)|\bnot(?=[A-Z_])|assertFalse|isFalse|toBeFalsy|\bt\.(?:Fatal|Error|Fail)|\b[Ff]ail\w*\s*\(|\bpanic\s*\(|\braise\b|\bthrow\b|^\s*(?:if|elif|else\s+if|unless|while|when)\b/;
+/** Words of a table header that deny its rows (`notWant`, `invalidCases`, `bad`, `xfail`, ...). */
+const DENYING_WORDS = new Set(['not', 'no', 'non', 'invalid', 'bad', 'fail', 'fails', 'failing', 'failure', 'failures', 'unexpected', 'wrong', 'reject',
+  'rejected', 'rejects', 'forbidden', 'never', 'mismatch', 'illegal', 'broken', 'xfail', 'skip', 'todo', 'unwanted']);
+const COMMENT_LINE = /^\s*(?:\/\/|#|\/\*|\*|--)/;
+
+/** Code text compared as a case: whitespace outside string literals is free (one space kept between word characters), inside them it is kept. */
+function codeKey(text: string): string {
+  const source = text.trim();
+  let out = '';
+  for (let index = 0; index < source.length; index += 1) {
+    const char = source[index]!;
+    if (char === '"' || char === "'" || char === '`') {
+      let end = index + 1;
+      while (end < source.length && source[end] !== char) end += source[end] === '\\' ? 2 : 1;
+      out += source.slice(index, end + 1);
+      index = end;
+    } else if (/\s/.test(char)) {
+      let end = index;
+      while (end < source.length && /\s/.test(source[end]!)) end += 1;
+      if (/\w/.test(out.at(-1) ?? '') && /\w/.test(source[end] ?? '')) out += ' ';
+      index = end - 1;
+    } else out += char;
   }
-  return leadingLiteral(rest);
+  return out;
 }
 
-/** Base tests stating `expr` as a string literal with one value after it; null when none or when they disagree. */
+/** The contents of a whole string literal element (`"..."`, `'...'`, `` `...` ``), or null. */
+function stringContents(element: string): string | null {
+  const text = element.trim();
+  const match = text.match(/^(?:"((?:[^"\\\n]|\\.)*)"|'((?:[^'\\\n]|\\.)*)'|`([^`\n]*)`)$/);
+  if (!match) return null;
+  if (match[1] !== undefined) return match[1].replace(/\\(["\\])/g, '$1');
+  if (match[2] !== undefined) return match[2].replace(/\\(['\\])/g, '$1');
+  return match[3] ?? null;
+}
+
+/** A whole value element: one literal (a quoted string, a bracket group, a number) or a Go composite `[]T{...}` (as a group). */
+function wholeValue(element: string): string | null {
+  const text = element.trim();
+  const composite = text.match(/^\[\](?:[\w.*]+)\s*(?=\{)/);
+  if (composite) {
+    const group = leadingLiteral(text.slice(composite[0].length));
+    return group && group === text.slice(composite[0].length).trim() ? `[${group.slice(1, -1)}]` : null;
+  }
+  const literal = leadingLiteral(text);
+  return literal && literal === text ? literal : null;
+}
+
+/** Top-level comma-separated elements of a group's inside (strings and nested groups kept whole); a trailing comma dropped. */
+function topLevelElements(inner: string): string[] | null {
+  const out: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let index = 0; index < inner.length; index += 1) {
+    const char = inner[index]!;
+    if (char === '"' || char === "'" || char === '`') {
+      let end = index + 1;
+      while (end < inner.length && inner[end] !== char) end += inner[end] === '\\' ? 2 : 1;
+      if (end >= inner.length) return null;
+      index = end;
+    } else if ('[{('.includes(char)) depth += 1;
+    else if (']})'.includes(char)) { depth -= 1; if (depth < 0) return null; }
+    else if (char === ',' && depth === 0) { out.push(inner.slice(start, index)); start = index + 1; }
+  }
+  if (depth !== 0) return null;
+  const last = inner.slice(start);
+  if (last.trim() || !out.length) out.push(last);
+  return out.map(element => element.trim());
+}
+
+const keyed = (element: string): { key: string; rest: string } | null => {
+  const match = element.match(/^(?:"(\w+)"|'(\w+)'|(\w+))\s*:\s*([\s\S]*)$/);
+  return match ? { key: (match[1] ?? match[2] ?? match[3]!).replace(/_/g, '').toLowerCase(), rest: match[4]! } : null;
+};
+
+/**
+ * The value a base test line positively states for the case `want` (a codeKey), or null. Strict shapes only, the whole
+ * line (a trailing `,` / `;` allowed, nothing else):
+ *   table row   `{"<case>", <value>}` / `["<case>", <value>]` / `("<case>", <value>)`: exactly two elements;
+ *   keyed row   `{input: "<case>", expected: <value>}` (Go / JS / a Python dict; input key first, expected key second);
+ *   map entry   `"<case>": <value>`.
+ */
+function strictPositiveValue(line: string, want: string): string | null {
+  const text = line.trim().replace(/[,;]\s*$/, '').trim();
+  const isCase = (element: string): boolean => {
+    const contents = stringContents(element);
+    return contents !== null && codeKey(contents) === want;
+  };
+  if (/^[[{(]/.test(text)) {
+    const group = leadingLiteral(text);
+    if (!group || group !== text) return null;
+    const elements = topLevelElements(group.slice(1, -1));
+    if (!elements || elements.length !== 2) return null;
+    const [first, second] = elements as [string, string];
+    if (isCase(first)) return wholeValue(second);
+    const input = keyed(first);
+    const expected = keyed(second);
+    if (input && expected && INPUT_KEYS.has(input.key) && EXPECTED_KEYS.has(expected.key) && isCase(input.rest)) return wholeValue(expected.rest);
+    return null;
+  }
+  const entry = text.match(/^("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`[^`\n]*`)\s*:\s*([\s\S]+)$/);
+  return entry && isCase(entry[1]!) ? wholeValue(entry[2]!) : null;
+}
+
+/** The header of the table literal a row line sits in (the nearest line above that opens it), or null (no table). */
+function tableHeader(lines: readonly string[], index: number): string | null {
+  for (let at = index - 1; at >= 0 && at >= index - 400; at -= 1) {
+    const line = lines[at]!;
+    if (!line.trim() || COMMENT_LINE.test(line) || /^\s*[[{("'`\]})]/.test(line)) continue;
+    return /[[{(]\s*$/.test(line) ? line : null;
+  }
+  return null;
+}
+
+const denies = (header: string): boolean => header.split(/[^A-Za-z0-9]+/)
+  .flatMap(word => word.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase().split(' '))
+  .some(word => DENYING_WORDS.has(word));
+
+/** The line with every string literal blanked (`""`), so a negation test never reads a literal's own text. */
+const withoutStrings = (line: string): string => line.replace(STRING_LITERAL, '""');
+
+/**
+ * Base tests positively stating `expr` with one value; null (the source does not decide) when none states it, when they
+ * disagree, or when any non-comment line naming the case as a whole string literal is not a strict positive row
+ * (`strictPositiveValue`) of a table whose header denies nothing: a negated / conditional-failure assert, a value outside
+ * the expected position, a partial subject, a row outside a table literal. Only a row whose value is the case itself
+ * re-rendered (a parser / printer test) is skipped instead.
+ */
 function baseTestValue(files: readonly SourceText[], expr: string): BaseEvidence | null {
-  const want = squash(expr);
-  if (want.length < 3) return null;
+  const want = codeKey(expr);
+  if (squash(want).length < 3) return null;
+  const render = (value: string): string => (stringContents(value) ?? value).replace(/[\s()]/g, '');
   const found: Array<{ value: string; at: string }> = [];
   for (const file of files) {
     if (!isTestSource(file.path)) continue;
     const lines = file.text.split('\n');
     for (let index = 0; index < lines.length; index += 1) {
       const line = lines[index]!;
-      if (!line.includes(expr.trim()[0] ?? '')) continue;
-      for (const match of line.matchAll(/"((?:[^"\\\n]|\\.)*)"|`([^`\n]*)`/g)) {
-        const text = (match[1] ?? match[2] ?? '').replace(/\\(["\\])/g, '$1');
-        if (squash(text) !== want) continue;
-        const value = valueAfter(line, match.index! + match[0].length);
-        if (value) found.push({ value, at: `${file.path}:${index + 1}` });
-      }
+      if (!line.includes(expr.trim()[0] ?? '') || COMMENT_LINE.test(line)) continue;
+      const names = [...line.matchAll(STRING_LITERAL)].some(match => codeKey((stringContents(match[0]) ?? '')) === want);
+      if (!names) continue;
+      // Fail closed: every line naming the case must be a strict positive row of a table that denies nothing.
+      if (NEGATED.test(withoutStrings(line))) return null;
+      const value = strictPositiveValue(line, want);
+      const header = value ? tableHeader(lines, index) : null;
+      if (!value || header === null || denies(header)) return null;
+      // A row whose value is the case itself re-rendered (spacing / parentheses) is a parser or printer test, not a value.
+      if (render(value) === render(expr)) continue;
+      found.push({ value, at: `${file.path}:${index + 1}` });
     }
   }
   if (!found.length || found.some(row => !sameValue(row.value, found[0]!.value))) return null;

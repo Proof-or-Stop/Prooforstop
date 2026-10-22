@@ -95,7 +95,7 @@ await check('E3 detection-neutral: no base evidence, base agreeing with the revi
   const scope = await scopeOf(items, [GAP]);
   assert.equal(decide(ctxOf(), items, scope.features)[0]?.decision, 'keep', 'no evidence');
   assert.equal(decide(ctxOf({ tests: [BASE_TEST('[2]')] }), items, scope.features)[0]?.decision, 'keep', 'the base agrees with the reviewer');
-  assert.equal(decide(ctxOf({ tests: [BASE_TEST('[1]'), { path: 'lang/more_test.go', text: '{"[0,1,2,3][1:2]", "[9]"},\n' }] }), items, scope.features)[0]?.decision, 'keep', 'base tests disagree: no evidence');
+  assert.equal(decide(ctxOf({ tests: [BASE_TEST('[1]'), { ...BASE_TEST('[9]'), path: 'lang/more_test.go' }] }), items, scope.features)[0]?.decision, 'keep', 'base tests disagree: no evidence');
   assert.equal(decide(ctxOf({ tests: [{ path: 'lang/slice.go', text: '{"[0,1,2,3][1:2]", "[1]"},\n' }] }), items, scope.features)[0]?.decision, 'keep', 'a non-test source is no evidence');
   const stated = decide(ctxOf({ request: 'Ranges include the end: `[0,1,2,3][1:2] -> [2]`.', tests: [BASE_TEST('[1]')] }), items, scope.features)[0];
   assert.equal(stated?.decision, 'keep', 'a request sentence stating the reviewer\'s value outranks the base');
@@ -124,6 +124,8 @@ await check('E4 a third base value: the correction offers the BASE value, not th
 // denies it (negated / conditional-failure asserts), states the value outside the expected position, comments, or a
 // literal that is only part of the subject must never decide.
 const ROW_TEST = (text: string) => ({ path: 'lang/slice_test.go', text });
+/** Inside a positive table (a header that denies nothing), so each line is judged by its own shape. */
+const IN_TABLE = (text: string) => ROW_TEST(/notWant/.test(text) ? text : `var tests = []struct{ input, expected string }{\n${text}}\n`);
 const NOT_EVIDENCE: Record<string, string> = {
   'Go assert.NotEqual(t, case, pinned)': '\tassert.NotEqual(t, "[0,1,2,3][1:2]", "[1]")\n',
   'Python assertNotEqual(case, pinned)': '        self.assertNotEqual("[0,1,2,3][1:2]", "[1]")\n',
@@ -145,14 +147,14 @@ await check('E8 security: a negated / conditional-failure assert, the value outs
   const scope = await scopeOf(items, [GAP]);
   const wrong: string[] = [];
   for (const [label, text] of Object.entries(NOT_EVIDENCE)) {
-    const decision = decide(ctxOf({ tests: [ROW_TEST(text)] }), items, scope.features)[0];
+    const decision = decide(ctxOf({ tests: [IN_TABLE(text)] }), items, scope.features)[0];
     if (decision?.decision !== 'keep' || decision.evidence) wrong.push(`${label}: ${decision?.decision} (${decision?.why?.slice(0, 80)})`);
   }
   // A third-value line of the same shapes must not re-pin the row either (decision correct).
   const third = judged({ ...ROW, desc: '[0,1,2,3][1:2] -> [7]' });
   const thirdScope = await scopeOf(third, ['pin-audit CHK-001:edge:0: pins [0,1,2,3][1:2] -> [7]; request gives [2] because ranges include the end']);
   for (const [label, text] of Object.entries(NOT_EVIDENCE)) {
-    const decision = decide(ctxOf({ tests: [ROW_TEST(text)] }), third, thirdScope.features)[0];
+    const decision = decide(ctxOf({ tests: [IN_TABLE(text)] }), third, thirdScope.features)[0];
     if (decision?.decision !== 'keep') wrong.push(`third value, ${label}: ${decision?.decision} ${decision?.value}`);
   }
   assert.deepEqual(wrong, [], wrong.join(' ;; '));
