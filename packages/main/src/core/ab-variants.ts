@@ -225,8 +225,9 @@
  *
  * Lab stale-cross-pin (old-PoS run 149, Story B-55bd F-004):
  *   remediation.staleCrossPin  'on' (default) | 'off'  a resolved finding's recorded covering test that fails only on rows a
- *                              later framework-bound repair of a verified finding re-pinned (its commit removed and re-added
- *                              the case, and changed a product file the guard cites; never the finding's own rows or repro)
+ *                              later framework-bound repair of a verified finding resolved BEFORE the judged repair re-pinned
+ *                              (its commit removed and re-added the case, and changed a product file the guard cites; never
+ *                              the finding's own rows or repro; the judged repair, a batch sibling or HEAD never sanction)
  *                              is excused (`sanctioned_repair`): no blame, no [regression-of] finding, no resumed turn; and a
  *                              batch member whose repair commit precedes another member's is guarded against the later
  *                              ones at the batch acceptance (core/resolved-finding-guard.ts staleCrossPinSources)

@@ -60,15 +60,17 @@
  * both were resolved in one batch, whose members were never guarded against each other, so F-001's scope-`functions`
  * guard was born stale. A later test-only repair of F-003 was told it broke F-001 (two resumed turns) and finding_resolve
  * opened F-004 `[regression-of F-001]` ("a later commit"), one more repair session that changed only tests.
- *   D. a failed guard whose only failing rows a later framework-bound repair of another verified finding re-pinned
+ *   D. a failed guard whose only failing rows a later framework-bound repair of another verified finding, resolved before
+ *      the repairs being judged (never the judged repair, a batch sibling, or what the judged run committed), re-pinned
  *      (staleCrossPinSources: its commit removed and re-added a line stating the failure-quoted case and changed a
  *      product file the guard cites; the row is not the guarded finding's own and does not state its repro) is re-run
  *      without those rows; passing, it is excused (`excused: sanctioned_repair`, `sanctionedBy`, `staleCases`): no
  *      blame, no regression finding, no resumed turn. The sanction comes from the managed run binding (finding_resolve)
  *      or the framework-appended repair-commit marker (dry run), never from free text such as an `[intent-conflict]`.
  *   E. at a batch acceptance, a member whose repair commit precedes another member's is guarded against the later
- *      members (event `batchSiblings`); a failure there blames only those later members, so the stale pin (or a real
- *      sibling regression) is decided where it is created, not blamed on a later repair.
+ *      members (event `batchSiblings`); a failure there blames only those later members, so a real sibling regression is
+ *      decided where it is created. A failure explained only by a later sibling's re-pin is journaled `deferred` (neither
+ *      blamed nor excused; a sibling being judged sanctions nothing) and is excused once that sibling is resolved.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -577,8 +579,8 @@ export interface StaleCrossPinPlan {
  * Lab stale-cross-pin (old-PoS run 149): the recorded test source of a FAILED repair guard without its stale rows, or
  * null. A row is stale when ALL of these hold, each from git and the finding records (never from free text):
  *   - a failure line of the recorded run (`<file>_test.go:<n>: ...`) quotes a probe-like case literal;
- *   - a sanctioning repair (`sanctioners`: a framework-bound repair commit of another verified finding, resolved or being
- *     accepted now) whose commit descends from the guard's snapshot and is on HEAD, changed a non-test file the guard
+ *   - a sanctioning repair (`sanctioners`: regressionGuardCheck passes only the framework-bound repair commits of verified
+ *     findings resolved BEFORE the repairs being judged) whose commit descends from the guard's snapshot and is on HEAD, changed a non-test file the guard
  *     cites AND a guard test file, removing a line stating that case and adding a line stating it again (a re-pin; a
  *     deleted row or a test-only flip sanctions nothing);
  *   - the row is a composite-literal row of a selected test function and is NOT the guarded finding's own: no line its
@@ -887,7 +889,12 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
    * Lab stale-cross-pin: the framework-bound repair commit of a resolved finding that may sanction a re-pin (finding_resolve:
    * the managed run binding; absent = the framework-appended marker of its resolution, frameworkRepairCommitOf).
    */
-  sanctionCommitOf?: (finding: Finding) => string | null }): GuardFailure[] {
+  sanctionCommitOf?: (finding: Finding) => string | null;
+  /**
+   * Lab stale-cross-pin: the commit the judged work starts from (the managed dry run: the repair's launch head). A sanction
+   * commit must be an ancestor of it, so nothing the judged run committed (HEAD included) can sanction.
+   */
+  judgedBase?: string | null }): GuardFailure[] {
   const { store, storyId, findings, repairs } = args;
   if (!repairs.length) return [];
   const staleOn = args.staleCrossPin ?? (() => { try { return staleCrossPinOn(loadConfig(args.projectRoot)); } catch { return true; } })();
@@ -947,16 +954,22 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
     }
     pending.push({ guarded, guard, currentTests });
   }
-  // Lab stale-cross-pin: the repairs that may sanction a re-pin (framework-bound commits only), built once on demand.
+  // Lab stale-cross-pin: the repairs that may sanction a re-pin, built once on demand. Only findings ALREADY resolved as
+  // verified fixes, by a framework-bound repair commit that strictly precedes every repair being judged now (and, in the
+  // dry run, the judged run's launch head): never a member of the current batch, never the judged repair itself, never
+  // HEAD or anything else the judged run committed. A repair can never sanction away the guard that judges it.
   let sanctioners: Array<{ findingId: string; commit: string }> | null = null;
+  const judgedIds = new Set(repairs.map(row => row.findingId));
   const sanctionersNow = (): Array<{ findingId: string; commit: string }> => {
     if (sanctioners) return sanctioners;
-    const resolvedRows = guardableResolved(findings).filter(row => row.resolutionType !== 'duplicate' && row.resolutionType !== 'accepted_risk').flatMap(row => {
+    sanctioners = guardableResolved(findings).filter(row => !judgedIds.has(row.id) && row.evidenceState === 'verified' && (row.resolutionType === undefined || row.resolutionType === 'fixed')).flatMap(row => {
       let commit: string | null = null;
       try { commit = args.sanctionCommitOf ? args.sanctionCommitOf(row) : frameworkRepairCommitOf(args.gitCwd, row); } catch { commit = null; }
-      return commit ? [{ findingId: row.id, commit }] : [];
+      if (!commit) return [];
+      if (repairs.some(judged => judged.commit === commit || !isAncestor(args.gitCwd, commit!, judged.commit))) return [];
+      if (args.judgedBase !== undefined && (!args.judgedBase || !isAncestor(args.gitCwd, commit, args.judgedBase))) return [];
+      return [{ findingId: row.id, commit }];
     });
-    sanctioners = [...resolvedRows, ...repairs.map(row => ({ findingId: row.findingId, commit: row.commit }))];
     return sanctioners;
   };
   // Old-PoS run 73 (E): the guards that pass run in one invocation per package; any other (or failing) guard runs on its own.
@@ -966,6 +979,9 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
     const result: GuardResult & { output?: string } = unionResult ?? runFindingGuard({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard, currentTests });
     // Old-PoS run 58 (B): the current pins of the case, else the Story base, before blaming.
     let excused: { reason: 'checklist_pin' | 'story_base' | typeof STALE_CROSS_PIN_EXCUSE; why: string; sanctionedBy?: Array<{ findingId: string; commit: string }>; staleCases?: string[] } | null = null;
+    const later = sibling.get(guarded.id);
+    /** A batch sibling whose only failing rows a later sibling re-pinned: neither blamed nor excused (it is judged once resolved). */
+    let deferred: { why: string; repinnedBy: Array<{ findingId: string; commit: string }>; staleCases: string[] } | null = null;
     if (!result.passed && !result.inconclusive) {
       const pins = guard.scope === 'repro' && args.checklist ? guardStatesPins(args.gitCwd, guard, args.checklist.current) : null;
       if (pins && pins.pins.length && !pins.agrees) {
@@ -989,20 +1005,33 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
               + `without those ${plan.droppedRows} row(s) the recorded test of ${short(guarded.id)} passes (\`${rerun.command}\`)` };
         }
       }
+      // The batch sibling path: the later siblings are being judged now and never sanction. When their re-pin explains every
+      // failure the member is not blamed on them here (the batch never checked its members before: no weaker than that); it
+      // is judged as a resolved finding later, where only an already-resolved repair can excuse it.
+      if (!excused && later && staleOn && result.restoredTests && !currentTests) {
+        const siblings = repairs.filter(row => later.has(row.findingId));
+        const plan = staleCrossPinSources({ gitCwd: args.gitCwd, guard, guarded, output: result.output ?? '', sanctioners: siblings });
+        const rerun = plan ? runRestoredAt({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard, ref: 'HEAD', sources: plan.sources }) : null;
+        if (plan && rerun?.passed) {
+          deferred = { repinnedBy: plan.sanctionedBy, staleCases: plan.staleCases,
+            why: `only rows a later batch sibling re-pinned fail (${plan.staleCases.map(text => `\`${text}\``).join(', ')}); not blamed in this batch, not excused` };
+        }
+      }
     }
-    const later = sibling.get(guarded.id);
-    const blamed = result.passed || excused ? [] : repairs.filter(row => (!later || later.has(row.findingId)) && (!guard.citedFiles.length || guard.citedFiles.some(file => repairFiles.get(row.findingId)?.has(file))))
+    const blamed = result.passed || excused || deferred ? [] : repairs.filter(row => (!later || later.has(row.findingId)) && (!guard.citedFiles.length || guard.citedFiles.some(file => repairFiles.get(row.findingId)?.has(file))))
       .map(row => ({ findingId: row.findingId, commit: row.commit }));
     try {
       store.appendProcessEvent(storyId, { type: REGRESSION_GUARD_EVENT, findingId: guarded.id, headHash: args.headHash, materialHash: args.materialHash ?? null, passed: result.passed, inconclusive: result.inconclusive,
         command: result.command, restoredTests: result.restoredTests, scope: guard.scope ?? 'functions', ...(currentTests ? { currentTests: true } : {}), ...(unionResult ? { unionRun: true } : {}),
         ...(later ? { batchSiblings: [...later] } : {}),
         ...(result.passed ? {} : excused ? { outputTail: result.outputTail, excused: excused.reason, excusedWhy: excused.why,
-          ...(excused.sanctionedBy ? { sanctionedBy: excused.sanctionedBy, staleCases: excused.staleCases } : {}) } : { outputTail: result.outputTail, rejectedRepairs: blamed }) });
+          ...(excused.sanctionedBy ? { sanctionedBy: excused.sanctionedBy, staleCases: excused.staleCases } : {}) }
+          : deferred ? { outputTail: result.outputTail, deferred: 'batch_sibling_repin', deferredWhy: deferred.why, repinnedBy: deferred.repinnedBy, staleCases: deferred.staleCases }
+          : { outputTail: result.outputTail, rejectedRepairs: blamed }) });
     } catch { /* the refusal still carries the facts */ }
     // A batch sibling's failure is a regression only of the later members that touched its files (anything else is judged
     // once the member is resolved, as before).
-    if (!result.passed && !excused && (!later || blamed.length)) failures.push({ guarded, guard, result, blamed });
+    if (!result.passed && !excused && !deferred && (!later || blamed.length)) failures.push({ guarded, guard, result, blamed });
   }
   return failures;
 }

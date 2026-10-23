@@ -86,7 +86,7 @@
  *                                    the changed shared helpers with every caller
  *   Lab stale-cross-pin (old-PoS run 149; behaviour in tasks/run149-fixes-smoke.ts):
  *   remediation.staleCrossPin        default ON (`off` = rollback): a resolved finding's recorded test failing only on rows a
- *                                    later framework-bound repair re-pinned is excused (sanctioned_repair); grouped batch
+ *                                    later framework-bound repair, resolved before the judged one, re-pinned is excused (sanctioned_repair); grouped batch
  *                                    members are guarded against their later siblings at the batch acceptance
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,

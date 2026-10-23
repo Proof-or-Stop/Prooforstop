@@ -14,10 +14,13 @@
  *
  *   S. Stale cross-finding pin (switch remediation.staleCrossPin, default on): a failing guard row of a case that a later
  *      framework-bound repair of a verified finding re-pinned (its commit removed the row's case line and added a line
- *      stating the case, and changed a product file the guard cites) is dropped from the recorded test source; when the
+ *      stating the case, and changed a product file the guard cites; resolved before the repair being judged) is dropped from the recorded test source; when the
  *      rest of the recorded test passes on the current code the guard is excused (`excused: sanctioned_repair`): no
  *      blame, no `[regression-of]` finding, no resumed turn. At a batch acceptance a member whose repair commit precedes
- *      another member's is now guarded too, so the stale pin is caught where it is created.
+ *      another member's is now guarded too, so the re-pin is recorded where it is created and a real sibling break blamed.
+ *   Security (S10-S12): only findings resolved BEFORE the judged repairs sanction; the judged repair, a same-batch member
+ *      and anything the judged run committed (HEAD in the dry run) never do, so [regression-of A] still opens. A batch
+ *      sibling's re-pin by a later sibling is journaled `deferred` (neither blamed nor excused).
  *   Controls (fail closed): a row the guarded finding's own repair wrote, or one stating its repro, is never dropped; a
  *      deleted-not-re-pinned row, a test-only "sanction", a sanction named only in resolution text, and a remaining
  *      failure on another row keep the regression; a grouped later commit that breaks an earlier member's own row is
@@ -154,15 +157,16 @@ await check('S1 run 149 round 2: F-001\'s recorded test fails only on the Nil ro
   } finally { cleanup(fx); }
 });
 
-await check('S2 earliest point: at the batch acceptance of the grouped repair (F-001 then F-002) F-001\'s guard runs against F-002\'s later commit and the stale pin is journaled there', () => {
+await check('S2 earliest point: at the batch acceptance of the grouped repair (F-001 then F-002) F-001\'s guard runs against F-002\'s later commit; the re-pin is journaled (deferred: neither blamed nor excused, F-002 being judged sanctions nothing)', () => {
   const fx = fixture();
   try {
     const findings = [finding(1, F1_DESC, ['rng/rng.go']), finding(2, F2_DESC, ['rng/rng.go', 'rng/rng_test.go'])];
     const { out, events } = guardCheck(fx, findings, [{ findingId: F(1), commit: fx.repair1 }, { findingId: F(2), commit: fx.repair2 }]);
     assert.deepEqual(out.map(row => row.guarded.id), [], `both repairs accepted: ${JSON.stringify(events)}`);
     const event = guardEvent(events, F(1));
-    assert.equal(event?.excused, 'sanctioned_repair', `F-001 was guarded against its batch sibling and the stale pin recorded: ${JSON.stringify(events)}`);
-    assert.deepEqual(event?.sanctionedBy, [{ findingId: F(2), commit: fx.repair2 }]);
+    assert.equal(event?.deferred, 'batch_sibling_repin', `F-001 was guarded against its batch sibling and the re-pin recorded: ${JSON.stringify(events)}`);
+    assert.equal(event?.excused, undefined, 'a sibling being judged never excuses (the event is not reusable as a pass)');
+    assert.deepEqual(event?.repinnedBy, [{ findingId: F(2), commit: fx.repair2 }]);
     assert.equal(guardEvent(events, F(2)), undefined, 'the newest member has no later sibling: not guarded in its own batch');
   } finally { cleanup(fx); }
 });
@@ -284,6 +288,50 @@ await check('S9 switch remediation.staleCrossPin: default on, off = rollback (ru
     const fromConfig = guardCheck(fx, findings, [{ findingId: F(3), commit: repair3 }], { frameworkCommits: { [F(1)]: fx.repair1, [F(2)]: fx.repair2 } });
     assert.deepEqual(fromConfig.out.map(row => row.guarded.id), [F(1)], 'the project config switch is read when no explicit value is passed');
   } finally { cleanup(fx); resetConfigCache(); }
+});
+
+// ---------------------------------------------------------------------------
+// Security review: a repair can never sanction away the guard that judges it
+
+await check('S10 security: the repair being judged cannot sanction itself (F-002 re-pins F-001\'s DEV row at its own acceptance: [regression-of F-001], F-002 blamed)', () => {
+  const fx = fixture();
+  try {
+    const findings = [resolved(1, F1_DESC, ['rng/rng.go'], fx.repair1), finding(2, F2_DESC, ['rng/rng.go', 'rng/rng_test.go'])];
+    const { out, events } = guardCheck(fx, findings, [{ findingId: F(2), commit: fx.repair2 }], { frameworkCommits: { [F(1)]: fx.repair1, [F(2)]: fx.repair2 } });
+    assert.deepEqual(out.map(row => row.guarded.id), [F(1)], `no self-sanction: ${JSON.stringify(guardEvent(events, F(1)))}`);
+    assert.deepEqual(out[0]!.blamed, [{ findingId: F(2), commit: fx.repair2 }], 'the judged repair is blamed');
+    assert.equal(guardEvent(events, F(1))?.excused, undefined);
+    const desc = api(guardModule, 'regressionFindingDesc')({ storyId: STORY, guarded: out[0]!.guarded, result: out[0]!.result, blamed: out[0]!.blamed }) as string;
+    assert.match(desc, /^\[regression-of F-001\] the repair of F-002/);
+  } finally { cleanup(fx); }
+});
+
+await check('S11 security: a same-batch member that is not yet resolved cannot sanction (F-002 and F-003 judged together; F-002\'s re-pin of resolved F-001\'s row: [regression-of F-001])', () => {
+  const fx = fixture();
+  try {
+    const repair3 = round2TestOnly(fx);
+    const findings = [resolved(1, F1_DESC, ['rng/rng.go'], fx.repair1), finding(2, F2_DESC, ['rng/rng.go', 'rng/rng_test.go']), finding(3, F3_DESC, ['rng/rng_test.go'])];
+    const { out, events } = guardCheck(fx, findings, [{ findingId: F(2), commit: fx.repair2 }, { findingId: F(3), commit: repair3 }],
+      { frameworkCommits: { [F(1)]: fx.repair1, [F(2)]: fx.repair2, [F(3)]: repair3 } });
+    assert.ok(out.some(row => row.guarded.id === F(1)), `no sanction from the batch: ${JSON.stringify(guardEvent(events, F(1)))}`);
+    assert.ok(out.find(row => row.guarded.id === F(1))!.blamed.some(row => row.findingId === F(2)), 'F-002 is blamed');
+    // A resolved finding whose framework commit is the judged repair's own commit is no sanction either.
+    const forged = [resolved(1, F1_DESC, ['rng/rng.go'], fx.repair1), resolved(2, F2_DESC, ['rng/rng.go', 'rng/rng_test.go'], repair3), finding(3, F3_DESC, ['rng/rng_test.go'])];
+    const self = guardCheck(fx, forged, [{ findingId: F(3), commit: repair3 }], { frameworkCommits: { [F(1)]: fx.repair1, [F(2)]: repair3 } });
+    assert.ok(self.out.some(row => row.guarded.id === F(1)), 'a sanction commit equal to (or after) the judged commit is refused');
+  } finally { cleanup(fx); }
+});
+
+await check('S12 security: in the dry run HEAD (anything the judged run committed) is never a sanction commit, even behind a resolution marker', async () => {
+  const fx = fixture();
+  try {
+    // The judged run starts at F-001's repair; its own commit (repair2 = HEAD) re-pins F-001's row, and resolved F-002's
+    // resolution carries a marker naming that commit.
+    const findings = [resolved(1, F1_DESC, ['rng/rng.go'], fx.repair1), resolved(2, F2_DESC, ['rng/rng.go', 'rng/rng_test.go'], fx.repair2), finding(3, F3_DESC, ['rng/rng.go', 'rng/rng_test.go'])];
+    const { repairRegressionFailures } = await import('../core/repair-regression-check.js') as { repairRegressionFailures: Fn };
+    const dry = repairRegressionFailures({ projectRoot: fx.root, gitCwd: fx.root, storyId: STORY, findings, items: [], findingIds: [F(3)], launchHead: fx.repair1, events: [], baseRef: fx.base }) as { failures: Array<{ id: string }> };
+    assert.ok(dry.failures.some(row => row.id === F(1)), `HEAD sanctions nothing: ${JSON.stringify(dry.failures)}`);
+  } finally { cleanup(fx); }
 });
 
 if (failures.length) {

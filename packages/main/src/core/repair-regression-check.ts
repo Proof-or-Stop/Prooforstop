@@ -14,7 +14,8 @@
  *     nothing is journaled as a guard verdict, finding_resolve stays the gate;
  *     lab stale-cross-pin (run 149): the guard's `sanctioned_repair` excuse applies here too (a row a later resolved
  *     finding's repair re-pinned is no failure of this repair: no resumed turn); its sanction commit is the
- *     framework-appended repair-commit marker of the resolution (finding_resolve re-checks it on the managed run binding);
+ *     framework-appended repair-commit marker of the resolution and must be an ancestor of the launch head (nothing this
+ *     run committed, HEAD included, sanctions; finding_resolve re-checks it on the managed run binding);
  *   - the pinned checklist verifications (`verification.command` + selector) whose command names a package (path) the
  *     repair changed: one that fails now and passed at the repair's launch head is a regression of this repair; one
  *     failing at launch too is not its doing (reported nowhere). Bounded: PINNED_MAX distinct commands.
@@ -110,6 +111,8 @@ export function repairRegressionFailures(args: { projectRoot: string; gitCwd: st
     const guardFailures = regressionGuardCheck({ store: dryStore, projectRoot: args.projectRoot, gitCwd: args.gitCwd, storyId: args.storyId, findings: args.findings,
       repairs: args.findingIds.map(findingId => ({ findingId, commit: head })), repairCommitOf: finding => repairCommitFromResolution(args.gitCwd, finding),
       coverageOf: () => null, headHash: null, materialHash: null, baseRef: args.baseRef,
+      // Lab stale-cross-pin: nothing this run committed (its launch head .. HEAD) can sanction a re-pin.
+      judgedBase: args.launchHead,
       ...(args.checklistAt ? { checklist: { current: args.items, at: args.checklistAt } } : {}) });
     for (const failure of guardFailures) {
       failures.push({ kind: 'resolved_finding', id: failure.guarded.id, command: failure.result.command, outputTail: tail(failure.result.outputTail) });

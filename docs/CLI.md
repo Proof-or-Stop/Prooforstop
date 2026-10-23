@@ -2144,6 +2144,99 @@ NPDE-D NPDE-S` (RED on the base in 10 s: the drift was a blocker, `plan_review_b
 CHK-002 / CHK-001 get covering rows, the rerun verdict re-raising only the drift reaches `enter_dev`, and the dispute step
 carries the new gap's row after a framework story_review rerun).
 
+### Old-PoS run 149: a stale cross-finding pin in a resolved finding's recorded test is framework-owned (lab `codex/lab-stale-cross-pin`)
+
+Old-PoS run 149 (Story B-55bd) paid one framework-owned noise finding: an extra finding-repair session (F-004) and two
+resumed turns of the F-003 repair, for a test row that a sanctioned repair had already re-pinned. Cross-task mechanism
+only; switch `remediation.staleCrossPin` (default on, `off` = rollback, malformed = on).
+
+- **Before (root cause, two steps).**
+  - *Born stale (round 1).* One grouped repair committed F-001 (342d333, an aliasing fix) and then F-002 (b2e3f66).
+    F-001's finding states its case in prose only (no backticked repro), so its guard is scope `functions`: every row
+    of `TestArrayRangeAssignment` as 342d333 wrote it, including a pre-existing DEV row asserting that `a[0:null] = 9`
+    errors. F-002's fix made an explicit null end mean an omitted end and re-pinned exactly that row in the same
+    function. `finding_resolve_batch` resolved both, and `regressionGuardCheck` skips every member of the batch being
+    accepted; the managed regression check had both still open. F-001's guard was never run against F-002's commit.
+  - *Blamed on the wrong repair (round 2).* F-003's repair was test-only and touched none of F-001's files. But
+    `guardTouched` compares the guard's snapshot with HEAD, and b2e3f66 had changed `evaluator.go`, so the guard ran.
+    The recorded test failed on the stale row only. No checklist pin covered the case, and the Story base cannot
+    build the new test, so nothing excused it. `remediation.regressionCheck` resumed the F-003 session twice ("your
+    repair of F-003 broke ..."), and the repairer correctly answered `[intent-conflict]`. Then `finding_resolve` opened
+    F-004 `[regression-of F-001]` with no blamed repair ("a later commit broke ..."), and its repair changed only tests.
+    Run 148 had the same F-001 / F-002 families but no conflicting row in a recorded test, so it had no noise.
+- **Now, D. stale rows a sanctioned repair re-pinned (`core/resolved-finding-guard.ts` `staleCrossPinSources`).** A
+  restored guard that fails, and is not excused by a pin or the Story base, is checked for stale rows. A row is stale
+  when all of these hold:
+  - a failure line of the recorded run (`<file>_test.go:<n>: ...`) quotes a probe-like case literal;
+  - a *sanctioning repair* re-pinned that case. This is the framework-bound repair commit of another verified finding
+    that was resolved (as a fix) BEFORE the repairs being judged now: its commit is an ancestor of every judged repair
+    commit and, in the managed dry run, of the run's launch head. It descends from the guard's snapshot and is on HEAD. It changed a
+    non-test file the guard cites and a guard test file. It removed a line stating the case and added a line stating
+    the case again;
+  - the row is a composite-literal row of a selected test function, and it is not the guarded finding's own: no line
+    its repair commit added is in it, and it does not state the finding's repro.
+
+  The recorded source without those whole rows is re-run on HEAD. Nothing the sanctioning commit wrote is applied, so
+  the rest of the recorded test, including the finding's own rows, must still pass. If it passes, the guard is excused
+  `sanctioned_repair` (event `resolved_finding_guard_checked` with `excused`, `excusedWhy`, `sanctionedBy`,
+  `staleCases`): no repair is blamed, no `[regression-of]` finding opens, and the managed regression check (the same
+  guard, dry run) resumes nobody. Nothing remains for an agent to do: the current test source already carries the
+  sanctioned value, and the excuse is recomputed from git whenever the guard runs (an excused event is reused on the
+  same material, like a pass).
+- **Now, E. the earliest point: batch siblings are guarded at the batch acceptance.** When `finding_resolve` accepts
+  several repairs at once, a member whose repair commit is an ancestor of another member's commit is guarded against
+  the later members (event field `batchSiblings`). A failure blames only those later members that touched its cited
+  files (never the member itself). Without such a member it is not a failure here; the member is judged as before once
+  resolved. A later sibling is itself being judged, so it never sanctions: when the only failing rows are rows a later
+  sibling re-pinned (the D test with the siblings as candidates), the guard is journaled `deferred: batch_sibling_repin`
+  (with `deferredWhy`, `repinnedBy`, `staleCases`; not `excused`, so the event is never reused as a pass). It is not
+  blamed in the batch, which before did not check its members at all, and is judged once resolved, where only the
+  now-resolved sibling can excuse it. Run 149's re-pin is then recorded when F-001 and F-002 are accepted, and round 2
+  excuses it as `sanctioned_repair` (F-002 resolved before F-003) instead of blaming F-003. A later sibling commit that
+  breaks an earlier member's own row is now rejected at the batch, with `[regression-of <member>]` opened. Before,
+  nothing checked it until an unrelated later repair was blamed.
+- **Still a regression (fail closed).** These keep the guard failing as before (`[regression-of A]`, the breaking
+  repair blamed):
+  - a failure on the finding's own rows, or on a row stating its repro, even when a later repair rewrote or deleted it;
+  - any other failing row;
+  - a row the later commit deleted instead of re-pinning;
+  - a test-only flip (no product change);
+  - a duplicate-closure guard;
+  - a failure line that quotes no case.
+- **Security: a repair never sanctions away the guard that judges it.** The repair being judged, any other member of
+  the same batch, a finding resolved as duplicate / accepted risk or not verified, a sanction commit equal to or after a
+  judged commit, and in the dry run HEAD or anything else the judged run committed (not an ancestor of its launch head)
+  are no sanction. So a writer who flips A's row together with a product change in their own repair, and even writes a
+  resolution marker naming that commit, still gets `[regression-of A]` with their repair blamed (smoke S10-S12).
+- **Security: the sanction is git plus finding records only.** `finding_resolve` passes the managed run binding as the
+  sanctioning commit (`storyFindingRepairState`, `sanctionCommitOf`). The managed dry run accepts only the LAST
+  framework-appended marker of a resolution: `[repair commit <sha> of managed finding-repair run <id>]` (batch) or
+  `material commit <sha> of managed finding-repair run <id>` (`frameworkRepairCommitOf`). A commit named anywhere else
+  in owner-authored resolution text, or an `[intent-conflict]` line naming A, sanctions nothing. A forged marker in a
+  single-form resolution can at most spare the advisory dry-run resume; `finding_resolve` re-decides from the binding.
+  A writer who wants to silence a real regression of A cannot do it this way, because A's own rows and repro are never
+  dropped and only whole rows are removed, never lines added. The accepted trade: a row A's repair did not write, which
+  a later repair of a verified finding re-pinned together with a product change, is that repair's pin and no longer A's
+  evidence. This is run 58's scope principle applied to scope-`functions` guards. Run 68's
+  `repair_expected_value_changed` journal and the review lanes still see such a re-pin.
+- **Replayed on run 149 (from the trajectories; the story repository is not archived).** The F-002 repro literals
+  (`[1, 2, 3][0:null]`) do not match the failing row, so a "same case as B's repro" rule would not have fired. The rule
+  above matches the failure line `"a = [1, 2, 3]; a[0:null] = 9;" did not evaluate to an error`: b2e3f66 removed that
+  error row and added `` `a = [1, 2, 3]; a[0:null] = 9; str(a)` `` with a change to `evaluator.go`. The F-003 output
+  showed this as the only failure. With the fix, round 1's batch journals the re-pin (`deferred`), round 2's dry run and
+  guard excuse it (F-002 was resolved before F-003), and F-004 and the two resumed turns do not happen. This replay is modelled, not re-run.
+
+Tests: `node packages/main/dist/tasks/run149-fixes-smoke.js` has 12 checks on a toy `rng.Set(lo, hi)` Go package with real
+git and `go test`. S1 is the run-149 round-2 shape, S2 the batch sibling journal, S8 the dry run (no resumed turn) and
+S9 the switch. The fail-closed controls are S3 (a later grouped commit breaks and rewrites or deletes the earlier
+member's own row: blamed at the batch), S4 (a genuine regression of A's own case), S5 (another failing row), S6 (a
+deleted row, a test-only flip, a commit cited only in resolution text) and S7 (a row stating A's repro). S10-S12 are
+the self-sanction abuse cases (the judged repair, a same-batch member, HEAD behind a forged marker in the dry run); they
+FAIL on the first fix draft, which let a repair being accepted sanction. On base
+0ec6a0a554, S1, S2, S3, S7, S8 and S9 FAIL: S1 reproduces run 149 (`rejectedRepairs: []`), S8 reproduces the resume, and
+S3 shows that a batch never guarded members against each other. S3 and S4 also failed on the first fix draft, whose
+own-row check compared rows without their trailing comma. Also `npm run test:ab-variant-switches`.
+
 ### Old-PoS run 137: a repair checked against the resolved findings before it seals, shared-helper callers, finding conflicts pinned by the framework, failed grouped repairs split as a framework step (lab `codex/lab-run137`)
 
 Source: `bench-staging/oldpos/run137-analysis.md` (`implementation.grouping=story`, bundle 182433e056, abs-stepped-slices;
@@ -2166,7 +2259,8 @@ switches default on (`remediation.regressionCheck`, `remediation.conflictPin`) a
     the repair's commits (its launch head .. HEAD):
     - the covering tests of every resolved finding of the Story, exactly as `finding_resolve`'s guard would
       (`regressionGuardCheck`, same exclusions), on a throw-away event store. Nothing is journaled as a guard verdict,
-      and `finding_resolve` stays the gate;
+      and `finding_resolve` stays the gate. Since lab stale-cross-pin (old-PoS run 149) the guard's `sanctioned_repair`
+      excuse applies here too, so a recorded row that a resolved finding's repair re-pinned is handed back to nobody;
     - the pinned checklist verifications (`verification.command` + selector) whose command names a path the repair
       changed (`./...` names every package). One that fails now and passed at the launch head is this repair's
       regression; one failing at launch too is not. At most 8 distinct commands.
@@ -2891,7 +2985,7 @@ the watchdog kills the call after the step-stall limit and the Story reaches DON
 
 ### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102), the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), and the lab lean umbrella `pipeline.lean` (EXPERIMENTAL, default off) with `remediation.familyEvidence` (default on), below)
 
-### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102), the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), the lab run110 switches `scope.boundaryExcludes` / `remediation.fileStateSettle` (default on) and `review.driftBaseSymbol` (EXPERIMENTAL, off), the lab plan-deadend switch `plan.docDriftSettle` (default on), the lab run131 switches `remediation.scopeGateSettle` / `remediation.conflictSettle` / `plan.intentConflictGuard` (default on), the lab run132 INIT switch `init.reviewerCarryForward` (default on), and the lab run132 switches `review.stragglerVerdict` / `plan.baseEvidence` / `review.deltaSelectorRepair` / `remediation.duplicateReproAppend` / `plan.repinAllRows` / `remediation.baseClaimEvidence` (default on, runs 133-135), and the lab run137 switches `remediation.regressionCheck` / `remediation.conflictPin` (default on) and `review.classEnumeration` (EXPERIMENTAL, off), below)
+### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102), the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), the lab run110 switches `scope.boundaryExcludes` / `remediation.fileStateSettle` (default on) and `review.driftBaseSymbol` (EXPERIMENTAL, off), the lab plan-deadend switch `plan.docDriftSettle` (default on), the lab run131 switches `remediation.scopeGateSettle` / `remediation.conflictSettle` / `plan.intentConflictGuard` (default on), the lab run132 INIT switch `init.reviewerCarryForward` (default on), and the lab run132 switches `review.stragglerVerdict` / `plan.baseEvidence` / `review.deltaSelectorRepair` / `remediation.duplicateReproAppend` / `plan.repinAllRows` / `remediation.baseClaimEvidence` (default on, runs 133-135), and the lab run137 switches `remediation.regressionCheck` / `remediation.conflictPin` (default on) and `review.classEnumeration` (EXPERIMENTAL, off), and the lab stale-cross-pin switch `remediation.staleCrossPin` (default on), below)
 
 Nine project-config switches were added to measure, in a detection A/B, whether a
 structural review/dispatch change loses findings (bench-staging run-17 cost
@@ -3115,9 +3209,13 @@ Integrity fixes (no switch; core/resolved-finding-guard.ts unless named):
   transition per finding, so a reopen is a new open finding). Each run is a process event
   `resolved_finding_guard_checked` (a pass is reused on the same material). A finding a batch member
   declares it re-found, one a resolved regression finding superseded, and one whose conflict the owner
-  pinned are not guarded. Non-Go repairs with no recorded test are covered by the duplicate checks and
-  the lane re-probe only. **Old-PoS run 58** narrowed what the guard judges and when it blames (scope
-  `repro`, Story-base / current-pin check, checklist epoch): see "Run-58 guard, pin and conflict fixes".
+  pinned are not guarded. The members of the batch being accepted are not guarded either, except
+  (lab stale-cross-pin, `remediation.staleCrossPin`, default on) a member whose repair commit precedes
+  another member's: it is guarded against the later members, and only they can be blamed. Non-Go repairs
+  with no recorded test are covered by the duplicate checks and the lane re-probe only. **Old-PoS run 58**
+  narrowed what the guard judges and when it blames (scope `repro`, Story-base / current-pin check,
+  checklist epoch): see "Run-58 guard, pin and conflict fixes". **Old-PoS run 149** excuses a guard whose
+  only failing rows a later sanctioned repair re-pinned (`excused: sanctioned_repair`): see "Old-PoS run 149".
 - **Repair prompt.** Lists the resolved findings on the same cited files with their repro ("do not
   reverse what they fixed ... declare `[intent-conflict]` instead of editing it back"; +263 B header,
   about 200 B per finding, at most 6), an earlier repair of this finding that a guard rejected, the
@@ -3181,8 +3279,11 @@ B2, C2; harness NRG).
   such row, the recorded test runs on a detached worktree of the Story base: failing there with the
   same failure lines as on the current code (the code keeps the base's behaviour of the case) excuses
   it (`excused: story_base`); a test the base cannot build (new behaviour, run 46's shape) is never
-  excused. An excused guard rejects no repair and opens no finding; the event keeps `passed: false`,
-  `excused`, `excusedWhy`, and is reused on the same material.
+  excused by the base. Since lab stale-cross-pin (old-PoS run 149) a third excuse follows: the only failing rows
+  are ones a later framework-bound repair re-pinned with a product change, and they are not the finding's own
+  (`excused: sanctioned_repair`, see "Old-PoS run 149"). An excused guard rejects no repair and opens no finding;
+  the event keeps `passed: false`, `excused`, `excusedWhy` (and for `sanctioned_repair` also `sanctionedBy`,
+  `staleCases`), and is reused on the same material.
 - **C. Checklist epoch.** A scope-`repro` guard whose case rows changed after the finding's resolution
   (checklist.json as committed before `resolvedAt` vs now) to a value its recorded rows do not state is
   retired (process event `resolved_finding_guard_retired`, `reason: checklist_epoch`); a scope-`functions`
@@ -3501,6 +3602,20 @@ Bench arms (adapter `AB_FLAGS` + `test_run137_switches_reach_the_pos_config`):
 
 Tests: `run137-fixes-smoke`, harness NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-X / NCP-N / NCP-P / NGX / NCL / NCL-OFF, and `npm run
 test:ab-variant-switches`.
+
+#### Lab stale-cross-pin switch `remediation.staleCrossPin` (`on` default | `off`)
+
+See "Old-PoS run 149" D and E. `off` is the recorded rollback: no `sanctioned_repair` excuse (a recorded row a later
+repair re-pinned blames the next repair that runs the guard, or opens a `[regression-of]` finding blaming nobody,
+as in run 149), and batch members are not guarded against each other (`staleCrossPinOn`; read from the project config
+by `regressionGuardCheck`, so both `finding_resolve` and the managed regression check follow it). A malformed value
+keeps the default (on). E adds detection (a later grouped commit that breaks an earlier member's own row is rejected
+at the batch); D only removes rows that are not the guarded finding's own and that a later repair re-pinned.
+
+Bench arm (adapter `AB_FLAGS` + `test_stale_cross_pin_switch_reaches_the_pos_config`):
+`POS_AB_FLAGS='{"remediation.staleCrossPin":"off"}'`.
+
+Tests: `run149-fixes-smoke` (S1-S9) and `npm run test:ab-variant-switches`.
 
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.
 

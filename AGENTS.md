@@ -833,7 +833,8 @@ finding states `Repro: <command or expression>`.
 Resolved-finding integrity (old-PoS runs 46/47/55, no switch): after a repair,
 every resolved finding whose cited files changed re-runs its covering tests as
 recorded at its resolution; a failure rejects the repairs that touched them and
-opens a `[regression-of <id>]` finding. A duplicate closes only on a live
+opens a `[regression-of <id>]` finding (unless excused: a current pin, the Story
+base, or since old-PoS run 149 a row a later sanctioned repair re-pinned). A duplicate closes only on a live
 canonical fix (repair not rewritten, or its recorded tests still passing) and a
 coverage run that exercises the duplicate's own repro. Lanes re-run resolved
 findings' repros instead of trusting `resolved`. A finding that contradicts a
@@ -1113,6 +1114,17 @@ detection-positive) and `remediation.conflictPin` (N); one EXPERIMENTAL switch d
 - With `review.classEnumeration=on` the concept and quality lanes get the changed shared helpers with every caller.
 
 State the base of every case you call unchanged. See docs/CLI.md "Old-PoS run 137".
+
+Old-PoS run 149 (lab `codex/lab-stale-cross-pin`; switch `remediation.staleCrossPin`, default on, `off` = rollback).
+A resolved finding's recorded covering test may still state a row of another case that a later repair re-pinned. When
+that row is the only failure, the framework excuses the guard (`excused: sanctioned_repair`): no `[regression-of]`
+finding, no blamed repair, no resumed repair turn. The re-pin counts only when a framework-bound repair commit of a
+verified finding resolved BEFORE the repair being judged removed and re-added the case's line and changed the product
+file; your own repair, a batch sibling, or anything your run committed never counts. Rows the finding's own repair wrote,
+or rows stating its repro, are never excused. A finding-repair run that is told a resolved finding's test broke may
+therefore trust that the report is about the current code, not a stale pin. A grouped repair's members are checked
+against their later siblings when they are accepted together (a sibling's re-pin is journaled `deferred`, not excused). Never write an `[intent-conflict]` to silence a guard:
+text sanctions nothing. See docs/CLI.md "Old-PoS run 149".
 
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
