@@ -638,7 +638,9 @@ function appendFrameworkFindingFor(ctx: HandlerContext, storyId: string, input: 
  * whose cited files changed since its resolution, after `repairs`
  * (core/resolved-finding-guard.ts regressionGuardCheck). A failing one opens a
  * `[regression-of <id>]` finding (unless an open one already names it) and
- * blames the repairs that touched its files.
+ * blames the repairs that touched its files (lab group-conflict-blame: of a
+ * grouped batch with separable commits only the members after the newest
+ * member commit where the recorded test still passes).
  */
 function runRegressionGuardsFor(ctx: HandlerContext, storyId: string, repairs: ReadonlyArray<{ findingId: string; commit: string }>): { failures: GuardFailure[]; opened: Map<string, string> } {
   const { store } = ctx;

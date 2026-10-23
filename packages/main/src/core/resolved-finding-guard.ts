@@ -26,7 +26,9 @@
  *     and falls back to the current test source.
  *   - regressionGuardCheck: after a repair, every resolved finding whose cited
  *     files changed since its resolution is re-verified; a failure blames the
- *     repairs that touched those files (they are not accepted) and the caller
+ *     repairs that touched those files (lab group-conflict-blame: of several
+ *     with separable commits, only those after the newest member commit where
+ *     the recorded test passes; they are not accepted) and the caller
  *     opens a regression finding (the finding ledger keeps exactly one terminal
  *     transition per finding, so a reopen is a new open finding
  *     `[regression-of <id>]` carrying the resolved finding's case).

@@ -832,7 +832,9 @@ finding states `Repro: <command or expression>`.
 
 Resolved-finding integrity (old-PoS runs 46/47/55, no switch): after a repair,
 every resolved finding whose cited files changed re-runs its covering tests as
-recorded at its resolution; a failure rejects the repairs that touched them and
+recorded at its resolution; a failure rejects the repairs that touched them (since
+old-PoS run 150, of several repairs with separable commits only those after the
+newest member commit where the recorded test still passes) and
 opens a `[regression-of <id>]` finding (unless excused: a current pin, the Story
 base, or since old-PoS run 149 a row a later sanctioned repair re-pinned). A duplicate closes only on a live
 canonical fix (repair not rewritten, or its recorded tests still passing) and a
@@ -1125,6 +1127,18 @@ or rows stating its repro, are never excused. A finding-repair run that is told 
 therefore trust that the report is about the current code, not a stale pin. A grouped repair's members are checked
 against their later siblings when they are accepted together (a sibling's re-pin is journaled `deferred`, not excused). Never write an `[intent-conflict]` to silence a guard:
 text sanctions nothing. See docs/CLI.md "Old-PoS run 149".
+
+Old-PoS run 150 (lab `codex/lab-group-conflict-blame`; switch `remediation.groupConflictBlame`, default on, `off` =
+rollback). A resolved finding's guard used to blame every repair in the batch whose commit touched a file it cites, so
+one member's genuine conflict rejected every member of a grouped repair. Each member then went to
+`finding_conflict_pin` and got a re-repair. Now, when the members' commits are separable (distinct, on one chain), the
+framework re-runs the guard's recorded test at the member commits. Members at or before the newest commit where it
+passes are cleared and resolved normally, and only the later members are rejected and go to the conflict path. One
+shared commit, or no member commit that passes, keeps every member blamed. The newest member is never cleared, so the
+regression always stays open. The regression check's resumed turn names the member whose commits broke the test. As a
+grouped repairer: commit each finding separately, with its id in the message (one commit per member), and keep a
+genuine conflict to the member that causes it. Bundling a regression with innocent members, or putting it under
+another member's id, only moves the blame and never removes it. See docs/CLI.md "Old-PoS run 150".
 
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache

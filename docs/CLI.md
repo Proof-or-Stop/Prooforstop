@@ -2144,6 +2144,76 @@ NPDE-D NPDE-S` (RED on the base in 10 s: the drift was a blocker, `plan_review_b
 CHK-002 / CHK-001 get covering rows, the rerun verdict re-raising only the drift reaches `enter_dev`, and the dispute step
 carries the new gap's row after a framework story_review rerun).
 
+### Old-PoS run 150: one member's conflict no longer rejects every member of a grouped repair (lab `codex/lab-group-conflict-blame`)
+
+Old-PoS run 150 (Story B-9985) spent about 33 min and 5 sessions re-repairing two findings that had nothing to do with
+a conflict, which pushed the run past its 180-min timeout. Cross-task mechanism only; switch
+`remediation.groupConflictBlame` (default on, `off` = rollback, malformed = on).
+
+- **Before (root cause).** Round 1's F-001 repair made an explicit null end mean an omitted end, stepped ranges too, and
+  its covering test pinned that. Round 3 raised F-007 (an out-of-bounds slice aliases spare capacity), F-008 (a huge step
+  overflows the direction) and F-009 (a stepped null end must error, as the request says: it genuinely contradicts
+  F-001's covering test). One grouped repair (07:50-08:09) committed fe24f7e (F-007), ae048e0 (F-008), 133f9f8 and
+  c7c1951 (F-009). The managed regression check resumed it twice on F-001-F-004's shared covering command. Its prompt
+  said only "your repair of F-007, F-008, F-009 broke ...", because the dry run gave every member the run's HEAD
+  (`core/repair-regression-check.ts`). At the batch acceptance, `regressionGuardCheck` blamed every repair whose commit
+  touched a file the guard cites (`core/resolved-finding-guard.ts` `blamed`). All three commits changed `evaluator.go`, so
+  `rejectedRepairs` listed all three. Then the chain ran for each member:
+  - `finding_resolve_batch` left each one open (`rejectedRepairReason`);
+  - `managedFindingRepairState` counted each rejected commit as no repair;
+  - `findingConflictOf` returned `rejected` for each;
+  - `finding_conflict_pin` listed three conflicts: a PLAN trip, a scope-plan rerun, two implementer reruns, then
+    re-repairs of all three. F-007's re-repair found its fix already present and only added tests.
+- **Now, G. per-member blame (`groupBlameAttribution`).** This applies when a failed guard (not excused, not deferred,
+  not a current-tests guard) blames two or more repairs whose commits meet all three conditions: they are distinct,
+  they lie on one ancestry chain, and each comes after the guard's snapshot. The framework then re-runs the guard's
+  recorded test at the member commits, in a temporary checkout of each commit but the newest, newest first. The test is
+  the snapshot's test source with its repro filter applied, never the judged commits' tests. At the newest commit where
+  it passes (`greenAt`):
+  - every blamed member whose commit is that commit or one of its ancestors is cleared, and `finding_resolve` resolves
+    it normally;
+  - only the later members stay blamed (`rejectedRepairs`), so only they reach `findingConflictOf`,
+    `finding_conflict_pin` / `finding_conflict_settled` and a re-repair;
+  - the event records `blameAttribution {implicated, cleared, greenAt, checked}`, and the `[regression-of]` finding
+    names only the implicated members.
+- **Ambiguous cases keep the old behaviour: every member stays blamed.** These are one shared commit, no member commit
+  where the guard passes (the culprit is first), a non-linear set of commits, or a checkout that does not build. The
+  newest member is never cleared. Whatever came after its commit counts as its share, so a blame is never emptied and
+  the regression always stays open.
+- **Dry run.** For a grouped run, each member's commit is the run's newest commit whose message names it, which is the
+  grouped-run binding rule; otherwise HEAD. The resumed turn adds: "framework per-commit check: it still passes after the
+  commits of F-007, F-008 and fails after those of F-009: only F-009 broke it (keep the other repairs as they are)".
+- **Security.** Only git commits and executed tests decide. No report text, resolution text or `[intent-conflict]` line
+  is read. `finding_resolve` uses the managed-run binding commits. A writer cannot dodge a genuine regression by
+  bundling it with innocent members. A member is cleared only if the recorded test passes on a commit that contains all
+  of that member's work, and some member is always blamed for the first failing commit. Commit labels can move blame
+  between members, never drop it:
+  - a breaking change committed under an innocent member's id blames that commit's member;
+  - a breaking commit after every member commit stays on the newest member.
+
+  The resolved test cannot be rewritten to pass either: the snapshot's source is restored at every commit, and
+  selectors require `--- PASS: <name>`.
+- **Replayed on run 150 (from the events; the story repository is not archived).** The per-commit test run is modelled,
+  not re-run. The guard command was `go test -v ./evaluator -run ^(TestTwoPartRangeNullEndPreservation|...)$`, and F-001's
+  failing rows were the stepped `[1:null:2]` / `[3:null:-1]` rows of `TestSteppedRangeNullEndPreservation`. In the
+  worker's own output those rows first fail right after F-009's edit at 07:58, after ae048e0 (F-007 + F-008, 07:57). If
+  F-001's recorded test passes at ae048e0, which the archive cannot confirm, the expected result is:
+  - F-007 and F-008 resolve in the 08:08 batch;
+  - only F-009 is rejected, and it goes alone to the conflict pin or settle;
+  - the F-007 / F-008 re-repairs (448 s + 386 s) and the CHK-002 implementer rerun do not happen.
+
+Tests: `node packages/main/dist/tasks/run150-fixes-smoke.js` has 8 checks on a toy `rng.Sel(lo, hi, step)` Go package
+with real git and `go test`:
+- B1 is the run-150 shape: only F-009 is blamed or rejected; `rejectedRepairCommits` and `findingConflictOf` name only
+  F-009; the regression finding blames F-009.
+- B2 has the culprit in the middle: F-007 is cleared, F-009 and the later F-008 stay blamed.
+- B3 / B4 are the ambiguous controls (culprit first; one shared commit).
+- B5 / B6 are the abuse cases (a breaking change under an innocent label; a breaking unnamed commit after the members).
+- B7 is the dry-run prompt and B8 the switch.
+
+On base 23a956fa6b, B1, B2, B5, B7 and B8 FAIL, and B1 reproduces run 150 with all three members in `rejectedRepairs`.
+Also `npm run test:ab-variant-switches`.
+
 ### Old-PoS run 149: a stale cross-finding pin in a resolved finding's recorded test is framework-owned (lab `codex/lab-stale-cross-pin`)
 
 Old-PoS run 149 (Story B-55bd) paid one framework-owned noise finding: an extra finding-repair session (F-004) and two
@@ -2985,7 +3055,7 @@ the watchdog kills the call after the step-stall limit and the Story reaches DON
 
 ### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102), the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), and the lab lean umbrella `pipeline.lean` (EXPERIMENTAL, default off) with `remediation.familyEvidence` (default on), below)
 
-### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102), the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), the lab run110 switches `scope.boundaryExcludes` / `remediation.fileStateSettle` (default on) and `review.driftBaseSymbol` (EXPERIMENTAL, off), the lab plan-deadend switch `plan.docDriftSettle` (default on), the lab run131 switches `remediation.scopeGateSettle` / `remediation.conflictSettle` / `plan.intentConflictGuard` (default on), the lab run132 INIT switch `init.reviewerCarryForward` (default on), and the lab run132 switches `review.stragglerVerdict` / `plan.baseEvidence` / `review.deltaSelectorRepair` / `remediation.duplicateReproAppend` / `plan.repinAllRows` / `remediation.baseClaimEvidence` (default on, runs 133-135), and the lab run137 switches `remediation.regressionCheck` / `remediation.conflictPin` (default on) and `review.classEnumeration` (EXPERIMENTAL, off), and the lab stale-cross-pin switch `remediation.staleCrossPin` (default on), below)
+### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the lab sibling-gate PLAN switch `plan.counterpartCoverage` (default on since lab run102), the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), the lab run110 switches `scope.boundaryExcludes` / `remediation.fileStateSettle` (default on) and `review.driftBaseSymbol` (EXPERIMENTAL, off), the lab plan-deadend switch `plan.docDriftSettle` (default on), the lab run131 switches `remediation.scopeGateSettle` / `remediation.conflictSettle` / `plan.intentConflictGuard` (default on), the lab run132 INIT switch `init.reviewerCarryForward` (default on), and the lab run132 switches `review.stragglerVerdict` / `plan.baseEvidence` / `review.deltaSelectorRepair` / `remediation.duplicateReproAppend` / `plan.repinAllRows` / `remediation.baseClaimEvidence` (default on, runs 133-135), and the lab run137 switches `remediation.regressionCheck` / `remediation.conflictPin` (default on) and `review.classEnumeration` (EXPERIMENTAL, off), and the lab stale-cross-pin switch `remediation.staleCrossPin` (default on), and the lab group-conflict-blame switch `remediation.groupConflictBlame` (default on), below)
 
 Nine project-config switches were added to measure, in a detection A/B, whether a
 structural review/dispatch change loses findings (bench-staging run-17 cost
@@ -3201,7 +3271,9 @@ Integrity fixes (no switch; core/resolved-finding-guard.ts unless named):
   temporary detached worktree of HEAD with the recorded test files restored, removed afterwards), so a
   repair that rewrote the test with the code cannot hide a reversal. A restored source that no longer
   builds, or a missing tool, is inconclusive (falls back to the current tests; never fails the guard).
-  A failure blames each repair whose commit touched those files: it is not accepted (the batch exits 0
+  A failure blames each repair whose commit touched those files (since lab group-conflict-blame,
+  `remediation.groupConflictBlame`, default on: of several repairs with separable commits only those after the
+  newest member commit where the recorded test still passes; see "Old-PoS run 150"): it is not accepted (the batch exits 0
   with "No finding resolved" when that is the only reason; the single form refuses
   `[repair_breaks_resolved_finding]`), its commit counts like a run without a repair commit
   (relaunched once, then the Story replans), and a `[regression-of <id>]` finding opens with the
@@ -3615,7 +3687,20 @@ at the batch); D only removes rows that are not the guarded finding's own and th
 Bench arm (adapter `AB_FLAGS` + `test_stale_cross_pin_switch_reaches_the_pos_config`):
 `POS_AB_FLAGS='{"remediation.staleCrossPin":"off"}'`.
 
-Tests: `run149-fixes-smoke` (S1-S9) and `npm run test:ab-variant-switches`.
+Tests: `run149-fixes-smoke` (S1-S12) and `npm run test:ab-variant-switches`.
+
+#### Lab group-conflict-blame switch `remediation.groupConflictBlame` (`on` default | `off`)
+
+See "Old-PoS run 150" G. `off` is the recorded rollback. A failed guard then blames every repair whose commit touched
+a file it cites, so every member of a grouped repair is rejected and goes to the conflict path, as in run 150. The
+switch is read by `groupConflictBlameOn`, from the project config, in `regressionGuardCheck`, so both `finding_resolve`
+and the managed regression check follow it. A malformed value keeps the default (on). The switch is detection-neutral:
+it only clears members whose own commits pass the recorded test, and at least one member always stays blamed.
+
+Bench arm: `POS_AB_FLAGS='{"remediation.groupConflictBlame":"off"}'` once the adapter's `AB_FLAGS` lists the switch.
+The bench-staging adapter is outside this repo and is not updated by this lab.
+
+Tests: `run150-fixes-smoke` (B1-B8) and `npm run test:ab-variant-switches`.
 
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.
 
