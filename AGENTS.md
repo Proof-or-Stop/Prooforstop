@@ -1099,8 +1099,9 @@ Old-PoS runs 133-135 (lab `codex/lab-run132`, continued). There are six rollback
 
 Run the ready command. Probe the base before claiming a case is unchanged. See docs/CLI.md "Old-PoS runs 133-135".
 
-Old-PoS run 137 (lab `codex/lab-run137`). Two rollback switches default on, `remediation.regressionCheck` (M,
-detection-positive) and `remediation.conflictPin` (N); one EXPERIMENTAL switch defaults off, `review.classEnumeration` (P).
+Old-PoS run 137 (lab `codex/lab-run137`). Two switches, `remediation.regressionCheck` (M,
+detection-positive) and `remediation.conflictPin` (N), default OFF since old-PoS runs 149-151 (`on` = the lab arm;
+see docs/CLI.md "Old-PoS runs 149-151"); one EXPERIMENTAL switch defaults off, `review.classEnumeration` (P).
 
 - Before a finding-repair run seals, the framework re-runs the covering tests of the Story's resolved findings and the
   pinned checklist checks of the paths the repair changed. A failure comes back to the same session with its output:

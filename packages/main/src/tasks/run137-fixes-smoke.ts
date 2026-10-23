@@ -4,12 +4,12 @@
  * direction): unit level, made-up `clip` helpers only (no benchmark-task material). The lifecycle shapes are harness
  * NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-X / NCP-N / NCP-P / NGX / NCL / NCL-OFF in tasks/e2e-review-to-done-smoke.ts.
  *
- *   M. Repair regression check (switch remediation.regressionCheck, default on): before a finding-repair run seals, the
+ *   M. Repair regression check (switch remediation.regressionCheck, default off since old-PoS runs 149-151; on = the lab arm): before a finding-repair run seals, the
  *      covering tests of the Story's resolved findings and the pinned checklist verifications of the changed packages
  *      are re-run (a dry guard run: nothing is journaled as a guard verdict); a failure goes back to the same session
  *      with the failing output. A repair that changed a shared helper (a function with several call sites in the Story
  *      diff) owes one `[caller-check]` line per caller (base vs HEAD), asked for in the same session.
- *   N. Conflict pin without a PLAN trip (switch remediation.conflictPin, default on): a finding conflict no row pins is
+ *   N. Conflict pin without a PLAN trip (switch remediation.conflictPin, default off since old-PoS runs 149-151; on = the lab arm): a finding conflict no row pins is
  *      decided by the framework only when the request quotes the case's value verbatim (never the finding text, never a
  *      base test line, never an executed finding expression: N3 / N5 / N6); else the PLAN trip writes the pin first.
  *   O. A failed grouped repair (no commit naming a member) is split: the per-finding relaunch is a framework step; the
@@ -193,12 +193,13 @@ await check('M6 the regression follow-up names each failing check, command and o
   assert.match(text, /do not (?:edit|change|weaken)/i);
 });
 
-await check('M7 remediation.regressionCheck: default on, `off` recorded as the rollback arm, malformed = on where consumed', async () => {
+await check('M7 remediation.regressionCheck: default off since old-PoS runs 149-151 (nothing recorded), `on` recorded as the lab arm, malformed = off where consumed', async () => {
   const { resolveAbVariants, abVariantEvidence, AB_VARIANT_FLAGS } = await import('../core/ab-variants.js') as unknown as Record<string, Fn> & { AB_VARIANT_FLAGS: Record<string, readonly string[]> };
-  assert.deepEqual(AB_VARIANT_FLAGS['remediation.regressionCheck'], ['on', 'off']);
-  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { regressionCheck: 'off' } })).flags, { 'remediation.regressionCheck': 'off' });
+  assert.deepEqual(AB_VARIANT_FLAGS['remediation.regressionCheck'], ['off', 'on']);
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { regressionCheck: 'on' } })).flags, { 'remediation.regressionCheck': 'on' });
+  assert.equal(abVariantEvidence(resolveAbVariants({})), undefined);
   const on = await load('../core/ab-variants.js', 'regressionCheckOn');
-  assert.equal(on({}), true); assert.equal(on({ remediation: { regressionCheck: 'loud' } }), true); assert.equal(on({ remediation: { regressionCheck: 'off' } }), false);
+  assert.equal(on({}), false); assert.equal(on({ remediation: { regressionCheck: 'loud' } }), false); assert.equal(on({ remediation: { regressionCheck: 'on' } }), true);
 });
 
 // ---------------------------------------------------------------------------
@@ -281,12 +282,12 @@ await check('N6 security: a crafted case expression is never executed (no probe 
   assert.equal(confirmed({ side: 'finding', source: 'request', cases, reason: 'x', confirmation: { kind: 'request', cases } }), true);
 });
 
-await check('N4 remediation.conflictPin: default on, `off` recorded as the rollback arm', async () => {
+await check('N4 remediation.conflictPin: default off since old-PoS runs 149-151 (nothing recorded), `on` recorded as the lab arm', async () => {
   const { resolveAbVariants, abVariantEvidence, AB_VARIANT_FLAGS } = await import('../core/ab-variants.js') as unknown as Record<string, Fn> & { AB_VARIANT_FLAGS: Record<string, readonly string[]> };
-  assert.deepEqual(AB_VARIANT_FLAGS['remediation.conflictPin'], ['on', 'off']);
-  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { conflictPin: 'off' } })).flags, { 'remediation.conflictPin': 'off' });
+  assert.deepEqual(AB_VARIANT_FLAGS['remediation.conflictPin'], ['off', 'on']);
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { conflictPin: 'on' } })).flags, { 'remediation.conflictPin': 'on' });
   const on = await load('../core/ab-variants.js', 'conflictPinOn');
-  assert.equal(on({}), true); assert.equal(on({ remediation: { conflictPin: 'off' } }), false);
+  assert.equal(on({}), false); assert.equal(on({ remediation: { conflictPin: 'maybe' } }), false); assert.equal(on({ remediation: { conflictPin: 'on' } }), true);
 });
 
 // ---------------------------------------------------------------------------

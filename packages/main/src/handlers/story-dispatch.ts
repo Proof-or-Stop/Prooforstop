@@ -1146,7 +1146,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // Lab run137 (fix M, remediation.regressionCheck): run 137's F-004 repair changed a helper three other paths call and
       // was checked against its own finding only (F-006 / F-007 one round later). The helper the finding sits in, when the
       // Story diff calls it from several places, is listed with every call site; the worker checks the run before it seals.
-      if (agentType === 'proof-or-stop-finding-repair' && (() => { try { return regressionCheckOn(loadConfig(root)); } catch { return true; } })()) {
+      if (agentType === 'proof-or-stop-finding-repair' && (() => { try { return regressionCheckOn(loadConfig(root)); } catch { return false; } })()) {
         const helperBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId) ?? null; } catch { return null; } })();
         const helpers = (() => { try { return sharedHelpersAtFinding({ gitCwd: findingGitCwd, baseRef: helperBase, finding }); } catch { return []; } })();
         lines.push(...renderSharedHelperCallers(helpers, 'repair'));

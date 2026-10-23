@@ -77,7 +77,7 @@ function frameworkPinSettlement(loser: Pick<Finding, 'id'>, resolved: Pick<Findi
 export function evaluateFrameworkConflictPin(args: { store: StoryStore; root: string; storyId: string; finding: Finding; findings?: readonly Finding[];
   gitCwd?: string; events?: ReadonlyArray<Record<string, unknown>> }): { pin: FrameworkConflictPin; resolved: Finding } | null {
   const { store, root, storyId, finding } = args;
-  try { if (!conflictPinOn(loadConfig(root))) return null; } catch { /* unreadable config: the production default (on) */ }
+  try { if (!conflictPinOn(loadConfig(root))) return null; } catch { return null; /* unreadable config: the production default (off since old-PoS runs 149-151) */ }
   try {
     const findings = args.findings ?? store.readFindings(storyId).findings ?? [];
     let events = args.events;

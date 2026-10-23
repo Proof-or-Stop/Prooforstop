@@ -22,7 +22,7 @@
  * the PLAN pin stays (finding_conflict_pin), and that PLAN trip writes the pin before any scope-plan rerun
  * (handlers/next-driver.ts planConflictPinStep). The pin carries the request's own values as its confirmation record
  * (frameworkPinConfirmed re-checks it). Pure: recomputed from the request on every call (no runtime file is read back);
- * the settle step journals it as evidence only. Switch remediation.conflictPin (default on; off = rollback).
+ * the settle step journals it as evidence only. Switch remediation.conflictPin (default OFF since old-PoS runs 149-151; on = the lab arm).
  */
 import { normalizeProbe } from './probe-text.js';
 

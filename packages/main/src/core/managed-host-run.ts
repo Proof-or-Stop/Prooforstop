@@ -3503,7 +3503,7 @@ export async function submitManagedHostRun(
   const repairBaseClaims = args.agentType === 'proof-or-stop-finding-repair' && Boolean(args.storyId)
     && (() => { try { return baseClaimEvidenceOn(loadConfig(args.root)); } catch { return true; } })();
   const repairRegressionCheck = args.agentType === 'proof-or-stop-finding-repair' && Boolean(args.storyId)
-    && (() => { try { return regressionCheckOn(loadConfig(args.root)); } catch { return true; } })();
+    && (() => { try { return regressionCheckOn(loadConfig(args.root)); } catch { return false; } })();
   const deltaSelectorRepair = args.profile === 'managed_reviewer' && args.reviewBinding?.deltaRound?.role === 'confirmation'
     && (() => { try { return deltaSelectorRepairOn(loadConfig(args.root)); } catch { return true; } })();
   const sharedCallQuota = captureHostRunBudgetEnvironment(process.env, args.environment ?? {});

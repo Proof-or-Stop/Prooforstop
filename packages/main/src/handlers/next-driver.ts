@@ -2998,11 +2998,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
    * Lab run137 (fix N3): an unpinned finding conflict (findingConflictStep: the framework pin could not decide it) as the
    * FIRST PLAN step, before the scope-plan rerun and the PLAN lints: one checklist_update row stating the case's
    * outcome. Once the checklist intent differs from its state when the conflict became known, it counts as pinned and
-   * PLAN goes on. Rollback: remediation.conflictPin=off.
+   * PLAN goes on. Default off since old-PoS runs 149-151; on = the lab arm (remediation.conflictPin).
    */
   function planConflictPinStep(base: { storyId: string; phase: string }): NextStep | null {
     const { storyId } = base;
-    try { if (!conflictPinOn(loadConfig(ctx.root))) return null; } catch { /* unreadable config: the production default (on) */ }
+    try { if (!conflictPinOn(loadConfig(ctx.root))) return null; } catch { return null; /* unreadable config: the production default (off since old-PoS runs 149-151) */ }
     let open: Finding[] = [];
     try { open = openBlockingFindings(storyId).map(row => row.finding); } catch { open = []; }
     if (!open.length) return null;

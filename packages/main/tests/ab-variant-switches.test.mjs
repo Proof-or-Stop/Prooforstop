@@ -77,10 +77,10 @@
  *   plan.repinAllRows                default ON (`off` = rollback): pin_reversal_unstated compares a pin with every earlier
  *                                    pin of its case; framework re-pin remedies re-pin every row (and other items) of the case
  *   Lab run137 (behaviour in tasks/run137-fixes-smoke.ts, end to end in NRR / NRR-OFF / NCK / NCP / NCP-F / NCP-X / NCP-P / NCL / NCL-OFF):
- *   remediation.regressionCheck      default ON (`off` = rollback): before a finding-repair run seals, the resolved findings'
+ *   remediation.regressionCheck      default OFF since old-PoS runs 149-151 (`on` = the lab arm): before a finding-repair run seals, the resolved findings'
  *                                    covering tests and the changed packages' pinned checks are re-run in its session; a
  *                                    changed shared helper owes one [caller-check] line per caller
- *   remediation.conflictPin          default ON (`off` = rollback): a finding conflict no row pins is decided by the framework
+ *   remediation.conflictPin          default OFF since old-PoS runs 149-151 (`on` = the lab arm): a finding conflict no row pins is decided by the framework
  *                                    from the request or the finding-stated Story base value (no PLAN trip)
  *   review.classEnumeration          EXPERIMENTAL, default OFF (`on` = the detection A/B arm): concept and quality lanes get
  *                                    the changed shared helpers with every caller
@@ -172,9 +172,9 @@ await check('config: absent switches resolve to production values; malformed fai
     deltaSelectorRepair: 'on', duplicateReproAppend: 'on',
     // Lab run132 (run 135 item K): every-row re-pin and the all-earlier-pins gate are on (`off` = rollback).
     repinAllRows: 'on',
-    // Lab run137: the repair regression check and the framework conflict pin are on (`off` = rollback); the class
-    // enumeration is EXPERIMENTAL and off.
-    regressionCheck: 'on', conflictPin: 'on', classEnumeration: 'off',
+    // Lab run137: the repair regression check and the framework conflict pin are off since old-PoS runs 149-151 (`on` =
+    // the lab arm); the class enumeration is EXPERIMENTAL and off.
+    regressionCheck: 'off', conflictPin: 'off', classEnumeration: 'off',
     // Lab stale-cross-pin (run 149): the stale cross-finding pin excuse and the batch sibling guard are on (`off` = rollback).
     staleCrossPin: 'on',
     // Lab group-conflict-blame (run 150): the per-member blame split of a grouped repair is on (`off` = rollback).
@@ -249,11 +249,16 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.equal(repinAllRowsOn({ plan: { repinAllRows: 'maybe' } }), true, 'lab run132 (run 135 K): malformed = on where consumed');
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { repinAllRows: 'off' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.repinAllRows': 'off' } }, 'lab run132 (run 135 K): the rollback arm is recorded');
-  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { regressionCheck: 'off', conflictPin: 'off' }, review: { classEnumeration: 'on' } })),
-    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.regressionCheck': 'off', 'remediation.conflictPin': 'off', 'review.classEnumeration': 'on' } }, 'lab run137: the rollback arms and the experimental arm are recorded');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { regressionCheck: 'on', conflictPin: 'on' }, review: { classEnumeration: 'on' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.regressionCheck': 'on', 'remediation.conflictPin': 'on', 'review.classEnumeration': 'on' } }, 'lab run137: the lab arms (default off since runs 149-151) and the experimental arm are recorded');
+  assert.equal(abVariantEvidence(resolveAbVariants({ remediation: { regressionCheck: 'off', conflictPin: 'off' } })), undefined, 'runs 149-151: off is the default, nothing recorded');
   const { regressionCheckOn, conflictPinOn, classEnumerationOn } = await load('core/ab-variants.js');
-  assert.equal(regressionCheckOn({ remediation: { regressionCheck: 'maybe' } }), true, 'lab run137 (M): malformed = on where consumed');
-  assert.equal(conflictPinOn({ remediation: { conflictPin: 'maybe' } }), true, 'lab run137 (N): malformed = on where consumed');
+  assert.equal(regressionCheckOn({}), false, 'runs 149-151 (M): default off');
+  assert.equal(conflictPinOn({}), false, 'runs 149-151 (N): default off');
+  assert.equal(regressionCheckOn({ remediation: { regressionCheck: 'maybe' } }), false, 'lab run137 (M): malformed = off (the default) where consumed');
+  assert.equal(conflictPinOn({ remediation: { conflictPin: 'maybe' } }), false, 'lab run137 (N): malformed = off (the default) where consumed');
+  assert.equal(regressionCheckOn({ remediation: { regressionCheck: 'on' } }), true, 'lab run137 (M): on = the lab arm');
+  assert.equal(conflictPinOn({ remediation: { conflictPin: 'on' } }), true, 'lab run137 (N): on = the lab arm');
   assert.equal(classEnumerationOn({ review: { classEnumeration: 'maybe' } }), false, 'lab run137 (P): malformed = off where consumed');
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { staleCrossPin: 'off' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.staleCrossPin': 'off' } }, 'lab stale-cross-pin: the rollback arm is recorded');

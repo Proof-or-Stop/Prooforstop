@@ -24,7 +24,7 @@
  *     failing at launch too is not its doing (reported nowhere). Bounded: PINNED_MAX distinct commands.
  * repairRegressionFollowUp is the ONE resumed-turn prompt for the failures. Nothing here reads an owner-writable runtime
  * file: the findings, checklist and Story base come from the Story metadata and git, every result from a fresh run.
- * Switch remediation.regressionCheck (default on; off = rollback: no check, no [caller-check] lines).
+ * Switch remediation.regressionCheck (default OFF since old-PoS runs 149-151; on = the lab arm: the check and the [caller-check] lines).
  */
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';

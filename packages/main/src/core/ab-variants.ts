@@ -209,12 +209,12 @@
  *                              coverage call) instead of its own managed repair; a second refusal repairs it as before
  *
  * Lab run137 (bench-staging/oldpos/run137-analysis.md; new-PoS ADR-056 / ADR-070 / ADR-071 direction):
- *   remediation.regressionCheck 'on' (default) | 'off'  before a finding-repair run seals, the worker re-runs the covering
+ *   remediation.regressionCheck 'off' (default since old-PoS runs 149-151) | 'on'  before a finding-repair run seals, the worker re-runs the covering
  *                              tests of the Story's resolved findings and the pinned checklist verifications of the packages
  *                              the repair changed; a failure goes back to the SAME session with its output, and a repair that
  *                              changed a shared helper owes one [caller-check] line per caller (core/repair-regression-check.ts,
  *                              core/shared-helper-callers.ts). finding_resolve's regression guard stays the gate
- *   remediation.conflictPin    'on' (default) | 'off'  a finding conflict no checklist row pins is decided by the framework
+ *   remediation.conflictPin    'off' (default since old-PoS runs 149-151) | 'on'  a finding conflict no checklist row pins is decided by the framework
  *                              when the request or a finding-stated Story base value the base evaluator confirms decides the case (precedence request >
  *                              base > reviewer, journaled finding_conflict_framework_pin), without a PLAN trip; an undecidable
  *                              one keeps finding_conflict_pin, whose PLAN trip writes the pin before any scope-plan rerun
@@ -288,8 +288,8 @@ export const AB_VARIANT_FLAGS = {
   'plan.repinAllRows': ['on', 'off'],
   'remediation.baseClaimEvidence': ['on', 'off'],
   'remediation.duplicateReproAppend': ['on', 'off'],
-  'remediation.regressionCheck': ['on', 'off'],
-  'remediation.conflictPin': ['on', 'off'],
+  'remediation.regressionCheck': ['off', 'on'],
+  'remediation.conflictPin': ['off', 'on'],
   'review.classEnumeration': ['off', 'on'],
   'remediation.staleCrossPin': ['on', 'off'],
   'remediation.groupConflictBlame': ['on', 'off'],
@@ -509,8 +509,8 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.repinAllRows !== 'on') flags['plan.repinAllRows'] = variants.repinAllRows;
   if (variants.baseClaimEvidence !== 'on') flags['remediation.baseClaimEvidence'] = variants.baseClaimEvidence;
   if (variants.duplicateReproAppend !== 'on') flags['remediation.duplicateReproAppend'] = variants.duplicateReproAppend;
-  if (variants.regressionCheck !== 'on') flags['remediation.regressionCheck'] = variants.regressionCheck;
-  if (variants.conflictPin !== 'on') flags['remediation.conflictPin'] = variants.conflictPin;
+  if (variants.regressionCheck !== 'off') flags['remediation.regressionCheck'] = variants.regressionCheck;
+  if (variants.conflictPin !== 'off') flags['remediation.conflictPin'] = variants.conflictPin;
   if (variants.classEnumeration !== 'off') flags['review.classEnumeration'] = variants.classEnumeration;
   if (variants.staleCrossPin !== 'on') flags['remediation.staleCrossPin'] = variants.staleCrossPin;
   if (variants.groupConflictBlame !== 'on') flags['remediation.groupConflictBlame'] = variants.groupConflictBlame;
@@ -597,9 +597,9 @@ export const baseClaimEvidenceOn = (config: unknown): boolean => catchEarlierPic
 
 /** Lab run132 (old-PoS run 135 item I) remediation.duplicateReproAppend (default on; `off` = rollback): one lacks-repro duplicate refusal gets the repro append step (core/duplicate-finding-coverage.ts reproAppendReceipt); malformed = on. */
 export const duplicateReproAppendOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.duplicateReproAppend') === 'on';
-/** Lab run137 remediation.regressionCheck (default on; `off` = rollback): the pre-seal repair regression check and the shared-helper [caller-check] lines (core/repair-regression-check.ts); malformed = on. */
+/** Lab run137 remediation.regressionCheck (default OFF since old-PoS runs 149-151: every bench run with it on cost 3-4 review rounds or timed out; `on` = the lab arm): the pre-seal repair regression check and the shared-helper [caller-check] lines (core/repair-regression-check.ts); malformed = off. */
 export const regressionCheckOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.regressionCheck') === 'on';
-/** Lab run137 remediation.conflictPin (default on; `off` = rollback): a finding conflict no row pins is decided by the framework from the request or a finding-stated base value the base evaluator confirms (core/finding-conflict-pin.ts); malformed = on. */
+/** Lab run137 remediation.conflictPin (default OFF since old-PoS runs 149-151, see remediation.regressionCheck; `on` = the lab arm): a finding conflict no row pins is decided by the framework from the request or a finding-stated base value the base evaluator confirms (core/finding-conflict-pin.ts); malformed = off. */
 export const conflictPinOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.conflictPin') === 'on';
 /** EXPERIMENTAL lab run137 review.classEnumeration=on: concept and quality lanes enumerate every altered behaviour of a changed shared helper per caller (core/shared-helper-callers.ts); malformed = off. */
 export const classEnumerationOn = (config: unknown): boolean => catchEarlierPick(config, 'review.classEnumeration') === 'on';

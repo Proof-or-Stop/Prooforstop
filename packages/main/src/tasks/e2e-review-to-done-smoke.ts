@@ -9782,7 +9782,7 @@ function scenarioNRR(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NRR' | 
   const name = on
     ? 'NRR lab run137 fix M: a repair that breaks a resolved finding\'s covering test is handed back to its own session before it seals (failing output in the resumed prompt); no regression finding'
     : 'NRR-OFF lab run137 fix M control: remediation.regressionCheck=off: the broken repair seals and a later gate refuses it outside its session (the evidence chain\'s pinned check or finding_resolve\'s guard)';
-  const o = new Owner(tag, on ? 'B-137a' : 'B-137c', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true, ...(on ? {} : { config: { remediation: { regressionCheck: 'off' } } }) });
+  const o = new Owner(tag, on ? 'B-137a' : 'B-137c', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true, config: { remediation: { regressionCheck: on ? 'on' : 'off' } } });
   const lines: string[] = [];
   const ask = askNextOf(o, tag, lines);
   try {
@@ -9838,7 +9838,7 @@ function scenarioNRR(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NRR' | 
 function scenarioNCK(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NCK';
   const name = 'NCK lab run137 fix M: a finding in a shared helper gets every caller in its repair prompt, and the repair that changed it is asked in the same session for one [caller-check] line per caller';
-  const o = new Owner(tag, 'B-137b', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true });
+  const o = new Owner(tag, 'B-137b', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true, config: { remediation: { regressionCheck: 'on' } } });
   const lines: string[] = [];
   const ask = askNextOf(o, tag, lines);
   try {
@@ -9916,7 +9916,7 @@ const NCP_REQUEST = 'Add Upper.\n\n- `Reverse("")` returns `` (the empty string 
 function scenarioNCP(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP' | 'NCP-F' | 'NCP-X' | 'NCP-N' = 'NCP'): Outcome {
   if (tag !== 'NCP') return scenarioNCPF(machineEnv, steps, tag);
   const name = 'NCP lab run137 fix N: a finding conflict no row pins, decided by the request quoting the case\'s value (the base value the finding demands): the framework regression finding is settled and the finding is repaired against the framework pin, no PLAN trip';
-  const o = new Owner(tag, 'B-137d', machineEnv, steps, false, { trackedGateFailureCounts: true, request: NCP_REQUEST });
+  const o = new Owner(tag, 'B-137d', machineEnv, steps, false, { trackedGateFailureCounts: true, request: NCP_REQUEST, config: { remediation: { conflictPin: 'on' } } });
   const lines: string[] = [];
   const ask = askNextOf(o, tag, lines);
   const seen: string[] = [];
@@ -9968,7 +9968,8 @@ function scenarioNCPF(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP-F'
       ? 'NCP-X lab run137 fix N security control: a finding-authored case expression that would confirm itself on an eval-style base evaluator (`"" && Reverse("ab")`) is never executed: no framework pin, no settle'
       : 'NCP-N lab run137 fix N security review 4: a test at the Story base commit naming the case and the claimed value in a negated assert (`== "" { t.Fatal }`) is no evidence: no framework pin, no settle, finding_conflict_pin stays';
   const o = new Owner(tag, tag === 'NCP-F' ? 'B-137i' : tag === 'NCP-X' ? 'B-137j' : 'B-137k', machineEnv, steps, false, { trackedGateFailureCounts: true,
-    ...(tag === 'NCP-X' ? { config: { pinOracle: NPO_ORACLE }, baseFiles: { 'tools/strs-eval.js': NCPX_EVAL } } : {}),
+    config: { remediation: { conflictPin: 'on' }, ...(tag === 'NCP-X' ? { pinOracle: NPO_ORACLE } : {}) },
+    ...(tag === 'NCP-X' ? { baseFiles: { 'tools/strs-eval.js': NCPX_EVAL } } : {}),
     ...(tag === 'NCP-N' ? { baseFiles: { 'strs/base_cases_test.go': NCP_NEGATED_TEST } } : {}) });
   const lines: string[] = [];
   const ask = askNextOf(o, tag, lines);
@@ -9999,7 +10000,7 @@ function scenarioNCPF(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NCP-F'
 function scenarioNCPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NCP-P';
   const name = 'NCP-P lab run137 fix N3: a conflict the framework cannot decide keeps finding_conflict_pin, and the PLAN trip\'s FIRST step is the pin (no scope-plan rerun or lint before it); once pinned PLAN goes on';
-  const o = new Owner(tag, 'B-137e', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const o = new Owner(tag, 'B-137e', machineEnv, steps, false, { trackedGateFailureCounts: true, config: { remediation: { conflictPin: 'on' } } });
   const lines: string[] = [];
   const ask = askNextOf(o, tag, lines);
   try {
