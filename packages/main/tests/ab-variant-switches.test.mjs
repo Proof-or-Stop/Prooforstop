@@ -84,6 +84,10 @@
  *                                    from the request or the finding-stated Story base value (no PLAN trip)
  *   review.classEnumeration          EXPERIMENTAL, default OFF (`on` = the detection A/B arm): concept and quality lanes get
  *                                    the changed shared helpers with every caller
+ *   Lab stale-cross-pin (old-PoS run 149; behaviour in tasks/run149-fixes-smoke.ts):
+ *   remediation.staleCrossPin        default ON (`off` = rollback): a resolved finding's recorded test failing only on rows a
+ *                                    later framework-bound repair re-pinned is excused (sanctioned_repair); grouped batch
+ *                                    members are guarded against their later siblings at the batch acceptance
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -166,7 +170,9 @@ await check('config: absent switches resolve to production values; malformed fai
     repinAllRows: 'on',
     // Lab run137: the repair regression check and the framework conflict pin are on (`off` = rollback); the class
     // enumeration is EXPERIMENTAL and off.
-    regressionCheck: 'on', conflictPin: 'on', classEnumeration: 'off' });
+    regressionCheck: 'on', conflictPin: 'on', classEnumeration: 'off',
+    // Lab stale-cross-pin (run 149): the stale cross-finding pin excuse and the batch sibling guard are on (`off` = rollback).
+    staleCrossPin: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -243,6 +249,11 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.equal(regressionCheckOn({ remediation: { regressionCheck: 'maybe' } }), true, 'lab run137 (M): malformed = on where consumed');
   assert.equal(conflictPinOn({ remediation: { conflictPin: 'maybe' } }), true, 'lab run137 (N): malformed = on where consumed');
   assert.equal(classEnumerationOn({ review: { classEnumeration: 'maybe' } }), false, 'lab run137 (P): malformed = off where consumed');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { staleCrossPin: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.staleCrossPin': 'off' } }, 'lab stale-cross-pin: the rollback arm is recorded');
+  const { staleCrossPinOn } = await load('core/ab-variants.js');
+  assert.equal(staleCrossPinOn({}), true, 'lab stale-cross-pin: default on');
+  assert.equal(staleCrossPinOn({ remediation: { staleCrossPin: 'maybe' } }), true, 'lab stale-cross-pin: malformed = on where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

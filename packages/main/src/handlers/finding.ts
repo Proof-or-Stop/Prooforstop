@@ -662,6 +662,8 @@ function runRegressionGuardsFor(ctx: HandlerContext, storyId: string, repairs: R
   };
   const failures = regressionGuardCheck({ store: store as never, projectRoot: ctx.root, gitCwd, storyId, findings, repairs, headHash: currentGitHead(gitCwd) ?? null, materialHash, baseRef, checklist,
     repairCommitOf: finding => { const state = storyFindingRepairState(ctx, storyId, finding); return state.repaired ? state.commit : repairCommitFromResolution(gitCwd, finding); },
+    // Lab stale-cross-pin (remediation.staleCrossPin): only the managed run binding sanctions a re-pin, never a commit the resolution text names.
+    sanctionCommitOf: finding => { const state = storyFindingRepairState(ctx, storyId, finding); return state.repaired ? state.commit : null; },
     coverageOf: finding => receipts.filter(row => row.findingId === finding.id && row.passed).at(-1) ?? null });
   const opened = new Map<string, string>();
   for (const failure of failures) {

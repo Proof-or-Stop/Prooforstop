@@ -31,6 +31,7 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
+import { resetConfigCache } from '../core/config.js';
 import type { Finding } from '../core/types.js';
 
 type Fn = (...args: any[]) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -75,7 +76,7 @@ const ROW_NIL_OMITTED = '{"Set(0, Nil)", Set(0, Nil), "[9 9 9]"}';
 const ROW_CLAMP = '{"Set(1, 4)", Set(1, 4), "[0 9 9]"}';
 const ROW_CLAMP_HIDDEN = '{"Set(1, 4)", Set(1, 4), "[0 9 0]"}';
 const testFile = (rows: string[], extra: string[] = []): string => ['package rng', '', 'import "testing"', '',
-  'func TestSet(t *testing.T) {', '\ttests := []struct {', '\t\tname string', '\t\tgot  string', '\t\twant string', '\t}{',
+  'func TestSet(t *testing.T) {', '\t_ = "^(x)$&$1" // a body with replacement patterns', '\ttests := []struct {', '\t\tname string', '\t\tgot  string', '\t\twant string', '\t}{',
   ...rows.map(row => `\t\t${row},`), '\t}', '\tfor _, tt := range tests {', '\t\tif tt.got != tt.want {', '\t\t\tt.Errorf("%s: got %s, want %s", tt.name, tt.got, tt.want)', '\t\t}', '\t}', '}', '', ...extra].join('\n');
 const OTHER_TEST = ['func TestOther(t *testing.T) {', '\tif Set(2, 3) != "[0 0 9]" {', '\t\tt.Fatal("last")', '\t}', '}', ''];
 
@@ -279,9 +280,10 @@ await check('S9 switch remediation.staleCrossPin: default on, off = rollback (ru
     assert.deepEqual(out.map(row => row.guarded.id), [F(1)], 'off: the stale pin opens [regression-of F-001] as in run 149');
     assert.deepEqual(out[0]!.blamed, [], 'and blames nobody ("a later commit")');
     write(fx.root, 'proof-or-stop.config.json', JSON.stringify({ remediation: { staleCrossPin: 'off' } }));
+    resetConfigCache();
     const fromConfig = guardCheck(fx, findings, [{ findingId: F(3), commit: repair3 }], { frameworkCommits: { [F(1)]: fx.repair1, [F(2)]: fx.repair2 } });
     assert.deepEqual(fromConfig.out.map(row => row.guarded.id), [F(1)], 'the project config switch is read when no explicit value is passed');
-  } finally { cleanup(fx); }
+  } finally { cleanup(fx); resetConfigCache(); }
 });
 
 if (failures.length) {

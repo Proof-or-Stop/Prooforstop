@@ -223,6 +223,14 @@
  *                              shared helpers the Story changed with every caller, to enumerate each altered behaviour per
  *                              caller against the base (core/shared-helper-callers.ts renderSharedHelperCallers 'review')
  *
+ * Lab stale-cross-pin (old-PoS run 149, Story B-55bd F-004):
+ *   remediation.staleCrossPin  'on' (default) | 'off'  a resolved finding's recorded covering test that fails only on rows a
+ *                              later framework-bound repair of a verified finding re-pinned (its commit removed and re-added
+ *                              the case, and changed a product file the guard cites; never the finding's own rows or repro)
+ *                              is excused (`sanctioned_repair`): no blame, no [regression-of] finding, no resumed turn; and a
+ *                              batch member whose repair commit precedes another member's is guarded against the later
+ *                              ones at the batch acceptance (core/resolved-finding-guard.ts staleCrossPinSources)
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -275,6 +283,7 @@ export const AB_VARIANT_FLAGS = {
   'remediation.regressionCheck': ['on', 'off'],
   'remediation.conflictPin': ['on', 'off'],
   'review.classEnumeration': ['off', 'on'],
+  'remediation.staleCrossPin': ['on', 'off'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -282,7 +291,7 @@ export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[
 
 export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string; driftBaseSymbol?: string; stragglerVerdict?: string; deltaSelectorRepair?: string; classEnumeration?: string };
-  remediation?: { grouping?: string; thread?: string; familyEvidence?: string; fileStateSettle?: string; scopeGateSettle?: string; conflictSettle?: string; baseClaimEvidence?: string; duplicateReproAppend?: string; regressionCheck?: string; conflictPin?: string };
+  remediation?: { grouping?: string; thread?: string; familyEvidence?: string; fileStateSettle?: string; scopeGateSettle?: string; conflictSettle?: string; baseClaimEvidence?: string; duplicateReproAppend?: string; regressionCheck?: string; conflictPin?: string; staleCrossPin?: string };
   scope?: { boundaryExcludes?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
   plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string; reviewerPreload?: string; disputeConfirm?: string; docDriftSettle?: string; intentConflictGuard?: string; baseEvidence?: string; repinAllRows?: string };
@@ -337,6 +346,7 @@ export interface AbVariants {
   regressionCheck: AbVariantValue<'remediation.regressionCheck'>;
   conflictPin: AbVariantValue<'remediation.conflictPin'>;
   classEnumeration: AbVariantValue<'review.classEnumeration'>;
+  staleCrossPin: AbVariantValue<'remediation.staleCrossPin'>;
 }
 
 export interface AbVariantEvidence {
@@ -439,6 +449,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     regressionCheck: pick('remediation.regressionCheck', section(config, 'remediation').regressionCheck),
     conflictPin: pick('remediation.conflictPin', section(config, 'remediation').conflictPin),
     classEnumeration: pick('review.classEnumeration', section(config, 'review').classEnumeration),
+    staleCrossPin: pick('remediation.staleCrossPin', section(config, 'remediation').staleCrossPin),
   };
 }
 
@@ -490,6 +501,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.regressionCheck !== 'on') flags['remediation.regressionCheck'] = variants.regressionCheck;
   if (variants.conflictPin !== 'on') flags['remediation.conflictPin'] = variants.conflictPin;
   if (variants.classEnumeration !== 'off') flags['review.classEnumeration'] = variants.classEnumeration;
+  if (variants.staleCrossPin !== 'on') flags['remediation.staleCrossPin'] = variants.staleCrossPin;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -503,7 +515,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle' | 'remediation.scopeGateSettle' | 'remediation.conflictSettle' | 'plan.intentConflictGuard' | 'init.reviewerCarryForward' | 'review.stragglerVerdict' | 'review.deltaSelectorRepair' | 'plan.baseEvidence' | 'remediation.baseClaimEvidence' | 'remediation.duplicateReproAppend' | 'plan.repinAllRows' | 'remediation.regressionCheck' | 'remediation.conflictPin' | 'review.classEnumeration'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage' | 'dev.removedGuardScan' | 'plan.reviewerPreload' | 'plan.disputeConfirm' | 'pipeline.lean' | 'remediation.familyEvidence' | 'scope.boundaryExcludes' | 'remediation.fileStateSettle' | 'review.driftBaseSymbol' | 'plan.docDriftSettle' | 'remediation.scopeGateSettle' | 'remediation.conflictSettle' | 'plan.intentConflictGuard' | 'init.reviewerCarryForward' | 'review.stragglerVerdict' | 'review.deltaSelectorRepair' | 'plan.baseEvidence' | 'remediation.baseClaimEvidence' | 'remediation.duplicateReproAppend' | 'plan.repinAllRows' | 'remediation.regressionCheck' | 'remediation.conflictPin' | 'review.classEnumeration' | 'remediation.staleCrossPin'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -579,6 +591,8 @@ export const regressionCheckOn = (config: unknown): boolean => catchEarlierPick(
 export const conflictPinOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.conflictPin') === 'on';
 /** EXPERIMENTAL lab run137 review.classEnumeration=on: concept and quality lanes enumerate every altered behaviour of a changed shared helper per caller (core/shared-helper-callers.ts); malformed = off. */
 export const classEnumerationOn = (config: unknown): boolean => catchEarlierPick(config, 'review.classEnumeration') === 'on';
+/** Lab stale-cross-pin remediation.staleCrossPin (default on; `off` = rollback): a resolved finding's recorded test failing only on rows a later framework-bound repair re-pinned is excused, and grouped batch members are guarded against their later siblings (core/resolved-finding-guard.ts); malformed = on. */
+export const staleCrossPinOn = (config: unknown): boolean => catchEarlierPick(config, 'remediation.staleCrossPin') === 'on';
 /** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }

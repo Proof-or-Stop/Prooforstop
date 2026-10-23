@@ -12,6 +12,9 @@
  *     (resolved-finding-guard.ts regressionGuardCheck, same exclusions: the conflict partner a repair supersedes, a
  *     regression-superseded guard, a guard whose cited files the repair did not touch), on a throw-away event store:
  *     nothing is journaled as a guard verdict, finding_resolve stays the gate;
+ *     lab stale-cross-pin (run 149): the guard's `sanctioned_repair` excuse applies here too (a row a later resolved
+ *     finding's repair re-pinned is no failure of this repair: no resumed turn); its sanction commit is the
+ *     framework-appended repair-commit marker of the resolution (finding_resolve re-checks it on the managed run binding);
  *   - the pinned checklist verifications (`verification.command` + selector) whose command names a package (path) the
  *     repair changed: one that fails now and passed at the repair's launch head is a regression of this repair; one
  *     failing at launch too is not its doing (reported nowhere). Bounded: PINNED_MAX distinct commands.

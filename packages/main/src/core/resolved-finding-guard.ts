@@ -54,6 +54,21 @@
  *      resolution to a value the snapshot does not state is retired (process
  *      event `resolved_finding_guard_retired`); a whole-function guard runs on
  *      the current test source once any item's intent changed since.
+ *
+ * Lab stale-cross-pin (old-PoS run 149, Story B-55bd; switch remediation.staleCrossPin, default on): a grouped repair
+ * committed F-001 and then F-002, whose fix re-pinned a DEV row of another case inside F-001's touched test function;
+ * both were resolved in one batch, whose members were never guarded against each other, so F-001's scope-`functions`
+ * guard was born stale. A later test-only repair of F-003 was told it broke F-001 (two resumed turns) and finding_resolve
+ * opened F-004 `[regression-of F-001]` ("a later commit"), one more repair session that changed only tests.
+ *   D. a failed guard whose only failing rows a later framework-bound repair of another verified finding re-pinned
+ *      (staleCrossPinSources: its commit removed and re-added a line stating the failure-quoted case and changed a
+ *      product file the guard cites; the row is not the guarded finding's own and does not state its repro) is re-run
+ *      without those rows; passing, it is excused (`excused: sanctioned_repair`, `sanctionedBy`, `staleCases`): no
+ *      blame, no regression finding, no resumed turn. The sanction comes from the managed run binding (finding_resolve)
+ *      or the framework-appended repair-commit marker (dry run), never from free text such as an `[intent-conflict]`.
+ *   E. at a batch acceptance, a member whose repair commit precedes another member's is guarded against the later
+ *      members (event `batchSiblings`); a failure there blames only those later members, so the stale pin (or a real
+ *      sibling regression) is decided where it is created, not blamed on a later repair.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -65,6 +80,7 @@ import { loadConfig } from './config.js';
 import { isTestPath, normalizeProbe } from './probe-text.js';
 import { isFrameworkSettled } from './finding-conflict-settle.js';
 import { commitsDiffText } from './commits-diff-text.js';
+import { staleCrossPinOn } from './ab-variants.js';
 export { isTestPath, normalizeProbe };
 import { parseAllowlistedCommand, resolveEvidenceCommandTimeoutMs, tokenizeCommandString } from './validation-executor.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
@@ -324,6 +340,11 @@ export function filterGoTestRows(body: string, repros: readonly string[]): { bod
   const hitParents = new Set(rows.filter(row => states(body.slice(row.start, row.end + 1))).map(row => row.parent));
   const drop = rows.filter(row => hitParents.has(row.parent) && !states(body.slice(row.start, row.end + 1)));
   if (!drop.length) return { body, matched: true, dropped: 0 };
+  return { body: dropGoRows(body, drop), matched: true, dropped: drop.length };
+}
+
+/** `body` without the given composite-literal rows (each with its trailing comma, and its whole line when it stands alone). */
+function dropGoRows(body: string, drop: ReadonlyArray<{ start: number; end: number }>): string {
   let out = body;
   for (const row of [...drop].sort((a, b) => b.start - a.start)) {
     let start = row.start;
@@ -336,7 +357,7 @@ export function filterGoTestRows(body: string, repros: readonly string[]): { bod
     if ((lineStart === 0 || out[lineStart - 1] === '\n') && out[end] === '\n') { start = lineStart; end++; }
     out = out.slice(0, start) + out.slice(end);
   }
-  return { body: out, matched: true, dropped: drop.length };
+  return out;
 }
 
 /**
@@ -472,14 +493,18 @@ function restoredTestSources(gitCwd: string, guard: FindingGuard): Array<{ file:
   });
 }
 
-/** Run the guard in a temporary detached worktree of `ref` with its recorded test source restored (removed afterwards); null when the checkout fails. */
-function runRestoredAt(args: { projectRoot: string; gitCwd: string; guard: FindingGuard; ref: string }): ReturnType<typeof runAll> | null {
+/**
+ * Run the guard in a temporary detached worktree of `ref` with its recorded test source restored (removed afterwards);
+ * null when the checkout fails. `sources` replaces the recorded source (lab stale-cross-pin: the recorded source without
+ * the stale rows).
+ */
+function runRestoredAt(args: { projectRoot: string; gitCwd: string; guard: FindingGuard; ref: string; sources?: ReadonlyArray<{ file: string; text: string | null }> }): ReturnType<typeof runAll> | null {
   const { gitCwd, guard } = args;
   const dir = mkdtempSync(join(tmpdir(), GUARD_TEMP_PREFIX));
   const checkout = join(dir, 'checkout');
   try {
     git(gitCwd, ['worktree', 'add', '--detach', '--quiet', checkout, args.ref]);
-    for (const { file, text } of restoredTestSources(gitCwd, guard)) {
+    for (const { file, text } of args.sources ?? restoredTestSources(gitCwd, guard)) {
       const target = join(checkout, file);
       if (text === null) { rmSync(target, { force: true }); continue; }
       mkdirSync(dirname(target), { recursive: true });
@@ -499,6 +524,133 @@ function runRestoredAt(args: { projectRoot: string; gitCwd: string; guard: Findi
 export function failureSignature(output: string): string[] {
   return output.split('\n').map(line => line.replace(/\(\d+(?:\.\d+)?s\)/g, '').trim())
     .filter(line => /^--- FAIL:/.test(line) || /^[\w./-]+_test\.go:\d+:/.test(line)).sort();
+}
+
+// ---------------------------------------------------------------------------
+// Lab stale-cross-pin (old-PoS run 149): a recorded row a later sanctioned repair re-pinned
+
+/** Process-event excuse of a guard whose only failing rows a later framework-bound repair re-pinned. */
+export const STALE_CROSS_PIN_EXCUSE = 'sanctioned_repair';
+
+const isAncestor = (gitCwd: string, ancestor: string, descendant: string): boolean => {
+  try { execFileSync('git', ['merge-base', '--is-ancestor', ancestor, descendant], { cwd: gitCwd, stdio: 'ignore' }); return true; } catch { return false; }
+};
+
+/** The `-` / `+` lines a commit's diff gives one file (zero context). */
+function commitDiffLines(gitCwd: string, commit: string, file: string): { removed: string[]; added: string[] } {
+  const removed: string[] = []; const added: string[] = [];
+  for (const line of (tryGit(gitCwd, ['show', '-U0', '--no-renames', '--format=', commit, '--', file]) ?? '').split('\n')) {
+    if (line.startsWith('---') || line.startsWith('+++')) continue;
+    if (line.startsWith('-')) removed.push(line.slice(1)); else if (line.startsWith('+')) added.push(line.slice(1));
+  }
+  return { removed, added };
+}
+
+/** The Go string literals of a line (raw and interpreted, escapes kept as written). */
+function goStringLiterals(line: string): string[] {
+  return [...line.matchAll(/`([^`]*)`|"((?:[^"\\\n]|\\.)*)"/g)].map(match => match[1] ?? match[2] ?? '');
+}
+
+/**
+ * The framework-appended repair commit of a resolution (`[repair commit <sha> of managed finding-repair run <id>]` of a
+ * batch resolve, `material commit <sha> of managed finding-repair run <id>` of a framework-verified one): the LAST such
+ * marker, so a marker quoted in owner-authored text before the framework's own never wins. Any other commit the text
+ * names is no sanction (finding_resolve passes the managed run binding itself, handlers/finding.ts).
+ */
+export function frameworkRepairCommitOf(gitCwd: string, finding: Pick<Finding, 'resolvedReason'>): string | null {
+  const marks = [...String(finding.resolvedReason ?? '').matchAll(/(?:\[repair commit|material commit) ([0-9a-f]{7,40}) of managed finding-repair run [^\s\]]+/g)];
+  const sha = marks.at(-1)?.[1];
+  return sha ? (tryGit(gitCwd, ['rev-parse', '--verify', '--quiet', `${sha}^{commit}`])?.trim() || null) : null;
+}
+
+export interface StaleCrossPinPlan {
+  /** The recorded test source without the stale rows (one entry per guard test file). */
+  sources: Array<{ file: string; text: string | null }>;
+  /** The re-pinned case literals whose recorded rows were dropped. */
+  staleCases: string[];
+  /** The repairs whose commits re-pinned them. */
+  sanctionedBy: Array<{ findingId: string; commit: string }>;
+  droppedRows: number;
+}
+
+/**
+ * Lab stale-cross-pin (old-PoS run 149): the recorded test source of a FAILED repair guard without its stale rows, or
+ * null. A row is stale when ALL of these hold, each from git and the finding records (never from free text):
+ *   - a failure line of the recorded run (`<file>_test.go:<n>: ...`) quotes a probe-like case literal;
+ *   - a sanctioning repair (`sanctioners`: a framework-bound repair commit of another verified finding, resolved or being
+ *     accepted now) whose commit descends from the guard's snapshot and is on HEAD, changed a non-test file the guard
+ *     cites AND a guard test file, removing a line stating that case and adding a line stating it again (a re-pin; a
+ *     deleted row or a test-only flip sanctions nothing);
+ *   - the row is a composite-literal row of a selected test function and is NOT the guarded finding's own: no line its
+ *     own repair commit added is in it, and it does not state the finding's repro.
+ * Only whole stale rows are dropped (nothing the sanctioning commit added is applied), so the rest of the recorded test,
+ * the guarded finding's own rows included, still has to pass. Duplicate-closure guards (no own repair diff) never qualify.
+ */
+export function staleCrossPinSources(args: { gitCwd: string; guard: FindingGuard; guarded: Pick<Finding, 'id' | 'desc'>; output: string;
+  sanctioners: ReadonlyArray<{ findingId: string; commit: string }> }): StaleCrossPinPlan | null {
+  const { gitCwd, guard } = args;
+  if (guard.kind !== 'repair' || !guard.testFiles.length) return null;
+  const failing = failureSignature(args.output).filter(line => /_test\.go:\d+:/.test(line)).map(normalizeProbe);
+  if (!failing.length) return null;
+  const cited = new Set(guard.citedFiles.filter(path => !isTestPath(path)));
+  // Re-pinned cases quoted by a failure line, with the repairs that re-pinned them.
+  const cases = new Map<string, { literal: string; by: Map<string, string> }>();
+  const seen = new Set<string>();
+  for (const row of args.sanctioners) {
+    if (row.findingId === args.guarded.id || seen.has(`${row.findingId}\0${row.commit}`)) continue;
+    seen.add(`${row.findingId}\0${row.commit}`);
+    if (row.commit === guard.snapshotRef || !isAncestor(gitCwd, guard.snapshotRef, row.commit) || !isAncestor(gitCwd, row.commit, 'HEAD')) continue;
+    const files = commitFiles(gitCwd, row.commit).map(file => file.path);
+    if (!files.some(path => cited.has(path)) || !guard.testFiles.some(path => files.includes(path))) continue;
+    const added = guard.testFiles.filter(path => files.includes(path)).map(path => commitDiffLines(gitCwd, row.commit, path));
+    const addedFlat = added.flatMap(diff => diff.added).map(normalizeProbe);
+    for (const literal of added.flatMap(diff => diff.removed).flatMap(goStringLiterals)) {
+      const probe = normalizeProbe(literal);
+      if (probe.length < 6 || !isProbeLike(literal.replace(/\\(["\\])/g, '$1'))) continue;
+      if (!failing.some(line => line.includes(probe)) || !addedFlat.some(line => line.includes(probe))) continue;
+      const entry = cases.get(probe) ?? { literal, by: new Map<string, string>() };
+      entry.by.set(row.findingId, row.commit);
+      cases.set(probe, entry);
+    }
+  }
+  if (!cases.size) return null;
+  // The guarded finding's own evidence: the test lines its repair commit added, and its repro.
+  // Compared line by line (a row's full source lines, trailing punctuation included), so `{"c", F(c), "v"},` added by the
+  // repair protects the row `{"c", F(c), "v"}`; bare brace lines carry no case and protect nothing.
+  const own = new Set(guard.testFiles.flatMap(path => commitDiffLines(gitCwd, guard.snapshotRef, path).added).map(normalizeProbe).filter(line => line.length >= 4));
+  const rowLines = (body: string, row: { start: number; end: number }): string[] => {
+    const from = body.lastIndexOf('\n', row.start) + 1;
+    const to = body.indexOf('\n', row.end);
+    return body.slice(from, to < 0 ? body.length : to).split('\n').map(normalizeProbe);
+  };
+  const repros = findingRepros(args.guarded.desc ?? '').repros.filter(repro => !isReproCommand(repro)).map(normalizeProbe).filter(probe => probe.length >= 4);
+  const names = new Set(guard.runs.flatMap(run => run.selectors.map(selector => selector.replace(/^--- PASS: /, ''))));
+  const used = new Set<string>();
+  let droppedRows = 0;
+  const sources = restoredTestSources(gitCwd, guard).map(({ file, text }) => {
+    if (text === null) return { file, text };
+    let out = text;
+    for (const [name, body] of goTestBodies(text)) {
+      if (!names.has(name)) continue;
+      const stale = goLiteralRows(body).filter(row => {
+        const flat = normalizeProbe(body.slice(row.start, row.end + 1));
+        const hit = [...cases.keys()].filter(probe => flat.includes(probe));
+        if (!hit.length || rowLines(body, row).some(line => own.has(line)) || repros.some(probe => flat.includes(probe))) return false;
+        for (const probe of hit) used.add(probe);
+        return true;
+      });
+      if (!stale.length) continue;
+      droppedRows += stale.length;
+      const kept = dropGoRows(body, stale);
+      out = out.replace(body, () => kept); // a function replacer: a Go body may contain `$&` / `$1`
+    }
+    return { file, text: out };
+  });
+  if (!droppedRows) return null;
+  const sanctionedBy = new Map<string, string>();
+  for (const probe of used) for (const [findingId, commit] of cases.get(probe)!.by) sanctionedBy.set(findingId, commit);
+  return { sources, staleCases: [...used].map(probe => cases.get(probe)!.literal), droppedRows,
+    sanctionedBy: [...sanctionedBy].map(([findingId, commit]) => ({ findingId, commit })) };
 }
 
 // ---------------------------------------------------------------------------
@@ -728,10 +880,27 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
   /** Old-PoS run 58 (B): the Story base the failing case is judged against before blaming. */
   baseRef?: string | null;
   /** Old-PoS run 58 (B, C): the checklist now and as committed before a time (the finding's resolution). */
-  checklist?: { current: ReadonlyArray<Pick<ChecklistItem, 'id' | 'verificationIntent'>>; at: (iso: string) => ReadonlyArray<Pick<ChecklistItem, 'id' | 'verificationIntent'>> | undefined } }): GuardFailure[] {
+  checklist?: { current: ReadonlyArray<Pick<ChecklistItem, 'id' | 'verificationIntent'>>; at: (iso: string) => ReadonlyArray<Pick<ChecklistItem, 'id' | 'verificationIntent'>> | undefined };
+  /** Lab stale-cross-pin: remediation.staleCrossPin (absent = read from the project config; default on). */
+  staleCrossPin?: boolean;
+  /**
+   * Lab stale-cross-pin: the framework-bound repair commit of a resolved finding that may sanction a re-pin (finding_resolve:
+   * the managed run binding; absent = the framework-appended marker of its resolution, frameworkRepairCommitOf).
+   */
+  sanctionCommitOf?: (finding: Finding) => string | null }): GuardFailure[] {
   const { store, storyId, findings, repairs } = args;
   if (!repairs.length) return [];
-  const batch = new Set(repairs.map(row => row.findingId));
+  const staleOn = args.staleCrossPin ?? (() => { try { return staleCrossPinOn(loadConfig(args.projectRoot)); } catch { return true; } })();
+  // Lab stale-cross-pin (run 149): a batch member whose repair commit precedes another member's commit is guarded against
+  // the later ones (a grouped repair resolved in one batch was never checked against itself); the later members are blamed.
+  const sibling = new Map<string, Set<string>>();
+  if (staleOn) {
+    for (const early of repairs) {
+      const later = repairs.filter(row => row.findingId !== early.findingId && row.commit !== early.commit && isAncestor(args.gitCwd, early.commit, row.commit));
+      if (later.length) sibling.set(early.findingId, new Set(later.map(row => row.findingId)));
+    }
+  }
+  const batch = new Set(repairs.map(row => row.findingId).filter(id => !sibling.has(id)));
   const superseded = new Set(repairs.flatMap(row => regressionTargets(findings.find(f => f.id === row.findingId)?.desc ?? '', storyId)));
   const retired = retiredGuards(findings, storyId);
   let events: Array<Record<string, unknown>> = [];
@@ -747,9 +916,11 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
   const repairFiles = new Map(repairs.map(row => [row.findingId, new Set(commitFiles(args.gitCwd, row.commit).map(file => file.path))]));
   const failures: GuardFailure[] = [];
   const pending: Array<{ guarded: Finding; guard: FindingGuard; currentTests: boolean }> = [];
-  for (const guarded of guardableResolved(findings)) {
+  const siblingMembers = findings.filter(row => sibling.has(row.id) && row.status === 'open');
+  for (const guarded of [...guardableResolved(findings), ...siblingMembers]) {
     if (batch.has(guarded.id) || superseded.has(guarded.id) || retired.has(guarded.id)) continue;
-    const guard = findingGuard({ gitCwd: args.gitCwd, finding: guarded, repairCommit: args.repairCommitOf(guarded), coverage: args.coverageOf(guarded) });
+    const ownCommit = sibling.has(guarded.id) ? repairs.find(row => row.findingId === guarded.id)!.commit : null;
+    const guard = findingGuard({ gitCwd: args.gitCwd, finding: guarded, repairCommit: ownCommit ?? args.repairCommitOf(guarded), coverage: ownCommit ? null : args.coverageOf(guarded) });
     if (!guard || !guardTouched(args.gitCwd, guard)) continue;
     const reused = events.some(event => event.type === REGRESSION_GUARD_EVENT && event.findingId === guarded.id && (event.passed === true || typeof event.excused === 'string')
       && ((args.materialHash && event.materialHash === args.materialHash) || (args.headHash && event.headHash === args.headHash)));
@@ -776,13 +947,25 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
     }
     pending.push({ guarded, guard, currentTests });
   }
+  // Lab stale-cross-pin: the repairs that may sanction a re-pin (framework-bound commits only), built once on demand.
+  let sanctioners: Array<{ findingId: string; commit: string }> | null = null;
+  const sanctionersNow = (): Array<{ findingId: string; commit: string }> => {
+    if (sanctioners) return sanctioners;
+    const resolvedRows = guardableResolved(findings).filter(row => row.resolutionType !== 'duplicate' && row.resolutionType !== 'accepted_risk').flatMap(row => {
+      let commit: string | null = null;
+      try { commit = args.sanctionCommitOf ? args.sanctionCommitOf(row) : frameworkRepairCommitOf(args.gitCwd, row); } catch { commit = null; }
+      return commit ? [{ findingId: row.id, commit }] : [];
+    });
+    sanctioners = [...resolvedRows, ...repairs.map(row => ({ findingId: row.findingId, commit: row.commit }))];
+    return sanctioners;
+  };
   // Old-PoS run 73 (E): the guards that pass run in one invocation per package; any other (or failing) guard runs on its own.
   const merged = unionGuardPasses({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, entries: pending });
   for (const { guarded, guard, currentTests } of pending) {
     const unionResult = merged.get(guard.findingId);
     const result: GuardResult & { output?: string } = unionResult ?? runFindingGuard({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard, currentTests });
     // Old-PoS run 58 (B): the current pins of the case, else the Story base, before blaming.
-    let excused: { reason: 'checklist_pin' | 'story_base'; why: string } | null = null;
+    let excused: { reason: 'checklist_pin' | 'story_base' | typeof STALE_CROSS_PIN_EXCUSE; why: string; sanctionedBy?: Array<{ findingId: string; commit: string }>; staleCases?: string[] } | null = null;
     if (!result.passed && !result.inconclusive) {
       const pins = guard.scope === 'repro' && args.checklist ? guardStatesPins(args.gitCwd, guard, args.checklist.current) : null;
       if (pins && pins.pins.length && !pins.agrees) {
@@ -794,15 +977,32 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
           excused = { reason: 'story_base', why: `the recorded test fails on the Story base ${args.baseRef.slice(0, 12)} exactly as on the current code (the code keeps the base behaviour of the case)` };
         }
       }
+      // Lab stale-cross-pin (run 149): the only failing rows are ones a later framework-bound repair re-pinned.
+      if (!excused && staleOn && result.restoredTests && !currentTests) {
+        const plan = staleCrossPinSources({ gitCwd: args.gitCwd, guard, guarded, output: result.output ?? '', sanctioners: sanctionersNow() });
+        const rerun = plan ? runRestoredAt({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard, ref: 'HEAD', sources: plan.sources }) : null;
+        if (plan && rerun?.passed) {
+          const short = (id: string) => id.startsWith(`${storyId}:`) ? id.slice(storyId.length + 1) : id;
+          excused = { reason: STALE_CROSS_PIN_EXCUSE, sanctionedBy: plan.sanctionedBy, staleCases: plan.staleCases,
+            why: `stale cross-finding pin: the recorded rows of ${plan.staleCases.map(text => `\`${text}\``).join(', ')} were re-pinned by the repair of `
+              + `${plan.sanctionedBy.map(row => `${short(row.findingId)} (commit ${row.commit.slice(0, 12)})`).join(', ')}, which also changed the product code; `
+              + `without those ${plan.droppedRows} row(s) the recorded test of ${short(guarded.id)} passes (\`${rerun.command}\`)` };
+        }
+      }
     }
-    const blamed = result.passed || excused ? [] : repairs.filter(row => !guard.citedFiles.length || guard.citedFiles.some(file => repairFiles.get(row.findingId)?.has(file)))
+    const later = sibling.get(guarded.id);
+    const blamed = result.passed || excused ? [] : repairs.filter(row => (!later || later.has(row.findingId)) && (!guard.citedFiles.length || guard.citedFiles.some(file => repairFiles.get(row.findingId)?.has(file))))
       .map(row => ({ findingId: row.findingId, commit: row.commit }));
     try {
       store.appendProcessEvent(storyId, { type: REGRESSION_GUARD_EVENT, findingId: guarded.id, headHash: args.headHash, materialHash: args.materialHash ?? null, passed: result.passed, inconclusive: result.inconclusive,
         command: result.command, restoredTests: result.restoredTests, scope: guard.scope ?? 'functions', ...(currentTests ? { currentTests: true } : {}), ...(unionResult ? { unionRun: true } : {}),
-        ...(result.passed ? {} : excused ? { outputTail: result.outputTail, excused: excused.reason, excusedWhy: excused.why } : { outputTail: result.outputTail, rejectedRepairs: blamed }) });
+        ...(later ? { batchSiblings: [...later] } : {}),
+        ...(result.passed ? {} : excused ? { outputTail: result.outputTail, excused: excused.reason, excusedWhy: excused.why,
+          ...(excused.sanctionedBy ? { sanctionedBy: excused.sanctionedBy, staleCases: excused.staleCases } : {}) } : { outputTail: result.outputTail, rejectedRepairs: blamed }) });
     } catch { /* the refusal still carries the facts */ }
-    if (!result.passed && !excused) failures.push({ guarded, guard, result, blamed });
+    // A batch sibling's failure is a regression only of the later members that touched its files (anything else is judged
+    // once the member is resolved, as before).
+    if (!result.passed && !excused && (!later || blamed.length)) failures.push({ guarded, guard, result, blamed });
   }
   return failures;
 }
