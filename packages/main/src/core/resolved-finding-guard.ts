@@ -71,6 +71,18 @@
  *      members (event `batchSiblings`); a failure there blames only those later members, so a real sibling regression is
  *      decided where it is created. A failure explained only by a later sibling's re-pin is journaled `deferred` (neither
  *      blamed nor excused; a sibling being judged sanctions nothing) and is excused once that sibling is resolved.
+ *
+ * Lab group-conflict-blame (old-PoS run 150, Story B-9985; switch remediation.groupConflictBlame, default on): one grouped
+ * repair committed F-007, F-008 and F-009 (one commit chain); only F-009's fix contradicts resolved F-001's covering test.
+ * The guard blamed every repair whose commit touched F-001's cited file, so all three were rejected and re-repaired
+ * through finding_conflict_pin (~33 min).
+ *   G. a failed guard that blames two or more repairs with separable commits (groupBlameAttribution: distinct commits on
+ *      one ancestry chain, each after the guard's snapshot) is re-run as recorded (the snapshot's test source, never the
+ *      judged commits') at the member commits, newest-but-one first; at the newest commit where it passes, every blamed
+ *      member whose commit is that commit or an ancestor of it is cleared (its work is proven not to break the guard)
+ *      and only the later members stay blamed (event `blameAttribution`). The newest member is never cleared, so a
+ *      blame is never emptied and the regression always stays open; one shared commit, no passing member commit, or a
+ *      non-linear set keep every member blamed. Only git commits and executed tests decide, never report text.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -82,7 +94,7 @@ import { loadConfig } from './config.js';
 import { isTestPath, normalizeProbe } from './probe-text.js';
 import { isFrameworkSettled } from './finding-conflict-settle.js';
 import { commitsDiffText } from './commits-diff-text.js';
-import { staleCrossPinOn } from './ab-variants.js';
+import { groupConflictBlameOn, staleCrossPinOn } from './ab-variants.js';
 export { isTestPath, normalizeProbe };
 import { parseAllowlistedCommand, resolveEvidenceCommandTimeoutMs, tokenizeCommandString } from './validation-executor.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
@@ -656,6 +668,60 @@ export function staleCrossPinSources(args: { gitCwd: string; guard: FindingGuard
 }
 
 // ---------------------------------------------------------------------------
+// Lab group-conflict-blame (old-PoS run 150): which member of a grouped repair broke a guard
+
+/** Event evidence of a narrowed blame: who stays blamed, who is cleared, and the guard runs that decided it. */
+export interface GroupBlameAttribution {
+  implicated: string[];
+  cleared: string[];
+  /** The newest member commit where the guard's recorded test passes. */
+  greenAt: string;
+  checked: Array<{ commit: string; passed: boolean }>;
+}
+
+/**
+ * Lab group-conflict-blame (old-PoS run 150): split a failed guard's blame among `blamed` repairs by executing the guard,
+ * or null (ambiguous: keep blaming every member). Applies only when the members' commits (`commitOf`, default the
+ * repair's own commit) are at least two distinct commits on ONE ancestry chain, each strictly after the guard's
+ * snapshot. The recorded test (restoredTestSources: the snapshot's test files, its repro filter applied) runs in a
+ * temporary checkout of each member commit but the newest, newest first; the first that passes (`greenAt`) clears every
+ * member whose commit is it or an ancestor of it. A build failure, a missing tool or a failing run clears nothing at
+ * that commit. The members after `greenAt` stay blamed, the newest always (whatever came after its commit is its
+ * share), so the result never empties a blame. Commit labels only choose which member a commit belongs to (the
+ * framework's managed-run binding); they can move blame between members, never drop it.
+ */
+export function groupBlameAttribution(args: { projectRoot: string; gitCwd: string; guard: FindingGuard;
+  blamed: ReadonlyArray<{ findingId: string; commit: string }>; commitOf?: (findingId: string) => string | undefined }): GroupBlameAttribution | null {
+  const { gitCwd, guard } = args;
+  const full = (ref: string): string | null => tryGit(gitCwd, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`])?.trim() || null;
+  const members: Array<{ findingId: string; commit: string }> = [];
+  for (const row of args.blamed) {
+    const commit = full(args.commitOf?.(row.findingId) ?? row.commit);
+    if (!commit) return null;
+    members.push({ findingId: row.findingId, commit });
+  }
+  const commits = [...new Set(members.map(row => row.commit))];
+  const snapshot = full(guard.snapshotRef);
+  if (commits.length < 2 || !snapshot || commits.some(commit => commit === snapshot || !isAncestor(gitCwd, snapshot, commit))) return null;
+  // One ancestry chain, oldest first (each commit an ancestor of the next).
+  const chain = [...commits].sort((a, b) => (isAncestor(gitCwd, a, b) ? -1 : 1));
+  for (let i = 0; i + 1 < chain.length; i++) if (!isAncestor(gitCwd, chain[i]!, chain[i + 1]!)) return null;
+  const checked: GroupBlameAttribution['checked'] = [];
+  for (let i = chain.length - 2; i >= 0; i--) {
+    const run = runRestoredAt({ projectRoot: args.projectRoot, gitCwd, guard, ref: chain[i]! });
+    const passed = Boolean(run?.passed && !run.missingTool);
+    checked.push({ commit: chain[i]!, passed });
+    if (!passed) continue;
+    const upTo = new Set(chain.slice(0, i + 1));
+    const cleared = members.filter(row => upTo.has(row.commit)).map(row => row.findingId);
+    const implicated = members.filter(row => !upTo.has(row.commit)).map(row => row.findingId);
+    if (!cleared.length || !implicated.length) return null;
+    return { implicated: [...new Set(implicated)], cleared: [...new Set(cleared)], greenAt: chain[i]!, checked };
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Old-PoS run 58 (B, C): the case's checklist pins
 
 /** The checklist rows (normalized text) citing one of `repros`, per item and lane. */
@@ -859,7 +925,9 @@ export function guardableResolved(findings: readonly Finding[]): Finding[] {
   return findings.filter(row => row.status === 'resolved' && row.resolutionType !== 'preexisting_out_of_scope' && !isFrameworkSettled(row));
 }
 
-export interface GuardFailure { guarded: Finding; guard: FindingGuard; result: GuardResult; blamed: Array<{ findingId: string; commit: string }> }
+export interface GuardFailure { guarded: Finding; guard: FindingGuard; result: GuardResult; blamed: Array<{ findingId: string; commit: string }>;
+  /** Lab group-conflict-blame: the per-member split of a grouped blame (`blamed` then holds only the implicated members). */
+  attribution?: GroupBlameAttribution }
 
 export interface GuardEventStore {
   readProcessEvents(storyId: string): Array<Record<string, unknown>>;
@@ -874,7 +942,9 @@ export interface GuardEventStore {
  * guarded finding's cited files (all repairs when none is cited). Excluded:
  * the findings being resolved, a finding a member of the batch declares it
  * re-found (that member supersedes its guard), and findings a resolved
- * regression finding superseded.
+ * regression finding superseded. Lab group-conflict-blame: a failure blaming
+ * several repairs with separable commits blames only the members after the
+ * newest member commit where the recorded test passes (groupBlameAttribution).
  */
 export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot: string; gitCwd: string; storyId: string; findings: readonly Finding[];
   repairs: ReadonlyArray<{ findingId: string; commit: string }>; repairCommitOf: (finding: Finding) => string | null;
@@ -894,10 +964,18 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
    * Lab stale-cross-pin: the commit the judged work starts from (the managed dry run: the repair's launch head). A sanction
    * commit must be an ancestor of it, so nothing the judged run committed (HEAD included) can sanction.
    */
-  judgedBase?: string | null }): GuardFailure[] {
+  judgedBase?: string | null;
+  /** Lab group-conflict-blame: remediation.groupConflictBlame (absent = read from the project config; default on). */
+  groupConflictBlame?: boolean;
+  /**
+   * Lab group-conflict-blame: each repair's own commit for the blame split when `repairs` carry one shared head (the
+   * managed dry run: the run's newest commit naming the member); absent = the repair's commit.
+   */
+  memberCommits?: ReadonlyMap<string, string> }): GuardFailure[] {
   const { store, storyId, findings, repairs } = args;
   if (!repairs.length) return [];
   const staleOn = args.staleCrossPin ?? (() => { try { return staleCrossPinOn(loadConfig(args.projectRoot)); } catch { return true; } })();
+  const blameOn = args.groupConflictBlame ?? (() => { try { return groupConflictBlameOn(loadConfig(args.projectRoot)); } catch { return true; } })();
   // Lab stale-cross-pin (run 149): a batch member whose repair commit precedes another member's commit is guarded against
   // the later ones (a grouped repair resolved in one batch was never checked against itself); the later members are blamed.
   const sibling = new Map<string, Set<string>>();
@@ -1018,8 +1096,14 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
         }
       }
     }
-    const blamed = result.passed || excused || deferred ? [] : repairs.filter(row => (!later || later.has(row.findingId)) && (!guard.citedFiles.length || guard.citedFiles.some(file => repairFiles.get(row.findingId)?.has(file))))
+    let blamed = result.passed || excused || deferred ? [] : repairs.filter(row => (!later || later.has(row.findingId)) && (!guard.citedFiles.length || guard.citedFiles.some(file => repairFiles.get(row.findingId)?.has(file))))
       .map(row => ({ findingId: row.findingId, commit: row.commit }));
+    // Lab group-conflict-blame (run 150): with separable member commits only the members after the newest passing one stay blamed.
+    let attribution: GroupBlameAttribution | null = null;
+    if (blameOn && blamed.length > 1 && !currentTests) {
+      try { attribution = groupBlameAttribution({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard, blamed, commitOf: id => args.memberCommits?.get(id) }); } catch { attribution = null; }
+      if (attribution) { const keep = new Set(attribution.implicated); blamed = blamed.filter(row => keep.has(row.findingId)); }
+    }
     try {
       store.appendProcessEvent(storyId, { type: REGRESSION_GUARD_EVENT, findingId: guarded.id, headHash: args.headHash, materialHash: args.materialHash ?? null, passed: result.passed, inconclusive: result.inconclusive,
         command: result.command, restoredTests: result.restoredTests, scope: guard.scope ?? 'functions', ...(currentTests ? { currentTests: true } : {}), ...(unionResult ? { unionRun: true } : {}),
@@ -1027,11 +1111,11 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
         ...(result.passed ? {} : excused ? { outputTail: result.outputTail, excused: excused.reason, excusedWhy: excused.why,
           ...(excused.sanctionedBy ? { sanctionedBy: excused.sanctionedBy, staleCases: excused.staleCases } : {}) }
           : deferred ? { outputTail: result.outputTail, deferred: 'batch_sibling_repin', deferredWhy: deferred.why, repinnedBy: deferred.repinnedBy, staleCases: deferred.staleCases }
-          : { outputTail: result.outputTail, rejectedRepairs: blamed }) });
+          : { outputTail: result.outputTail, rejectedRepairs: blamed, ...(attribution ? { blameAttribution: attribution } : {}) }) });
     } catch { /* the refusal still carries the facts */ }
     // A batch sibling's failure is a regression only of the later members that touched its files (anything else is judged
     // once the member is resolved, as before).
-    if (!result.passed && !excused && !deferred && (!later || blamed.length)) failures.push({ guarded, guard, result, blamed });
+    if (!result.passed && !excused && !deferred && (!later || blamed.length)) failures.push({ guarded, guard, result, blamed, ...(attribution ? { attribution } : {}) });
   }
   return failures;
 }

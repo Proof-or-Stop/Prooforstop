@@ -88,6 +88,10 @@
  *   remediation.staleCrossPin        default ON (`off` = rollback): a resolved finding's recorded test failing only on rows a
  *                                    later framework-bound repair, resolved before the judged one, re-pinned is excused (sanctioned_repair); grouped batch
  *                                    members are guarded against their later siblings at the batch acceptance
+ *   Lab group-conflict-blame (old-PoS run 150; behaviour in tasks/run150-fixes-smoke.ts):
+ *   remediation.groupConflictBlame   default ON (`off` = rollback): a failed guard blaming several repairs with separable
+ *                                    commits blames only the members after the newest member commit where its recorded
+ *                                    test passes (the others are resolved normally)
  *   Lab lean (EXPERIMENTAL umbrella, default `off`; behaviour in tasks/lean-pipeline-smoke.ts, end to end in NLN / NLN-OFF / NLN-E / NLN-DF):
  *   pipeline.lean                    on = implementation.grouping=story, review.laneMerge=on, review.deltaRounds=confirm,
  *                                    review.criticOnCleanRound=skip, plan.reviewMerge=on, plan.disputeConfirm=on for absent keys
@@ -172,7 +176,9 @@ await check('config: absent switches resolve to production values; malformed fai
     // enumeration is EXPERIMENTAL and off.
     regressionCheck: 'on', conflictPin: 'on', classEnumeration: 'off',
     // Lab stale-cross-pin (run 149): the stale cross-finding pin excuse and the batch sibling guard are on (`off` = rollback).
-    staleCrossPin: 'on' });
+    staleCrossPin: 'on',
+    // Lab group-conflict-blame (run 150): the per-member blame split of a grouped repair is on (`off` = rollback).
+    groupConflictBlame: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
   // Lab run102: plan.counterpartCoverage defaults on; `off` is the recorded rollback.
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'off' } })),
@@ -254,6 +260,11 @@ await check('config: absent switches resolve to production values; malformed fai
   const { staleCrossPinOn } = await load('core/ab-variants.js');
   assert.equal(staleCrossPinOn({}), true, 'lab stale-cross-pin: default on');
   assert.equal(staleCrossPinOn({ remediation: { staleCrossPin: 'maybe' } }), true, 'lab stale-cross-pin: malformed = on where consumed');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { groupConflictBlame: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.groupConflictBlame': 'off' } }, 'lab group-conflict-blame: the rollback arm is recorded');
+  const { groupConflictBlameOn } = await load('core/ab-variants.js');
+  assert.equal(groupConflictBlameOn({}), true, 'lab group-conflict-blame: default on');
+  assert.equal(groupConflictBlameOn({ remediation: { groupConflictBlame: 'maybe' } }), true, 'lab group-conflict-blame: malformed = on where consumed');
   const { disputeConfirmOn } = await load('core/ab-variants.js');
   assert.equal(typeof disputeConfirmOn, 'function', 'lab run95: disputeConfirmOn is exported');
   assert.equal(disputeConfirmOn({ plan: { disputeConfirm: 'maybe' } }), false, 'malformed = off where it is consumed');

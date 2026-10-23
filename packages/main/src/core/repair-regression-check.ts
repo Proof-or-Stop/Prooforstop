@@ -16,6 +16,9 @@
  *     finding's repair re-pinned is no failure of this repair: no resumed turn); its sanction commit is the
  *     framework-appended repair-commit marker of the resolution and must be an ancestor of the launch head (nothing this
  *     run committed, HEAD included, sanctions; finding_resolve re-checks it on the managed run binding);
+ *     lab group-conflict-blame (run 150): for a grouped run each member's commit is the run's newest commit whose message
+ *     names it (the grouped-run binding rule, ab-dispatch-grouping.ts commitMessageNamesFinding; else HEAD), so the
+ *     guard's blame split (groupBlameAttribution) names the implicated and cleared members in the resumed-turn prompt;
  *   - the pinned checklist verifications (`verification.command` + selector) whose command names a package (path) the
  *     repair changed: one that fails now and passed at the repair's launch head is a regression of this repair; one
  *     failing at launch too is not its doing (reported nowhere). Bounded: PINNED_MAX distinct commands.
@@ -30,6 +33,7 @@ import { join } from 'node:path';
 import type { ChecklistItem, Finding } from './types.js';
 import { collectVerificationIntents } from './verification.js';
 import { regressionGuardCheck, repairCommitFromResolution, runCommand } from './resolved-finding-guard.js';
+import { commitMessageNamesFinding } from './ab-dispatch-grouping.js';
 
 export const MANAGED_REPAIR_REGRESSION_CHECK_MAX_ATTEMPTS = 2;
 const PINNED_MAX = 8;
@@ -41,10 +45,25 @@ export interface RepairRegressionFailure {
   id: string;
   command: string;
   outputTail: string;
+  /** Lab group-conflict-blame: of a grouped run, the members whose commits broke the check and those proven clear. */
+  implicated?: string[];
+  cleared?: string[];
 }
 
 function tryGit(gitCwd: string, args: string[]): string | null {
   try { return execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }).trim(); } catch { return null; }
+}
+
+/** Lab group-conflict-blame: per member, the newest commit in launchHead..head whose message names it (absent: none). */
+function memberCommitsOf(gitCwd: string, storyId: string, findingIds: readonly string[], launchHead: string, head: string): Map<string, string> {
+  const out = new Map<string, string>();
+  if (findingIds.length < 2) return out;
+  const log = tryGit(gitCwd, ['log', '--format=%x00%H%x1f%B', `${launchHead}..${head}`]) ?? '';
+  for (const block of log.split('\0').filter(Boolean)) {
+    const [commit = '', message = ''] = block.split('\x1f');
+    for (const id of findingIds) if (!out.has(id) && commit.trim() && commitMessageNamesFinding(message, storyId, id)) out.set(id, commit.trim());
+  }
+  return out;
 }
 
 const tail = (text: string): string => {
@@ -113,9 +132,11 @@ export function repairRegressionFailures(args: { projectRoot: string; gitCwd: st
       coverageOf: () => null, headHash: null, materialHash: null, baseRef: args.baseRef,
       // Lab stale-cross-pin: nothing this run committed (its launch head .. HEAD) can sanction a re-pin.
       judgedBase: args.launchHead,
+      memberCommits: memberCommitsOf(args.gitCwd, args.storyId, args.findingIds, args.launchHead, head),
       ...(args.checklistAt ? { checklist: { current: args.items, at: args.checklistAt } } : {}) });
     for (const failure of guardFailures) {
-      failures.push({ kind: 'resolved_finding', id: failure.guarded.id, command: failure.result.command, outputTail: tail(failure.result.outputTail) });
+      failures.push({ kind: 'resolved_finding', id: failure.guarded.id, command: failure.result.command, outputTail: tail(failure.result.outputTail),
+        ...(failure.attribution ? { implicated: failure.attribution.implicated, cleared: failure.attribution.cleared } : {}) });
     }
   } catch (error) {
     args.onEvent?.({ type: 'repair_regression_guard_error', error: error instanceof Error ? error.message.slice(0, 400) : String(error) });
@@ -149,6 +170,8 @@ export function repairRegressionFollowUp(failures: readonly RepairRegressionFail
       failure.kind === 'resolved_finding'
         ? `- resolved finding ${short(failure.id)}: its covering test as recorded at its resolution now fails: \`${failure.command}\``
         : `- pinned checklist verification ${failure.id}: \`${failure.command}\` passed at your launch and fails now`,
+      ...(failure.implicated?.length ? [`  framework per-commit check: it still passes after the commits of ${(failure.cleared ?? []).map(short).join(', ')} and fails after those of `
+        + `${failure.implicated.map(short).join(', ')}: only ${failure.implicated.map(short).join(', ')} broke it (keep the other repairs as they are)`] : []),
       `  output: ${failure.outputTail.replace(/\s*\n\s*/g, ' | ').slice(0, 900)}`,
     ]),
     '- Fix the product code so these pass again and keep your own repair (one new commit). Do not edit, skip or weaken the resolved finding\'s test or the pinned check to get green: the framework re-runs them as recorded.',
